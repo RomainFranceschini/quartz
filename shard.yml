@@ -1,0 +1,11 @@
+name: oscillator
+version: 0.1.0
+
+authors:
+  - Romain Franceschini <franceschini.romain@gmail.com>
+
+license: MIT
+
+dependencies:
+  crystalla:
+    github: mverzilli/crystalla
