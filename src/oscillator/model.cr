@@ -1,10 +1,8 @@
 module DEVS
 
-  module ModelType; end
-
   # Base model class
   abstract class Model
-    include ModelType
+  # TODO add a generic to represent DEVS::Type ?
 
     property :name, :processor
 

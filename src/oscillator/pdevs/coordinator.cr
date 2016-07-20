@@ -4,9 +4,6 @@ module DEVS
 
       def initialize(model, namespace, scheduler)
         super(model, namespace, scheduler)
-        # @influencees = Hash(Processor, Hash(Port,Array(Type))).new { |h,k| h[k] = Hash(Port,Array(Type)).new { |h2,k2| h2[k2] = Array(Type).new }}
-        # @synchronize = Set(Processor).new
-        # @parent_bag = Hash(Port,Array(Type)).new { |h,k| h[k] = Array(Type).new }
         @influencees = Hash(Processor, Hash(Port,Array(Any))).new { |h,k| h[k] = Hash(Port,Array(Any)).new { |h2,k2| h2[k2] = Array(Any).new }}
         @synchronize = Set(Processor).new
         @parent_bag = Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }

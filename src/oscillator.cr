@@ -23,7 +23,6 @@ require "./oscillator/schedulers"
 require "./oscillator/simulation"
 #require "./oscillator/builders"
 
-# TODO Validations, Serialization, State?, CDEVS, Extensions, Sim init values, Logging, DEVS::Type solution!!!
 
 module DEVS
   extend self
@@ -52,12 +51,6 @@ module DEVS
   alias SimulationTime = AnyNumber
 
   INFINITY = Float64::INFINITY
-
-  macro print_debug(str)
-    {% if env("DEBUG") %}
-      puts str
-    {% end %}
-  end
 
   # Returns the current version of the gem
   #

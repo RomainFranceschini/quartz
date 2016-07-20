@@ -2,7 +2,7 @@ module DEVS
   # This class represent a simulator associated with an {CoupledModel},
   # responsible to route events to proper children
   abstract class Coordinator < Processor#(CoupledModel)
-    getter :children
+    getter children
 
     @scheduler : EventSetType
 

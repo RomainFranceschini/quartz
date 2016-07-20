@@ -21,7 +21,6 @@ module DEVS
   end
 
   module PortObserver
-    #abstract def update(port : Port, payload : Type);
     abstract def update(port : Port, payload : Any);
   end
 
