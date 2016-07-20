@@ -4,7 +4,7 @@ module DEVS
       class Coordinator < PDEVS::Coordinator
 
         def perform_transitions(time, bag)
-          coupled = @model as CoupledModel
+          coupled = @model as DSDE::CoupledModel
 
           bag.each do |port, sub_bag|
             # check external input couplings to get children who receive sub-bag of y
@@ -15,11 +15,10 @@ module DEVS
             end
           end
 
-          old_children = coupled.children_names
+          old_children = coupled.each_child.to_a
 
           @synchronize.each do |receiver|
-            #next if receiver.model == @model.executive
-
+            next if receiver.model == coupled.executive
             sub_bag = @influencees[receiver]
             if @scheduler.is_a?(RescheduleEventSet)
               receiver.perform_transitions(time, sub_bag)
@@ -36,36 +35,37 @@ module DEVS
             sub_bag.clear
           end
 
-          # receiver = @model.executive.processor as Simulator
-          # if @synchronize.includes?(receiver)
-          #   sub_bag = @influencees[receiver]
-          #   if @scheduler.is_a?(RescheduleEventSet)
-          #     receiver.perform_transitions(time, sub_bag)
-          #   else
-          #     tn = receiver.time_next
-          #     # before trying to cancel a receiver, test if time is not strictly
-          #     # equal to its time_next. If true, it means that its model will
-          #     # receiver either an internal_transition or a confluent transition,
-          #     # and that the receiver is no longer in the scheduler
-          #     @scheduler.delete(receiver) if tn < DEVS::INFINITY && time != tn
-          #     tn = receiver.perform_transitions(time, sub_bag)
-          #     @scheduler.push(receiver) if tn < DEVS::INFINITY
-          #   end
-          #   sub_bag.clear
-          # end
+          receiver = coupled.executive.processor.not_nil!
+          if @synchronize.includes?(receiver)
+            sub_bag = @influencees[receiver]
+            if @scheduler.is_a?(RescheduleEventSet)
+              receiver.perform_transitions(time, sub_bag)
+            else
+              tn = receiver.time_next
+              @scheduler.delete(receiver) if tn < DEVS::INFINITY && time != tn
+              tn = receiver.perform_transitions(time, sub_bag)
+              @scheduler.push(receiver) if tn < DEVS::INFINITY
+            end
+            sub_bag.clear
+          end
 
+          current_children = coupled.each_child.to_a
+
+          # unschedule processors of deleted models
+          to_remove = old_children - current_children
+          to_remove.each do |old_model|
+            old_processor = old_model.processor.not_nil!
+            if @scheduler.is_a?(RescheduleEventSet)
+              @scheduler.delete(old_processor)
+            else
+              @scheduler.delete(old_processor) if old_processor.time_next < DEVS::INFINITY
+            end
+          end
 
           # initialize new models and their processors
-          new_children = coupled.children_names - old_children
-          new_children.each do |name|
-            new_model = coupled[name]
-
-
-            processor = if new_model.is_a?(CoupledModel)
-              (new_model as CoupledModel).class.processor_for(@namespace).new(new_model, @namespace, @scheduler_type)
-            else
-              (new_model as AtomicModel).class.processor_for(@namespace).new(new_model)
-            end
+          new_children = current_children - old_children
+          new_children.each do |new_model|
+            processor = ProcessorFactory.processor_for(new_model, @scheduler_type, @namespace)
             self << processor
 
             tn = processor.initialize_processor(time)
@@ -86,6 +86,18 @@ module DEVS
           @time_next = min_time_next
         end
 
+      end
+
+      class RootCoordinator < Coordinator
+        include Simulable
+
+        def initialize_state(time)
+          initialize_processor(time)
+        end
+
+        def step(time)
+          perform_transitions(time, collect_outputs(time))
+        end
       end
     end
   end
