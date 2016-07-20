@@ -10,18 +10,7 @@ module DEVS
     def initialize(model, @namespace : Symbol, scheduler : Symbol)
       super(model)
       @children = Array(Processor).new
-      @scheduler = case scheduler
-      when :ladder_queue then LadderQueue(Processor).new
-      when :binary_heap then BinaryHeap(Processor).new
-      when :minimal_list then MinimalList(Processor).new
-      when :sorted_list then SortedList(Processor).new
-      when :splay_tree then SplayTree(Processor).new
-      when :calendar_queue then CalendarQueue(Processor).new
-      else
-        #DEVS.logger.warn("scheduler #{@opts[:scheduler]} unknown, defaults to LadderQueue") if DEVS.logger
-        #LadderQueue(Processor)
-        CalendarQueue(Processor).new
-      end
+      @scheduler = EventSetFactory(Processor).new_event_set(scheduler)
       @scheduler_type = scheduler
     end
 
