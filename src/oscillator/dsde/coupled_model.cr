@@ -4,10 +4,6 @@ module DEVS
 
       getter executive
 
-      def self.processor_for(namespace)
-        PDEVS::DSDE::Coordinator
-      end
-
       def initialize(name, @executive : Executive = Executive.new(:executive))
         super(name)
         @executive.network = self

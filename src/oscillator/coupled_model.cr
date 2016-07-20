@@ -4,17 +4,6 @@ module DEVS
     include Container
     include Coupleable
 
-    # TODO fixme when introducing cdevs
-    def self.processor_for(namespace)
-      # case namespace
-      # when PDEVS
-      #   PDEVS::Coordinator
-      # else
-      #   CDEVS::Coordinator
-      # end
-      PDEVS::Coordinator
-    end
-
     # @@preferred_scheduler : Symbol?
     # def self.preferred_scheduler=(scheduler)
     #   @@preferred_scheduler = scheduler

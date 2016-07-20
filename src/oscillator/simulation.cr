@@ -312,25 +312,15 @@ module DEVS
       end if cm == @model
     end
 
-    # TODO fixme when introducing cdevs
     def allocate_processors(coupled = @model)
-      processor = if coupled == @model
-        # case @namespace
-        # when PDEVS
-        #   PDEVS::RootCoordinator.new(coupled, @scheduler)
-        # else
-        #   CDEVS::RootCoordinator.new(coupled, @scheduler)
-        # end
-        PDEVS::RootCoordinator.new(coupled, @namespace, @scheduler)
-      else
-        (coupled as CoupledModel).class.processor_for(@namespace).new(coupled, @namespace, @scheduler)
-      end
+      is_root = coupled == @model
+      processor = ProcessorFactory.processor_for(coupled, @scheduler, @namespace, is_root) as Coordinator
 
       (coupled as CoupledModel).each_child do |model|
         processor << if model.is_a?(CoupledModel)
           allocate_processors(model)
         else
-          (model as AtomicModel).class.processor_for(@namespace).new(model)
+          ProcessorFactory.processor_for(model, @scheduler, @namespace)
         end
       end
 

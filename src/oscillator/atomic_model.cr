@@ -5,17 +5,6 @@ module DEVS
     include Behavior
     include Observable(TransitionObserver)
 
-    # TODO fixme when introducing cdevs
-    def self.processor_for(namespace)
-      # case namespace
-      # when PDEVS
-      #   PDEVS::Simulator
-      # else
-      #   CDEVS::Simulator
-      # end
-      PDEVS::Simulator
-    end
-
     # Returns a new instance of {AtomicModel}
     #
     # @param name [String, Symbol] the name of the model
