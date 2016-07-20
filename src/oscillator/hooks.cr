@@ -32,11 +32,13 @@ module DEVS
       end
 
       def notify(hook : Symbol)
-        @listeners.try &.[hook].each do |n|
-          begin
-            n.is_a?(Notifiable) ? n.notify(hook) : n.call(hook)
-          rescue
-            #unsubscribe(hook, n)
+        @listeners.try do |listeners|
+          listeners[hook].each do |n|
+            begin
+              n.is_a?(Notifiable) ? n.notify(hook) : n.call(hook)
+            rescue
+              #unsubscribe(hook, n)
+            end
           end
         end
       end
