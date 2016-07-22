@@ -2,11 +2,10 @@ module DEVS
   # This class represent the interface to the simulation
   class Simulation
     include Logging
-
     include Enumerable(SimulationTime)
 
     getter processor, model, start_time, final_time, time
-    property duration
+    getter duration
 
     @time : SimulationTime
     @scheduler : Symbol
@@ -16,13 +15,7 @@ module DEVS
     @final_time : Time?
     @transition_stats : Hash(String|Symbol,Hash(Symbol,UInt64))?
 
-    # Returns a new {Simulation} instance.
-    #
-    # @param child [Coordinator] the child coordinator
-    # @param strategy [Module] the strategy responding ro run
-    # @param duration [Numeric] the duration of the simulation
-    # @raise [ArgumentError] if the child is not a coordinator
-    def initialize(model : Model, opts = {} of Symbol => Type)
+    def initialize(model : Model, *, formalism : Symbol = :pdevs, scheduler : Symbol = :calendar_queue, maintain_hierarchy : Bool = true, duration : SimulationTime = DEVS::INFINITY)
       @time = 0
 
       @model = if model.is_a? AtomicModel
@@ -31,16 +24,8 @@ module DEVS
         model
       end
 
-      # TODO use named tuples
-      opts = {
-        :formalism => :pdevs,
-        :scheduler => :ladder_queue,
-        :maintain_hierarchy => false,
-        :duration => DEVS::INFINITY
-      }.merge(opts)
-
-      @duration = opts[:duration] as SimulationTime
-      @scheduler = opts[:scheduler] as Symbol
+      @duration = duration
+      @scheduler = scheduler
 
       # TODO fixme when introducing cdevs
       #@namespace = #case opts[:formalism]
@@ -50,11 +35,11 @@ module DEVS
       #   #DEVS.logger.warn("formalism #{formalism} unknown, defaults to PDEVS") if DEVS.logger
       #   PDEVS
       # end
-      @namespace = opts[:formalism] as Symbol
+      @namespace = formalism
 
       # TODO either forbid this feature with cdevs or add a warning when using cdevs
       # TODO check direct_connect correctness
-      unless (opts[:maintain_hierarchy] as Bool)
+      unless maintain_hierarchy
         time = Time.now
         direct_connect!
         DEVS.logger.info "  * Flattened modeling tree in #{Time.now - time} secs" if DEVS.logger
