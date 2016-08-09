@@ -8,7 +8,7 @@ module DEVS
 
       def initialize(name, @network : CoupledModel? = nil)
         super(name)
-        add_input_port :add_model, :remove_model, :add_coupling, :remove_coupling, :add_input_port, :add_output_port, :remove_input_port, :remove_output_port
+        {:add_model, :remove_model, :add_coupling, :remove_coupling, :add_input_port, :add_output_port, :remove_input_port, :remove_output_port}.each { |ip| add_input_port(ip) }
         add_output_port :result
       end
 
@@ -50,12 +50,10 @@ module DEVS
             end
           end
         end
-        @phase = :busy
         @sigma = 0
       end
 
       def internal_transition
-        @phase = :idle
         @sigma = INFINITY
       end
 
@@ -64,7 +62,7 @@ module DEVS
       end
 
       # TODO ports and couplings checks
-      private def remove_model_from_network(model : Symbol|String)
+      private def remove_model_from_network(model : Name)
         # TODO save transition stats ?
         @network.not_nil!.remove_child(@network.not_nil![model])
       end
@@ -73,27 +71,27 @@ module DEVS
         @network.not_nil! << model
       end
 
-      protected def add_input_port_to_network(model : Symbol|String, port : Symbol|String)
+      protected def add_input_port_to_network(model : Name, port : Name)
         @network.not_nil![model].add_input_port(port)
       end
 
-      protected def add_output_port_to_network(model : Symbol|String, port : Symbol|String)
+      protected def add_output_port_to_network(model : Name, port : Name)
         @network.not_nil![model].add_output_port(port)
       end
 
-      protected def remove_input_port_from_network(model : Symbol|String, port : Symbol|String)
+      protected def remove_input_port_from_network(model : Name, port : Name)
         @network.not_nil![model].remove_input_port(port)
       end
 
-      protected def remove_output_port_from_network(model : Symbol|String, port : Symbol|String)
+      protected def remove_output_port_from_network(model : Name, port : Name)
         @network.not_nil![model].remove_output_port(port)
       end
 
-      protected def add_coupling_to_network(p1 : Symbol|String, *, to p2 : Symbol|String, between sender : Symbol|String, and receiver : Symbol|String)
+      protected def add_coupling_to_network(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name)
         @network.not_nil!.attach(p1, to: p2, between: sender, and: receiver)
       end
 
-      protected def remove_coupling_from_network(p1 : Symbol|String, *, from p2 : Symbol|String, between sender : Symbol|String, and receiver : Symbol|String)
+      protected def remove_coupling_from_network(p1 : Name, *, from p2 : Name, between sender : Name, and receiver : Name)
         @network.not_nil!.detach(p1, from: p2, between: sender, and: receiver)
       end
 
