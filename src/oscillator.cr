@@ -1,4 +1,5 @@
 require "./oscillator/version"
+require "./oscillator/comparison"
 require "./oscillator/any"
 require "./oscillator/list"
 require "./oscillator/logging"
