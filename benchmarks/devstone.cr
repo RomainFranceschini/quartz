@@ -4,8 +4,10 @@ module DEVStone
   class Model < DEVS::AtomicModel
     def initialize(name)
       super(name)
-      add_input_port :in1, :in2
-      add_output_port :out1, :out2
+      add_input_port :in1
+      add_input_port :in2
+      add_output_port :out1
+      add_output_port :out2
     end
 
     def external_transition(messages)
@@ -97,7 +99,6 @@ module DEVStone
       #PortObserver.new(self[:generator].output_port(:out))
       #ModelObserver.new(self[:generator] as DEVS::AtomicModel)
       #ModelObserver.new(self[:collector] as DEVS::AtomicModel)
-
     end
   end
 end
@@ -110,7 +111,7 @@ class PortObserver
   end
 
   def update(port, value)
-    host = port.host as DEVS::AtomicModel
+    host = port.host.as(DEVS::AtomicModel)
     puts "#{host.name}@#{port.name} sent #{value} at #{host.time}"
   end
 end
@@ -127,19 +128,10 @@ class ModelObserver
   end
 end
 
-opts = {
-    :maintain_hierarchy => false,
-    :scheduler => :calendar_queue,
-    :formalism => :pdevs
-}
-
 root = DEVStone::DEVStone.new(2, ARGV[0].to_i, ARGV[1].to_i)
-
-simulation = DEVS::Simulation.new(root, opts)
-
-#simulation.generate_graph
+simulation = DEVS::Simulation.new(root, maintain_hierarchy: false)
 
 simulation.simulate
 
-#puts simulation.transition_stats.not_nil![:TOTAL]
+puts simulation.transition_stats.not_nil![:TOTAL]
 puts simulation.elapsed_secs
