@@ -8,7 +8,7 @@ module DEVS
     end
 
     def delete_observer(observer : T) : Bool
-      @observers.try(&.delete(observer))
+      @observers.try(&.delete(observer)) || false
     end
 
     def count_observers
@@ -16,7 +16,15 @@ module DEVS
     end
 
     def notify_observers(*args)
-      @observers.try(&.each(&.update(*args)))
+      @observers.try do |observers|
+        observers.each do |observer|
+          begin
+            observer.update(*args)
+          rescue
+            #delete_observer(observer)
+          end
+        end
+      end
     end
   end
 
@@ -25,7 +33,6 @@ module DEVS
   end
 
   module TransitionObserver
-    abstract def update(model : Behavior, transition : Symbol);
+    abstract def update(model : Transitions, transition : Symbol);
   end
-
 end
