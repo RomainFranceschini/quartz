@@ -1,10 +1,8 @@
 module DEVS
-  # The `Behavior` mixin provides models with several behavior methods
+  # This mixin provides models with several transition methods
   # in line to the DEVS functions definition (δext, δint, δcon, λ and ta) and
   # the DEVS variables (σ, e, t).
-  # The class must call {#initialize_behavior} during its initialization in
-  # order to allocate instance variables.
-  module Behavior
+  module Transitions
 
     @elapsed  : SimulationTime
     @sigma    : SimulationTime
@@ -16,8 +14,8 @@ module DEVS
 
     # This attribute is updated along with simulation clock and
     # represent the last simulation time at which this model
-    # was activated. Its default assigned value is INFINITY.
-    property time = 0
+    # was activated. Its default assigned value is -INFINITY.
+    property time = -INFINITY
 
     # Sigma (σ) is a convenient variable introduced to simplify modeling phase
     # and represent the next activation time (see `#time_advance`)
@@ -90,7 +88,7 @@ module DEVS
     # Example:
     # ```
     # def output
-    #   post(@some_value, @output_ports[:output])
+    #   post(@some_value, :output)
     # end
     def output; end
   end
