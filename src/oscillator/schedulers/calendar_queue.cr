@@ -2,8 +2,9 @@ module DEVS
 
   # A fast O(1) priority queue implementation
   class CalendarQueue(T) < EventSet(T)
-    #include Logging
-    getter :size
+    include Comparable(CalendarQueue)
+
+    getter size
 
     @buckets : Slice(Array(T))
 
@@ -27,7 +28,7 @@ module DEVS
 
       # setting manually instead of calling #local_init because crystal complains instance var are nilable event so they're not
       @width = bucket_width
-      @buckets = Slice.new(bucket_count) { [] of T }
+      @buckets = Slice.new(bucket_count) { Array(T).new }
       @last_priority = start_priority
       i = start_priority / bucket_width # virtual bucket
       @last_bucket = (i % bucket_count).to_i
@@ -39,8 +40,15 @@ module DEVS
       #local_init(bucket_count, bucket_width, start_priority)
     end
 
-    def inspect
-      "<#{self.class}: size=#{@size}, bucket_width=#{@width}, last_priority=#{@last_priority}, last_bucket=#{@last_bucket}, bucket_top=#{@bucket_top}, shrink_threshold=#{@shrink_threshold}, expand_threshold=#{@expand_threshold}>"
+    def inspect(io)
+      io << "<" << self.class.name << ": size=" << @size.to_s(io)
+      io << ", bucket_width=" << @width.to_s(io)
+      io << ", last_priority=" << @last_priority.to_s(io)
+      io << ", last_bucket=" << @last_bucket.to_s(io)
+      io << ", bucket_top=" << @bucket_top.to_s(io)
+      io << ", shrink_threshold=" << @shrink_threshold.to_s(io)
+      io << ", expand_threshold" << @expand_threshold.to_s(io)
+      io << ">"
     end
 
     def empty?
@@ -59,8 +67,8 @@ module DEVS
     def push(obj)
       tn = obj.time_next
 
-      vbucket = (tn / @width).to_i       # virtual bucket
-      i = vbucket % @buckets.size # actual bucket
+      vbucket = (tn / @width).to_i      # virtual bucket
+      i = vbucket % @buckets.size       # actual bucket
 
       bucket = @buckets[i]
       if bucket.empty? || bucket.last.time_next > tn
@@ -93,11 +101,7 @@ module DEVS
 
       @size += 1
 
-      #info("CQ added #{tn} at bucket #{i.to_i}: #{obj.inspect}(model: #{obj.model.name})") if DEVS.logger && @resize_enabled
-
       # double the calendar size if needed
-      #info("CQ double calendar size. #{@buckets.size} to #{@buckets.size * 2} buckets. threshold=#{@expand_threshold}") if @size > @expand_threshold && DEVS.logger && @resize_enabled
-
       if @size > @expand_threshold
         resize(2 * @buckets.size)
       end
@@ -107,8 +111,8 @@ module DEVS
 
     def delete(obj)
       tn = obj.time_next
-      vbucket = (tn / @width).to_i       # virtual bucket
-      i = vbucket % @buckets.size # actual bucket
+      vbucket = (tn / @width).to_i      # virtual bucket
+      i = vbucket % @buckets.size       # actual bucket
 
       bucket = @buckets[i]
       item = nil
@@ -119,11 +123,9 @@ module DEVS
       end
 
       # halve calendar size if needed
-      #info("CQ halve calendar size. #{@buckets.size} to #{@buckets.size / 2} buckets. threshold=#{@shrink_threshold}") if @size < @shrink_threshold && DEVS.logger
       if @size < @shrink_threshold
         resize(@buckets.size / 2)
       end
-      #info("CQ deleted #{tn} from bucket #{i.to_i}: #{obj.inspect}(model: #{obj.model.name})") if DEVS.logger && item
 
       item
     end
@@ -183,7 +185,6 @@ module DEVS
 
     def pop
       raise Enumerable::EmptyError.new if @size == 0
-      #return nil if @size == 0
 
       i = @last_bucket
       while i < @buckets.size
@@ -196,14 +197,9 @@ module DEVS
           @last_priority = item.time_next
           @size -= 1
 
-          # halve calendar size if needed
-          #info("CQ halve calendar size. #{@buckets.size} to #{@buckets.size / 2} buckets. threshold=#{@shrink_threshold}") if @size < @shrink_threshold && DEVS.logger && @resize_enabled
-
           if @size < @shrink_threshold
             resize(@buckets.size / 2)
           end
-
-          #info("CQ pop #{item.time_next}: #{item.inspect}(model: #{item.model.name})") if DEVS.logger && @resize_enabled
 
           return item
         else
@@ -233,19 +229,6 @@ module DEVS
       pop # resume search at min bucket
     end
 
-    # def pop_simultaneous
-    #   a = [] of T
-    #   if @size > 0
-    #     time = self.peek.time_next
-    #     while @size > 0 && self.peek.time_next == time
-    #       a << self.pop
-    #     end
-    #   end
-    #   a
-    # end
-
-    #private
-    # Initializes a bucket array within
     private def local_init(bucket_count : Int, bucket_width : Priority, start_priority : Priority)
       @width = bucket_width
 
@@ -316,18 +299,6 @@ module DEVS
       @resize_enabled = false
       average = 0.0
       i = 0
-
-      # previous = nil
-      # tmp = StaticArray(T?, 25).new do |i|
-      #   if i < n
-      #     cur = self.pop
-      #     average += cur.time_next - previous.not_nil!.time_next if i > 0
-      #     previous = cur
-      #     cur
-      #   else
-      #     nil
-      #   end
-      # end
 
       tmp = Slice(T).new(n)
       while i < n
