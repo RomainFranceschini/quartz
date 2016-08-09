@@ -1,5 +1,5 @@
 module DEVS
-  # This class represent a simulator associated with an {CoupledModel},
+  # This class represent a simulator associated with an `CoupledModel`,
   # responsible to route events to proper children
   abstract class Coordinator < Processor#(CoupledModel)
     getter children
@@ -14,8 +14,11 @@ module DEVS
       @scheduler_type = scheduler
     end
 
-    def inspect
-      "<#{self.class}: tn=#{@time_next}, tl=#{@time_last}, components=#{@children.size}>"
+    def inspect(io)
+      io << "<" << self.class.name << "tn=" << @time_next.to_s(io)
+      io << ", tl=" << @time_last.to_s(io)
+      io << ", components=" << @children.size.to_s(io)
+      io << ">"
     end
 
     # Append given *child* to `#children` list, ensuring that the child now has
@@ -27,10 +30,7 @@ module DEVS
     end
     def add_child(child); self << child; end
 
-    # Deletes the specified child from {#children} list
-    #
-    # @param child [Processor] the child to remove
-    # @return [Processor] the deleted child
+    # Deletes the specified child from `#children` list
     def remove_child(child)
       @scheduler.delete(child)
       idx = @children.index { |x| child.equal?(x) }
@@ -38,15 +38,11 @@ module DEVS
     end
 
     # Returns the minimum time next in all children
-    #
-    # @return [Numeric] the min time next
     def min_time_next
       @scheduler.next_priority
     end
 
     # Returns the maximum time last in all children
-    #
-    # @return [Numeric] the max time last
     def max_time_last
       max = 0
       i = 0
