@@ -55,10 +55,8 @@ module DEVS
 
   INFINITY = Float64::INFINITY
 
-  # Returns the current version of the gem
-  #
-  # @return [String] the string representation of the version
-  def version
+  # Returns the current version
+  def self.version
     VERSION
   end
 end

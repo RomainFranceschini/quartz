@@ -13,7 +13,7 @@ module DEVS
     @processor : Coordinator
     @start_time : Time?
     @final_time : Time?
-    @transition_stats : Hash(String|Symbol,Hash(Symbol,UInt64))?
+    @transition_stats : Hash(Name,Hash(Symbol,UInt64))?
 
     def initialize(model : Model, *, formalism : Symbol = :pdevs, scheduler : Symbol = :calendar_queue, maintain_hierarchy : Bool = true, duration : SimulationTime = DEVS::INFINITY)
       @time = 0
@@ -50,8 +50,10 @@ module DEVS
       #DEVS.logger.info "  * Allocated processors in #{Time.now - time} secs" if DEVS.logger
     end
 
-    def inspect
-      "<#{self.class}: status=\"#{status}\", time=#{@time}, duration=#{@duration}>"
+    def inspect(io)
+      io << "<" << self.class.name << ": status=" << status.to_s(io)
+      io << ", time=" << @time.to_s(io)
+      io << ", duration=" << @duration.to_s(io)
     end
 
     # Returns *true* if the simulation is done, *false* otherwise.
@@ -111,7 +113,7 @@ module DEVS
     def transition_stats
       if done?
         @transition_stats ||= (
-          stats = {} of Symbol|String => Hash(Symbol, UInt64)
+          stats = {} of Name => Hash(Symbol, UInt64)
           hierarchy = @processor.children.dup
           hierarchy.each do |child|
             if child.is_a?(Coordinator)

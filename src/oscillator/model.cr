@@ -9,14 +9,14 @@ module DEVS
     @processor : ProcessorType?
 
     # Returns a new model.
-    def initialize(@name : String | Symbol); end
+    def initialize(@name : Name); end
 
-    def inspect
-      "<#{self.class}: name=#{@name}>"
+    def inspect(io)
+      io << self.class << "(" << @name << ")"
     end
 
-    def to_s
-      name.to_s
+    def to_s(io)
+      io << @name
     end
   end
 end

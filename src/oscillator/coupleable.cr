@@ -1,11 +1,13 @@
 module DEVS
-  # The {Coupleable} mixin provides models with the ability to be coupled
+  # The `Coupleable` mixin provides models with the ability to be coupled
   # through an input and output interface.
   module Coupleable
-    getter  :input_port_list, :output_port_list, :input_port_names, :output_port_names
+    protected def input_ports : Hash(Name, Port)
+      @input_ports ||= Hash(Name, Port).new
+    end
 
-    def input_ports : Hash(Symbol | String, Port)
-      @input_ports ||= Hash(Symbol | String, Port).new
+    protected def output_ports : Hash(Name, Port)
+      @output_ports ||= Hash(Name, Port).new
     end
 
     def output_ports : Hash(Symbol | String, Port)
@@ -29,11 +31,13 @@ module DEVS
       add_ports(IO::Output, *names)
     end
 
+    # Removes given input port by its *name*.
     def remove_input_port(name)
       @input_port_names = nil; @input_port_list = nil; # cache invalidation
       input_ports.delete(name)
     end
 
+    # Removes given output port by its *name*.
     def remove_output_port(name)
       @output_port_names = nil; @output_port_list = nil; # cache invalidation
       output_ports.delete(name)

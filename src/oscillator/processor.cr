@@ -8,27 +8,11 @@ module DEVS
 
     #include Logging
     #include Comparable(self)
-    getter :model, :time_next, :time_last
-    property :parent
 
-    # @!attribute [rw] parent
-    #   @return [Coordinator] Returns the parent {Coordinator}
-
-    # @!attribute [r] model
-    #   @return [Model] Returns the model associated with <tt>self</tt>
-
-    # @!attribute [r] time_next
-    #   @return [Numeric] Returns the next simulation time at which the
-    #     associated {Model} should be activated
-
-    # @!attribute [r] time_last
-    #   @return [Numeric] Returns the last simulation time at which the
-    #     associated {Model} was activated
-
-    @time_next : SimulationTime
-    @time_last : SimulationTime
-
-    @parent : Coordinator?
+    getter model : Model
+    getter time_next : SimulationTime
+    getter time_last : SimulationTime
+    property parent : Coordinator?
 
     def initialize(@model : Model)
       @time_next = 0
@@ -44,8 +28,9 @@ module DEVS
     #   other.time_next <=> @time_next
     # end
 
-    def inspect
-      "<#{self.class}: tn=#{@time_next}, tl=#{@time_last}>"
+    def inspect(io)
+      io << "<" << self.class.name << ": tn=" << @time_next.to_s(io)
+      io << ", tl=" << @time_last.to_s(io) << ">"
     end
   end
 end
