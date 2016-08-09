@@ -5,6 +5,7 @@
 /.shards/
 *.dot
 *.png
+/tmp/
 
 
 # Libraries don't need dependency lock
