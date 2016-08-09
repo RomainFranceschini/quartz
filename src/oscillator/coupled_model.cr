@@ -1,8 +1,8 @@
 module DEVS
   # This class represent a DEVS coupled model.
   class CoupledModel < Model
-    include Container
     include Coupleable
+    include Coupler
 
     # @@preferred_scheduler : Symbol?
     # def self.preferred_scheduler=(scheduler)
