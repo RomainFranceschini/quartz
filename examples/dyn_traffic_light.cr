@@ -60,7 +60,9 @@ class Policeman < DEVS::AtomicModel
   def initialize(name)
     super(name)
     @phase = :idle1
-    add_output_port :alternate, :add_coupling, :remove_coupling
+    add_output_port :alternate
+    add_output_port :add_coupling
+    add_output_port :remove_coupling
   end
 
   def internal_transition
@@ -142,14 +144,7 @@ model.attach :add_coupling, to: :add_coupling, between: :policeman, and: :execut
 model.attach :remove_coupling, to: :remove_coupling, between: :policeman, and: :executive
 model.attach :alternate, to: :interrupt, between: :policeman, and: :traffic_light1
 
-opts = {
-  :maintain_hierarchy => true,
-  :scheduler => :calendar_queue,
-  :formalism => :pdevs,
-  :duration => 1000
-}
-
-simulation = DEVS::Simulation.new(model, opts)
+simulation = DEVS::Simulation.new(model, duration: 1000)
 simulation.generate_graph("trafficlight_0")
 Grapher.new(model.executive, simulation)
 

@@ -19,7 +19,10 @@ class BirthController < DEVS::DSDE::Executive
     @sigma = 1
     @counter = 0
     @reverse = false
-    add_output_port :birth, :death, :add_coupling, :remove_coupling
+    add_output_port :birth
+    add_output_port :death
+    add_output_port :add_coupling
+    add_output_port :remove_coupling
   end
 
   def internal_transition
@@ -56,14 +59,8 @@ class Grapher
 end
 
 model = DEVS::DSDE::CoupledModel.new(:dsde, BirthController.new(:executive))
-opts = {
-    :maintain_hierarchy => true,
-    :scheduler => :calendar_queue,
-    :formalism => :pdevs,
-    :duration => 35
-}
 
-simulation = DEVS::Simulation.new(model, opts)
+simulation = DEVS::Simulation.new(model, duration: 25)
 simulation.generate_graph("dsde_0")
 Grapher.new(model.executive, simulation)
 simulation.simulate

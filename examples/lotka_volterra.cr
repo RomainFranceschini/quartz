@@ -45,20 +45,14 @@ class Plotter
   end
 
   def update(model, kind)
-    lotka = model as LotkaVolterra
+    lotka = model.as(LotkaVolterra)
     @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", lotka.time, lotka.x, lotka.y)
   end
 end
 
-opts = {
-  :scheduler => :calendar_queue,
-  :formalism => :pdevs,
-  :duration => 20
-}
-
 model = LotkaVolterra.new(:LotkaVolterra)
 Plotter.new(model)
-sim = DEVS::Simulation.new(model, opts)
+sim = DEVS::Simulation.new(model, duration: 20)
 
 sim.simulate
 
