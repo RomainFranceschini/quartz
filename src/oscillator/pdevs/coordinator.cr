@@ -38,23 +38,25 @@ module DEVS
           @scheduler.delete_all(time)
         end
 
-        coupled = @model as CoupledModel
+        coupled = @model.as(CoupledModel)
         @parent_bag.clear unless @parent_bag.empty?
 
         imm.each do |child|
-          @synchronize << child
+          @synchronize << child.as(Processor)
           output = child.collect_outputs(time)
 
           output.each do |port, payload|
-            port.notify_observers(port, payload)
+            if child.is_a?(Simulator)
+              port.notify_observers(port, payload.as(Any))
+            end
 
             # check internal coupling to get children who receive sub-bag of y
             coupled.each_internal_coupling(port) do |src, dst|
               receiver = dst.host.processor.not_nil!
               if child.is_a?(Coordinator)
-                @influencees[receiver][dst].concat(payload as Array(Any))
+                @influencees[receiver][dst].concat(payload.as(Array(Any)))
               else
-                @influencees[receiver][dst] << payload as Any
+                @influencees[receiver][dst] << payload.as(Any)
               end
               @synchronize << receiver
             end
@@ -62,9 +64,9 @@ module DEVS
             # check external coupling to form sub-bag of parent output
             coupled.each_output_coupling(port) do |src, dst|
               if child.is_a?(Coordinator)
-                @parent_bag[dst].concat(payload as Array(Any))
+                @parent_bag[dst].concat(payload.as(Array(Any)))
               else
-                @parent_bag[dst] << (payload as Any)
+                @parent_bag[dst] << (payload.as(Any))
               end
             end
           end
@@ -76,7 +78,7 @@ module DEVS
       def perform_transitions(time, bag)
         bag.each do |port, sub_bag|
           # check external input couplings to get children who receive sub-bag of y
-          (@model as CoupledModel).each_input_coupling(port) do |src, dst|
+          @model.as(CoupledModel).each_input_coupling(port) do |src, dst|
             receiver = dst.host.processor.not_nil!
             @influencees[receiver][dst].concat(sub_bag)
             @synchronize << receiver

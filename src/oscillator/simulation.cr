@@ -117,10 +117,10 @@ module DEVS
           hierarchy = @processor.children.dup
           hierarchy.each do |child|
             if child.is_a?(Coordinator)
-              coordinator = child as Coordinator
+              coordinator = child.as(Coordinator)
               hierarchy.concat(coordinator.children)
             else
-              simulator = child as Simulator
+              simulator = child.as(Simulator)
               stats[child.model.name] = simulator.transition_stats
             end
           end
@@ -174,12 +174,12 @@ module DEVS
 
     private def initialize_simulation
       Hooks.notifier.notify(:before_simulation_initialization_hook)
-      @time = (@processor as Simulable).initialize_state(@time)
+      @time = (@processor.as(Simulable)).initialize_state(@time)
       Hooks.notifier.notify(:after_simulation_initialization_hook)
     end
 
     def step : SimulationTime?
-      simulable = @processor as Simulable
+      simulable = @processor.as(Simulable)
       if waiting?
         initialize_simulation
         begin_simulation
@@ -196,7 +196,7 @@ module DEVS
     # TODO error hook
     def simulate
       if waiting?
-        simulable = @processor as Simulable
+        simulable = @processor.as(Simulable)
         initialize_simulation
         begin_simulation
         while @time < @duration
@@ -220,7 +220,7 @@ module DEVS
 
     def each
       if waiting?
-        simulable = @processor as Simulable
+        simulable = @processor.as(Simulable)
         initialize_simulation
         begin_simulation
         while @time < @duration
@@ -269,7 +269,7 @@ module DEVS
       file.puts "rankdir = LR;"
       file.puts "node [shape = box];"
 
-      fill_graph(file, @model as CoupledModel)
+      fill_graph(file, @model.as(CoupledModel))
 
       file.puts '}'
       file.close
@@ -282,7 +282,7 @@ module DEVS
           graph.puts "subgraph \"cluster_#{name}\""
           graph.puts '{'
           graph.puts "label = \"#{name}\";"
-          fill_graph(graph, model as CoupledModel)
+          fill_graph(graph, model.as(CoupledModel))
           model.each_internal_coupling do |src, dst|
             if src.host.is_a?(AtomicModel) && dst.host.is_a?(AtomicModel)
               graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
@@ -301,9 +301,9 @@ module DEVS
 
     def allocate_processors(coupled = @model)
       is_root = coupled == @model
-      processor = ProcessorFactory.processor_for(coupled, @scheduler, @namespace, is_root) as Coordinator
+      processor = ProcessorFactory.processor_for(coupled, @scheduler, @namespace, is_root).as(Coordinator)
 
-      (coupled as CoupledModel).each_child do |model|
+      coupled.as(CoupledModel).each_child do |model|
         processor << if model.is_a?(CoupledModel)
           allocate_processors(model)
         else
@@ -316,7 +316,7 @@ module DEVS
 
     # TODO don't alter original hierarchy
     private def direct_connect!
-      models = (@model as CoupledModel).each_child.to_a
+      models = @model.as(CoupledModel).each_child.to_a
       children_list = [] of Model
       new_internal_couplings = Hash(Port,Array(Port)).new { |h,k| h[k] = [] of Port }
 
@@ -325,7 +325,7 @@ module DEVS
         model = models[i]
         if model.is_a?(CoupledModel)
           # get internal couplings between atomics that we can reuse as-is in the root model
-          coupled = model as CoupledModel
+          coupled = model.as(CoupledModel)
           coupled.each_internal_coupling do |src, dst|
             if src.host.is_a?(AtomicModel) && dst.host.is_a?(AtomicModel)
               new_internal_couplings[src] << dst
@@ -338,7 +338,7 @@ module DEVS
         i+=1
       end
 
-      cm = @model as CoupledModel
+      cm = @model.as(CoupledModel)
       cm.each_child.each { |c| cm.remove_child(c) }
       children_list.each { |c| cm << c  }
 
@@ -364,7 +364,7 @@ module DEVS
           j = 0
           while j < route.size
             rsrc, _ = route[j]
-            (rsrc.host as CoupledModel).each_output_coupling_reverse(rsrc) do |src, dst|
+            rsrc.host.as(CoupledModel).each_output_coupling_reverse(rsrc) do |src, dst|
               if src.host.is_a?(CoupledModel)
                 route.push({src, dst})
               else
@@ -378,7 +378,7 @@ module DEVS
           j = 0
           while j < route.size
             _, rdst = route[j]
-            (rdst.host as CoupledModel).each_input_coupling(rdst) do |src,dst|
+            rdst.host.as(CoupledModel).each_input_coupling(rdst) do |src,dst|
               if dst.host.is_a?(CoupledModel)
                 route.push({src, dst})
               else
