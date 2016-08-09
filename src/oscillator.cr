@@ -7,8 +7,8 @@ require "./oscillator/observer"
 require "./oscillator/hooks"
 require "./oscillator/port"
 require "./oscillator/coupleable"
-require "./oscillator/container"
-require "./oscillator/behavior"
+require "./oscillator/coupler"
+require "./oscillator/transitions"
 require "./oscillator/model"
 require "./oscillator/atomic_model"
 require "./oscillator/coupled_model"
@@ -28,6 +28,7 @@ require "./oscillator/simulation"
 module DEVS
   extend self
 
+  alias Name = String | Symbol
   alias AnyNumber = Int8 |
                     Int16 |
                     Int32 |
