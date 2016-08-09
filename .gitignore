@@ -6,6 +6,7 @@
 *.dot
 *.png
 /tmp/
+/examples/mas/
 
 
 # Libraries don't need dependency lock
