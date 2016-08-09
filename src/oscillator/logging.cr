@@ -13,14 +13,6 @@ module DEVS
     @@logger = logger
   end
 
-  class NullLogger
-    def debug(s); end
-    def info(s); end
-    def warn(s); end
-    def error(s); end
-    def fatal(s); end
-  end
-
   module Logging
     extend self
 
