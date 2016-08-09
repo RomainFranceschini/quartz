@@ -1,38 +1,44 @@
 module DEVS
-  # The `Container` mixin provides coupled models with several components and
+  # This mixin provides coupled models with several components and
   # coupling methods.
-  module Container
-    #include Enumerable(Model)
+  module Coupler
 
-    @children : Hash(Symbol|String,Model)?
+    @children : Hash(Name, Model)?
     @internal_couplings : Hash(Port,Array(Port))?
     @output_couplings : Hash(Port,Array(Port))?
     @input_couplings : Hash(Port,Array(Port))?
 
-    protected def children : Hash(Symbol|String, Model)
-      @children ||= Hash(Symbol|String, Model).new
+    # :nodoc:
+    protected def children : Hash(Name, Model)
+      @children ||= Hash(Name, Model).new
     end
 
+    # :nodoc:
     protected def internal_couplings : Hash(Port,Array(Port))
       @internal_couplings ||= Hash(Port,Array(Port)).new { |h, k| h[k] = Array(Port).new }
     end
 
+    # :nodoc:
     protected def output_couplings : Hash(Port,Array(Port))
       @output_couplings ||= Hash(Port,Array(Port)).new { |h, k| h[k] = Array(Port).new }
     end
 
+    # :nodoc:
     protected def input_couplings : Hash(Port,Array(Port))
       @input_couplings ||= Hash(Port,Array(Port)).new { |h, k| h[k] = Array(Port).new }
     end
 
+    # Returns all internal couplings attached to the given output *port*.
     def internal_couplings(port : Port) : Array(Port)
       internal_couplings[port]
     end
 
+    # Returns all external output couplings attached to the given output *port*.
     def output_couplings(port : Port) : Array(Port)
       output_couplings[port]
     end
 
+    # Returns all external input couplings attached to the given input *port*.
     def input_couplings(port : Port) : Array(Port)
       input_couplings[port]
     end
@@ -42,6 +48,8 @@ module DEVS
       children[model.name] = model
       self
     end
+
+    # Alias for `#<<`.
     def add_child(child); self << child; end
 
     # Deletes the given *model* from childrens
@@ -50,20 +58,20 @@ module DEVS
     end
 
     # Returns the children names
-    def children_names : Array(Symbol | String)
+    def children_names : Array(Name)
       children.keys
     end
 
     # Find the component identified by the given *name*
     #
     # Raise `NoSuchChildError` error if *name* doesn't match any child
-    def [](name : Symbol | String) : Model
-      raise NoSuchChildError.new("#{self.name} has no child named #{name}") unless children.has_key?(name)
+    def [](name : Name) : Model
+      raise NoSuchChildError.new("no child named #{name}") unless children.has_key?(name)
       children[name]
     end
 
     # Find the component identified by the given *name*
-    def []?(name : Symbol | String) : Model?
+    def []?(name : Name) : Model?
       children[name]?
     end
 
@@ -73,7 +81,7 @@ module DEVS
     end
 
     # Returns whether *self* has a child named like *name*
-    def has_child?(name : Symbol | String) : Bool
+    def has_child?(name : Name) : Bool
       children.has_key?(name)
     end
 
@@ -83,6 +91,7 @@ module DEVS
       children.each_value { |child| yield child }
     end
 
+    # Returns an `Iterator` for the children of `self`
     def each_child
       children.each_value
     end
@@ -148,7 +157,7 @@ module DEVS
     class CouplingIterator
       include Iterator({Port,Port})
 
-      def initialize(@container : Container, @which : Symbol, @reverse : Bool = false)
+      def initialize(@coupler : Coupler, @which : Symbol, @reverse : Bool = false)
 
       end
 
@@ -182,6 +191,7 @@ module DEVS
       end
     end
 
+    # TODO doc
     def each_coupling_reverse(port : Port)
       each_input_coupling_reverse(port) { |src, dst| yield(src, dst) }
       each_internal_coupling_reverse(port) { |src, dst| yield(src, dst) }
@@ -217,7 +227,7 @@ module DEVS
         raise InvalidPortModeError.new unless p1.output? && p2.output?
         output_couplings[p1] << p2
       else
-        raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2} in #{name} coupled model")
+        raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
       end
     end
 
@@ -227,7 +237,7 @@ module DEVS
     # Note: If given port names *p1* and *p2* doesn't exist within their
     # host (respectively *sender* and *receiver*), they will be automatically
     # generated.
-    def attach(p1 : Symbol|String, *, to p2 : Symbol|String, between sender : Coupleable, and receiver : Coupleable)
+    def attach(p1 : Name, *, to p2 : Name, between sender : Coupleable, and receiver : Coupleable)
       ap1 = sender.find_or_create_output_port_if_necessary(p1)
       ap2 = receiver.find_or_create_input_port_if_necessary(p2)
       attach(ap1, to: ap2)
@@ -239,7 +249,7 @@ module DEVS
     # Note: If given port names *p1* and *p2* doesn't exist within their
     # host (respectively *sender* and *receiver*), they will be automatically
     # generated.
-    def attach(p1 : Symbol|String, *, to p2 : Symbol|String, between sender : Symbol|String, and receiver : Symbol|String)
+    def attach(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name)
       a = (sender == @name) ? self : self[sender]
       b = (receiver == @name) ? self : self[receiver]
       ap1 = a.find_or_create_output_port_if_necessary(p1)
@@ -253,7 +263,7 @@ module DEVS
     # Note: If given port names *myport* and *iport* doesn't exist within their
     # host (respectively *self* and *child*), they will be automatically
     # generated.
-    def attach_input(myport : Symbol|String, *, to iport : Symbol|String, of child : Coupleable)
+    def attach_input(myport : Name, *, to iport : Name, of child : Coupleable)
       p1 = self.find_or_create_input_port_if_necessary(myport)
       p2 = child.find_or_create_input_port_if_necessary(iport)
       attach(p1, to: p2)
@@ -265,7 +275,7 @@ module DEVS
     # Note: If given port names *myport* and *iport* doesn't exist within their
     # host (respectively *self* and *child*), they will be automatically
     # generated.
-    def attach_input(myport : Symbol|String, *, to iport : Symbol|String, of child : Symbol|String)
+    def attach_input(myport : Name, *, to iport : Name, of child : Name)
       receiver = self[receiver]
       p1 = self.find_or_create_input_port_if_necessary(myport)
       p2 = child.find_or_create_input_port_if_necessary(iport)
@@ -279,7 +289,7 @@ module DEVS
     # Note: If given port names *oport* and *myport* doesn't exist within their
     # host (respectively *child* and *self*), they will be automatically
     # generated.
-    def attach_output(oport : Symbol|String, *, of child : Coupleable, to myport : Symbol|String)
+    def attach_output(oport : Name, *, of child : Coupleable, to myport : Name)
       p1 = child.find_or_create_output_port_if_necessary(oport)
       p2 = self.find_or_create_output_port_if_necessary(myport)
       attach(p1, to: p2)
@@ -292,7 +302,7 @@ module DEVS
     # Note: If given port names *oport* and *myport* doesn't exist within their
     # host (respectively *child* and *self*), they will be automatically
     # generated.
-    def attach_output(oport : Symbol|String, *, of child : Symbol|String, to myport : Symbol|String)
+    def attach_output(oport : Name, *, of child : Name, to myport : Name)
       sender = self[child]
       p1 = sender.find_or_create_output_port_if_necessary(oport)
       p2 = self.find_or_create_output_port_if_necessary(myport)
@@ -316,14 +326,14 @@ module DEVS
     end
 
     # Deletes a coupling from *self*. Returns `true` if successful.
-    def detach(oport : Symbol|String, *, from iport : Symbol|String, between sender : Coupleable, and receiver : Coupleable) : Bool
+    def detach(oport : Name, *, from iport : Name, between sender : Coupleable, and receiver : Coupleable) : Bool
       p1 = sender.output_port(oport)
       p2 = receiver.input_port(iport)
       detach(p1, from: p2)
     end
 
     # Deletes a coupling from *self*. Returns `true` if successful.
-    def detach(oport : Symbol|String, *, from iport : Symbol|String, between sender : Symbol|String, and receiver : Symbol|String)
+    def detach(oport : Name, *, from iport : Name, between sender : Name, and receiver : Name)
       a = (sender == @name) ? self : self[sender]
       b = (receiver == @name) ? self : self[receiver]
       p1 = a.output_port(oport)
@@ -333,7 +343,7 @@ module DEVS
 
     # Deletes an external input coupling (EIC) from *self*. Returns `true` if
     # successful.
-    def detach(myport : Symbol|String, *, from iport : Symbol|String, of receiver : Coupleable) : Bool
+    def detach(myport : Name, *, from iport : Name, of receiver : Coupleable) : Bool
       p1 = self.input_port(myport)
       p2 = receiver.input_port(iport)
       detach(p1, from: p2)
@@ -341,7 +351,7 @@ module DEVS
 
     # Deletes an external input coupling (EIC) from *self*. Returns `true` if
     # successful.
-    def detach(myport : Symbol|String, *, from iport : Symbol|String, of receiver : Symbol|String) : Bool
+    def detach(myport : Name, *, from iport : Name, of receiver : Name) : Bool
       receiver = self[from]
       p1 = self.input_port(myport)
       p2 = receiver.input_port(iport)
@@ -350,7 +360,7 @@ module DEVS
 
     # Deletes an external output coupling (EOC) from *self*. Returns `true` if
     # successful.
-    def detach(oport : Symbol|String, *, of child : Coupleable, from myport : Symbol|String) : Bool
+    def detach(oport : Name, *, of child : Coupleable, from myport : Name) : Bool
       p1 = child.output_port(oport)
       p2 = self.output_port(myport)
       detach(p1, from: p2)
@@ -358,7 +368,7 @@ module DEVS
 
     # Deletes an external output coupling (EOC) from *self*. Returns `true` if
     # successful.
-    def detach(oport : Symbol|String, *, of child : Symbol|String, from myport : Symbol|String) : Bool
+    def detach(oport : Name, *, of child : Name, from myport : Name) : Bool
       sender = self[child]
       p1 = sender.output_port(oport)
       p2 = self.output_port(myport)
