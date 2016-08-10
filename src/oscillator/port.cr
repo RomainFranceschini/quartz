@@ -14,6 +14,11 @@ module DEVS
     getter name : Name
     getter host : Coupleable
 
+    def_equals_and_hash @name, @name, @host
+
+    delegate output?, to: @mode
+    delegate input?, to: @mode
+
     # Returns a new `Port` instance, owned by *host*
     def initialize(@host : Coupleable, @mode : IOMode, @name : Name)
     end
@@ -25,33 +30,8 @@ module DEVS
       super(observer)
     end
 
-    # Check if *self* is an input port
-    def input?
-      @mode == IOMode::Input
-    end
-
-    # Check if *self* is an output port
-    def output?
-      @mode == IOMode::Output
-    end
-
     def to_s(io)
       io << @name
-    end
-
-    def ==(other : Port)
-      @mode == other.mode && @name == other.name && @host == other.host
-    end
-
-    # :nodoc:
-    def ==(other)
-      false
-    end
-
-    def hash
-      res = 31 * 17 + @mode.hash
-      res = 31 * res + @name.hash
-      31 * res + @host.hash
     end
   end
 end
