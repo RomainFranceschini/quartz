@@ -33,14 +33,7 @@ module DEVS
       def initialize(@data : T, @next = nil, @prev = nil)
       end
 
-      def ==(other : Node)
-        @data == other.data
-      end
-
-      def ==(other)
-        false
-      end
-
+      def_equals @data
       delegate hash, to: @data
 
       def inspect(io)
