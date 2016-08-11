@@ -17,6 +17,7 @@ module DEVS
 
     def to_s(io)
       io << @name
+      nil
     end
   end
 end

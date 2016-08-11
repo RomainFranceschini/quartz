@@ -15,6 +15,7 @@ module DEVS
       io << ", time=" << @time.to_s(io)
       io << ", elapsed" << @elapsed.to_s(io)
       io << ">"
+      nil
     end
 
     # Drops off an output *value* to the specified output *port*.

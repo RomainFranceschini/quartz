@@ -31,6 +31,7 @@ module DEVS
     def inspect(io)
       io << "<" << self.class.name << ": tn=" << @time_next.to_s(io)
       io << ", tl=" << @time_last.to_s(io) << ">"
+      nil
     end
   end
 end

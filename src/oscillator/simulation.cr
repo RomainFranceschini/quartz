@@ -54,6 +54,7 @@ module DEVS
       io << "<" << self.class.name << ": status=" << status.to_s(io)
       io << ", time=" << @time.to_s(io)
       io << ", duration=" << @duration.to_s(io)
+      nil
     end
 
     # Returns *true* if the simulation is done, *false* otherwise.

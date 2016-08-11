@@ -49,6 +49,7 @@ module DEVS
       io << ", shrink_threshold=" << @shrink_threshold.to_s(io)
       io << ", expand_threshold" << @expand_threshold.to_s(io)
       io << ">"
+      nil
     end
 
     def empty?

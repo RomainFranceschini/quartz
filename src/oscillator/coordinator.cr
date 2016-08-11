@@ -19,6 +19,7 @@ module DEVS
       io << ", tl=" << @time_last.to_s(io)
       io << ", components=" << @children.size.to_s(io)
       io << ">"
+      nil
     end
 
     # Append given *child* to `#children` list, ensuring that the child now has
