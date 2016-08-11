@@ -18,8 +18,8 @@ module DEVS
         else
           PDEVS::Coordinator.new(model, namespace, scheduler)
         end
-      #elsif model.is_a?(MultiComponent::Model)
-      #  PDEVS::MultiComponent::Simulator.new(model, scheduler)
+      elsif model.is_a?(MultiComponent::Model)
+        PDEVS::MultiComponent::Simulator.new(model, scheduler)
       elsif model.is_a?(AtomicModel)
         PDEVS::Simulator.new(model)
       else

@@ -21,6 +21,7 @@ require "./oscillator/coordinator"
 require "./oscillator/pdevs"
 #require "./oscillator/cdevs"
 require "./oscillator/dsde"
+require "./oscillator/multi_component"
 require "./oscillator/processor_factory"
 require "./oscillator/schedulers"
 require "./oscillator/simulation"
@@ -50,7 +51,8 @@ module DEVS
                Array(Type) |
                Slice(Type) |
                Hash(Type, Type) |
-               Coupleable
+               Coupleable |
+               DEVS::MultiComponent::ComponentState |
 
   alias SimulationTime = AnyNumber
 

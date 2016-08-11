@@ -4,7 +4,8 @@ module DEVS
   abstract class Coordinator < Processor#(CoupledModel)
     getter children
 
-    @scheduler : EventSetType
+    # FIXME: temporarily use CalendarQueue(T) because EventSetType causes overload errors
+    @scheduler : CalendarQueue(Processor) #EventSetType
 
     # Returns a new instance of Coordinator
     def initialize(model, @namespace : Symbol, scheduler : Symbol)

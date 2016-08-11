@@ -18,7 +18,8 @@ module DEVS
     def initialize(model : Model, *, formalism : Symbol = :pdevs, scheduler : Symbol = :calendar_queue, maintain_hierarchy : Bool = true, duration : SimulationTime = DEVS::INFINITY)
       @time = 0
 
-      @model = if model.is_a? AtomicModel
+      @model = case model
+      when AtomicModel, MultiComponent::Model
         CoupledModel.new(:root_coupled_model) << model
       else
         model
