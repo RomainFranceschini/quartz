@@ -252,8 +252,8 @@ module DEVS
     def attach(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name)
       a = (sender == @name) ? self : self[sender]
       b = (receiver == @name) ? self : self[receiver]
-      ap1 = a.find_or_create_output_port_if_necessary(p1)
-      ap2 = b.find_or_create_input_port_if_necessary(p2)
+      ap1 = a.as(Coupleable).find_or_create_output_port_if_necessary(p1)
+      ap2 = b.as(Coupleable).find_or_create_input_port_if_necessary(p2)
       attach(ap1, to: ap2)
     end
 
@@ -276,7 +276,7 @@ module DEVS
     # host (respectively *self* and *child*), they will be automatically
     # generated.
     def attach_input(myport : Name, *, to iport : Name, of child : Name)
-      receiver = self[receiver]
+      receiver = self[receiver].as(Coupleable)
       p1 = self.find_or_create_input_port_if_necessary(myport)
       p2 = child.find_or_create_input_port_if_necessary(iport)
       attach(p1, to: p2)
@@ -303,7 +303,7 @@ module DEVS
     # host (respectively *child* and *self*), they will be automatically
     # generated.
     def attach_output(oport : Name, *, of child : Name, to myport : Name)
-      sender = self[child]
+      sender = self[child].as(Coupleable)
       p1 = sender.find_or_create_output_port_if_necessary(oport)
       p2 = self.find_or_create_output_port_if_necessary(myport)
       attach(p1, to: p2)
@@ -336,8 +336,8 @@ module DEVS
     def detach(oport : Name, *, from iport : Name, between sender : Name, and receiver : Name)
       a = (sender == @name) ? self : self[sender]
       b = (receiver == @name) ? self : self[receiver]
-      p1 = a.output_port(oport)
-      p2 = b.input_port(iport)
+      p1 = a.as(Coupleable).output_port(oport)
+      p2 = b.as(Coupleable).input_port(iport)
       detach(p1, from: p2)
     end
 

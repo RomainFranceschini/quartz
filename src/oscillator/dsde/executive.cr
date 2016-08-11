@@ -72,19 +72,19 @@ module DEVS
       end
 
       protected def add_input_port_to_network(model : Name, port : Name)
-        @network.not_nil![model].add_input_port(port)
+        @network.not_nil![model].as(Coupleable).add_input_port(port)
       end
 
       protected def add_output_port_to_network(model : Name, port : Name)
-        @network.not_nil![model].add_output_port(port)
+        @network.not_nil![model].as(Coupleable).add_output_port(port)
       end
 
       protected def remove_input_port_from_network(model : Name, port : Name)
-        @network.not_nil![model].remove_input_port(port)
+        @network.not_nil![model].as(Coupleable).remove_input_port(port)
       end
 
       protected def remove_output_port_from_network(model : Name, port : Name)
-        @network.not_nil![model].remove_output_port(port)
+        @network.not_nil![model].as(Coupleable).remove_output_port(port)
       end
 
       protected def add_coupling_to_network(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name)
