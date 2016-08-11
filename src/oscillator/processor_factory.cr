@@ -23,7 +23,7 @@ module DEVS
       elsif model.is_a?(AtomicModel)
         PDEVS::Simulator.new(model)
       else
-        raise ProcessorAllocationError.new("processor can't be created for model #{model.name}")
+        raise ProcessorAllocationError.new("No processor able to simulate \"#{model.name}\" model.")
       end
     end
 
