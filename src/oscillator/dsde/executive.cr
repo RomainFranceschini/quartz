@@ -9,7 +9,8 @@ module DEVS
       def initialize(name, @network : CoupledModel? = nil)
         super(name)
         {:add_model, :remove_model, :add_coupling, :remove_coupling, :add_input_port, :add_output_port, :remove_input_port, :remove_output_port}.each { |ip| add_input_port(ip) }
-        add_output_port :result
+
+        add_output_port :ack
       end
 
       def confluent_transition(bag)
@@ -18,38 +19,48 @@ module DEVS
       end
 
       def external_transition(bag)
-        bag.each do |port, payload|
-          payload.each do |any|
-            case port
-            when input_port(:add_model)
-              req = any.as_h
-              # TODO find a way to dynamically instantiate a model
-              new_model = req[:coupleable] as Coupleable
-              add_model_to_network(new_model)
-            when input_port(:add_input_port)
-              req = any.as_h
-              add_input_port_to_network(req[:model] as Symbol, req[:port] as Symbol)
-            when input_port(:add_output_port)
-              req = any.as_h
-              add_output_port_to_network(req[:model] as Symbol, req[:port] as Symbol)
-            when input_port(:add_coupling)
-              req = any.as_h
-              add_coupling_to_network(req[:src_port] as Symbol, to: req[:dst_port] as Symbol, between: req[:src] as Symbol, and: req[:dst] as Symbol)
-            when input_port(:remove_coupling)
-              req = any.as_h
-              remove_coupling_from_network(req[:src_port] as Symbol, from: req[:dst_port] as Symbol, between: req[:src] as Symbol, and: req[:dst] as Symbol)
-            when input_port(:remove_input_port)
-              req = any.as_h
-              remove_input_port_from_network(req[:model] as Symbol, req[:port] as Symbol)
-            when input_port(:remove_output_port)
-              req = any.as_h
-              remove_output_port_from_network(req[:model] as Symbol, req[:port] as Symbol)
-            when input_port(:remove_model)
-              req = any.as_h
-              remove_model_from_network(req[:model] as Symbol)
-            end
-          end
+        bag[input_port(:add_model)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          # TODO find a way to dynamically instantiate a model
+          new_model = req[:coupleable] as Coupleable
+          add_model_to_network(new_model)
         end
+
+        bag[input_port(:add_input_port)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          add_input_port_to_network(req[:model] as Name, req[:port] as Name)
+        end
+
+        bag[input_port(:add_output_port)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          add_output_port_to_network(req[:model] as Name, req[:port] as Name)
+        end
+
+        bag[input_port(:add_coupling)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          add_coupling_to_network(req[:src_port] as Name, to: req[:dst_port] as Name, between: req[:src] as Name, and: req[:dst] as Name)
+        end
+
+        bag[input_port(:remove_coupling)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          remove_coupling_from_network(req[:src_port] as Name, from: req[:dst_port] as Name, between: req[:src] as Name, and: req[:dst] as Name)
+        end
+
+        bag[input_port(:remove_input_port)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          remove_input_port_from_network(req[:model] as Name, req[:port] as Name)
+        end
+
+        bag[input_port(:remove_output_port)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          remove_output_port_from_network(req[:model] as Name, req[:port] as Name)
+        end
+
+        bag[input_port(:remove_model)].map(&.raw).flatten.each do |raw|
+          req = raw.as(Hash(Type,Type))
+          remove_model_from_network(req[:model] as Name)
+        end
+
         @sigma = 0
       end
 
@@ -58,7 +69,11 @@ module DEVS
       end
 
       def output
-        # TODO requests validations
+        # NOTE: Always send ACK since at this point we know graph changes
+        # occured as we don't catch errors.
+        # TODO: Propose alternative policy where we catch errors and send NAK ?
+
+        post "\u{6}", :ack
       end
 
       # TODO ports and couplings checks
