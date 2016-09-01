@@ -1,4 +1,4 @@
-require "./src/oscillator"
+require "./src/quartz"
 
 class Ev
   property :time_next
@@ -14,10 +14,10 @@ puts "# size  scheduler  distribution  time"
 
 iterations.times do |iteration|
   t0 = Time.now
-  pes = DEVS::CalendarQueue(Ev).new
-  #pes = DEVS::LadderQueue(Ev).new
-  #pes = DEVS::BinaryHeap(Ev).new
-  #pes = DEVS::SplayTree(Ev).new
+  pes = Quartz::CalendarQueue(Ev).new
+  #pes = Quartz::LadderQueue(Ev).new
+  #pes = Quartz::BinaryHeap(Ev).new
+  #pes = Quartz::SplayTree(Ev).new
 
   events = [] of Ev
   n.times do

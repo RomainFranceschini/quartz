@@ -1,6 +1,6 @@
-require "../src/oscillator"
+require "../src/quartz"
 
-class OneTimeModel < DEVS::AtomicModel
+class OneTimeModel < Quartz::AtomicModel
   @sigma = 20
 
   def external_transition(messages)
@@ -9,11 +9,11 @@ class OneTimeModel < DEVS::AtomicModel
 
   def internal_transition
     puts "#{name} does something."
-    @sigma = DEVS::INFINITY
+    @sigma = Quartz::INFINITY
   end
 end
 
-class BirthController < DEVS::DSDE::Executive
+class BirthController < Quartz::DSDE::Executive
   def initialize(name)
     super(name)
     @sigma = 1
@@ -30,7 +30,7 @@ class BirthController < DEVS::DSDE::Executive
       remove_coupling_from_network(:out, from: :in, between: "model_0", and: "model_#{@counter}")
       remove_model_from_network("model_#{@counter}")
       @counter -= 1
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
     else
       add_model_to_network(OneTimeModel.new("model_#{@counter}"))
       add_coupling_to_network(:out, to: :in, between: "model_0", and: "model_#{@counter}") if @counter > 0
@@ -45,9 +45,9 @@ class BirthController < DEVS::DSDE::Executive
 end
 
 class Grapher
-  include DEVS::TransitionObserver
+  include Quartz::TransitionObserver
 
-  def initialize(model, @simulation : DEVS::Simulation)
+  def initialize(model, @simulation : Quartz::Simulation)
     model.add_observer(self)
   end
 
@@ -58,9 +58,9 @@ class Grapher
   end
 end
 
-model = DEVS::DSDE::CoupledModel.new(:dsde, BirthController.new(:executive))
+model = Quartz::DSDE::CoupledModel.new(:dsde, BirthController.new(:executive))
 
-simulation = DEVS::Simulation.new(model, duration: 25)
+simulation = Quartz::Simulation.new(model, duration: 25)
 simulation.generate_graph("dsde_0")
 Grapher.new(model.executive, simulation)
 simulation.simulate

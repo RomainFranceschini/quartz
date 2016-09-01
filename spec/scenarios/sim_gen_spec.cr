@@ -4,7 +4,7 @@ module GeneratorScenario
 
   class GenTestError < Exception; end
 
-  class TestGen < DEVS::AtomicModel
+  class TestGen < Quartz::AtomicModel
     getter output_calls : Int32 = 0
     getter internal_calls : Int32 = 0
 
@@ -28,7 +28,7 @@ module GeneratorScenario
     describe "simulation" do
       it "calls ∂int and lambda" do
         gen = TestGen.new(:testgen)
-        sim = DEVS::Simulation.new(gen, duration: 10)
+        sim = Quartz::Simulation.new(gen, duration: 10)
 
         sim.each_with_index { |e, i|
           gen.output_calls.should eq(i+1)

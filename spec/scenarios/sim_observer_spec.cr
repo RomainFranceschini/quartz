@@ -3,7 +3,7 @@ require "../spec_helper"
 module ObservedSimulationScenario
   class ObserverTestError < Exception; end
 
-  class Foo < DEVS::AtomicModel
+  class Foo < Quartz::AtomicModel
     @sigma = 0
 
     def initialize(name)
@@ -12,7 +12,7 @@ module ObservedSimulationScenario
     end
 
     def internal_transition
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
     end
 
     def output
@@ -21,11 +21,11 @@ module ObservedSimulationScenario
   end
 
   class PortObserver
-    include DEVS::PortObserver
+    include Quartz::PortObserver
 
     getter calls : Int32 = 0
-    getter port : DEVS::Port?
-    getter value : DEVS::Any?
+    getter port : Quartz::Port?
+    getter value : Quartz::Any?
 
     def initialize(port)
       port.add_observer(self)
@@ -39,11 +39,11 @@ module ObservedSimulationScenario
   end
 
   class TransitionObserver
-    include DEVS::TransitionObserver
+    include Quartz::TransitionObserver
 
     getter calls : Int32 = 0
 
-    def initialize(@model : DEVS::Transitions)
+    def initialize(@model : Quartz::Transitions)
       @model.add_observer(self)
     end
 
@@ -57,7 +57,7 @@ module ObservedSimulationScenario
       it "is notified when a value is dropped on an output port" do
         model = Foo.new(:foo)
         po = PortObserver.new(model.output_port(:out))
-        sim = DEVS::Simulation.new(model)
+        sim = Quartz::Simulation.new(model)
         sim.simulate
 
         po.calls.should eq(1)
@@ -69,7 +69,7 @@ module ObservedSimulationScenario
       it "is notified for each transition" do
         model = Foo.new(:foo)
         to = TransitionObserver.new(model)
-        sim = DEVS::Simulation.new(model)
+        sim = Quartz::Simulation.new(model)
         sim.simulate
 
         # init and internal

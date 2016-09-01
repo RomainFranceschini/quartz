@@ -14,43 +14,45 @@ end
 
 class EventSetTester
   @cq : CalendarQueue(Ev)
-  @lq : LadderQueue(Ev)
-  @st : SplayTree(Ev)
-  @bh : BinaryHeap(Ev)
+  #@lq : LadderQueue(Ev)
+  #@st : SplayTree(Ev)
+  #@bh : BinaryHeap(Ev)
 
   def initialize
     @cq = CalendarQueue(Ev).new
-    @lq = LadderQueue(Ev).new
-    @st = SplayTree(Ev).new
-    @bh = BinaryHeap(Ev).new
+    #@lq = LadderQueue(Ev).new
+    #@st = SplayTree(Ev).new
+    #@bh = BinaryHeap(Ev).new
   end
 
-  def test(&block : (CalendarQueue(Ev)|LadderQueue(Ev)|SplayTree(Ev)|BinaryHeap(Ev)) ->)
+  #def test(&block : (CalendarQueue(Ev)|LadderQueue(Ev)|SplayTree(Ev)|BinaryHeap(Ev)) ->)
+  def test(&block : CalendarQueue(Ev) ->)
     it "(CalendarQueue)" { block.call(@cq) }
-    it "(LadderQueue)" { block.call(@lq) }
-    it "(SplayTree)" { block.call(@st) }
-    it "(BinaryHeap)" { block.call(@bh) }
+    #it "(LadderQueue)" { block.call(@lq) }
+    #it "(SplayTree)" { block.call(@st) }
+    #it "(BinaryHeap)" { block.call(@bh) }
   end
 end
 
 class EventSetTesterF
   @cq : CalendarQueue(EvF)
-  @lq : LadderQueue(EvF)
-  @st : SplayTree(EvF)
-  @bh : BinaryHeap(EvF)
+  #@lq : LadderQueue(EvF)
+  #@st : SplayTree(EvF)
+  #@bh : BinaryHeap(EvF)
 
   def initialize
     @cq = CalendarQueue(EvF).new
-    @lq = LadderQueue(EvF).new
-    @st = SplayTree(EvF).new
-    @bh = BinaryHeap(EvF).new
+    #@lq = LadderQueue(EvF).new
+    #@st = SplayTree(EvF).new
+    #@bh = BinaryHeap(EvF).new
   end
 
-  def test(&block : (CalendarQueue(EvF)|LadderQueue(EvF)|SplayTree(EvF)|BinaryHeap(EvF)) ->)
+  #def test(&block : (CalendarQueue(EvF)|LadderQueue(EvF)|SplayTree(EvF)|BinaryHeap(EvF)) ->)
+  def test(&block : CalendarQueue(EvF) ->)
     it "(CalendarQueue)" { block.call(@cq) }
-    it "(LadderQueue)" { block.call(@lq) }
-    it "(SplayTree)" { block.call(@st) }
-    it "(BinaryHeap)" { block.call(@bh) }
+    #it "(LadderQueue)" { block.call(@lq) }
+    #it "(SplayTree)" { block.call(@st) }
+    #it "(BinaryHeap)" { block.call(@bh) }
   end
 end
 

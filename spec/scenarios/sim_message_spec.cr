@@ -4,7 +4,7 @@ module MsgScenario
 
   class MsgTestError < Exception; end
 
-  class G < DEVS::AtomicModel
+  class G < Quartz::AtomicModel
     def initialize(name)
       super(name)
       @sigma = 1
@@ -22,14 +22,14 @@ module MsgScenario
     def internal_transition
       @int_calls += 1
       raise MsgTestError.new unless @elapsed == 0
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
     end
   end
 
-  class R < DEVS::AtomicModel
+  class R < Quartz::AtomicModel
     def initialize(name)
       super(name)
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
       add_input_port :in
     end
 
@@ -46,7 +46,7 @@ module MsgScenario
     end
   end
 
-  class TestPDEVSMsg < DEVS::CoupledModel
+  class TestPDEVSMsg < Quartz::CoupledModel
     getter g1, g2, r
 
     def initialize
@@ -63,7 +63,7 @@ module MsgScenario
     end
   end
 
-  class TestPDEVSCoupledMsg < DEVS::CoupledModel
+  class TestPDEVSCoupledMsg < Quartz::CoupledModel
     getter g1, g2, r
 
     def initialize
@@ -73,13 +73,13 @@ module MsgScenario
       @g1 = G.new :G1
       @g2 = G.new :G2
 
-      gen = DEVS::CoupledModel.new(:GEN)
+      gen = Quartz::CoupledModel.new(:GEN)
       gen.add_output_port :out
       gen << @g1 << @g2
       gen.attach_output(:out, to: :out, of: @g1)
       gen.attach_output(:out, to: :out, of: @g2)
 
-      recv = DEVS::CoupledModel.new(:RECV)
+      recv = Quartz::CoupledModel.new(:RECV)
       recv.add_input_port :in
       recv << @r
       recv.attach_input(:in, to: :in, of: @r)
@@ -95,7 +95,7 @@ module MsgScenario
       describe "transition are properly called" do
         it "for full hierarchy" do
           m = TestPDEVSCoupledMsg.new
-          sim = DEVS::Simulation.new(m, maintain_hierarchy: true)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
           sim.simulate
 
           m.r.ext_calls.should eq(1)
@@ -111,7 +111,7 @@ module MsgScenario
 
         it "with flattening" do
           m = TestPDEVSCoupledMsg.new
-          sim = DEVS::Simulation.new(m, maintain_hierarchy: false)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
           sim.simulate
 
           m.r.ext_calls.should eq(1)
@@ -131,7 +131,7 @@ module MsgScenario
       describe "transition are properly called" do
         it "for full hierarchy" do
           m = TestPDEVSMsg.new
-          sim = DEVS::Simulation.new(m, maintain_hierarchy: true)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
           sim.simulate
 
           m.r.ext_calls.should eq(1)
@@ -147,7 +147,7 @@ module MsgScenario
 
         it "with flattening" do
           m = TestPDEVSMsg.new
-          sim = DEVS::Simulation.new(m, maintain_hierarchy: false)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
           sim.simulate
 
           m.r.ext_calls.should eq(1)

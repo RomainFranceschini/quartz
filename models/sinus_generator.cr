@@ -1,7 +1,7 @@
-module DEVS
+module Quartz
   module Models
     module Generators
-      class SinusGenerator < DEVS::AtomicModel
+      class SinusGenerator < Quartz::AtomicModel
 
         @pulsation : Float32
 

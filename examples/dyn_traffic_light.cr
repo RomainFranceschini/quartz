@@ -1,6 +1,6 @@
-require "../src/oscillator"
+require "../src/quartz"
 
-class TrafficLight < DEVS::AtomicModel
+class TrafficLight < Quartz::AtomicModel
 
   getter phase : Symbol
 
@@ -51,12 +51,12 @@ class TrafficLight < DEVS::AtomicModel
     when :green then 50
     when :orange then 10
     else # manual
-      DEVS::INFINITY
+      Quartz::INFINITY
     end
   end
 end
 
-class Policeman < DEVS::AtomicModel
+class Policeman < Quartz::AtomicModel
   def initialize(name)
     super(name)
     @phase = :idle1
@@ -84,7 +84,7 @@ class Policeman < DEVS::AtomicModel
     when :working1, :working2
       post :to_autonomous, :alternate
     else
-      tl1 = Hash(DEVS::Type,DEVS::Type).new
+      tl1 = Hash(Quartz::Type,Quartz::Type).new
       tl1[:src] = :policeman
       tl1[:dst] = :traffic_light1
       tl1[:src_port] = :alternate
@@ -112,15 +112,15 @@ class Policeman < DEVS::AtomicModel
     when :move2_1, :move1_2
       150
     else
-      DEVS::INFINITY
+      Quartz::INFINITY
     end
   end
 end
 
 class Grapher
-  include DEVS::TransitionObserver
+  include Quartz::TransitionObserver
 
-  def initialize(model, @simulation : DEVS::Simulation)
+  def initialize(model, @simulation : Quartz::Simulation)
     model.add_observer(self)
   end
 
@@ -131,7 +131,7 @@ class Grapher
   end
 end
 
-model = DEVS::DSDE::CoupledModel.new(:dsde)
+model = Quartz::DSDE::CoupledModel.new(:dsde)
 tl1 = TrafficLight.new(:traffic_light1)
 tl2 = TrafficLight.new(:traffic_light2)
 policeman = Policeman.new(:policeman)
@@ -144,7 +144,7 @@ model.attach :add_coupling, to: :add_coupling, between: :policeman, and: :execut
 model.attach :remove_coupling, to: :remove_coupling, between: :policeman, and: :executive
 model.attach :alternate, to: :interrupt, between: :policeman, and: :traffic_light1
 
-simulation = DEVS::Simulation.new(model, duration: 1000)
+simulation = Quartz::Simulation.new(model, duration: 1000)
 simulation.generate_graph("trafficlight_0")
 Grapher.new(model.executive, simulation)
 

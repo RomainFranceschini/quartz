@@ -1,6 +1,6 @@
-require "../src/oscillator"
+require "../src/quartz"
 
-class LotkaVolterra < DEVS::AtomicModel
+class LotkaVolterra < Quartz::AtomicModel
 
   getter x = 1.0, y = 1.0
 
@@ -20,16 +20,16 @@ class LotkaVolterra < DEVS::AtomicModel
 end
 
 class Plotter
-  include DEVS::Hooks::Notifiable
-  include DEVS::TransitionObserver
+  include Quartz::Hooks::Notifiable
+  include Quartz::TransitionObserver
 
   @file : File?
 
   SPACES = 30
 
   def initialize(model)
-    DEVS::Hooks.notifier.subscribe(:before_simulation_initialization_hook, self)
-    DEVS::Hooks.notifier.subscribe(:after_simulation_hook, self)
+    Quartz::Hooks.notifier.subscribe(:before_simulation_initialization_hook, self)
+    Quartz::Hooks.notifier.subscribe(:after_simulation_hook, self)
     model.add_observer(self)
   end
 
@@ -52,7 +52,7 @@ end
 
 model = LotkaVolterra.new(:LotkaVolterra)
 Plotter.new(model)
-sim = DEVS::Simulation.new(model, duration: 20)
+sim = Quartz::Simulation.new(model, duration: 20)
 
 sim.simulate
 

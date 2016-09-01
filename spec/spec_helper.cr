@@ -1,5 +1,5 @@
 require "spec"
-require "../src/oscillator"
+require "../src/quartz"
 
-DEVS.logger.level = Logger::UNKNOWN
-include DEVS
+Quartz.logger.level = Logger::UNKNOWN
+include Quartz

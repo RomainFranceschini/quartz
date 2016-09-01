@@ -1,6 +1,6 @@
-require "../src/oscillator"
+require "../src/quartz"
 
-class HeatCell < DEVS::MultiComponent::Component
+class HeatCell < Quartz::MultiComponent::Component
   T_AMBIENT = 27.0f32
   T_IGNITE = 300.0f32
   T_GENERATE = 500.0f32
@@ -10,14 +10,14 @@ class HeatCell < DEVS::MultiComponent::Component
   TMP_DIFF = T_AMBIENT
 
   # TODO : make immutable and fix transitions accordingly
-  struct HeatState < DEVS::MultiComponent::ComponentState
+  struct HeatState < Quartz::MultiComponent::ComponentState
     property temperature : Float32 = T_AMBIENT
-    property ignite_time : DEVS::SimulationTime = DEVS::INFINITY
+    property ignite_time : Quartz::SimulationTime = Quartz::INFINITY
     property phase : Symbol = :inactive
     property old_temp : Float32 = T_AMBIENT
-    property surrounding_temps = Hash(DEVS::Name,Float32).new(default_value: T_AMBIENT.to_f32)
+    property surrounding_temps = Hash(Quartz::Name,Float32).new(default_value: T_AMBIENT.to_f32)
 
-    def initialize(@temperature = T_AMBIENT, @ignite_time = DEVS::INFINITY, @phase = :inactive)
+    def initialize(@temperature = T_AMBIENT, @ignite_time = Quartz::INFINITY, @phase = :inactive)
     end
   end
 
@@ -47,14 +47,14 @@ class HeatCell < DEVS::MultiComponent::Component
   def time_advance
     case @state.phase
     when :inactive, :burned
-      DEVS::INFINITY
+      Quartz::INFINITY
     else #when :unburned, :burning
       1
     end
   end
 
   def internal_transition
-    proposed_states = Hash(DEVS::Name, DEVS::Any).new
+    proposed_states = Hash(Quartz::Name, Quartz::Any).new
 
     nstate = @state.dup
 
@@ -63,7 +63,7 @@ class HeatCell < DEVS::MultiComponent::Component
     if (@state.temperature - @state.old_temp).abs > TMP_DIFF
       influencees.each do |j|
         next if j == self
-        proposed_states[j.name] = DEVS::Any.new(@state.temperature)
+        proposed_states[j.name] = Quartz::Any.new(@state.temperature)
       end
       nstate.old_temp = @state.temperature
     end
@@ -85,7 +85,7 @@ class HeatCell < DEVS::MultiComponent::Component
     nstate.phase = n_phase
     nstate.temperature = new_temp.to_f32
 
-    proposed_states[self.name] = DEVS::Any.new(nstate)
+    proposed_states[self.name] = Quartz::Any.new(nstate)
 
     proposed_states
   end
@@ -110,7 +110,7 @@ class HeatCell < DEVS::MultiComponent::Component
   end
 end
 
-class HeatMultiPDEVS < DEVS::MultiComponent::Model
+class HeatMultiPDEVS < Quartz::MultiComponent::Model
   getter rows : Int32 = 0
   getter columns : Int32 = 0
   getter cells : Array(Array(HeatCell))
@@ -232,7 +232,7 @@ CLR = "\033c"
 if ARGV.size == 1
   filepath = ARGV.first
   model = HeatMultiPDEVS.new(:heat, filepath)
-  simulation = DEVS::Simulation.new(model, duration: 1200)
+  simulation = Quartz::Simulation.new(model, duration: 1200)
 
   simulation.each do
     puts CLR

@@ -1,13 +1,13 @@
 require "benchmark"
 
-require "../src/oscillator/list"
+require "../src/quartz/list"
 
 n = 50_000
 n2 = n >> 1
 
-list = DEVS::List(Int32).new
-list2 = DEVS::List(Int32).new
-node_index = Hash(Int32, DEVS::List::Node(Int32)).new
+list = Quartz::List(Int32).new
+list2 = Quartz::List(Int32).new
+node_index = Hash(Int32, Quartz::List::Node(Int32)).new
 ary = Array(Int32).new
 deque = Deque(Int32).new
 

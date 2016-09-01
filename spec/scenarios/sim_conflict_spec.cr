@@ -4,7 +4,7 @@ module ConflictScenario
 
   class ConflictTestError < Exception; end
 
-  class G < DEVS::AtomicModel
+  class G < Quartz::AtomicModel
     def initialize(name)
       super(name)
       @sigma = 1
@@ -21,11 +21,11 @@ module ConflictScenario
 
     def internal_transition
       @int_calls += 1
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
     end
   end
 
-  class R < DEVS::AtomicModel
+  class R < Quartz::AtomicModel
     def initialize(name)
       super(name)
       @sigma = 1
@@ -46,7 +46,7 @@ module ConflictScenario
       raise ConflictTestError.new("elapsed time should eq 0") unless @elapsed == 0
       raise ConflictTestError.new("bag should contain (:in, [\"value\"])") unless bag[input_port(:in)] == ["value"]
 
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
     end
 
     def internal_transition
@@ -58,7 +58,7 @@ module ConflictScenario
     end
   end
 
-  class PDEVSDeltaCon < DEVS::CoupledModel
+  class PDEVSDeltaCon < Quartz::CoupledModel
     getter g, r
 
     def initialize
@@ -77,7 +77,7 @@ module ConflictScenario
     describe "∂con is called when a conflict occur" do
       it "does for full hierarchy" do
         m = PDEVSDeltaCon.new
-        sim = DEVS::Simulation.new(m, maintain_hierarchy: false)
+        sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
         sim.simulate
 
         m.r.con_calls.should eq(1)
@@ -87,7 +87,7 @@ module ConflictScenario
 
       it "does with flattening" do
         m = PDEVSDeltaCon.new
-        sim = DEVS::Simulation.new(m, maintain_hierarchy: true)
+        sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
         sim.simulate
 
         m.r.con_calls.should eq(1)

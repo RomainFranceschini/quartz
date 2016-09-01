@@ -1,7 +1,7 @@
-require "../src/oscillator"
+require "../src/quartz"
 
 module DEVStone
-  class Model < DEVS::AtomicModel
+  class Model < Quartz::AtomicModel
     def initialize(name)
       super(name)
       add_input_port :in1
@@ -16,7 +16,7 @@ module DEVStone
     end
 
     def internal_transition
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
     end
 
     def output
@@ -24,7 +24,7 @@ module DEVStone
     end
   end
 
-  class Generator < DEVS::AtomicModel
+  class Generator < Quartz::AtomicModel
     def initialize(name)
       super(name)
       @sigma = 1
@@ -36,11 +36,11 @@ module DEVStone
     end
 
     def internal_transition
-      @sigma = DEVS::INFINITY
+      @sigma = Quartz::INFINITY
     end
   end
 
-  class Collector < DEVS::AtomicModel
+  class Collector < Quartz::AtomicModel
     def initialize(name)
       super(name)
       add_input_port :in
@@ -51,7 +51,7 @@ module DEVStone
     end
   end
 
-  class CoupledRecursion < DEVS::CoupledModel
+  class CoupledRecursion < Quartz::CoupledModel
     def initialize(name, coupling_type, width, level, depth)
       super(name)
 
@@ -86,7 +86,7 @@ module DEVStone
     end
   end
 
-  class DEVStone < DEVS::CoupledModel
+  class DEVStone < Quartz::CoupledModel
     def initialize(coupling_type, width, depth)
       super(:devstone)
       self << Generator.new(:generator)
@@ -104,20 +104,20 @@ module DEVStone
 end
 
 class PortObserver
-  include DEVS::PortObserver
+  include Quartz::PortObserver
 
   def initialize(port)
     port.add_observer(self)
   end
 
   def update(port, value)
-    host = port.host.as(DEVS::AtomicModel)
+    host = port.host.as(Quartz::AtomicModel)
     puts "#{host.name}@#{port.name} sent #{value} at #{host.time}"
   end
 end
 
 class ModelObserver
-  include DEVS::TransitionObserver
+  include Quartz::TransitionObserver
 
   def initialize(model)
     model.add_observer(self)
@@ -129,7 +129,7 @@ class ModelObserver
 end
 
 root = DEVStone::DEVStone.new(2, ARGV[0].to_i, ARGV[1].to_i)
-simulation = DEVS::Simulation.new(root, maintain_hierarchy: false)
+simulation = Quartz::Simulation.new(root, maintain_hierarchy: false)
 
 simulation.simulate
 
