@@ -276,9 +276,9 @@ module Quartz
     # host (respectively *self* and *child*), they will be automatically
     # generated.
     def attach_input(myport : Name, *, to iport : Name, of child : Name)
-      receiver = self[receiver].as(Coupleable)
+      receiver = self[child].as(Coupleable)
       p1 = self.find_or_create_input_port_if_necessary(myport)
-      p2 = child.find_or_create_input_port_if_necessary(iport)
+      p2 = receiver.find_or_create_input_port_if_necessary(iport)
       attach(p1, to: p2)
     end
 
