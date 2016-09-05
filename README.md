@@ -20,7 +20,7 @@ TODO List:
   - [x] Parallel DEVS
   - [ ] Classic DEVS
   - [x] Dynamic Structure DEVS
-  - [ ] MultiPDEVS
+  - [x] MultiPDEVS
   - [ ] CellDEVS
 - Features
   - [x] Port observers
