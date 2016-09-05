@@ -2,7 +2,7 @@ module Quartz
   module PDEVS
     class Simulator < Quartz::Simulator
       def initialize_processor(time)
-        atomic = @model as AtomicModel
+        atomic = @model.as(AtomicModel)
         @transition_count.clear
         @time_last = atomic.time = time
         @time_next = @time_last + atomic.time_advance
@@ -13,12 +13,12 @@ module Quartz
 
       def collect_outputs(time) : Hash(Port,Any)
         raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
-        (@model as AtomicModel).fetch_output!
+        @model.as(AtomicModel).fetch_output!
       end
 
       def perform_transitions(time, bag)
         synced = @time_last <= time && time <= @time_next
-        atomic = @model as AtomicModel
+        atomic = @model.as(AtomicModel)
 
         kind = nil
         if time == @time_next

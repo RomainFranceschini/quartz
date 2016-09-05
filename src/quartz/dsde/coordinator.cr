@@ -4,7 +4,7 @@ module Quartz
       class Coordinator < PDEVS::Coordinator
 
         def perform_transitions(time, bag)
-          coupled = @model as DSDE::CoupledModel
+          coupled = @model.as(Quartz::DSDE::CoupledModel)
 
           bag.each do |port, sub_bag|
             # check external input couplings to get children who receive sub-bag of y

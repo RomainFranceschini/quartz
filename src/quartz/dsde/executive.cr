@@ -22,43 +22,43 @@ module Quartz
         bag[input_port(:add_model)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
           # TODO find a way to dynamically instantiate a model
-          new_model = req[:coupleable] as Coupleable
+          new_model = req[:coupleable].as(Coupleable)
           add_model_to_network(new_model)
         end
 
         bag[input_port(:add_input_port)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
-          add_input_port_to_network(req[:model] as Name, req[:port] as Name)
+          add_input_port_to_network(req[:model].as(Name), req[:port].as(Name))
         end
 
         bag[input_port(:add_output_port)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
-          add_output_port_to_network(req[:model] as Name, req[:port] as Name)
+          add_output_port_to_network(req[:model].as(Name), req[:port].as(Name))
         end
 
         bag[input_port(:add_coupling)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
-          add_coupling_to_network(req[:src_port] as Name, to: req[:dst_port] as Name, between: req[:src] as Name, and: req[:dst] as Name)
+          add_coupling_to_network(req[:src_port].as(Name), to: req[:dst_port].as(Name), between: req[:src].as(Name), and: req[:dst].as(Name))
         end
 
         bag[input_port(:remove_coupling)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
-          remove_coupling_from_network(req[:src_port] as Name, from: req[:dst_port] as Name, between: req[:src] as Name, and: req[:dst] as Name)
+          remove_coupling_from_network(req[:src_port].as(Name), from: req[:dst_port].as(Name), between: req[:src].as(Name), and: req[:dst].as(Name))
         end
 
         bag[input_port(:remove_input_port)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
-          remove_input_port_from_network(req[:model] as Name, req[:port] as Name)
+          remove_input_port_from_network(req[:model].as(Name), req[:port].as(Name))
         end
 
         bag[input_port(:remove_output_port)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
-          remove_output_port_from_network(req[:model] as Name, req[:port] as Name)
+          remove_output_port_from_network(req[:model].as(Name), req[:port].as(Name))
         end
 
         bag[input_port(:remove_model)].map(&.raw).flatten.each do |raw|
           req = raw.as(Hash(Type,Type))
-          remove_model_from_network(req[:model] as Name)
+          remove_model_from_network(req[:model].as(Name))
         end
 
         @sigma = 0
