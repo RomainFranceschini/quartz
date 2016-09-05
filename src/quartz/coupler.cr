@@ -315,11 +315,11 @@ module Quartz
       b = p2.host
 
       if has_child?(a) && has_child?(b) # IC
-        internal_couplings[p1].delete(p2)
+        internal_couplings[p1].delete(p2) != nil
       elsif a == self && has_child?(b)  # EIC
-        input_couplings[p1].delete(p2)
+        input_couplings[p1].delete(p2) != nil
       elsif has_child?(a) && b == self  # EOC
-        output_couplings[p1].delete(p2)
+        output_couplings[p1].delete(p2) != nil
       else
         false
       end

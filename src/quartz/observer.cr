@@ -8,7 +8,7 @@ module Quartz
     end
 
     def delete_observer(observer : T) : Bool
-      @observers.try(&.delete(observer)) || false
+      @observers.try(&.delete(observer)) != nil
     end
 
     def count_observers

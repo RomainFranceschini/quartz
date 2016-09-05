@@ -24,7 +24,7 @@ module Quartz
       end
 
       def unsubscribe(hook : Symbol, instance : Proc(Symbol,Nil) | Notifiable)
-        @listeners.try &.[hook].delete(instance)
+        @listeners.try(&.[hook].delete(instance)) != nil
       end
 
       def clear
