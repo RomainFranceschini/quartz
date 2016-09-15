@@ -17,16 +17,12 @@ module Quartz
 
   alias Priority = SimulationTime
 
-  # compiler problem in 0.16.0 with generics (see #2558)
-  module EventSetType; end
-
   # Try with 0.19
   # module Schedulable
   #   abstract def time_next : SimulationTime
   # end
 
   abstract class EventSet(T) < PriorityQueue(T)
-    include EventSetType
 
     def next_priority : Priority
       if el = peek?

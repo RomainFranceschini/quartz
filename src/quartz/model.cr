@@ -2,11 +2,7 @@ module Quartz
 
   # Base model class
   abstract class Model
-  # TODO add a generic to represent DEVS::Type ?
-
-    property :name, :processor
-
-    @processor : ProcessorType?
+    property name : Name, processor : Processor?
 
     # Returns a new model.
     def initialize(@name : Name); end

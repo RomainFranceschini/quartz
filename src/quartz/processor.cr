@@ -1,10 +1,6 @@
 module Quartz
 
-  # compiler problem in 0.16.0 with generics (see #2558)
-  module ProcessorType; end
-
   abstract class Processor#(T)
-    include ProcessorType
 
     #include Logging
     #include Comparable(self)

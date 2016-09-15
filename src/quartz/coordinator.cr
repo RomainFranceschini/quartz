@@ -4,8 +4,7 @@ module Quartz
   abstract class Coordinator < Processor#(CoupledModel)
     getter children
 
-    # FIXME: temporarily use CalendarQueue(T) because EventSetType causes overload errors
-    @scheduler : CalendarQueue(Processor) #EventSetType
+    @scheduler : EventSet(Processor)
 
     # Returns a new instance of Coordinator
     def initialize(model, @namespace : Symbol, scheduler : Symbol)

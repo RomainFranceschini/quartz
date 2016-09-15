@@ -4,8 +4,7 @@ module Quartz
 
       @components : Hash(Name, Component)
 
-      # NOTE: temporarily use CalendarQueue(T) because EventSetType causes overload errors
-      @event_set : CalendarQueue(Component) #EventSetType
+      @event_set : EventSet(Component)
 
       def initialize(model, scheduler : Symbol)
         super(model)
