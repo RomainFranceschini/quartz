@@ -18,10 +18,10 @@ This project is in alpha stage.
 TODO List:
 - Supported formalisms
   - [x] Parallel DEVS
-  - [ ] Classic DEVS
   - [x] Dynamic Structure DEVS
   - [x] MultiPDEVS
   - [ ] CellDEVS
+  - [ ] QSS
 - Features
   - [x] Port observers
   - [x] Transition observers
@@ -42,7 +42,16 @@ TODO List:
   - [ ] Binary heap
   - [ ] Splay tree
 - Documentation
+  - Better documentation
 - Tests
+  - Better test coverage
+
+- Debug schedulers and introduce better meta-model
+- Better virtual time representation
+
+## Differences with [DEVS-Ruby](https://github.com/devs-ruby)
+
+Classic DEVS is not supported.
 
 ## Suggested Reading
 

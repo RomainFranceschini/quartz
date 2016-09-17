@@ -43,7 +43,7 @@ module ObservedSimulationScenario
 
     getter calls : Int32 = 0
 
-    def initialize(@model : Quartz::Transitions)
+    def initialize(@model : Quartz::Observable(Quartz::TransitionObserver))
       @model.add_observer(self)
     end
 

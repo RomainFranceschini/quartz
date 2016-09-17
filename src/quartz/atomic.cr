@@ -1,5 +1,5 @@
 module Quartz
-  # This class represent a DEVS atomic model.
+  # This class represent a PDEVS atomic model.
   class AtomicModel < Model
     include Coupleable
     include Transitions

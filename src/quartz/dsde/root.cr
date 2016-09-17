@@ -1,6 +1,6 @@
 module Quartz
-  module PDEVS
-    class RootCoordinator < PDEVS::Coordinator
+  module DSDE
+    class RootCoordinator < Coordinator
       include Simulable
 
       def initialize_state(time)

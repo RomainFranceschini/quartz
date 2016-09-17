@@ -4,7 +4,7 @@ module Quartz
 
       getter executive
 
-      def initialize(name, @executive : Executive = Executive.new(:executive))
+      def initialize(name : Name, @executive : Executive = Executive.new(:executive))
         super(name)
         @executive.network = self
         self << @executive # TODO remove from component list (but not from scheduler)

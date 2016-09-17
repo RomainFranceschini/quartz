@@ -28,6 +28,7 @@ module Quartz
                Quartz::MAS::Influence |
                Quartz::MAS::Sensor
 
+  # TODO Rename to virtual time
   alias SimulationTime = AnyNumber
 
   INFINITY = Float64::INFINITY
@@ -52,14 +53,13 @@ require "./quartz/coupler"
 require "./quartz/transitions"
 require "./quartz/schedulers"
 require "./quartz/model"
-require "./quartz/atomic_model"
-require "./quartz/coupled_model"
+require "./quartz/atomic"
+require "./quartz/coupled"
 require "./quartz/simulable"
 require "./quartz/processor"
 require "./quartz/simulator"
 require "./quartz/coordinator"
-require "./quartz/pdevs"
-#require "./quartz/cdevs"
+require "./quartz/root"
 require "./quartz/dsde"
 require "./quartz/multi_component"
 require "./quartz/processor_factory"

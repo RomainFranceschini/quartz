@@ -1,7 +1,7 @@
 module Quartz
   # This mixin provides models with several transition methods
-  # in line to the DEVS functions definition (δext, δint, δcon, λ and ta) and
-  # the DEVS variables (σ, e, t).
+  # in line to the PDEVS functions definition (δext, δint, δcon, λ and ta) and
+  # the PDEVS variables (σ, e, t).
   module Transitions
 
     @elapsed  : SimulationTime
@@ -22,7 +22,7 @@ module Quartz
     getter sigma = INFINITY
 
 
-    # DEVS functions
+    # PDEVS functions
 
     # The external transition function (δext)
     #
@@ -49,7 +49,7 @@ module Quartz
     #
     # Example:
     # ```
-    # def internal_transition; self.sigma = DEVS::INFINITY; end
+    # def internal_transition; self.sigma = Quartz::INFINITY; end
     # ```
     def internal_transition; end
 

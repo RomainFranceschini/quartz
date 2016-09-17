@@ -29,5 +29,8 @@ module Quartz
       io << ", tl=" << @time_last.to_s(io) << ">"
       nil
     end
+
+    abstract def collect_outputs(time) : Hash(Port,Any);
+    abstract def perform_transitions(time, bag) : SimulationTime;
   end
 end

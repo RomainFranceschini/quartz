@@ -9,13 +9,12 @@ module Quartz
 
     @time : SimulationTime
     @scheduler : Symbol
-    @namespace : Symbol
     @processor : Coordinator
     @start_time : Time?
     @final_time : Time?
     @transition_stats : Hash(Name,Hash(Symbol,UInt64))?
 
-    def initialize(model : Model, *, formalism : Symbol = :pdevs, scheduler : Symbol = :calendar_queue, maintain_hierarchy : Bool = true, duration : SimulationTime = Quartz::INFINITY)
+    def initialize(model : Model, *, scheduler : Symbol = :calendar_queue, maintain_hierarchy : Bool = true, duration : SimulationTime = Quartz::INFINITY)
       @time = 0
 
       @model = case model
@@ -28,17 +27,6 @@ module Quartz
       @duration = duration
       @scheduler = scheduler
 
-      # TODO fixme when introducing cdevs
-      #@namespace = #case opts[:formalism]
-      #when :cdevs then CDEVS
-      # when :pdevs then PDEVS
-      # else
-      #   #DEVS.logger.warn("formalism #{formalism} unknown, defaults to PDEVS") if DEVS.logger
-      #   PDEVS
-      # end
-      @namespace = formalism
-
-      # TODO either forbid this feature with cdevs or add a warning when using cdevs
       # TODO check direct_connect correctness
       unless maintain_hierarchy
         time = Time.now
@@ -176,7 +164,7 @@ module Quartz
 
     private def initialize_simulation
       Hooks.notifier.notify(:before_simulation_initialization_hook)
-      @time = (@processor.as(Simulable)).initialize_state(@time)
+      @time = @processor.as(Simulable).initialize_state(@time)
       Hooks.notifier.notify(:after_simulation_initialization_hook)
     end
 
@@ -303,13 +291,13 @@ module Quartz
 
     def allocate_processors(coupled = @model)
       is_root = coupled == @model
-      processor = ProcessorFactory.processor_for(coupled, @scheduler, @namespace, is_root).as(Coordinator)
+      processor = ProcessorFactory.processor_for(coupled, @scheduler, is_root).as(Coordinator)
 
       coupled.as(CoupledModel).each_child do |model|
         processor << if model.is_a?(CoupledModel)
           allocate_processors(model)
         else
-          ProcessorFactory.processor_for(model, @scheduler, @namespace)
+          ProcessorFactory.processor_for(model, @scheduler)
         end
       end
 
