@@ -12,6 +12,7 @@ module Quartz
   # (`#push`, `#insert`, `#unshift`) in order to be reused in `#delete`.
   #
   # TODO : #insert_before(node)
+  # TODO : use Indexable mixin (available since 0.19)
   class List(T)
     include Enumerable(T)
     include Comparable(List)

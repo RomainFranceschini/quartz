@@ -11,14 +11,14 @@ also maintains another M&S environment :
 
 ## Status
 
-This project is in alpha stage.
+This project is a **work in progress** and is in alpha stage.
 
 ## Development
 
 TODO List:
 - Supported formalisms
   - [x] Parallel DEVS
-  - [x] Dynamic Structure DEVS
+  - [x] DSDE
   - [x] MultiPDEVS
   - [ ] CellDEVS
   - [ ] QSS
