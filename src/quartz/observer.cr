@@ -17,11 +17,12 @@ module Quartz
 
     def notify_observers(*args)
       @observers.try do |observers|
-        observers.each do |observer|
+        observers.reject! do |observer|
           begin
             observer.update(*args)
+            false
           rescue
-            #delete_observer(observer)
+            true # deletes the element in place since it raised
           end
         end
       end
