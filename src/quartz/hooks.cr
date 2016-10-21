@@ -11,19 +11,30 @@ module Quartz
     end
 
     class Notifier
-      @listeners : Hash(Symbol, Array(Proc(Symbol,Nil) | Notifiable))?
+      @listeners : Hash(Symbol, Array((Symbol ->) | Notifiable))?
+
+      @[AlwaysInline]
+      private def listeners
+        @listeners ||= Hash(Symbol, Array((Symbol ->) | Notifiable)).new { |h,k| h[k] = Array(((Symbol ->) | Notifiable)).new }
+      end
 
       def subscribe(hook : Symbol, notifiable : Notifiable)
-        @listeners ||= Hash(Symbol, Array(Proc(Symbol,Nil) | Notifiable)).new { |h,k| h[k] = [] of (Proc(Symbol,Nil) | Notifiable) }
-        @listeners.not_nil![hook] << notifiable
+        listeners[hook] << notifiable
       end
 
       def subscribe(hook : Symbol, &block : Symbol ->)
-        @listeners ||= Hash(Symbol, Array(Proc(Symbol,Nil) | Notifiable)).new { |h,k| h[k] = [] of (Proc(Symbol,Nil) | Notifiable) }
-        @listeners.not_nil![hook] << block
+        listeners[hook] << block
       end
 
-      def unsubscribe(hook : Symbol, instance : Proc(Symbol,Nil) | Notifiable)
+      def count_listeners(hook : Symbol)
+        @listeners.try &.[hook].size
+      end
+
+      def count_listeners
+        @listeners.try &.reduce(0) { |acc, tuple| acc + tuple[1].size }
+      end
+
+      def unsubscribe(hook : Symbol, instance : (Symbol ->) | Notifiable)
         @listeners.try(&.[hook].delete(instance)) != nil
       end
 
