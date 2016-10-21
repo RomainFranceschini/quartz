@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-module ObservedSimulationScenario
+private module ObservedSimulationScenario
   class ObserverTestError < Exception; end
 
   class Foo < Quartz::AtomicModel

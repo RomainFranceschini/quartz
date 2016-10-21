@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-module MsgScenario
+private module MsgScenario
 
   class MsgTestError < Exception; end
 

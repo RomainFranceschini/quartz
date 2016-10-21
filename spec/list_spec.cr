@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-class ListTester
+private class ListTester
   @list : List(Int32)
   @array : Array(Int32)
   @i : Int32
@@ -32,7 +32,7 @@ class ListTester
   end
 end
 
-alias RecursiveList = List(RecursiveList)
+private alias RecursiveList = List(RecursiveList)
 
 describe "List" do
   describe "implementation" do

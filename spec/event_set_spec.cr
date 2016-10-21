@@ -1,18 +1,18 @@
 require "./spec_helper"
 
-class Ev
+private class Ev
   property :time_next
   def initialize(@time_next : Int32)
   end
 end
 
-class EvF
+private class EvF
   property :time_next
   def initialize(@time_next : Float64)
   end
 end
 
-class EventSetTester
+private class EventSetTester
   @cq : CalendarQueue(Ev)
   #@lq : LadderQueue(Ev)
   #@st : SplayTree(Ev)
@@ -34,7 +34,7 @@ class EventSetTester
   end
 end
 
-class EventSetTesterF
+private class EventSetTesterF
   @cq : CalendarQueue(EvF)
   #@lq : LadderQueue(EvF)
   #@st : SplayTree(EvF)

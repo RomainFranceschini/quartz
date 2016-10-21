@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-module GeneratorScenario
+private module GeneratorScenario
 
   class GenTestError < Exception; end
 

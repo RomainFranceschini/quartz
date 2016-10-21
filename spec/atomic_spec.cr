@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-class FetchOutputTest < AtomicModel
+private class FetchOutputTest < AtomicModel
   def initialize
     super("fetch_output")
     add_output_port "out"

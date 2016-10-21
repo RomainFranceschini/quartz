@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-module ConflictScenario
+private module ConflictScenario
 
   class ConflictTestError < Exception; end
 

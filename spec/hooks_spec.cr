@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-class MyNotifiable
+private class MyNotifiable
   include Hooks::Notifiable
 
   getter calls : Int32 = 0
@@ -10,7 +10,7 @@ class MyNotifiable
   end
 end
 
-class RaiseNotifiable < MyNotifiable
+private class RaiseNotifiable < MyNotifiable
   def notify(hook : Symbol)
     super(hook)
     raise "ohno"
