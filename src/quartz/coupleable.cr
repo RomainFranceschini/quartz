@@ -125,6 +125,7 @@ module Quartz
 
     # Add given port to *self*.
     def add_port(port : Port)
+      raise InvalidPortHostError.new if port.host != self
       case port.mode
       when IOMode::Input
         input_ports[port.name] = port
