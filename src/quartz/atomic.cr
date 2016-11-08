@@ -39,6 +39,8 @@ module Quartz
       post(value, self.output_port(on))
     end
 
+    # :nodoc:
+    # 
     # Returns outgoing messages added by the DEVS lambda (λ) function for the
     # current state.
     #

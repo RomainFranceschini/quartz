@@ -1,6 +1,6 @@
 module Quartz
-  # The `Coupleable` mixin provides models with the ability to be coupled
-  # through an input and output interface.
+  # The `Coupleable` mixin provides models with the ability to be coupled with
+  # other coupleables through an input and output interface.
   module Coupleable
 
     @input_ports : Hash(Name, Port)?
