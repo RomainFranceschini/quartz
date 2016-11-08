@@ -15,7 +15,7 @@ module Quartz
       @transition_count.clear
       @time_last = atomic.time = time
       @time_next = @time_last + atomic.time_advance
-      atomic.notify_observers(atomic, :init)
+      atomic.notify_observers({ :transition => Any.new(:init) })
       #debug "\t#{model} initialization (time_last: #{@time_last}, time_next: #{@time_next})" if Quartz.logger && Quartz.logger.debug?
       @time_next
     end
@@ -55,7 +55,7 @@ module Quartz
 
       @time_last = atomic.time = time
       @time_next = @time_last + atomic.time_advance
-      atomic.notify_observers(atomic, kind)
+      atomic.notify_observers({ :transition => Any.new(kind) })
 
       #debug "\t\ttime_last: #{@time_last} | time_next: #{@time_next}" if Quartz.logger && Quartz.logger.debug?
       @time_next

@@ -3,7 +3,7 @@ module Quartz
   class AtomicModel < Model
     include Coupleable
     include Transitions
-    include Observable(TransitionObserver)
+    include Observable
 
     def initialize(name)
       super(name)

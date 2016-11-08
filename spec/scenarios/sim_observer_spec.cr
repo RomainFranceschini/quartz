@@ -21,7 +21,7 @@ private module ObservedSimulationScenario
   end
 
   class PortObserver
-    include Quartz::PortObserver
+    include Quartz::ObserverWithInfo
 
     getter calls : Int32 = 0
     getter port : Quartz::Port?
@@ -31,23 +31,25 @@ private module ObservedSimulationScenario
       port.add_observer(self)
     end
 
-    def update(port, value)
+    def update(observable, info)
       @calls += 1
-      @port = port
-      @value = value
+      if observable.is_a?(Port)
+        @port = observable.as(Port)
+        @value = info[:payload].as(Any) if info
+      end
     end
   end
 
   class TransitionObserver
-    include Quartz::TransitionObserver
+    include Quartz::Observer
 
     getter calls : Int32 = 0
 
-    def initialize(@model : Quartz::Observable(Quartz::TransitionObserver))
+    def initialize(@model : Quartz::Observable)
       @model.add_observer(self)
     end
 
-    def update(model, transition)
+    def update(model)
       @calls += 1
     end
   end

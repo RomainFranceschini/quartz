@@ -5,7 +5,7 @@ module Quartz
 
     abstract class Component < Model
       include Transitions
-      #include Observable(TransitionObserver)
+      include Observable
 
       property time_last : SimulationTime = 0
       property time_next : SimulationTime = 0

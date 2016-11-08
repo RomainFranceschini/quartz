@@ -1,25 +1,21 @@
 require "./spec_helper"
 
-private module MyObserver
-  abstract def update;
-end
-
 private class Foo
-  include Observable(MyObserver)
+  include Observable
 end
 
 private class Bar
-  include MyObserver
+  include Observer
   getter calls : Int32 = 0
 
-  def update
+  def update(observer)
     @calls += 1
   end
 end
 
 private class RaiseBar < Bar
-  def update
-    super
+  def update(observer)
+    super(observer)
     raise "ohno"
   end
 end
@@ -85,8 +81,9 @@ describe "Observable" do
 end
 
 private class MyPortObserver
-  include PortObserver
-  def update(port : Port, payload : Any)
+  include Observer
+
+  def update(observer)
   end
 end
 

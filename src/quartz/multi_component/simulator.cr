@@ -26,7 +26,7 @@ module Quartz
         @event_set.clear
 
         @components.each_value do |component|
-          #component.notify_observers(component, :init)
+          component.notify_observers({ :transition => Any.new(:init) })
           component.time_last = component.time = time - component.elapsed
           component.time_next = component.time_last + component.time_advance
 
@@ -89,7 +89,7 @@ module Quartz
                 @state_bags[@components[k]] << {component.name, v}
               end
             end
-            #component.notify_observers(component, kind)
+            component.notify_observers({ :transition => Any.new(kind) })
           end
         elsif !bag.empty?
           @components.each do |component_name, component|
@@ -101,11 +101,12 @@ module Quartz
               kind = :external
               component.external_transition(bag)
             end
-            #component.notify_observers(component, kind)
             o.try &.each do |k,v|
               @state_bags[@components[k]] << {component_name, v}
             end
+            component.notify_observers({ :transition => Any.new(kind) })
           end
+          kind = time == @time_next ? :confluent : :external
         end
 
         @state_bags.each do |component, states|
@@ -121,12 +122,13 @@ module Quartz
             tn = component.time_next = component.time_last + component.time_advance
             @event_set.push(component) if tn < Quartz::INFINITY
           end
-          #component.notify_observers(component, :reaction)
+          component.notify_observers({ :transition => Any.new(:reaction) })
         end
         @state_bags.clear
 
         @event_set.reschedule! if @event_set.is_a?(RescheduleEventSet)
 
+        @model.as(MultiComponent::Model).notify_observers({:transition => Any.new(kind)})
         #@model.as(MultiComponent::Model).notify_observers(@model.as(MultiComponent::Model), kind)
 
         @time_last = time

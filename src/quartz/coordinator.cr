@@ -97,7 +97,7 @@ module Quartz
 
         output.each do |port, payload|
           if child.is_a?(Simulator)
-            port.notify_observers(port, payload.as(Any))
+            port.notify_observers({ :payload => payload.as(Any) })
           end
 
           # check internal coupling to get children who receive sub-bag of y

@@ -45,14 +45,14 @@ class BirthController < Quartz::DSDE::Executive
 end
 
 class Grapher
-  include Quartz::TransitionObserver
+  include Quartz::ObserverWithInfo
 
   def initialize(model, @simulation : Quartz::Simulation)
     model.add_observer(self)
   end
 
-  def update(model, kind)
-    if kind == :internal
+  def update(model, info)
+    if info && info[:transition] == :internal
       @simulation.generate_graph("dsde_#{@simulation.time.to_i}")
     end
   end

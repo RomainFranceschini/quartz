@@ -21,7 +21,7 @@ end
 
 class Plotter
   include Quartz::Hooks::Notifiable
-  include Quartz::TransitionObserver
+  include Quartz::Observer
 
   @file : File?
 
@@ -44,9 +44,11 @@ class Plotter
     end
   end
 
-  def update(model, kind)
-    lotka = model.as(LotkaVolterra)
-    @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", lotka.time, lotka.x, lotka.y)
+  def update(model)
+    if model.is_a?(LotkaVolterra)
+      lotka = model.as(LotkaVolterra)
+      @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", lotka.time, lotka.x, lotka.y)
+    end
   end
 end
 

@@ -8,7 +8,7 @@ module Quartz
   # This class represents a port that belongs to a `Model` (the *host*).
   class Port
     include Comparable(Port)
-    include Observable(PortObserver)
+    include Observable
 
     getter mode : IOMode
     getter name : Name
@@ -23,7 +23,7 @@ module Quartz
     def initialize(@host : Coupleable, @mode : IOMode, @name : Name)
     end
 
-    def add_observer(observer : PortObserver)
+    def add_observer(observer)
       if @mode == IOMode::Input || @host.is_a?(CoupledModel)
         raise UnobservablePortError.new("Only atomic models output ports are observable.")
       end

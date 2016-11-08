@@ -1,8 +1,7 @@
 module Quartz
   module MultiComponent
     class Model < Quartz::Model
-      #include Observable(PortObserver)
-      #include Observable(TransitionObserver)
+      include Observable
       include Coupleable
 
       getter components = Hash(Name, Component).new
