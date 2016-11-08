@@ -184,6 +184,28 @@ module Quartz
       output_ports.values
     end
 
+    # Calls given block once for each input port, passing that element as a
+    # parameter.
+    def each_input_port
+      input_ports.each_value { |port| yield(port) }
+    end
+
+    # :nodoc:
+    def each_input_port
+      input_ports.each_value
+    end
+
+    # Calls given block once for each output port, passing that element as a
+    # parameter.
+    def each_output_port
+      output_ports.each_value { |port| yield(port) }
+    end
+
+    # :nodoc:
+    def each_output_port
+      output_ports.each_value
+    end
+
     # Find the input port identified by the given *name*.
     def input_port?(name : Name) : Port?
       input_ports[name]?
