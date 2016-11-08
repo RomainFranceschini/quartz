@@ -28,6 +28,7 @@ TODO List:
   - [x] Simulation hooks
   - [x] Hierarchy flattening
   - [x] Graphviz output of coupled structure
+  - [x] Class-level definition of ports (through macros)
   - [ ] Model serialization
   - [ ] Model runtime validation
   - [ ] Logging

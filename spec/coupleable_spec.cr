@@ -2,6 +2,40 @@ require "./spec_helper"
 require "./coupling_helper"
 
 describe "Coupleable" do
+  describe "macros" do
+    it "should define specified input ports for each instance" do
+      Foo.new(:foo1).input_ports.keys.should eq([:iport1])
+      Foo.new(:foo2).input_ports.values.map(&.name).should eq([:iport1])
+    end
+
+    it "should define specified output ports for each instance" do
+      Foo.new(:foo1).output_ports.keys.should eq([:oport1, :oport2, :oport3])
+      Foo.new(:foo2).output_ports.values.map(&.name).should eq([:oport1, :oport2, :oport3])
+    end
+
+    it "should inherit input ports defined in parent classes" do
+      Bar.new(:bar1).input_ports.keys.should eq([:iport1, :iport2])
+      Bar.new(:bar2).input_ports.values.map(&.name).should eq([:iport1, :iport2])
+    end
+
+    it "should inherit output ports defined in parent classes" do
+      Bar.new(:bar1).output_ports.keys.should eq([:oport1, :oport2, :oport3])
+      Bar.new(:bar2).output_ports.values.map(&.name).should eq([:oport1, :oport2, :oport3])
+    end
+
+    it "also adds ports defined at runtime" do
+      f = Foo.new(:foo1)
+      f.add_input_port(:newin)
+      f.input_ports.keys.should eq([:iport1, :newin])
+      f.input_ports.values.map(&.name).should eq([:iport1, :newin])
+
+      b = Bar.new(:bar1)
+      b.add_output_port(:newout)
+      b.output_ports.keys.should eq([:oport1, :oport2, :oport3, :newout])
+      b.output_ports.values.map(&.name).should eq([:oport1, :oport2, :oport3, :newout])
+    end
+  end
+
   describe "port creation" do
     it "adds ports" do
       c = MyCoupleable.new("a")

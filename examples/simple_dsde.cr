@@ -14,15 +14,14 @@ class OneTimeModel < Quartz::AtomicModel
 end
 
 class BirthController < Quartz::DSDE::Executive
+
+  output :birth, :death, :add_coupling, :remove_coupling
+
   def initialize(name)
     super(name)
     @sigma = 1
     @counter = 0
     @reverse = false
-    add_output_port :birth
-    add_output_port :death
-    add_output_port :add_coupling
-    add_output_port :remove_coupling
   end
 
   def internal_transition

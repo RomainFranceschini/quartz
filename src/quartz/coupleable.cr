@@ -2,12 +2,125 @@ module Quartz
   # The `Coupleable` mixin provides models with the ability to be coupled
   # through an input and output interface.
   module Coupleable
-    protected def input_ports : Hash(Name, Port)
-      @input_ports ||= Hash(Name, Port).new
+
+    @input_ports : Hash(Name, Port)?
+    @output_ports : Hash(Name, Port)?
+
+    macro included
+      @@_input_ports : Array(Name)?
+      @@_output_ports : Array(Name)?
+
+      # Defines default input ports for each of the given arguments.
+      # Those default input ports will be available in all instances, including
+      # instances of subclasses (meaning that ports are inherited).
+      #
+      # Writing:
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   input port_name
+      # end
+      # ```
+      #
+      # Is the same as writing:
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   def initialize(name)
+      #     super(name)
+      #     add_input_port :port_name
+      #   end
+      # end
+      # ```
+      #
+      # The arguments can be string literals, symbol literals or plain names.
+      # However, they will be converted to string literals when the
+      # model is instantiated.
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   input :in1, "in2", in3
+      # end
+      # ```
+      macro input(*names)
+        \{% for name in names %}
+          self._input_ports << :\{{ name.id }}
+        \{% end %}
+      end
+
+      # Defines default output ports for each of the given arguments.
+      # Those default output ports will be available in all instances, including
+      # instances of subclasses (meaning that ports are inherited).
+      #
+      # Writing:
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   output port_name
+      # end
+      # ```
+      #
+      # Is the same as writing:
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   def initialize(name)
+      #     super(name)
+      #     add_output_port :port_name
+      #   end
+      # end
+      # ```
+      #
+      # The arguments can be string literals, symbol literals or plain names.
+      # However, they will be converted to symbols literals when the
+      # model is instantiated.
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   output :out1, "out2", out3
+      # end
+      # ```
+      macro output(*names)
+        \{% for name in names %}
+          self._output_ports << :\{{ name.id }}
+        \{% end %}
+      end
+
+      # :nodoc:
+      protected def self._input_ports
+        @@_input_ports ||= Array(Name).new
+      end
+
+      # :nodoc:
+      protected def self._output_ports
+        @@_output_ports ||= Array(Name).new
+      end
+
+      macro inherited
+        # :nodoc:
+        protected def self._input_ports
+          @@_input_ports ||= \{{ @type.superclass }}._input_ports.dup
+        end
+
+        # :nodoc:
+        protected def self._output_ports
+          @@_output_ports ||= \{{ @type.superclass }}._output_ports.dup
+        end
+      end
     end
 
+    # :nodoc:
+    protected def input_ports : Hash(Name, Port)
+      @input_ports ||= Hash(Name, Port).zip(self.class._input_ports, self.class._input_ports.map { |port_name|
+        Port.new(self, IOMode::Input, port_name)
+      })
+    end
+
+    # :nodoc:
     protected def output_ports : Hash(Name, Port)
-      @output_ports ||= Hash(Name, Port).new
+      @output_ports ||= Hash(Name, Port).zip(self.class._output_ports, self.class._output_ports.map { |port_name|
+        Port.new(self, IOMode::Output, port_name)
+      })
     end
 
     # Add given port to *self*.

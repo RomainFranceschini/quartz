@@ -6,11 +6,13 @@ module Quartz
       getter idle
       property network
 
+      output  :ack
+      input   :add_model, :remove_model, :add_coupling, :remove_coupling,
+              :add_input_port, :add_output_port, :remove_input_port,
+              :remove_output_port
+
       def initialize(name, @network : CoupledModel? = nil)
         super(name)
-        {:add_model, :remove_model, :add_coupling, :remove_coupling, :add_input_port, :add_output_port, :remove_input_port, :remove_output_port}.each { |ip| add_input_port(ip) }
-
-        add_output_port :ack
       end
 
       def confluent_transition(bag)
