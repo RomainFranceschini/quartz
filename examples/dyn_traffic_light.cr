@@ -1,7 +1,6 @@
 require "../src/quartz"
 
 class TrafficLight < Quartz::AtomicModel
-
   getter phase : Symbol
 
   def initialize(name)
@@ -26,29 +25,29 @@ class TrafficLight < Quartz::AtomicModel
 
   def internal_transition
     @phase = case @phase
-    when :red
-      :green
-    when :green
-      :orange
-    else # orange
-      :red
-    end
+             when :red
+               :green
+             when :green
+               :orange
+             else # orange
+               :red
+             end
   end
 
   def output
     observed = case @phase
-    when :red, :orange
-      :grey
-    when :green
-      :orange
-    end
+               when :red, :orange
+                 :grey
+               when :green
+                 :orange
+               end
     post observed, :observed
   end
 
   def time_advance
     case @phase
-    when :red then 60
-    when :green then 50
+    when :red    then 60
+    when :green  then 50
     when :orange then 10
     else # manual
       Quartz::INFINITY
@@ -67,14 +66,14 @@ class Policeman < Quartz::AtomicModel
 
   def internal_transition
     @phase = case @phase
-    when :idle1 then :working1
-    when :working1 then :move1_2
-    when :move1_2 then :idle2
-    when :idle2 then :working2
-    when :working2 then :move2_1
-    else # move2_1
-      :idle1
-    end
+             when :idle1    then :working1
+             when :working1 then :move1_2
+             when :move1_2  then :idle2
+             when :idle2    then :working2
+             when :working2 then :move2_1
+             else # move2_1
+               :idle1
+             end
   end
 
   def output
@@ -84,7 +83,7 @@ class Policeman < Quartz::AtomicModel
     when :working1, :working2
       post :to_autonomous, :alternate
     else
-      tl1 = Hash(Quartz::Type,Quartz::Type).new
+      tl1 = Hash(Quartz::Type, Quartz::Type).new
       tl1[:src] = :policeman
       tl1[:dst] = :traffic_light1
       tl1[:src_port] = :alternate
@@ -118,20 +117,38 @@ class Policeman < Quartz::AtomicModel
 end
 
 class Grapher
-  include Quartz::TransitionObserver
+  include Quartz::ObserverWithInfo
 
   def initialize(model, @simulation : Quartz::Simulation)
     model.add_observer(self)
   end
 
-  def update(model, kind)
-    if kind == :internal || kind == :confluent
-      @simulation.generate_graph("trafficlight_#{@simulation.time.to_i}")
+  def update(model, info)
+    if model.is_a?(Quartz::DSDE::Executive) && info
+      kind = info[:kind]
+      if kind == :internal || kind == :confluent
+        @simulation.generate_graph("dyntrafficlight_#{@simulation.time.to_i}")
+      end
     end
   end
 end
 
-model = Quartz::DSDE::CoupledModel.new(:dsde)
+class PortObserver
+  include Quartz::ObserverWithInfo
+
+  def initialize(port)
+    port.add_observer(self)
+  end
+
+  def update(observable, info)
+    if observable.is_a?(Quartz::Port) && info
+      payload = info[:payload]
+      puts "#{observable.host}@#{observable} sends '#{payload}' at #{observable.host.as(Quartz::AtomicModel).time}"
+    end
+  end
+end
+
+model = Quartz::DSDE::CoupledModel.new(:dynamic_crossroads)
 tl1 = TrafficLight.new(:traffic_light1)
 tl2 = TrafficLight.new(:traffic_light2)
 policeman = Policeman.new(:policeman)
@@ -145,13 +162,10 @@ model.attach :remove_coupling, to: :remove_coupling, between: :policeman, and: :
 model.attach :alternate, to: :interrupt, between: :policeman, and: :traffic_light1
 
 simulation = Quartz::Simulation.new(model, duration: 1000)
-simulation.generate_graph("trafficlight_0")
-Grapher.new(model.executive, simulation)
+simulation.generate_graph("dyntrafficlight_0")
 
-puts policeman.time_advance
-puts tl1.time_advance
-puts tl1.phase
-puts tl2.time_advance
-puts tl2.phase
+Grapher.new(model.executive, simulation)
+PortObserver.new(tl1.output_port(:observed))
+PortObserver.new(tl2.output_port(:observed))
 
 simulation.simulate

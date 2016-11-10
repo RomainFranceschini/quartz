@@ -1,6 +1,7 @@
 module Quartz
   module MultiComponent
     abstract struct ComponentState
+      include Transferable
     end
 
     abstract class Component < Model
@@ -35,6 +36,5 @@ module Quartz
         true
       end
     end
-
   end
 end
