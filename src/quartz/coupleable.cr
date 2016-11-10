@@ -2,6 +2,7 @@ module Quartz
   # The `Coupleable` mixin provides models with the ability to be coupled with
   # other coupleables through an input and output interface.
   module Coupleable
+    include Transferable
 
     @input_ports : Hash(Name, Port)?
     @output_ports : Hash(Name, Port)?
@@ -96,6 +97,7 @@ module Quartz
         @@_output_ports ||= Array(Name).new
       end
 
+      # Copy ports on inheritance.
       macro inherited
         # :nodoc:
         protected def self._input_ports
@@ -247,10 +249,10 @@ module Quartz
     # :nodoc:
     private def find_or_create_port_if_necessary(mode : IOMode, port_name : Name) : Port
       port = if mode.output?
-        output_ports[port_name]?
-      else
-        input_ports[port_name]?
-      end
+               output_ports[port_name]?
+             else
+               input_ports[port_name]?
+             end
 
       if port.nil?
         port = add_port(mode, port_name)
