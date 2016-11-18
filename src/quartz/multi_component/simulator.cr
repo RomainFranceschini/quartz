@@ -47,7 +47,7 @@ module Quartz
       # Returns the minimum time next in all components
       def min_time_next
         tn = Quartz::INFINITY
-        if (obj = @event_set.peek)
+        if (obj = @event_set.peek?)
           tn = obj.time_next
         end
         tn
