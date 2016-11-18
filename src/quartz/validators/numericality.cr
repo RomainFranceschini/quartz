@@ -5,24 +5,24 @@ module Quartz
 
       # TODO what about big numbers?
       # TODO option for float comparison within error
-      def initialize(*attributes, allow_nil = false, **options : AnyNumber)
-        super(*attributes, allow_nil: allow_nil)
+      def initialize(*attributes, **kwargs)
+        super(*attributes, **kwargs)
         @targets = Hash(Symbol, AnyNumber).new
 
         keys = {
-          {:greater_than,:gt,:>},
-          {:lesser_than,:lt,:<},
-          {:greater_than_or_equal_to,:gte,:>=},
-          {:lesser_than_or_equal_to,:lte,:<=},
-          {:equal_to,:==},
-          {:other_than,:!=}
+          {:greater_than, :gt, :>},
+          {:lesser_than, :lt, :<},
+          {:greater_than_or_equal_to, :gte, :>=},
+          {:lesser_than_or_equal_to, :lte, :<=},
+          {:equal_to, :==},
+          {:other_than, :!=},
         }
 
         keys.each do |tuple|
           tuple.each do |option|
-            if target = options[option]?
+            if (target = kwargs[option]?) && target.is_a?(Number)
               @targets[tuple[0]] = target
-              #break # see issue #3529
+              # break # see issue #3529 (fixed in 0.20)
             end
           end
         end

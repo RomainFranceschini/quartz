@@ -1,6 +1,7 @@
 require "./validators/validator"
 require "./validators/presence"
 require "./validators/numericality"
+require "./validators/inclusion"
 
 module Quartz
   module Validations
