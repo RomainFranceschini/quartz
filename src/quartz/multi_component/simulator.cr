@@ -42,6 +42,10 @@ module Quartz
 
         @time_last = time
         @time_next = min_time_next
+        if (logger = Quartz.logger?) && logger.debug?
+          logger.debug("\t#{model} initialization (time_last: #{@time_last}, time_next: #{@time_next})")
+        end
+        @time_next
       end
 
       # Returns the minimum time next in all components
@@ -84,6 +88,9 @@ module Quartz
         if time == @time_next && bag.empty?
           kind = :internal
           @imm.not_nil!.each do |component|
+            if (logger = Quartz.logger?) && logger.debug?
+              logger.debug("\tinternal transition: #{component}")
+            end
             component.internal_transition.try do |ps|
               ps.each do |k,v|
                 @state_bags[@components[k]] << {component.name, v}
@@ -96,9 +103,15 @@ module Quartz
             # TODO test if component defined delta_ext
             o = if time == @time_next && component.time_next == @time_next
               kind = :confluent
+              if (logger = Quartz.logger?) && logger.debug?
+                logger.debug("\tconfluent transition: #{component}")
+              end
               component.confluent_transition(bag)
             else
               kind = :external
+              if (logger = Quartz.logger?) && logger.debug?
+                logger.debug("\texternal transition: #{component}")
+              end
               component.external_transition(bag)
             end
             o.try &.each do |k,v|
@@ -111,12 +124,18 @@ module Quartz
 
         @state_bags.each do |component, states|
           if @event_set.is_a?(RescheduleEventSet)
+            if (logger = Quartz.logger?) && logger.debug?
+              logger.debug("\treaction transition: #{component}")
+            end
             component.reaction_transition(states)
             component.time_last = component.time = time - component.elapsed
             component.time_next = component.time_last + component.time_advance
           else
             tn = component.time_next
             @event_set.delete(component) if tn < Quartz::INFINITY && time != tn
+            if (logger = Quartz.logger?) && logger.debug?
+              logger.debug("\treaction transition: #{component}")
+            end
             component.reaction_transition(states)
             component.time_last = component.time = time - component.elapsed
             tn = component.time_next = component.time_last + component.time_advance
@@ -129,7 +148,6 @@ module Quartz
         @event_set.reschedule! if @event_set.is_a?(RescheduleEventSet)
 
         @model.as(MultiComponent::Model).notify_observers({:transition => Any.new(kind)})
-        #@model.as(MultiComponent::Model).notify_observers(@model.as(MultiComponent::Model), kind)
 
         @time_last = time
         @time_next = min_time_next

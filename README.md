@@ -31,7 +31,7 @@ TODO List:
   - [x] Class-level definition of ports (through macros)
   - [ ] Model serialization
   - [ ] Model runtime validation
-  - [ ] Logging
+  - [x] Logging
   - [ ] Internal DSL
 - Distributed simulations
   - [ ] MPI bindings
@@ -46,7 +46,6 @@ TODO List:
   - Better documentation
 - Tests
   - Better test coverage
-
 - Debug schedulers and introduce better meta-model
 - Better virtual time representation
 

@@ -31,12 +31,14 @@ module Quartz
       unless maintain_hierarchy
         time = Time.now
         direct_connect!
-        Quartz.logger.info "  * Flattened modeling tree in #{Time.now - time} secs" if Quartz.logger
+        if logger = Quartz.logger?
+          logger.info "  * Flattened modeling tree in #{Time.now - time} secs"
+        end
       end
 
-      #time = Time.now
+      time = Time.now
       @processor = allocate_processors
-      #DEVS.logger.info "  * Allocated processors in #{Time.now - time} secs" if DEVS.logger
+      info "  * Allocated processors in #{Time.now - time} secs"
     end
 
     def inspect(io)
@@ -124,7 +126,7 @@ module Quartz
 
     def abort
       if running?
-        info "Aborting simulation." if Quartz.logger
+        info "Aborting simulation."
         @time = @duration
         @final_time = Time.now
       end
@@ -138,27 +140,33 @@ module Quartz
         @start_time = nil
         @final_time = nil
       when :running
-        info "Cannot restart, the simulation is currently running." if Quartz.logger
+        info "Cannot restart, the simulation is currently running."
       end
     end
 
     private def begin_simulation
       @start_time = Time.now
-      info "*** Beginning simulation at #{@start_time} with duration: #{@duration}" if Quartz.logger
+      info "*** Beginning simulation at #{@start_time} with duration: #{@duration}"
       Hooks.notifier.notify(:before_simulation_hook)
     end
 
     private def end_simulation
       @final_time = Time.now
 
-      if Quartz.logger
-        info "*** Simulation ended at #{@final_time} after #{elapsed_secs} secs."
-        debug "* Transition stats : {"
-        transition_stats.not_nil!.each { |k, v| debug "    #{k} => #{v}" }
-        debug "* }"
-        debug "* Running post simulation hook"
+      if logger = Quartz.logger?
+        logger.info "*** Simulation ended at #{@final_time} after #{elapsed_secs} secs."
+        if logger.debug?
+          str = String.build(512) do |str|
+            str << "* Transition stats : {\n"
+            transition_stats.not_nil!.each do |k, v|
+              str << "    #{k} => #{v}\n"
+            end
+            str << "* }\n"
+            str << "* Running post simulation hook"
+          end
+          logger.debug(str)
+        end
       end
-
       Hooks.notifier.notify(:after_simulation_hook)
     end
 
@@ -175,6 +183,9 @@ module Quartz
         begin_simulation
         @time
       elsif running?
+        if (logger = Quartz.logger?) && logger.debug?
+          logger.debug("* Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed")
+        end
         @time = simulable.step(@time)
         end_simulation if done?
         @time
@@ -190,15 +201,17 @@ module Quartz
         initialize_simulation
         begin_simulation
         while @time < @duration
-          #debug "* Tick at: #{self.time}, #{Time.now - start_time} secs elapsed" if DEVS.logger && DEVS.logger.debug?
+          if (logger = Quartz.logger?) && logger.debug?
+            logger.debug("* Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed")
+          end
           @time = simulable.step(@time)
         end
         end_simulation
-      elsif Quartz.logger
+      elsif logger = Quartz.logger?
         if running?
-          error "The simulation already started at #{@start_time} and is currently running."
+          logger.error "The simulation already started at #{@start_time} and is currently running."
         else
-          error "The simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
+          logger.error "The simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
         end
       end
       self
@@ -214,16 +227,18 @@ module Quartz
         initialize_simulation
         begin_simulation
         while @time < @duration
-          #debug "* Tick at: #{self.time}, #{Time.now - start_time} secs elapsed" if DEVS.logger && DEVS.logger.debug?
+          if (logger = Quartz.logger?) && logger.debug?
+            logger.debug("* Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed")
+          end
           @time = simulable.step(@time)
           yield(self)
         end
         end_simulation
-      elsif Quartz.logger
+      elsif logger = Quartz.logger?
         if running?
-          error "The simulation already started at #{@start_time} and is currently running."
+          logger.error "The simulation already started at #{@start_time} and is currently running."
         else
-          error "The simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
+          logger.error "The simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
         end
         nil
       end

@@ -8,7 +8,11 @@ module Quartz
       # when :sorted_list then SortedList(T).new
       # when :splay_tree then SplayTree(T).new
       when :calendar_queue then CalendarQueue(T).new
-      else CalendarQueue(T).new
+      else
+        if (logger = Quartz.logger?) && logger.warn?
+          logger.warn("unknown event set '#{event_set}', defaults to calendar queue")
+        end
+        CalendarQueue(T).new
       end
     end
   end

@@ -1,5 +1,5 @@
 require "spec"
 require "../src/quartz"
 
-Quartz.logger.level = Logger::UNKNOWN
+Quartz.logger = nil
 include Quartz
