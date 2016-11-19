@@ -1,8 +1,8 @@
 # Quartz - A DEVS-based Modeling & Simulation Environment (WIP)
 
 Quartz is a Crystal library for defining models and constructing discrete
-event simulations based on the DEVS (Discrete EVent System Specification) and
-some of its extensions (Parallel DEVS, DSDEVS). Its a Crystal port of
+event simulations based on the PDEVS (Parallel Discrete EVent System Specification) and
+some of its extensions (DSDE, multiPDEVS). Its a Crystal port of
 [DEVS-Ruby](https://github.com/devs-ruby)
 
 This project is developed by a research group at University of Corsica, which
