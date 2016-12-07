@@ -12,17 +12,22 @@ module Quartz
         super(model)
         @event_set = EventSetFactory(Component).new_event_set(scheduler)
         @components = model.components
-        @transition_count = Hash(Symbol, UInt64).new { 0_u64 }
       end
 
+      @reac_count : UInt32 = 0u32
+
       def transition_stats
-        @transition_count
+        {
+          external: @ext_count,
+          internal: @int_count,
+          confluent: @con_count,
+          reaction: @reac_count
+        }
       end
 
       def initialize_processor(time)
         atomic = @model.as(MultiComponent::Model)
-        @transition_count.clear
-
+        @reac_count = @int_count = @ext_count = @con_count = 0u32
         @event_set.clear
 
         @components.each_value do |component|
@@ -71,7 +76,7 @@ module Quartz
         @imm.not_nil!.each do |component|
           if sub_bag = component.output
             sub_bag.each do |k,v|
-              output_bag[@model.ensure_output_port(key)] << v
+              output_bag[@model.ensure_output_port(k)] << v
             end
           end
         end
@@ -87,6 +92,7 @@ module Quartz
         kind = :unknown
         if time == @time_next && bag.empty?
           kind = :internal
+          @int_count += @imm.size
           @imm.not_nil!.each do |component|
             if (logger = Quartz.logger?) && logger.debug?
               logger.debug("\tinternal transition: #{component}")
@@ -103,12 +109,14 @@ module Quartz
             # TODO test if component defined delta_ext
             o = if time == @time_next && component.time_next == @time_next
               kind = :confluent
+              @con_count += 1u32
               if (logger = Quartz.logger?) && logger.debug?
                 logger.debug("\tconfluent transition: #{component}")
               end
               component.confluent_transition(bag)
             else
               kind = :external
+              @ext_count += 1u32
               if (logger = Quartz.logger?) && logger.debug?
                 logger.debug("\texternal transition: #{component}")
               end
@@ -143,6 +151,7 @@ module Quartz
           end
           component.notify_observers({ :transition => Any.new(:reaction) })
         end
+        @reac_count += @state_bags.size
         @state_bags.clear
 
         @event_set.reschedule! if @event_set.is_a?(RescheduleEventSet)

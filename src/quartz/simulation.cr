@@ -12,7 +12,6 @@ module Quartz
     @processor : Coordinator
     @start_time : Time?
     @final_time : Time?
-    @transition_stats : Hash(Name,Hash(Symbol,UInt64))?
 
     def initialize(model : Model, *, scheduler : Symbol = :calendar_queue, maintain_hierarchy : Bool = true, duration : SimulationTime = Quartz::INFINITY)
       @time = 0
@@ -103,25 +102,21 @@ module Quartz
 
     # Returns the number of transitions per model along with the total
     def transition_stats
-      if done?
-        @transition_stats ||= (
-          stats = {} of Name => Hash(Symbol, UInt64)
-          hierarchy = @processor.children.dup
-          hierarchy.each do |child|
-            if child.is_a?(Coordinator)
-              coordinator = child.as(Coordinator)
-              hierarchy.concat(coordinator.children)
-            else
-              simulator = child.as(Simulator)
-              stats[child.model.name] = simulator.transition_stats
-            end
-          end
-          total = Hash(Symbol, UInt64).new { 0_u64 }
-          stats.values.each { |h| h.each { |k, v| total[k] += v }}
-          stats[:TOTAL] = total
-          stats
-        )
+      stats = {} of Name => Hash(Symbol, UInt32)
+      hierarchy = @processor.children.dup
+      hierarchy.each do |child|
+        if child.is_a?(Coordinator)
+          coordinator = child.as(Coordinator)
+          hierarchy.concat(coordinator.children)
+        else
+          simulator = child.as(Simulator)
+          stats[child.model.name] = simulator.transition_stats.to_h
+        end
       end
+      total = Hash(Symbol, UInt32).new { 0_u32 }
+      stats.values.each { |h| h.each { |k, v| total[k] += v }}
+      stats[:TOTAL] = total
+      stats
     end
 
     def abort
@@ -135,7 +130,6 @@ module Quartz
     def restart
       case status
       when :done
-        @transition_stats = nil
         @time = 0
         @start_time = nil
         @final_time = nil
@@ -158,7 +152,7 @@ module Quartz
         if logger.debug?
           str = String.build(512) do |str|
             str << "* Transition stats : {\n"
-            transition_stats.not_nil!.each do |k, v|
+            transition_stats.each do |k, v|
               str << "    #{k} => #{v}\n"
             end
             str << "* }\n"

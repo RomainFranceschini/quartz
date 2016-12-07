@@ -1,18 +1,22 @@
 module Quartz
   class Simulator < Processor
 
-    def initialize(model : Model)
-      super(model)
-      @transition_count = Hash(Symbol, UInt64).new { 0_u64 }
-    end
+    @int_count : UInt32 = 0u32
+    @ext_count : UInt32 = 0u32
+    @con_count : UInt32 = 0u32
 
     def transition_stats
-      @transition_count
+      {
+        internal: @int_count,
+        external: @ext_count,
+        confluent: @con_count
+      }
     end
 
     def initialize_processor(time)
       atomic = @model.as(AtomicModel)
-      @transition_count.clear
+      @int_count = @ext_count = @con_count = 0u32
+
       @time_last = atomic.time = time
       @time_next = @time_last + atomic.time_advance
       atomic.notify_observers({ :transition => Any.new(:init) })
@@ -38,14 +42,14 @@ module Quartz
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug "\tinternal transition: #{@model}"
           end
-          @transition_count[:internal] += 1
+          @int_count += 1u32
           atomic.internal_transition
           kind = :internal
         else
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug "\tconfluent transition: #{@model}"
           end
-          @transition_count[:confluent] += 1
+          @con_count += 1u32
           atomic.confluent_transition(bag)
           kind = :confluent
         end
@@ -53,7 +57,7 @@ module Quartz
         if (logger = Quartz.logger?) && logger.debug?
           logger.debug "\texternal transition: #{@model}"
         end
-        @transition_count[:external] += 1
+        @ext_count += 1u32
         atomic.elapsed = time - @time_last
         atomic.external_transition(bag)
         kind = :external
