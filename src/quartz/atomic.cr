@@ -35,12 +35,13 @@ module Quartz
     # model.
     # Raises an InvalidPortModeError if the given port is not an output port.
     # Raises an NoSuchPortError if the given port doesn't exists.
+    @[AlwaysInline]
     protected def post(value : Type, on : Name)
       post(value, self.output_port(on))
     end
 
     # :nodoc:
-    # 
+    #
     # Returns outgoing messages added by the DEVS lambda (λ) function for the
     # current state.
     #

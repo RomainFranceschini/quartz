@@ -29,7 +29,6 @@ module Quartz
       @listeners : Hash(Symbol, Array((Symbol ->) | Notifiable))?
 
       # :nodoc:
-      @[AlwaysInline]
       private def listeners
         @listeners ||= Hash(Symbol, Array((Symbol ->) | Notifiable)).new { |h,k| h[k] = Array(((Symbol ->) | Notifiable)).new }
       end
