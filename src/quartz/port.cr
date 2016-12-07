@@ -14,7 +14,7 @@ module Quartz
     getter name : Name
     getter host : Coupleable
 
-    def_equals_and_hash @name, @name, @host
+    def_equals_and_hash @name, @mode, @host
 
     delegate output?, to: @mode
     delegate input?, to: @mode
