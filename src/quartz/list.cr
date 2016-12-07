@@ -15,7 +15,7 @@ module Quartz
   class List(T)
     include Enumerable(T)
     include Comparable(List)
-    include Iterable
+    include Iterable(T)
 
     class NoSuchElementError < Exception; end
 
