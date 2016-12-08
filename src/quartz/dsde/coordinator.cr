@@ -10,7 +10,10 @@ module Quartz
           coupled.each_input_coupling(port) do |src, dst|
             receiver = dst.host.processor.not_nil!
             @influencees[receiver][dst].concat(sub_bag)
-            @synchronize << receiver
+            if !receiver.sync
+              receiver.sync = true
+              @synchronize << receiver
+            end
           end
         end
 
@@ -18,6 +21,8 @@ module Quartz
 
         @synchronize.each do |receiver|
           next if receiver.model == coupled.executive
+
+          receiver.sync = false
           sub_bag = @influencees[receiver]
           if @scheduler.is_a?(RescheduleEventSet)
             receiver.perform_transitions(time, sub_bag)
@@ -35,7 +40,8 @@ module Quartz
         end
 
         receiver = coupled.executive.processor.not_nil!
-        if @synchronize.includes?(receiver)
+        if receiver.sync
+          receiver.sync = false
           sub_bag = @influencees[receiver]
           if @scheduler.is_a?(RescheduleEventSet)
             receiver.perform_transitions(time, sub_bag)
@@ -76,9 +82,6 @@ module Quartz
         end
 
         @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
-        # NOTE: Set#clear is more time consuming (without --release flag) but
-        # puts allocating a new set puts more stress on GC
-        #@synchronize = Set(Processor).new
         @synchronize.clear
 
         @time_last = time

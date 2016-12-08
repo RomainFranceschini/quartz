@@ -14,8 +14,8 @@ module Quartz
       @scheduler = EventSetFactory(Processor).new_event_set(scheduler)
       @scheduler_type = scheduler
       @influencees = Hash(Processor, Hash(Port,Array(Any))).new { |h,k| h[k] = Hash(Port,Array(Any)).new { |h2,k2| h2[k2] = Array(Any).new }}
-      @synchronize = Set(Processor).new
       @parent_bag = Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+      @synchronize = Array(Processor).new
     end
 
     def inspect(io)
@@ -93,6 +93,11 @@ module Quartz
 
       imm.each do |child|
         @synchronize << child.as(Processor)
+        if !child.sync
+          child.sync = true
+          @synchronize << child.as(Processor)
+        end
+
         output = child.collect_outputs(time)
 
         output.each do |port, payload|
@@ -107,8 +112,10 @@ module Quartz
               @influencees[receiver][dst].concat(payload.as(Array(Any)))
             else
               @influencees[receiver][dst] << payload.as(Any)
+            if !receiver.sync
+              receiver.sync = true
+              @synchronize << receiver
             end
-            @synchronize << receiver
           end
 
           # check external coupling to form sub-bag of parent output
@@ -131,11 +138,15 @@ module Quartz
         @model.as(CoupledModel).each_input_coupling(port) do |src, dst|
           receiver = dst.host.processor.not_nil!
           @influencees[receiver][dst].concat(sub_bag)
-          @synchronize << receiver
+          if !receiver.sync
+            receiver.sync = true
+            @synchronize << receiver
+          end
         end
       end
 
       @synchronize.each do |receiver|
+        receiver.sync = false
         sub_bag = @influencees[receiver]
         if @scheduler.is_a?(RescheduleEventSet)
           receiver.perform_transitions(time, sub_bag)
@@ -153,8 +164,6 @@ module Quartz
       end
       @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
 
-      # NOTE: Set#clear is more time consuming (without --release flag)
-      #@synchronize = Set(Processor).new
       @synchronize.clear
 
       @time_last = time

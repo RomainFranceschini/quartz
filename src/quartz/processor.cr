@@ -2,17 +2,19 @@ module Quartz
 
   abstract class Processor#(T)
 
-    #include Logging
+    include Logging
     #include Comparable(self)
 
     getter model : Model
     getter time_next : SimulationTime
     getter time_last : SimulationTime
+    property sync : Bool
     property parent : Coordinator?
 
     def initialize(@model : Model)
       @time_next = 0
       @time_last = 0
+      @sync = false
       @model.processor = self
     end
 
