@@ -1,7 +1,8 @@
 module Quartz
   module MultiComponent
     abstract struct ComponentState
-      include Transferable
+      # Cause bugs, transferable has to be included directly in final struct state
+      # include Transferable
     end
 
     abstract class Component < Model

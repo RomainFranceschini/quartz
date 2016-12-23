@@ -11,6 +11,8 @@ class HeatCell < Quartz::MultiComponent::Component
 
   # TODO : make immutable and fix transitions accordingly
   struct HeatState < Quartz::MultiComponent::ComponentState
+    include Quartz::Transferable
+
     property temperature : Float32 = T_AMBIENT
     property ignite_time : Quartz::SimulationTime = Quartz::INFINITY
     property phase : Symbol = :inactive
@@ -54,7 +56,7 @@ class HeatCell < Quartz::MultiComponent::Component
   end
 
   def internal_transition
-    proposed_states = Hash(Quartz::Name, Quartz::Any).new
+    proposed_states = Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
 
     nstate = @state.dup
 
@@ -63,7 +65,7 @@ class HeatCell < Quartz::MultiComponent::Component
     if (@state.temperature - @state.old_temp).abs > TMP_DIFF
       influencees.each do |j|
         next if j == self
-        proposed_states[j.name] = Quartz::Any.new(@state.temperature)
+        proposed_states.unsafe_assoc(j.name, Quartz::Any.new(@state.temperature))
       end
       nstate.old_temp = @state.temperature
     end
@@ -85,8 +87,7 @@ class HeatCell < Quartz::MultiComponent::Component
     nstate.phase = n_phase
     nstate.temperature = new_temp.to_f32
 
-    proposed_states[self.name] = Quartz::Any.new(nstate)
-
+    proposed_states.unsafe_assoc(self.name, Quartz::Any.new(nstate))
     proposed_states
   end
 
@@ -120,145 +121,108 @@ class HeatMultiPDEVS < Quartz::MultiComponent::Model
 
     @cells = Array(Array(HeatCell)).new
     file = File.new(filepath, "r")
-    irow = 0
+    y = 0
     file.each_line do |l|
-      icol = 0
-      row = l.split(/[ ]+/).map(&.to_i).map do |column|
-        name = "cell_#{icol}_#{irow}"
-        cell = if column > HeatCell::T_AMBIENT
-          phase = column >= HeatCell::T_IGNITE ? :burning : :unburned
-          state = HeatCell::HeatState.new(temperature: column.to_f32, ignite_time: 0, phase: phase)
+      x = 0
+      row = l.split(/[ ]+/).map(&.to_i).map do |value|
+        name = "cell_#{x}_#{y}"
+        cell = if value > HeatCell::T_AMBIENT
+          phase = value >= HeatCell::T_IGNITE ? :burning : :unburned
+          state = HeatCell::HeatState.new(temperature: value.to_f32, ignite_time: 0, phase: phase)
           HeatCell.new(name, state)
         else
           HeatCell.new(name)
         end
-
+        cell.x = x
+        cell.y = y
         self << cell
-        icol += 1
+        x += 1
         cell
       end
       cells << row
-      irow += 1
+      y += 1
     end
-
-    puts irow
 
     @rows = cells.size
     @columns = cells.first.size
 
     # set neighbors
-    moore_order = 1
-    row = 0
-    while row < rows # height
-      col = 0
-      while col < columns # width
-        cell = cells[col][row]
-
-        cell.x = col
-        cell.y = row
-
+    cells.each do |row|
+      row.each do |cell|
         cell.influencees << cell
         cell.influencers << cell
 
-        i = -moore_order + row
-        while i < moore_order + row + 1
-          j = -moore_order + col
-          while j < moore_order + col + 1
-            if (i != row || j != col) && i >= 0 && j >= 0 && i < rows && j < columns
-              neighbor = cells[j][i]
-              cell.influencers << neighbor
-              cell.influencees << neighbor
+        ((cell.x - 1)..(cell.x + 1)).each do |x|
+          ((cell.y - 1)..(cell.y + 1)).each do |y|
+            if x >= 0 && y >= 0 && x < columns && y < rows
+              if x != cell.x || y != cell.y
+                neighbor = cells[y][x]
+                cell.influencers << neighbor
+                cell.influencees << neighbor
+              end
             end
-            j+=1
           end
-          i+=1
         end
-        col+=1
       end
-      row+=1
     end
 
   end
 end
 
-# FIXME: observer is broken
-# class Consolify
-#   include DEVS::TransitionObserver
-#
-#   CLR = "\033c"
-#
-#   @rows : Int32
-#   @columns : Int32
-#   @sim : DEVS::Simulation
-#
-#   def initialize(model : HeatMultiPDEVS, @sim)
-#     @rows = model.rows
-#     @columns = model.columns
-#     model.add_observer(self)
-#   end
-#
-#   def update(model, kind)
-#     model = model.as(HeatMultiPDEVS)
-#     puts CLR
-#
-#     i = 0
-#     while i < @rows
-#       j = 0
-#       while j < @columns
-#         case model.cells[i][j].state.phase
-#         when :inactive, :unburned
-#           print "    ◊ "
-#           #print "  "
-#         when :burning
-#           #print "# "
-#           print "%4.0f " % model.cells[i][j].state.temperature
-#         when :burned
-#           print "  "
-#         end
-#         j+=1
-#       end
-#       print "\n"
-#       i+=1
-#     end
-#     print "\n\nt=#{@sim.time}\n"
-#     STDOUT.flush
-#
-#     sleep 0.1
-#   end
-# end
+class Consolify
+  include Quartz::Observer
+
+  CLR = "\033c"
+
+  @rows : Int32
+  @columns : Int32
+  @sim : Quartz::Simulation
+
+  def initialize(model : HeatMultiPDEVS, @sim)
+    @rows = model.rows
+    @columns = model.columns
+    model.add_observer(self)
+  end
+
+  def update(model)
+    if model.is_a?(HeatMultiPDEVS)
+      model = model.as(HeatMultiPDEVS)
+      puts CLR
+
+      i = 0
+      while i < @rows
+        j = 0
+        while j < @columns
+          case model.cells[i][j].state.phase
+          when :inactive, :unburned
+            print "❀ "
+          when :burning
+            print "◼ "
+          when :burned
+            print "  "
+          end
+          j+=1
+        end
+        print "\n"
+        i+=1
+      end
+      print "\n\nt=#{@sim.time}\n"
+      STDOUT.flush
+
+      sleep 0.01
+    end
+  end
+end
 
 CLR = "\033c"
+CLI = true
 
 if ARGV.size == 1
   filepath = ARGV.first
   model = HeatMultiPDEVS.new(:heat, filepath)
-  simulation = Quartz::Simulation.new(model, duration: 1200)
-
-  simulation.each do
-    puts CLR
-
-    i = 0
-    while i < model.rows
-      j = 0
-      while j < model.columns
-        case model.cells[i][j].state.phase
-        when :inactive, :unburned
-          print "❀ "
-        when :burning
-          print "◼ "
-        when :burned
-          print "  "
-        end
-        j+=1
-      end
-      print "\n"
-      i+=1
-    end
-    print "\n\nt=#{simulation.time}\n"
-    STDOUT.flush
-
-    sleep 0.03
-  end
+  simulation = Quartz::Simulation.new(model, duration: 600)
+  c = Consolify.new(model, simulation) if CLI
+  simulation.simulate
 else
   STDERR.puts "You should provide initial grid file"
   exit 1
