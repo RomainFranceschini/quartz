@@ -9,21 +9,50 @@ module Quartz
           # check external input couplings to get children who receive sub-bag of y
           coupled.each_input_coupling(port) do |src, dst|
             receiver = dst.host.processor.not_nil!
-            @influencees[receiver][dst].concat(sub_bag)
-            if !receiver.sync
+
+            entry = if receiver.sync
+              i = -1
+              @synchronize.each_with_index do |e, j|
+                if e.processor == receiver
+                  i = j
+                  break
+                end
+              end
+
+              @synchronize[i] = SyncEntry.new(
+                @synchronize[i].processor,
+                Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+              ) unless @synchronize[i].bag
+
+              @synchronize[i]
+            else
               receiver.sync = true
-              @synchronize << receiver
+              e = SyncEntry.new(
+                receiver,
+                Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+              )
+              @synchronize << e
+              e
             end
+
+            entry.bag.not_nil![dst].concat(sub_bag)
           end
         end
 
         old_children = coupled.each_child.to_a
+        executive_bag : Hash(Port,Array(Any)) = EMPTY_BAG
 
-        @synchronize.each do |receiver|
-          next if receiver.model == coupled.executive
+        @synchronize.each do |entry|
+          receiver = entry.processor
+          if receiver.model == coupled.executive
+            executive_bag = entry.bag.not_nil! if entry.bag
+            next
+          end
 
           receiver.sync = false
-          sub_bag = @influencees[receiver]
+
+          sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
+
           if @scheduler.is_a?(RescheduleEventSet)
             receiver.perform_transitions(time, sub_bag)
           else
@@ -36,22 +65,20 @@ module Quartz
             tn = receiver.perform_transitions(time, sub_bag)
             @scheduler.push(receiver) if tn < Quartz::INFINITY
           end
-          sub_bag.clear
         end
 
         receiver = coupled.executive.processor.not_nil!
         if receiver.sync
           receiver.sync = false
-          sub_bag = @influencees[receiver]
+
           if @scheduler.is_a?(RescheduleEventSet)
-            receiver.perform_transitions(time, sub_bag)
+            receiver.perform_transitions(time, executive_bag)
           else
             tn = receiver.time_next
             @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
-            tn = receiver.perform_transitions(time, sub_bag)
+            tn = receiver.perform_transitions(time, executive_bag)
             @scheduler.push(receiver) if tn < Quartz::INFINITY
           end
-          sub_bag.clear
         end
 
         current_children = coupled.each_child.to_a
