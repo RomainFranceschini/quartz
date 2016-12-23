@@ -92,7 +92,7 @@ module Quartz
         kind = :unknown
         if time == @time_next && bag.empty?
           kind = :internal
-          @int_count += @imm.size
+          @int_count += @imm.not_nil!.size
           @imm.not_nil!.each do |component|
             if (logger = Quartz.logger?) && logger.debug?
               logger.debug("\tinternal transition: #{component}")
