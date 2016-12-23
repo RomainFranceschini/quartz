@@ -26,7 +26,7 @@ module Quartz
       @time_next
     end
 
-    def collect_outputs(time) : Hash(Port,Any)
+    def collect_outputs(time)
       raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
       @model.as(AtomicModel).fetch_output!
     end

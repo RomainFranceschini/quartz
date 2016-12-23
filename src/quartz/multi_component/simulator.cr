@@ -62,7 +62,7 @@ module Quartz
         tn
       end
 
-      def collect_outputs(time) : Hash(Port, Array(Any))
+      def collect_outputs(time)
         raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
 
         @imm = if @event_set.is_a?(RescheduleEventSet)

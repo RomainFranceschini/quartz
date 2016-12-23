@@ -85,7 +85,7 @@ module Quartz
       @time_next = min
     end
 
-    def collect_outputs(time) : Hash(Port, Array(Any))
+    def collect_outputs(time)
       if time != @time_next
         raise BadSynchronisationError.new("\ttime: #{time} should match time_next: #{@time_next}")
       end

@@ -18,11 +18,11 @@ module Quartz
       abstract def reaction_transition(states)
 
       # TODO: doc
-      def output : Hash(Port, Any)?
+      def output : SimpleHash(Port, Any)?
       end
 
       # TODO: doc
-      def internal_transition : Hash(Name, Any)?
+      def internal_transition : SimpleHash(Name, Any)?
       end
 
       # Event condition function (C), called only with an activity scanning
