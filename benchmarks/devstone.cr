@@ -2,13 +2,8 @@ require "../src/quartz"
 
 module DEVStone
   class Model < Quartz::AtomicModel
-    def initialize(name)
-      super(name)
-      add_input_port :in1
-      add_input_port :in2
-      add_output_port :out1
-      add_output_port :out2
-    end
+    input :in1, :in2
+    output :out1, :out2
 
     def external_transition(messages)
       #puts "#{name} received #{messages[input_ports[:in1]]} at #{time}(+#{elapsed})"
@@ -20,16 +15,13 @@ module DEVStone
     end
 
     def output
-      output_ports.each_key { |port| post(name, port) }
+      each_output_port { |port| post(name, port) }
     end
   end
 
   class Generator < Quartz::AtomicModel
-    def initialize(name)
-      super(name)
-      @sigma = 1
-      add_output_port :out
-    end
+    output :out
+    @sigma = 1
 
     def output
       post(name, :out)
@@ -41,22 +33,19 @@ module DEVStone
   end
 
   class Collector < Quartz::AtomicModel
-    def initialize(name)
-      super(name)
-      add_input_port :in
-    end
+    input :in
 
     def external_transition(messages)
-      puts "#{name} received #{messages.values} !!"
+      #puts "#{name} received #{messages.values} !!"
     end
   end
 
   class CoupledRecursion < Quartz::CoupledModel
+    input :in
+    output :out
+
     def initialize(name, coupling_type, width, level, depth)
       super(name)
-
-      add_input_port :in
-      add_output_port :out
 
       if level == depth-1 # deepest level
         model = Model.new("am_l#{level+1}n1")
@@ -104,34 +93,44 @@ module DEVStone
 end
 
 class PortObserver
-  include Quartz::PortObserver
+  include Quartz::ObserverWithInfo
 
   def initialize(port)
     port.add_observer(self)
   end
 
-  def update(port, value)
-    host = port.host.as(Quartz::AtomicModel)
-    puts "#{host.name}@#{port.name} sent #{value} at #{host.time}"
+  def update(port, info)
+    if port.is_a?(Quartz::Port) && info
+      host = port.host.as(Quartz::AtomicModel)
+      puts "#{host.name}@#{port.name} sent #{info[:payload]} at #{host.time}"
+    end
   end
 end
 
 class ModelObserver
-  include Quartz::TransitionObserver
+  include Quartz::ObserverWithInfo
 
   def initialize(model)
     model.add_observer(self)
   end
 
-  def update(model, kind)
-    puts "model #{model.name} changed state after transition #{kind}"
+  def update(model, info)
+    if model.is_a?(Quartz::AtomicModel) && info
+      puts "model #{model.name} changed state after transition #{info[:transition]}"
+    end
   end
 end
 
+Quartz.logger = nil
+
 root = DEVStone::DEVStone.new(2, ARGV[0].to_i, ARGV[1].to_i)
-simulation = Quartz::Simulation.new(root, maintain_hierarchy: false)
+simulation = Quartz::Simulation.new(
+  root,
+  maintain_hierarchy: false,
+  scheduler: :calendar_queue
+)
 
 simulation.simulate
 
-puts simulation.transition_stats.not_nil![:TOTAL]
+#puts simulation.transition_stats[:TOTAL]
 puts simulation.elapsed_secs
