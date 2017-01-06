@@ -113,7 +113,7 @@ module Quartz
     # Concatenation. Returns a new List built by concatenating two lists
     # together to create a third. The type of the new list is the union of the
     # types of both the other lists.
-    def +(other : List(U))
+    def +(other : List(U)) forall U
       List(T | U).new.concat(self).concat(other)
     end
 
