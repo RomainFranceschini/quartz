@@ -11,8 +11,8 @@ module Quartz
       super(model)
 
       @children = Array(Processor).new
-      @scheduler = EventSetFactory(Processor).new_event_set(scheduler)
-      @scheduler_type = scheduler
+      @scheduler_type = model.class.preferred_event_set? || scheduler
+      @scheduler = EventSetFactory(Processor).new_event_set(@scheduler_type)
       @synchronize = Array(SyncEntry).new
       @parent_bag = Hash(Port,Array(Any)).new { |h,k|
         h[k] = Array(Any).new
