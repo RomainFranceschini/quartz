@@ -35,7 +35,7 @@ module Quartz
       # ```
       #
       # The arguments can be string literals, symbol literals or plain names.
-      # However, they will be converted to string literals when the
+      # However, they will be converted to symbol literals when the
       # model is instantiated.
       #
       # ```
