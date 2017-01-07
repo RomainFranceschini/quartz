@@ -5,7 +5,3 @@ authors:
   - Romain Franceschini <r.franceschini@univ-corse.fr>
 
 license: CeCILL-C
-
-dependencies:
-  crystalla:
-    github: mverzilli/crystalla
