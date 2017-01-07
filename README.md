@@ -33,6 +33,7 @@ TODO List:
   - [ ] Model runtime validation
   - [x] Logging
   - [ ] Internal DSL
+  - [x] Scheduler hint
 - Distributed simulations
   - [ ] MPI bindings
   - [ ] Optimistic simulators
