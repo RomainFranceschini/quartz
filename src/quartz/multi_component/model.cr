@@ -8,7 +8,7 @@ module Quartz
 
       # Defines the preferred event set for this particular class of coupled
       # models. Specified event set will be used to coordinate childrens in all
-      # instances of this coupled model.
+      # instances of this multicomponent model.
       #
       # Writing:
       #
