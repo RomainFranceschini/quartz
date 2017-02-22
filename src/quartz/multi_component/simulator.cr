@@ -139,6 +139,23 @@ module Quartz
             component.reaction_transition(states)
             component.time_last = component.time = time - component.elapsed
             component.time_next = component.time_last + component.time_advance
+          elsif @event_set.is_a?(LadderQueue)
+            tn = component.time_next
+            is_in_scheduler = tn < Quartz::INFINITY && time != tn
+            if is_in_scheduler
+              if @event_set.delete(component)
+                is_in_scheduler = false
+              end
+            end
+            if (logger = Quartz.logger?) && logger.debug?
+              logger.debug("\treaction transition: #{component}")
+            end
+            component.reaction_transition(states)
+            component.time_last = component.time = time - component.elapsed
+            new_tn = component.time_next = component.time_last + component.time_advance
+            if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
+              @event_set.push(component)
+            end
           else
             tn = component.time_next
             @event_set.delete(component) if tn < Quartz::INFINITY && time != tn

@@ -40,7 +40,7 @@ TODO List:
   - [ ] Conservative simulators
 - Schedulers
   - [x] Calendar queue
-  - [ ] Ladder queue
+  - [x] Ladder queue
   - [ ] Binary heap
   - [ ] Splay tree
 - Documentation

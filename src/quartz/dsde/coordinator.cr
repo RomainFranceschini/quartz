@@ -55,6 +55,31 @@ module Quartz
 
           if @scheduler.is_a?(RescheduleEventSet)
             receiver.perform_transitions(time, sub_bag)
+          elsif @scheduler.is_a?(LadderQueue)
+            # Special case for the ladder queue
+
+            tn = receiver.time_next
+            # Before trying to cancel a receiver, test if time is not strictly
+            # equal to its tn. If true, it means that its model will
+            # receiver either an internal transition or a confluent transition,
+            # and that the receiver is no longer in the scheduler.
+            is_in_scheduler = tn < Quartz::INFINITY && time != tn
+            if is_in_scheduler
+              # The ladder queue might successfully delete the event if it is
+              # stored in the *ladder* tier, but is allowed to return nil since
+              # deletion strategy is based on event invalidation.
+              if @scheduler.delete(receiver)
+                is_in_scheduler = false
+              end
+            end
+            new_tn = receiver.perform_transitions(time, sub_bag)
+
+            # No need to reschedule the event if its tn is equal to INFINITY.
+            # If a ta(s)=0 occured and that the old event is still present in
+            # the ladder queue, we don't need to reschedule it either.
+            if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
+              @scheduler.push(receiver)
+            end
           else
             tn = receiver.time_next
             # before trying to cancel a receiver, test if time is not strictly
