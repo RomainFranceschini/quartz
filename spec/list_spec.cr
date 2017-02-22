@@ -356,7 +356,7 @@ describe "List" do
     end
 
     describe "inspect" do
-      assert { List{1, 2, 3}.inspect.should eq("List{1, 2, 3}") }
+      it { List{1, 2, 3}.inspect.should eq("List{1, 2, 3}") }
     end
 
     describe "last" do
@@ -526,7 +526,7 @@ describe "List" do
 
     describe "to_s" do
       it "does to_s" do
-        assert { List{1, 2, 3}.to_s.should eq("List{1, 2, 3}") }
+        it { List{1, 2, 3}.to_s.should eq("List{1, 2, 3}") }
       end
 
       it "does with recursive" do
@@ -607,5 +607,4 @@ describe "List" do
       end
     end
   end
-
 end
