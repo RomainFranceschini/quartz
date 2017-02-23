@@ -1,26 +1,32 @@
 module Quartz
   class Simulator < Processor
 
-    def initialize(model : Model)
-      super(model)
-      @transition_count = Hash(Symbol, UInt64).new { 0_u64 }
-    end
+    @int_count : UInt32 = 0u32
+    @ext_count : UInt32 = 0u32
+    @con_count : UInt32 = 0u32
 
     def transition_stats
-      @transition_count
+      {
+        internal: @int_count,
+        external: @ext_count,
+        confluent: @con_count
+      }
     end
 
     def initialize_processor(time)
       atomic = @model.as(AtomicModel)
-      @transition_count.clear
+      @int_count = @ext_count = @con_count = 0u32
+
       @time_last = atomic.time = time
       @time_next = @time_last + atomic.time_advance
       atomic.notify_observers({ :transition => Any.new(:init) })
-      #debug "\t#{model} initialization (time_last: #{@time_last}, time_next: #{@time_next})" if Quartz.logger && Quartz.logger.debug?
+      if (logger = Quartz.logger?) && logger.debug?
+        logger.debug "\t#{model} initialization (time_last: #{@time_last}, time_next: #{@time_next})"
+      end
       @time_next
     end
 
-    def collect_outputs(time) : Hash(Port,Any)
+    def collect_outputs(time)
       raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
       @model.as(AtomicModel).fetch_output!
     end
@@ -33,19 +39,25 @@ module Quartz
       if time == @time_next
         atomic.elapsed = 0
         if bag.empty?
-          #debug "\tinternal transition: #{@model}" if Quartz.logger && Quartz.logger.debug?
-          @transition_count[:internal] += 1
+          if (logger = Quartz.logger?) && logger.debug?
+            logger.debug "\tinternal transition: #{@model}"
+          end
+          @int_count += 1u32
           atomic.internal_transition
           kind = :internal
         else
-          #debug "\tconfluent transition: #{@model}" if Quartz.logger && Quartz.logger.debug?
-          @transition_count[:confluent] += 1
+          if (logger = Quartz.logger?) && logger.debug?
+            logger.debug "\tconfluent transition: #{@model}"
+          end
+          @con_count += 1u32
           atomic.confluent_transition(bag)
           kind = :confluent
         end
       elsif synced && !bag.empty?
-        #debug "\texternal transition: #{@model}" if Quartz.logger && Quartz.logger.debug?
-        @transition_count[:external] += 1
+        if (logger = Quartz.logger?) && logger.debug?
+          logger.debug "\texternal transition: #{@model}"
+        end
+        @ext_count += 1u32
         atomic.elapsed = time - @time_last
         atomic.external_transition(bag)
         kind = :external
@@ -57,7 +69,9 @@ module Quartz
       @time_next = @time_last + atomic.time_advance
       atomic.notify_observers({ :transition => Any.new(kind) })
 
-      #debug "\t\ttime_last: #{@time_last} | time_next: #{@time_next}" if Quartz.logger && Quartz.logger.debug?
+      if (logger = Quartz.logger?) && logger.debug?
+        logger.debug("\t\ttime_last: #{@time_last} | time_next: #{@time_next}")
+      end
       @time_next
     end
   end

@@ -24,6 +24,7 @@ module Quartz
 
   abstract class EventSet(T) < PriorityQueue(T)
 
+    @[AlwaysInline]
     def next_priority : Priority
       if el = peek?
         el.time_next

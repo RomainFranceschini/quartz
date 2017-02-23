@@ -35,7 +35,7 @@ module Quartz
       # ```
       #
       # The arguments can be string literals, symbol literals or plain names.
-      # However, they will be converted to string literals when the
+      # However, they will be converted to symbol literals when the
       # model is instantiated.
       #
       # ```
@@ -256,7 +256,7 @@ module Quartz
 
       if port.nil?
         port = add_port(mode, port_name)
-        Quartz.logger.warn("specified #{mode} port #{port_name} doesn't exist for #{self}. creating it") if Quartz.logger
+        Quartz.logger?.try &.warn("specified #{mode} port #{port_name} doesn't exist for #{self}. creating it")
       end
 
       port
@@ -272,9 +272,9 @@ module Quartz
       end
 
       if ports.has_key?(port_name)
-        Quartz.logger.warn(
+        Quartz.logger?.try &.warn(
           "specified #{mode} port #{port_name} already exists for #{self}. skipping..."
-        ) if Quartz.logger
+        )
 
         new_port = ports[port_name]
       else

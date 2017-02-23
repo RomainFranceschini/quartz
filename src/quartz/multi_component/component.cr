@@ -1,7 +1,8 @@
 module Quartz
   module MultiComponent
     abstract struct ComponentState
-      include Transferable
+      # Cause bugs, transferable has to be included directly in final struct state
+      # include Transferable
     end
 
     abstract class Component < Model
@@ -18,11 +19,11 @@ module Quartz
       abstract def reaction_transition(states)
 
       # TODO: doc
-      def output : Hash(Port, Any)?
+      def output : SimpleHash(Port, Any)?
       end
 
       # TODO: doc
-      def internal_transition : Hash(Name, Any)?
+      def internal_transition : SimpleHash(Name, Any)?
       end
 
       # Event condition function (C), called only with an activity scanning

@@ -11,11 +11,20 @@ module Quartz
       super(model)
 
       @children = Array(Processor).new
-      @scheduler = EventSetFactory(Processor).new_event_set(scheduler)
-      @scheduler_type = scheduler
-      @influencees = Hash(Processor, Hash(Port,Array(Any))).new { |h,k| h[k] = Hash(Port,Array(Any)).new { |h2,k2| h2[k2] = Array(Any).new }}
-      @synchronize = Set(Processor).new
-      @parent_bag = Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+      @scheduler_type = model.class.preferred_event_set? || scheduler
+      @scheduler = EventSetFactory(Processor).new_event_set(@scheduler_type)
+      @synchronize = Array(SyncEntry).new
+      @parent_bag = Hash(Port,Array(Any)).new { |h,k|
+        h[k] = Array(Any).new
+      }
+    end
+
+    struct SyncEntry
+      getter processor : Processor
+      getter bag : Hash(Port,Array(Any))?
+
+      def initialize(@processor, @bag=nil)
+      end
     end
 
     def inspect(io)
@@ -76,7 +85,7 @@ module Quartz
       @time_next = min
     end
 
-    def collect_outputs(time) : Hash(Port, Array(Any))
+    def collect_outputs(time)
       if time != @time_next
         raise BadSynchronisationError.new("\ttime: #{time} should match time_next: #{@time_next}")
       end
@@ -92,7 +101,6 @@ module Quartz
       @parent_bag.clear unless @parent_bag.empty?
 
       imm.each do |child|
-        @synchronize << child.as(Processor)
         output = child.collect_outputs(time)
 
         output.each do |port, payload|
@@ -103,12 +111,35 @@ module Quartz
           # check internal coupling to get children who receive sub-bag of y
           coupled.each_internal_coupling(port) do |src, dst|
             receiver = dst.host.processor.not_nil!
-            if child.is_a?(Coordinator)
-              @influencees[receiver][dst].concat(payload.as(Array(Any)))
+
+            entry = if receiver.sync
+              i = -1
+              @synchronize.each_with_index do |e, j|
+                if e.processor == receiver
+                  i = j
+                  break
+                end
+              end
+              @synchronize[i] = SyncEntry.new(
+                @synchronize[i].processor,
+                Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+              ) unless @synchronize[i].bag
+              @synchronize[i]
             else
-              @influencees[receiver][dst] << payload.as(Any)
+              receiver.sync = true
+              e = SyncEntry.new(
+                receiver,
+                Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+              )
+              @synchronize << e
+              e
             end
-            @synchronize << receiver
+
+            if child.is_a?(Coordinator)
+              entry.bag.not_nil![dst].concat(payload.as(Array(Any)))
+            else
+              entry.bag.not_nil![dst] << payload.as(Any)
+            end
           end
 
           # check external coupling to form sub-bag of parent output
@@ -120,41 +151,100 @@ module Quartz
             end
           end
         end
+
+        if !child.sync
+          child.sync = true
+          @synchronize << SyncEntry.new(child.as(Processor))
+        end
       end
 
       @parent_bag
     end
+
+    EMPTY_BAG = Hash(Port,Array(Any)).new
 
     def perform_transitions(time, bag)
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y
         @model.as(CoupledModel).each_input_coupling(port) do |src, dst|
           receiver = dst.host.processor.not_nil!
-          @influencees[receiver][dst].concat(sub_bag)
-          @synchronize << receiver
+
+          entry = if receiver.sync
+            i = -1
+            @synchronize.each_with_index do |e, j|
+              if e.processor == receiver
+                i = j
+                break
+              end
+            end
+
+            @synchronize[i] = SyncEntry.new(
+              @synchronize[i].processor,
+              Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+            ) unless @synchronize[i].bag
+
+            @synchronize[i]
+          else
+            receiver.sync = true
+            e = SyncEntry.new(
+              receiver,
+              Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+            )
+            @synchronize << e
+            e
+          end
+
+          entry.bag.not_nil![dst].concat(sub_bag)
         end
       end
 
-      @synchronize.each do |receiver|
-        sub_bag = @influencees[receiver]
+      @synchronize.each do |entry|
+        receiver = entry.processor
+        receiver.sync = false
+
+        sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
+
         if @scheduler.is_a?(RescheduleEventSet)
           receiver.perform_transitions(time, sub_bag)
+        elsif @scheduler.is_a?(LadderQueue)
+          # Special case for the ladder queue
+
+          tn = receiver.time_next
+          # Before trying to cancel a receiver, test if time is not strictly
+          # equal to its tn. If true, it means that its model will
+          # receiver either an internal transition or a confluent transition,
+          # and that the receiver is no longer in the scheduler.
+          is_in_scheduler = tn < Quartz::INFINITY && time != tn
+          if is_in_scheduler
+            # The ladder queue might successfully delete the event if it is
+            # stored in the *ladder* tier, but is allowed to return nil since
+            # deletion strategy is based on event invalidation.
+            if @scheduler.delete(receiver)
+              is_in_scheduler = false
+            end
+          end
+          new_tn = receiver.perform_transitions(time, sub_bag)
+
+          # No need to reschedule the event if its tn is equal to INFINITY.
+          # If a ta(s)=0 occured and that the old event is still present in
+          # the ladder queue, we don't need to reschedule it either.
+          if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
+            @scheduler.push(receiver)
+          end
         else
           tn = receiver.time_next
           # before trying to cancel a receiver, test if time is not strictly
           # equal to its time_next. If true, it means that its model will
-          # receiver either an internal_transition or a confluent transition,
-          # and that the receiver is no longer in the scheduler
+          # receiver either an internal transition or a confluent transition,
+          # and that the receiver is no longer in the scheduler.
           @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
           tn = receiver.perform_transitions(time, sub_bag)
           @scheduler.push(receiver) if tn < Quartz::INFINITY
         end
-        sub_bag.clear
       end
+
       @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
 
-      # NOTE: Set#clear is more time consuming (without --release flag)
-      #@synchronize = Set(Processor).new
       @synchronize.clear
 
       @time_last = time

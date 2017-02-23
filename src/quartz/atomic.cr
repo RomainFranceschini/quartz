@@ -7,7 +7,7 @@ module Quartz
 
     def initialize(name)
       super(name)
-      @bag = {} of Port => Any
+      @bag = SimpleHash(Port, Any).new
     end
 
     def inspect(io)
@@ -26,7 +26,7 @@ module Quartz
     protected def post(value : Type, on : Port)
       raise InvalidPortHostError.new("Given port doesn't belong to this model") if on.host != self
       raise InvalidPortModeError.new("Given port should be an output port") if on.input?
-      @bag[on] = Any.new(value)
+      @bag.unsafe_assoc(on, Any.new(value))
     end
 
     # Drops off an output *value* to the specified output *port*.
@@ -35,18 +35,19 @@ module Quartz
     # model.
     # Raises an InvalidPortModeError if the given port is not an output port.
     # Raises an NoSuchPortError if the given port doesn't exists.
+    @[AlwaysInline]
     protected def post(value : Type, on : Name)
       post(value, self.output_port(on))
     end
 
     # :nodoc:
-    # 
+    #
     # Returns outgoing messages added by the DEVS lambda (λ) function for the
     # current state.
     #
     # This method calls the DEVS lambda (λ) function
     # Note: this method should be called only by the simulator.
-    def fetch_output! : Hash(Port, Any)
+    def fetch_output! : SimpleHash(Port, Any)
       @bag.clear
       self.output
       @bag

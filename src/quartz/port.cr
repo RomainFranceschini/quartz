@@ -7,14 +7,13 @@ module Quartz
 
   # This class represents a port that belongs to a `Model` (the *host*).
   class Port
-    include Comparable(Port)
     include Observable
 
     getter mode : IOMode
     getter name : Name
     getter host : Coupleable
 
-    def_equals_and_hash @name, @name, @host
+    def_hash @name, @mode, @host
 
     delegate output?, to: @mode
     delegate input?, to: @mode

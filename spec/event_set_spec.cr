@@ -13,46 +13,22 @@ private class EvF
 end
 
 private class EventSetTester
-  @cq : CalendarQueue(Ev)
-  #@lq : LadderQueue(Ev)
-  #@st : SplayTree(Ev)
-  #@bh : BinaryHeap(Ev)
+  @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new
+  @lq : LadderQueue(Ev) = LadderQueue(Ev).new
 
-  def initialize
-    @cq = CalendarQueue(Ev).new
-    #@lq = LadderQueue(Ev).new
-    #@st = SplayTree(Ev).new
-    #@bh = BinaryHeap(Ev).new
-  end
-
-  #def test(&block : (CalendarQueue(Ev)|LadderQueue(Ev)|SplayTree(Ev)|BinaryHeap(Ev)) ->)
-  def test(&block : CalendarQueue(Ev) ->)
+  def test(&block : EventSet(Ev) ->)
     it "(CalendarQueue)" { block.call(@cq) }
-    #it "(LadderQueue)" { block.call(@lq) }
-    #it "(SplayTree)" { block.call(@st) }
-    #it "(BinaryHeap)" { block.call(@bh) }
+    it "(LadderQueue)" { block.call(@lq) }
   end
 end
 
 private class EventSetTesterF
-  @cq : CalendarQueue(EvF)
-  #@lq : LadderQueue(EvF)
-  #@st : SplayTree(EvF)
-  #@bh : BinaryHeap(EvF)
+  @cq : CalendarQueue(EvF) = CalendarQueue(EvF).new
+  @lq : LadderQueue(EvF) = LadderQueue(EvF).new
 
-  def initialize
-    @cq = CalendarQueue(EvF).new
-    #@lq = LadderQueue(EvF).new
-    #@st = SplayTree(EvF).new
-    #@bh = BinaryHeap(EvF).new
-  end
-
-  #def test(&block : (CalendarQueue(EvF)|LadderQueue(EvF)|SplayTree(EvF)|BinaryHeap(EvF)) ->)
-  def test(&block : CalendarQueue(EvF) ->)
+  def test(&block : EventSet(EvF) ->)
     it "(CalendarQueue)" { block.call(@cq) }
-    #it "(LadderQueue)" { block.call(@lq) }
-    #it "(SplayTree)" { block.call(@st) }
-    #it "(BinaryHeap)" { block.call(@bh) }
+    it "(LadderQueue)" { block.call(@lq) }
   end
 end
 
@@ -129,7 +105,10 @@ describe "Event sets" do
 
   describe "deletes" do
     EventSetTester.new.test do |c|
-      events = { Ev.new(2), Ev.new(12), Ev.new(257) }
+      # ladder queue is allowed to return nil
+      next if c.is_a?(LadderQueue)
+
+      events = {Ev.new(2), Ev.new(12), Ev.new(257)}
       events.each { |e| c.push(e) }
 
       ev = c.delete(events[1])
@@ -139,7 +118,10 @@ describe "Event sets" do
     end
 
     EventSetTesterF.new.test do |c|
-      events = { EvF.new(2.0), EvF.new(12.0), EvF.new(257.0) }
+      # ladder queue is allowed to return nil
+      next if c.is_a?(LadderQueue)
+
+      events = {EvF.new(2.0), EvF.new(12.0), EvF.new(257.0)}
       events.each { |e| c.push(e) }
 
       ev = c.delete(events[1])
@@ -156,6 +138,10 @@ describe "Event sets" do
 
       ev = c.delete(events[1])
 
+      if c.is_a?(LadderQueue) && ev.nil?
+        ev = events[1]
+      end
+
       ev.should_not be_nil
       ev.not_nil!.time_next.should eq(12)
 
@@ -163,6 +149,10 @@ describe "Event sets" do
       c.push(ev.not_nil!)
 
       c.peek.time_next.should eq(0)
+
+      c.pop.time_next.should eq(0)
+      c.pop.time_next.should eq(2)
+      c.pop.time_next.should eq(257)
     end
 
     EventSetTesterF.new.test do |c|
@@ -171,13 +161,19 @@ describe "Event sets" do
 
       ev = c.delete(events[1])
 
+      if c.is_a?(LadderQueue) && ev.nil?
+        ev = events[1]
+      end
+
       ev.should_not be_nil
       ev.not_nil!.time_next.should eq(12.0)
 
       ev.not_nil!.time_next = 0.0
       c.push(ev.not_nil!)
 
-      c.peek.time_next.should eq(0.0)
+      c.pop.time_next.should eq(0.0)
+      c.pop.time_next.should eq(2.0)
+      c.pop.time_next.should eq(257.0)
     end
   end
 
@@ -185,24 +181,38 @@ describe "Event sets" do
     n = 20_000
     steps = 2_000
     max_reschedules = 50
+    max_tn = 100
 
     EventSetTester.new.test do |pes|
       events = [] of Ev
       n.times do
-        ev = Ev.new(rand(0..n))
+        ev = Ev.new(rand(0..max_tn))
         events << ev
         pes << ev
       end
+      is_ladder = pes.is_a?(LadderQueue)
 
       pes.size.should eq(n)
 
+      prev_ts = -1
+
       steps.times do
+        if is_ladder
+          (pes.size < n).should be_false
+        else
+          pes.size.should eq(n)
+        end
+
         prio = pes.next_priority
+
+        (prio >= prev_ts).should be_true
+        prev_ts = prio
+
         imm = pes.delete_all(prio)
 
         imm.each do |ev|
           ev.time_next.should eq(prio)
-          ev.time_next += rand(0..n)
+          ev.time_next += rand(0..max_tn)
           pes.push(ev)
         end
 
@@ -210,12 +220,18 @@ describe "Event sets" do
           ev = events[rand(events.size)]
           c = pes.delete(ev)
 
-          c.should_not be_nil
-          ev.should eq(c)
-          ev.time_next.should eq(c.not_nil!.time_next)
+          if !is_ladder
+            c.should_not be_nil
+            ev.should eq(c)
+            ev.time_next.should eq(c.not_nil!.time_next)
+          end
 
-          ev.time_next += rand(0..n)
-          pes.push(ev)
+          ta = rand(0..max_tn)
+          ev.time_next += ta
+          ev_in_ladder = c == nil
+          if !is_ladder || (is_ladder && (!ev_in_ladder || (ev_in_ladder && ta > 0)))
+            pes.push(ev)
+          end
         end
       end
     end
@@ -223,20 +239,31 @@ describe "Event sets" do
     EventSetTesterF.new.test do |pes|
       events = [] of EvF
       n.times do
-        ev = EvF.new(rand(0.0..n.to_f))
+        ev = EvF.new(rand(0.0..max_tn.to_f))
         events << ev
         pes << ev
       end
+      is_ladder = pes.is_a?(LadderQueue)
 
       pes.size.should eq(n)
+      prev_ts = -1
 
       steps.times do
+        if is_ladder
+          (pes.size < n).should be_false
+        else
+          pes.size.should eq(n)
+        end
         prio = pes.next_priority
+
+        (prio >= prev_ts).should be_true
+        prev_ts = prio
+
         imm = pes.delete_all(prio)
 
         imm.each do |ev|
           ev.time_next.should eq(prio)
-          ev.time_next += rand(0.0..n.to_f)
+          ev.time_next += rand(0.0..max_tn.to_f)
           pes.push(ev)
         end
 
@@ -244,15 +271,20 @@ describe "Event sets" do
           ev = events[rand(events.size)]
           c = pes.delete(ev)
 
-          c.should_not be_nil
-          ev.should eq(c)
-          ev.time_next.should eq(c.not_nil!.time_next)
+          if !is_ladder
+            c.should_not be_nil
+            ev.should eq(c)
+            ev.time_next.should eq(c.not_nil!.time_next)
+          end
 
-          ev.time_next += rand(0.0..n.to_f)
-          pes.push(ev)
+          ta = rand(0..max_tn)
+          ev.time_next += ta
+          ev_in_ladder = c == nil
+          if !is_ladder || (is_ladder && (!ev_in_ladder || (ev_in_ladder && ta > 0)))
+            pes.push(ev)
+          end
         end
       end
     end
   end
-
 end

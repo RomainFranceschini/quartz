@@ -82,24 +82,6 @@ module Quartz
         bucket.insert(j + 1, obj)
       end
 
-      # check last priority and update last bucket accordingly
-        # b = @last_bucket
-        # cur_bucket = @buckets[b]
-        # btop = @bucket_top
-        # j = 0
-        # while j < @buckets.size-1 && @buckets[b].empty?
-        #   j+=1
-        #   b = (b+1) % @buckets.size
-        #   btop += @width
-        # end
-        # cur_bucket = @buckets[b]
-        # if cur_bucket.size > 0 && tn < cur_bucket.last.time_next && cur_bucket.last.time_next < btop
-        #   #info("CQ push: ts #{tn} < cur_bucket next ts #{cur_bucket.last.time_next} (btop at #{btop}). update bucket from #{@last_bucket} to #{i}") if DEVS.logger
-        #   @last_bucket = i.to_i
-        #   @last_priority = bucket.last.time_next
-        #   @bucket_top = (((@last_priority / @width) + 1).to_i * @width + (0.5 * @width)).to_f
-        # end
-
       @size += 1
 
       # double the calendar size if needed
@@ -235,23 +217,6 @@ module Quartz
 
       @buckets = Slice(Array(T)).new(bucket_count) { Array(T).new }
 
-      # old = @buckets
-      # @buckets = if @cached_buckets.nil?
-      #   Array.new(bucket_count) { [] of T }
-      # else
-      #   cached_buckets = @cached_buckets.not_nil!
-      #   n = cached_buckets.size
-      #   if bucket_count < n
-      #     # shrink the array
-      #     cached_buckets.slice!(bucket_count, n)
-      #   else
-      #     # expand the array
-      #     cached_buckets.fill(n, bucket_count - n) { [] of T }
-      #   end
-      #   cached_buckets
-      # end
-      # @cached_buckets = old
-
       @last_priority = start_priority
       i = (start_priority / bucket_width).to_i # virtual bucket
       @last_bucket = (i % bucket_count).to_i
@@ -299,22 +264,26 @@ module Quartz
       # resize_enabled set to false.
       @resize_enabled = false
       average = 0.0
-      i = 0
 
-      tmp = Slice(T).new(n)
-      while i < n
-        # dequeue events to get a test sample
-        tmp[i] = self.pop
-        # and sum up the differences in time
-        average += tmp[i].time_next - tmp[i-1].time_next if i > 0
-        i += 1
+      prev_elmt : T? = nil
+      tmp = StaticArray(T?, 25).new do |i|
+        if i < n    # dequeue events to get a test sample
+          elmt = self.pop
+          if i > 0  # sum up the differences in time
+            average += elmt.time_next - prev_elmt.not_nil!.time_next
+          end
+          prev_elmt = elmt
+          elmt
+        else
+          nil
+        end
       end
 
       # calculate average separation of sampled events
       average = average / (n-1).to_f
 
       # put the first sample back onto the queue
-      self << tmp[0]
+      self << tmp[0].not_nil!
 
       # recalculate average using only separations smaller than twice the
       # original average
@@ -322,13 +291,13 @@ module Quartz
       j = 0
       i = 1
       while i < n
-        sub = tmp[i].time_next - tmp[i-1].time_next
+        sub = tmp[i].not_nil!.time_next - tmp[i-1].not_nil!.time_next
         if sub < average * 2.0
           new_average += sub
           j += 1
         end
         # put the remaining samples back onto the queue
-        self << tmp[i]
+        self << tmp[i].not_nil!
         i += 1
       end
       new_average = new_average / j.to_f

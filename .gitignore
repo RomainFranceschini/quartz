@@ -1,13 +1,12 @@
 /doc/
-/libs/
+/lib/
 *.crystal
 *.dsym
 /.shards/
 *.dot
 *.png
 /tmp/
-/examples/mas/
-
+/build/
 
 # Libraries don't need dependency lock
 # Dependencies will be locked in application that uses them

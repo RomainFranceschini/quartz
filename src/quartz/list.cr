@@ -12,11 +12,10 @@ module Quartz
   # (`#push`, `#insert`, `#unshift`) in order to be reused in `#delete`.
   #
   # TODO : #insert_before(node)
-  # TODO : use Indexable mixin (available since 0.19)
   class List(T)
     include Enumerable(T)
     include Comparable(List)
-    include Iterable
+    include Iterable(T)
 
     class NoSuchElementError < Exception; end
 
@@ -114,7 +113,7 @@ module Quartz
     # Concatenation. Returns a new List built by concatenating two lists
     # together to create a third. The type of the new list is the union of the
     # types of both the other lists.
-    def +(other : List(U))
+    def +(other : List(U)) forall U
       List(T | U).new.concat(self).concat(other)
     end
 
@@ -174,6 +173,7 @@ module Quartz
     #
     # Negative indices can be used to start counting from the end of the list.
     # Raises `IndexError` if trying to access an element outside the list's range.
+    @[AlwaysInline]
     def [](index : Int)
       at(index)
     end
@@ -182,6 +182,7 @@ module Quartz
     #
     # Negative indices can be used to start counting from the end of the list.
     # Returns `nil` if trying to access an element outside the list's range.
+    @[AlwaysInline]
     def []?(index : Int)
       at(index) { nil }
     end
@@ -190,6 +191,7 @@ module Quartz
     #
     # Negative indices can be used to start counting from the end of the list.
     # Raises `IndexError` if trying to access an element outside the list's range.
+    @[AlwaysInline]
     def []=(index : Int, value : T)
       node = node_at(index) { raise IndexError.new }
       node.data = value
@@ -216,11 +218,13 @@ module Quartz
     end
 
     # Returns the element at the given index, if in bounds, otherwise raises `IndexError`.
+    @[AlwaysInline]
     def at(index : Int)
       at(index) { raise IndexError.new }
     end
 
     # Returns the element at the given index, if in bounds, otherwise executes the given block and returns its value.
+    @[AlwaysInline]
     def at(index : Int)
       (node_at(index) { yield }).try &.data
     end
@@ -280,6 +284,7 @@ module Quartz
     # l.pop # => 3
     # # l == List{1, 2}
     # ```
+    @[AlwaysInline]
     def pop
       pop { raise NoSuchElementError.new }
     end
@@ -304,6 +309,7 @@ module Quartz
     end
 
     # Removes and returns the last item, if not empty, otherwise `nil`.
+    @[AlwaysInline]
     def pop?
       pop { nil }
     end
@@ -325,6 +331,7 @@ module Quartz
     # l.shift # => 1
     # # l == List{2, 3} -> true
     # ```
+    @[AlwaysInline]
     def shift
       shift { raise NoSuchElementError.new }
     end
@@ -349,6 +356,7 @@ module Quartz
     end
 
     # Removes and returns the first item, if not empty, otherwise `nil`.
+    @[AlwaysInline]
     def shift?
       shift { nil }
     end
@@ -483,9 +491,9 @@ module Quartz
     # a = List{1, 2, 3}
     # a.delete_at(1) # => List{1, 3}
     # ```
+    @[AlwaysInline]
     def delete_at(index : Int)
-      node = node_at(index) { raise IndexError.new }
-      delete(node)
+      delete(node_at(index) { raise IndexError.new })
     end
 
     def delete(node : Node(T))
