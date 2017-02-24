@@ -4,6 +4,7 @@ module Quartz
     include Coupleable
     include Transitions
     include Observable
+    include Validations
 
     def initialize(name)
       super(name)

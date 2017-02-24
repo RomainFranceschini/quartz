@@ -7,12 +7,12 @@ module Quartz
     @scheduler : EventSet(Processor)
 
     # Returns a new instance of Coordinator
-    def initialize(model : Model, scheduler : Symbol)
+    def initialize(model : Model, simulation : Simulation)
       super(model)
 
       @children = Array(Processor).new
-      @scheduler_type = model.class.preferred_event_set? || scheduler
-      @scheduler = EventSetFactory(Processor).new_event_set(@scheduler_type)
+      scheduler_type = model.class.preferred_event_set? || simulation.default_scheduler
+      @scheduler = EventSetFactory(Processor).new_event_set(scheduler_type)
       @synchronize = Array(SyncEntry).new
       @parent_bag = Hash(Port,Array(Any)).new { |h,k|
         h[k] = Array(Any).new

@@ -2,23 +2,23 @@ module Quartz
   abstract class ProcessorFactory
     class ProcessorAllocationError < Exception; end
 
-    def self.processor_for(model : Model, scheduler, root = false)
+    def self.processor_for(model : Model, sim : Simulation, root = false)
       if model.is_a?(DSDE::CoupledModel)
         if root
-          DSDE::RootCoordinator.new(model, scheduler)
+          DSDE::RootCoordinator.new(model, sim)
         else
-          DSDE::Coordinator.new(model, scheduler)
+          DSDE::Coordinator.new(model, sim)
         end
       elsif model.is_a?(CoupledModel)
         if root
-          RootCoordinator.new(model, scheduler)
+          RootCoordinator.new(model, sim)
         else
-          Coordinator.new(model, scheduler)
+          Coordinator.new(model, sim)
         end
       elsif model.is_a?(MultiComponent::Model)
-        MultiComponent::Simulator.new(model, scheduler)
+        MultiComponent::Simulator.new(model, sim)
       elsif model.is_a?(AtomicModel)
-        Simulator.new(model)
+        Simulator.new(model, sim)
       else
         raise ProcessorAllocationError.new("No processor able to simulate \"#{model.name}\" model.")
       end

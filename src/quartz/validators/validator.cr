@@ -53,15 +53,30 @@ module Quartz
     # Note that the validator is initialized only once for the whole application
     # life cycle, and not on each validation run.
     abstract class Validator
-      getter context : Symbol?
+      @strict : Bool
+      getter contexts : Array(Symbol)?
+
+      # Whether this validator will cause a `StrictValidationFailed` error to
+      # be raised when `#validate` returns *false*.
+      def strict?
+        @strict
+      end
 
       def initialize(**kwargs)
-        @context = kwargs[:on]?.try &.as(Symbol)
+        if on = kwargs[:on]?
+          if on.is_a?(Array(Symbol))
+            @contexts = on
+          elsif on.is_a?(Symbol)
+            @contexts = [on]
+          end
+        end
+
+        @strict = kwargs[:strict]?.try(&.as(Bool)) || false
       end
 
       # Override this method in subclasses with validation logic, adding errors
       # to the models *errors* array where necessary.
-      abstract def validate(model)
+      abstract def validate(model) : Bool
     end
 
     # `EachValidator` is a validator which iterates through the given
@@ -71,8 +86,8 @@ module Quartz
     # All provided validators are built on top of this validator.
     abstract class EachValidator < Validator
       getter attributes : Array(Symbol)
-      @allow_nil : Bool
 
+      @allow_nil : Bool
       def allow_nil? : Bool
         @allow_nil
       end
@@ -89,32 +104,21 @@ module Quartz
       # Performs validation on the supplied model. By default this will call
       # `#validates_each` to determine validity therefore subclasses should
       # override `#validates_each` with validation logic.
-      def validate(model)
+      def validate(model) : Bool
         model_attributes = model.attributes
-        attributes.each do |attribute|
+        @attributes.each do |attribute|
           value = model_attributes[attribute]
-          next if (value.nil? && allow_nil?)
+          next if (value.nil? && @allow_nil)
           validate_each(model, attribute, value)
         end
+        model.errors.empty?
       end
 
       # Override this method in subclasses with the validation logic, adding
-      # errors to the records +errors+ array where necessary.
+      # errors to the records *errors* array where necessary.
       abstract def validate_each(model, attribute, value)
     end
 
-    # `BlockValidator` is a special `EachValidator` which receives a block on
-    # initialization and call this block for each attribute being validated.
-    # `#validates_each` uses this validator.
-    class BlockValidator < EachValidator
-      def initialize(*attributes, **kwargs, &block)
-        super(*attributes, **kwargs)
-        @block = block
-      end
 
-      private def validate_each(model, attribute, value)
-        @block.call(model, attribute, value)
-      end
-    end
   end
 end

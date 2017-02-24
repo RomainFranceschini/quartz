@@ -8,9 +8,9 @@ module Quartz
 
       @state_bags = Hash(Quartz::MultiComponent::Component,Array(Tuple(Name,Any))).new { |h,k| h[k] = Array(Tuple(Name,Any)).new }
 
-      def initialize(model, scheduler : Symbol)
-        super(model)
-        sched_type = model.class.preferred_event_set? || scheduler
+      def initialize(model, simulation)
+        super(model, simulation)
+        sched_type = model.class.preferred_event_set? || simulation.default_scheduler
         @event_set = EventSetFactory(Component).new_event_set(sched_type)
         @components = model.components
       end

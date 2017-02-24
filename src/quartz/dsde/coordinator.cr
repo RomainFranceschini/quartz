@@ -2,6 +2,13 @@ module Quartz
   module DSDE
     class Coordinator < Quartz::Coordinator
 
+      @simulation : Simulation
+
+      def initialize(model, simulation)
+        super(model, simulation)
+        @simulation = simulation
+      end
+
       def perform_transitions(time, bag)
         coupled = @model.as(Quartz::DSDE::CoupledModel)
 
@@ -122,7 +129,7 @@ module Quartz
         # initialize new models and their processors
         new_children = current_children - old_children
         new_children.each do |new_model|
-          processor = ProcessorFactory.processor_for(new_model, @scheduler_type)
+          processor = ProcessorFactory.processor_for(new_model, @simulation)
           self << processor
 
           tn = processor.initialize_processor(time)

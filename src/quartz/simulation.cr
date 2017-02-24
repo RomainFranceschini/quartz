@@ -12,8 +12,14 @@ module Quartz
     @processor : Coordinator
     @start_time : Time?
     @final_time : Time?
+    @run_validations : Bool
 
-    def initialize(model : Model, *, scheduler : Symbol = :calendar_queue, maintain_hierarchy : Bool = true, duration : SimulationTime = Quartz::INFINITY)
+    def initialize(
+                   model : Model, *,
+                   scheduler : Symbol = :calendar_queue,
+                   maintain_hierarchy : Bool = true,
+                   duration : SimulationTime = Quartz::INFINITY,
+                   run_validations : Bool = false)
       @time = 0
 
       @model = case model
@@ -25,6 +31,7 @@ module Quartz
 
       @duration = duration
       @scheduler = scheduler
+      @run_validations = run_validations
 
       # TODO check direct_connect correctness
       unless maintain_hierarchy
@@ -45,6 +52,16 @@ module Quartz
       io << ", time=" << @time.to_s(io)
       io << ", duration=" << @duration.to_s(io)
       nil
+    end
+
+    # Returns the default scheduler to use.
+    def default_scheduler
+      @scheduler
+    end
+
+    # Whether `Quartz::Validations` will be run during simulation.
+    def run_validations?
+      @run_validations
     end
 
     # Returns *true* if the simulation is done, *false* otherwise.
@@ -300,13 +317,13 @@ module Quartz
 
     def allocate_processors(coupled = @model)
       is_root = coupled == @model
-      processor = ProcessorFactory.processor_for(coupled, @scheduler, is_root).as(Coordinator)
+      processor = ProcessorFactory.processor_for(coupled, self, is_root).as(Coordinator)
 
       coupled.as(CoupledModel).each_child do |model|
         processor << if model.is_a?(CoupledModel)
           allocate_processors(model)
         else
-          ProcessorFactory.processor_for(model, @scheduler)
+          ProcessorFactory.processor_for(model, self)
         end
       end
 

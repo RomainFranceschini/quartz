@@ -8,39 +8,52 @@ module Quartz
   class FeedbackLoopError < Exception; end
   class UnobservablePortError < Exception; end
 
-  class StrictValidationFailed < Exception; end
+  class StrictValidationFailed < Exception
+    getter validation_errors : ValidationErrors
 
-  # TODO doc (see ActiveModel)
-  class Errors
-    include Enumerable(String)
+    def initialize(@validation_errors)
+    end
+
+    def message : String?
+      String.build do |str|
+        @validation_errors.each do |attribute, message|
+          str << '\'' << attribute << "' " << message << '\n'
+        end
+      end
+    end
+  end
+
+  class ValidationErrors
+    include Enumerable({Symbol, String})
 
     @messages : Hash(Symbol, Array(String))?
 
     @[AlwaysInline]
     def messages
-      @messages ||= Hash(Symbol, Array(String)).new { |h,k| h[k] = Array(String).new }
+      @messages ||= Hash(Symbol, Array(String)).new { |h,k|
+        h[k] = Array(String).new
+      }
+    end
+
+    def full_messages
+      map { |attribute, message| "'#{attribute}' #{message}" }
     end
 
     def each
       @messages.try &.each do |attribute, messages|
         messages.each do |message|
-          yield attribute, message
+          yield({ attribute, message })
         end
       end
     end
 
-    def each
-      @messages.try &.each
-    end
-
-    def add(attribute : Symbol, message : String, strict : Bool = false)
-      raise StrictValidationFailed.new("#{attribute} #{message}") if strict
+    def add(attribute : Symbol, message : String)
       messages[attribute] << message
     end
 
-    def add(attribute : Symbol, *errors : String, strict : Bool = false)
+    def add(attribute : Symbol, *errors : String)
       errors.each do |message|
-        add(attribute, message, strict)
+        add(attribute, message)
       end
     end
 
@@ -49,7 +62,7 @@ module Quartz
     end
 
     def empty?
-      @messages.nil? || @messages.try &.empty?
+      @messages.nil? || @messages.not_nil!.empty?
     end
 
     def include?(attribute : Symbol)

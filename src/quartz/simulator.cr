@@ -4,6 +4,12 @@ module Quartz
     @int_count : UInt32 = 0u32
     @ext_count : UInt32 = 0u32
     @con_count : UInt32 = 0u32
+    @run_validations : Bool
+
+    def initialize(model : Model, simulation : Simulation)
+      @run_validations = simulation.run_validations?
+      super(model)
+    end
 
     def transition_stats
       {
@@ -20,10 +26,32 @@ module Quartz
       @time_last = atomic.time = time
       @time_next = @time_last + atomic.time_advance
       atomic.notify_observers({ :transition => Any.new(:init) })
+
+      if @run_validations && atomic.invalid?(:initialization)
+        if (logger = Quartz.logger?) && logger.error?
+          logger.error(String.build { |str|
+            str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
+            str << " (context: 'init', time: " << time << "). "
+            str << "Errors: " << atomic.errors.full_messages
+          })
+        end
+      end
+
       if (logger = Quartz.logger?) && logger.debug?
         logger.debug "\t#{model} initialization (time_last: #{@time_last}, time_next: #{@time_next})"
       end
       @time_next
+
+    rescue err : StrictValidationFailed
+      atomic = @model.as(AtomicModel)
+      if (logger = Quartz.logger?) && logger.fatal?
+        logger.fatal(String.build { |str|
+          str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
+          str << " (context: 'init', time: " << time << "). "
+          str << "Errors: " << atomic.errors.full_messages
+        })
+      end
+      raise err
     end
 
     def collect_outputs(time)
@@ -71,8 +99,28 @@ module Quartz
 
       if (logger = Quartz.logger?) && logger.debug?
         logger.debug("\t\ttime_last: #{@time_last} | time_next: #{@time_next}")
+
+      if @run_validations && atomic.invalid?(kind)
+        if (logger = Quartz.logger?) && logger.error?
+          logger.error(String.build { |str|
+            str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
+            str << " (context: '" << kind << "', time: )" << time << "). "
+            str << "Errors: " << atomic.errors.full_messages
+          })
+        end
       end
       @time_next
+
+    rescue err : StrictValidationFailed
+      atomic = @model.as(AtomicModel)
+      if (logger = Quartz.logger?) && logger.fatal?
+        logger.fatal(String.build { |str|
+          str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
+          str << " (context: 'init', time: " << time << "). "
+          str << "Errors: " << atomic.errors.full_messages
+        })
+      end
+      raise err
     end
   end
 end

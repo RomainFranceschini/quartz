@@ -31,3 +31,10 @@ class NumericModel
                  @nilint = nil)
   end
 end
+
+class SmallModel
+  include Quartz::Validations
+
+  property weight : Float64 = 0.0 # in kg
+  property height : Int32 = 0     # in cm
+end
