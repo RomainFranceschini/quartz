@@ -25,7 +25,6 @@ module Quartz
 
       @time_last = atomic.time = time
       @time_next = @time_last + atomic.time_advance
-      atomic.notify_observers({ :transition => Any.new(:init) })
 
       if @run_validations && atomic.invalid?(:initialization)
         if (logger = Quartz.logger?) && logger.error?
@@ -38,8 +37,14 @@ module Quartz
       end
 
       if (logger = Quartz.logger?) && logger.debug?
-        logger.debug "\t#{model} initialization (time_last: #{@time_last}, time_next: #{@time_next})"
+        logger.debug(String.build { |str|
+          str << '\'' << atomic.name << "' initialized ("
+          str << "tl: " << @time_last << ", tn: " << @time_next << ')'
+        })
       end
+
+      atomic.notify_observers({ :transition => Any.new(:init) })
+
       @time_next
 
     rescue err : StrictValidationFailed
@@ -67,24 +72,15 @@ module Quartz
       if time == @time_next
         atomic.elapsed = 0
         if bag.empty?
-          if (logger = Quartz.logger?) && logger.debug?
-            logger.debug "\tinternal transition: #{@model}"
-          end
           @int_count += 1u32
           atomic.internal_transition
           kind = :internal
         else
-          if (logger = Quartz.logger?) && logger.debug?
-            logger.debug "\tconfluent transition: #{@model}"
-          end
           @con_count += 1u32
           atomic.confluent_transition(bag)
           kind = :confluent
         end
       elsif synced && !bag.empty?
-        if (logger = Quartz.logger?) && logger.debug?
-          logger.debug "\texternal transition: #{@model}"
-        end
         @ext_count += 1u32
         atomic.elapsed = time - @time_last
         atomic.external_transition(bag)
@@ -95,10 +91,13 @@ module Quartz
 
       @time_last = atomic.time = time
       @time_next = @time_last + atomic.time_advance
-      atomic.notify_observers({ :transition => Any.new(kind) })
 
       if (logger = Quartz.logger?) && logger.debug?
-        logger.debug("\t\ttime_last: #{@time_last} | time_next: #{@time_next}")
+        logger.debug(String.build { |str|
+          str << '\'' << atomic.name << "': " << kind << " transition "
+          str << "(tl: " << @time_last << ", tn: " << @time_next << ')'
+        })
+      end
 
       if @run_validations && atomic.invalid?(kind)
         if (logger = Quartz.logger?) && logger.error?
@@ -109,6 +108,9 @@ module Quartz
           })
         end
       end
+
+      atomic.notify_observers({ :transition => Any.new(kind) })
+
       @time_next
 
     rescue err : StrictValidationFailed

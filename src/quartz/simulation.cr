@@ -38,13 +38,13 @@ module Quartz
         time = Time.now
         direct_connect!
         if logger = Quartz.logger?
-          logger.info "  * Flattened modeling tree in #{Time.now - time} secs"
+          logger.info "Flattened modeling tree in #{Time.now - time} secs"
         end
       end
 
       time = Time.now
       @processor = allocate_processors
-      info "  * Allocated processors in #{Time.now - time} secs"
+      info "Allocated processors in #{Time.now - time} secs"
     end
 
     def inspect(io)
@@ -157,7 +157,7 @@ module Quartz
 
     private def begin_simulation
       @start_time = Time.now
-      info "*** Beginning simulation at #{@start_time} with duration: #{@duration}"
+      info "Beginning simulation with duration: #{@duration}"
       Hooks.notifier.notify(:before_simulation_hook)
     end
 
@@ -165,17 +165,17 @@ module Quartz
       @final_time = Time.now
 
       if logger = Quartz.logger?
-        logger.info "*** Simulation ended at #{@final_time} after #{elapsed_secs} secs."
+        logger.info "Simulation ended after #{elapsed_secs} secs."
         if logger.debug?
           str = String.build(512) do |str|
-            str << "* Transition stats : {\n"
+            str << "Transition stats : {\n"
             transition_stats.each do |k, v|
               str << "    #{k} => #{v}\n"
             end
-            str << "* }\n"
-            str << "* Running post simulation hook"
+            str << "}\n"
           end
-          logger.debug(str)
+          logger.debug str
+          logger.debug "Running post simulation hook"
         end
       end
       Hooks.notifier.notify(:after_simulation_hook)
@@ -195,7 +195,7 @@ module Quartz
         @time
       elsif running?
         if (logger = Quartz.logger?) && logger.debug?
-          logger.debug("* Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed")
+          logger.debug("Tick at #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
         end
         @time = simulable.step(@time)
         end_simulation if done?
@@ -213,16 +213,16 @@ module Quartz
         begin_simulation
         while @time < @duration
           if (logger = Quartz.logger?) && logger.debug?
-            logger.debug("* Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed")
+            logger.debug("Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
           @time = simulable.step(@time)
         end
         end_simulation
       elsif logger = Quartz.logger?
         if running?
-          logger.error "The simulation already started at #{@start_time} and is currently running."
+          logger.error "Simulation already started at #{@start_time} and is currently running."
         else
-          logger.error "The simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
+          logger.error "Simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
         end
       end
       self
@@ -239,7 +239,7 @@ module Quartz
         begin_simulation
         while @time < @duration
           if (logger = Quartz.logger?) && logger.debug?
-            logger.debug("* Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed")
+            logger.debug("Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
           @time = simulable.step(@time)
           yield(self)
@@ -247,9 +247,9 @@ module Quartz
         end_simulation
       elsif logger = Quartz.logger?
         if running?
-          logger.error "The simulation already started at #{@start_time} and is currently running."
+          logger.error "Simulation already started at #{@start_time} and is currently running."
         else
-          logger.error "The simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
+          logger.error "Simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
         end
         nil
       end

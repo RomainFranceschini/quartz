@@ -1,8 +1,29 @@
 require "logger"
+require "colorize"
 
 module Quartz
-  @@logger : Logger? = Logger.new(STDOUT)
-  @@logger.not_nil!.level = Logger::INFO
+
+  # :nodoc:
+  private LOGGER_COLORS = {
+    "ERROR"   => :light_red,
+    "FATAL"   => :red,
+    "WARN"    => :light_yellow,
+    "INFO"    => :light_green,
+    "DEBUG"   => :light_blue,
+    "UNKNOWN" => :light_gray
+  }
+
+  @@logger : Logger? = Logger.new(STDOUT).tap do |logger|
+    logger.progname = "quartz"
+    logger.level = Logger::INFO
+
+    logger.formatter = Logger::Formatter.new do |severity, datetime, progname, message, io|
+      color = LOGGER_COLORS[severity]
+      io << datetime.to_s("(%T:%L)").colorize(color)
+      io << " ❯ ".colorize(:black)
+      io << message
+    end
+  end
 
   def self.logger : Logger
     raise Exception.new("There is no logger for Quartz to use.") unless @@logger

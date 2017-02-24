@@ -10,7 +10,7 @@ module Quartz
       when :calendar_queue then CalendarQueue(T).new
       else
         if (logger = Quartz.logger?) && logger.warn?
-          logger.warn("unknown event set '#{event_set}', defaults to calendar queue")
+          logger.warn("Unknown event set '#{event_set}', defaults to calendar queue")
         end
         CalendarQueue(T).new
       end

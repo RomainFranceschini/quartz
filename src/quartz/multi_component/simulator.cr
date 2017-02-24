@@ -27,7 +27,6 @@ module Quartz
       end
 
       def initialize_processor(time)
-        atomic = @model.as(MultiComponent::Model)
         @reac_count = @int_count = @ext_count = @con_count = 0u32
         @event_set.clear
 
@@ -44,13 +43,21 @@ module Quartz
               @event_set << component
             end
           end
+
+          if (logger = Quartz.logger?) && logger.debug?
+            logger.debug(String.build { |str|
+              str << '\'' << component.name << "' initialized ("
+              str << "tl: " << component.time_last << ", tn: "
+              str << component.time_next << ')'
+            })
+          end
+
+          component.notify_observers({ :transition => Any.new(:init) })
         end
 
         @time_last = time
         @time_next = min_time_next
-        if (logger = Quartz.logger?) && logger.debug?
-          logger.debug("\t#{model} initialization (time_last: #{@time_last}, time_next: #{@time_next})")
-        end
+
         @time_next
       end
 
@@ -90,52 +97,51 @@ module Quartz
           raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
         end
 
-        kind = :unknown
         if time == @time_next && bag.empty?
-          kind = :internal
           @int_count += @imm.not_nil!.size
           @imm.not_nil!.each do |component|
-            if (logger = Quartz.logger?) && logger.debug?
-              logger.debug("\tinternal transition: #{component}")
-            end
             component.internal_transition.try do |ps|
               ps.each do |k,v|
                 @state_bags[@components[k]] << {component.name, v}
               end
             end
-            component.notify_observers({ :transition => Any.new(kind) })
+            if (logger = Quartz.logger?) && logger.debug?
+              logger.debug(String.build { |str|
+                str << '\'' << component.name << "': internal transition"
+              })
+            end
+            component.notify_observers({ :transition => Any.new(:internal) })
           end
         elsif !bag.empty?
           @components.each do |component_name, component|
             # TODO test if component defined delta_ext
+            kind = :unknown
             o = if time == @time_next && component.time_next == @time_next
               kind = :confluent
               @con_count += 1u32
-              if (logger = Quartz.logger?) && logger.debug?
-                logger.debug("\tconfluent transition: #{component}")
-              end
               component.confluent_transition(bag)
             else
               kind = :external
               @ext_count += 1u32
-              if (logger = Quartz.logger?) && logger.debug?
-                logger.debug("\texternal transition: #{component}")
-              end
               component.external_transition(bag)
             end
+
             o.try &.each do |k,v|
               @state_bags[@components[k]] << {component_name, v}
             end
+
+            if (logger = Quartz.logger?) && logger.debug?
+              logger.debug(String.build { |str|
+                str << '\'' << component.name << "': " << kind << " transition"
+              })
+            end
+
             component.notify_observers({ :transition => Any.new(kind) })
           end
-          kind = time == @time_next ? :confluent : :external
         end
 
         @state_bags.each do |component, states|
           if @event_set.is_a?(RescheduleEventSet)
-            if (logger = Quartz.logger?) && logger.debug?
-              logger.debug("\treaction transition: #{component}")
-            end
             component.reaction_transition(states)
             component.time_last = component.time = time - component.elapsed
             component.time_next = component.time_last + component.time_advance
@@ -147,9 +153,6 @@ module Quartz
                 is_in_scheduler = false
               end
             end
-            if (logger = Quartz.logger?) && logger.debug?
-              logger.debug("\treaction transition: #{component}")
-            end
             component.reaction_transition(states)
             component.time_last = component.time = time - component.elapsed
             new_tn = component.time_next = component.time_last + component.time_advance
@@ -159,22 +162,29 @@ module Quartz
           else
             tn = component.time_next
             @event_set.delete(component) if tn < Quartz::INFINITY && time != tn
-            if (logger = Quartz.logger?) && logger.debug?
-              logger.debug("\treaction transition: #{component}")
-            end
             component.reaction_transition(states)
             component.time_last = component.time = time - component.elapsed
             tn = component.time_next = component.time_last + component.time_advance
             @event_set.push(component) if tn < Quartz::INFINITY
           end
+
+          if (logger = Quartz.logger?) && logger.debug?
+            logger.debug(String.build { |str|
+              str << '\'' << component.name << "': reaction transition "
+              str << "(tl: " << component.time_last << ", tn: "
+              str << component.time_next << ')'
+            })
+          end
+
           component.notify_observers({ :transition => Any.new(:reaction) })
         end
+
         @reac_count += @state_bags.size
         @state_bags.clear
 
         @event_set.reschedule! if @event_set.is_a?(RescheduleEventSet)
 
-        @model.as(MultiComponent::Model).notify_observers({:transition => Any.new(kind)})
+        @model.as(MultiComponent::Model).notify_observers
 
         @time_last = time
         @time_next = min_time_next
