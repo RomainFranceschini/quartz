@@ -9,13 +9,12 @@ module Quartz
 
     @time : SimulationTime
     @scheduler : Symbol
-    @processor : Coordinator
+    @processor : RootCoordinator?
     @start_time : Time?
     @final_time : Time?
     @run_validations : Bool
 
-    def initialize(
-                   model : Model, *,
+    def initialize(model : Model, *,
                    scheduler : Symbol = :calendar_queue,
                    maintain_hierarchy : Bool = true,
                    duration : SimulationTime = Quartz::INFINITY,
@@ -43,8 +42,13 @@ module Quartz
       end
 
       time = Time.now
-      @processor = allocate_processors
+      self.processor # allocate processors
       info "Allocated processors in #{Time.now - time} secs"
+    end
+
+    @[AlwaysInline]
+    protected def processor
+      @processor ||= self.allocate_processors.as(RootCoordinator)
     end
 
     def inspect(io)
@@ -120,7 +124,7 @@ module Quartz
     # Returns the number of transitions per model along with the total
     def transition_stats
       stats = {} of Name => Hash(Symbol, UInt32)
-      hierarchy = @processor.children.dup
+      hierarchy = self.processor.children.dup
       hierarchy.each do |child|
         if child.is_a?(Coordinator)
           coordinator = child.as(Coordinator)
@@ -183,12 +187,12 @@ module Quartz
 
     private def initialize_simulation
       Hooks.notifier.notify(:before_simulation_initialization_hook)
-      @time = @processor.as(Simulable).initialize_state(@time)
+      @time = self.processor.initialize_state(@time)
       Hooks.notifier.notify(:after_simulation_initialization_hook)
     end
 
     def step : SimulationTime?
-      simulable = @processor.as(Simulable)
+      simulable = self.processor
       if waiting?
         initialize_simulation
         begin_simulation
@@ -208,7 +212,7 @@ module Quartz
     # TODO error hook
     def simulate
       if waiting?
-        simulable = @processor.as(Simulable)
+        simulable = self.processor
         initialize_simulation
         begin_simulation
         while @time < @duration
@@ -234,7 +238,7 @@ module Quartz
 
     def each
       if waiting?
-        simulable = @processor.as(Simulable)
+        simulable = self.processor
         initialize_simulation
         begin_simulation
         while @time < @duration
