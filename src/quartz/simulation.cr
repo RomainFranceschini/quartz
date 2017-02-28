@@ -22,11 +22,11 @@ module Quartz
       @time = 0
 
       @model = case model
-      when AtomicModel, MultiComponent::Model
-        CoupledModel.new(:root_coupled_model) << model
-      else
-        model
-      end
+               when AtomicModel, MultiComponent::Model
+                 CoupledModel.new(:root_coupled_model) << model
+               else
+                 model
+               end
 
       @duration = duration
       @scheduler = scheduler
@@ -135,7 +135,7 @@ module Quartz
         end
       end
       total = Hash(Symbol, UInt32).new { 0_u32 }
-      stats.values.each { |h| h.each { |k, v| total[k] += v }}
+      stats.values.each { |h| h.each { |k, v| total[k] += v } }
       stats[:TOTAL] = total
       stats
     end
@@ -280,7 +280,7 @@ module Quartz
       end
     end
 
-    def generate_graph(path="model_hierarchy.dot")
+    def generate_graph(path = "model_hierarchy.dot")
       path = "#{path}.dot" if File.extname(path).empty?
       file = File.new(path, "w+")
       file.puts "digraph"
@@ -338,7 +338,7 @@ module Quartz
     private def direct_connect!
       models = @model.as(CoupledModel).each_child.to_a
       children_list = [] of Model
-      new_internal_couplings = Hash(Port,Array(Port)).new { |h,k| h[k] = [] of Port }
+      new_internal_couplings = Hash(Port, Array(Port)).new { |h, k| h[k] = [] of Port }
 
       i = 0
       while i < models.size
@@ -355,12 +355,12 @@ module Quartz
         else
           children_list << model
         end
-        i+=1
+        i += 1
       end
 
       cm = @model.as(CoupledModel)
       cm.each_child.each { |c| cm.remove_child(c) }
-      children_list.each { |c| cm << c  }
+      children_list.each { |c| cm << c }
 
       find_direct_couplings(cm) do |src, dst|
         new_internal_couplings[src] << dst
@@ -370,15 +370,15 @@ module Quartz
       internal_couplings.merge!(new_internal_couplings)
     end
 
-    private def find_direct_couplings(cm : CoupledModel, &block : Port, Port -> )
+    private def find_direct_couplings(cm : CoupledModel, &block : Port, Port ->)
       couplings = [] of {Port, Port}
-      cm.each_coupling { |s,d| couplings << {s,d} }
+      cm.each_coupling { |s, d| couplings << {s, d} }
 
       i = 0
       while i < couplings.size
         osrc, odst = couplings[i]
         if osrc.host.is_a?(AtomicModel) && odst.host.is_a?(AtomicModel)
-          yield(osrc, odst) # found direct coupling
+          yield(osrc, odst)                 # found direct coupling
         elsif osrc.host.is_a?(CoupledModel) # eic
           route = [{osrc, odst}]
           j = 0
@@ -394,11 +394,11 @@ module Quartz
             j += 1
           end
         elsif odst.host.is_a?(CoupledModel) # eoc
-          route = [{osrc,odst}]
+          route = [{osrc, odst}]
           j = 0
           while j < route.size
             _, rdst = route[j]
-            rdst.host.as(CoupledModel).each_input_coupling(rdst) do |src,dst|
+            rdst.host.as(CoupledModel).each_input_coupling(rdst) do |src, dst|
               if dst.host.is_a?(CoupledModel)
                 route.push({src, dst})
               else
@@ -411,6 +411,5 @@ module Quartz
         i += 1
       end
     end
-
   end
 end

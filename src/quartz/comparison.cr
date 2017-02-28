@@ -1,4 +1,3 @@
-
 module Quartz
   module Comparison
     REL_TOLERANCE = 1e-8

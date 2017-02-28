@@ -1,5 +1,4 @@
 module Quartz
-
   # The `Observer` module is intended to be included in a class as a mixin.
   # It provides a protocol so that objects can register to `Observable` objects
   # and receives their updates.
@@ -8,7 +7,7 @@ module Quartz
   module Observer
     # This method is called whenever the observed object (*observable*) is
     # changed.
-    abstract def update(observable : Observable);
+    abstract def update(observable : Observable)
   end
 
   # The `ObserverWithInfo` module is intended to be included in a class as a
@@ -21,7 +20,7 @@ module Quartz
     # This method is called whenever the observed object (*observable*) is
     # changed. A dictionary representing additional information, *info*,
     # may be available.
-    abstract def update(observable : Observable, info : Hash(Symbol, Any));
+    abstract def update(observable : Observable, info : Hash(Symbol, Any))
   end
 
   # The Observer pattern (publish/subscribe) provides a simple mechanism for
@@ -94,7 +93,7 @@ module Quartz
 
     # Notifies observers of a change in state. A dictionary, *info*, can be
     # passed to observers that conforms to the `ObserverWithInfo` protocol.
-    def notify_observers(info : Hash(Symbol,Any)? = nil)
+    def notify_observers(info : Hash(Symbol, Any)? = nil)
       @observers.try &.reject! do |observer|
         begin
           if observer.is_a?(Observer)
@@ -109,5 +108,4 @@ module Quartz
       end
     end
   end
-
 end

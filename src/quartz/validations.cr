@@ -3,7 +3,6 @@ require "./validators/presence"
 require "./validators/numericality"
 
 module Quartz
-
   # Provides a validation framework for your models.
   #
   # Example:
@@ -11,19 +10,19 @@ module Quartz
   # class WeightModel
   #   include Quartz::Validations
   #
-  #   property weight : Float64 = 0.0  # in kg
-  #   validates :weight, numericality: { greater_than: 40, lesser_than: 160 }
+  #   property weight : Float64 = 0.0 # in kg
+  #   validates :weight, numericality: {greater_than: 40, lesser_than: 160}
   # end
   #
   # model = WeightModel.new
   # model.weight = 75.0
-  # model.valid?              # => true
-  # model.invalid?            # => false
+  # model.valid?   # => true
+  # model.invalid? # => false
   #
   # model.weight = 200.0
-  # model.valid?              # => false
-  # model.invalid?            # => true
-  # model.errors.messages     # => { :weight => ["must be lesser than 160"] }
+  # model.valid?          # => false
+  # model.invalid?        # => true
+  # model.errors.messages # => { :weight => ["must be lesser than 160"] }
   # ```
   module Validations
     macro included

@@ -30,6 +30,7 @@ module Quartz
     #
     # ```
     # class MyCoupled < CoupledModel; end
+    #
     # MyCoupled.preferred_event_set = :ladder_queue
     # ```
     #
@@ -37,6 +38,5 @@ module Quartz
     macro event_set(name)
       self.preferred_event_set = :{{ name.id }}
     end
-
   end
 end

@@ -1,5 +1,4 @@
 module Quartz
-
   # Base model class
   abstract class Model
     property name : Name, processor : Processor?

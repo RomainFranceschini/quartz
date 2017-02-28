@@ -2,7 +2,6 @@ require "logger"
 require "colorize"
 
 module Quartz
-
   # :nodoc:
   private LOGGER_COLORS = {
     "ERROR"   => :light_red,
@@ -10,7 +9,7 @@ module Quartz
     "WARN"    => :light_yellow,
     "INFO"    => :light_green,
     "DEBUG"   => :light_blue,
-    "UNKNOWN" => :light_gray
+    "UNKNOWN" => :light_gray,
   }
 
   @@logger : Logger? = Logger.new(STDOUT).tap do |logger|

@@ -1,6 +1,5 @@
 module Quartz
   module Hooks
-
     # Returns the simulation default notifier.
     def self.notifier
       @@notifier ||= Notifier.new
@@ -12,7 +11,7 @@ module Quartz
     # a `Notifier`.
     module Notifiable
       # This method is called whenever a registered *hook* is dispatched.
-      abstract def notify(hook : Symbol);
+      abstract def notify(hook : Symbol)
     end
 
     # The `Notifier` provides a mechanism for broadcasting hooks during a
@@ -30,7 +29,7 @@ module Quartz
 
       # :nodoc:
       private def listeners
-        @listeners ||= Hash(Symbol, Array((Symbol ->) | Notifiable)).new { |h,k| h[k] = Array(((Symbol ->) | Notifiable)).new }
+        @listeners ||= Hash(Symbol, Array((Symbol ->) | Notifiable)).new { |h, k| h[k] = Array(((Symbol ->) | Notifiable)).new }
       end
 
       # Register the given *notifiable* to the specified *hook*.

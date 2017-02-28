@@ -1,11 +1,18 @@
 module Quartz
   class NoSuchChildError < Exception; end
+
   class BadSynchronisationError < Exception; end
+
   class NoSuchPortError < Exception; end
+
   class InvalidPortHostError < Exception; end
+
   class InvalidPortModeError < Exception; end
+
   class MessageAlreadySentError < Exception; end
+
   class FeedbackLoopError < Exception; end
+
   class UnobservablePortError < Exception; end
 
   class StrictValidationFailed < Exception
@@ -30,7 +37,7 @@ module Quartz
 
     @[AlwaysInline]
     def messages
-      @messages ||= Hash(Symbol, Array(String)).new { |h,k|
+      @messages ||= Hash(Symbol, Array(String)).new { |h, k|
         h[k] = Array(String).new
       }
     end
@@ -42,7 +49,7 @@ module Quartz
     def each
       @messages.try &.each do |attribute, messages|
         messages.each do |message|
-          yield({ attribute, message })
+          yield({attribute, message})
         end
       end
     end
@@ -84,6 +91,5 @@ module Quartz
         0
       end
     end
-
   end
 end

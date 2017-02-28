@@ -30,12 +30,12 @@ TODO List:
   - [x] Graphviz output of coupled structure
   - [x] Class-level definition of ports (through macros)
   - [ ] Model serialization
-  - [ ] Model runtime validation
+  - [x] Model runtime validation (WIP)
   - [x] Logging
   - [ ] Internal DSL
   - [x] Scheduler hint
 - Distributed simulations
-  - [ ] MPI bindings
+  - [x] MPI bindings (WIP in crmpi repository)
   - [ ] Optimistic simulators
   - [ ] Conservative simulators
 - Schedulers

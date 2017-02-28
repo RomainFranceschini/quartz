@@ -1,9 +1,8 @@
 module Quartz
-
-  abstract class Processor#(T)
+  abstract class Processor # (T)
 
     include Logging
-    #include Comparable(self)
+    # include Comparable(self)
 
     getter model : Model
     getter time_next : SimulationTime
@@ -32,7 +31,7 @@ module Quartz
       nil
     end
 
-    abstract def collect_outputs(time) : Hash(Port,Any);
-    abstract def perform_transitions(time, bag) : SimulationTime;
+    abstract def collect_outputs(time) : Hash(Port, Any)
+    abstract def perform_transitions(time, bag) : SimulationTime
   end
 end

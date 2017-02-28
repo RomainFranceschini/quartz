@@ -2,11 +2,10 @@ module Quartz
   # This mixin provides coupled models with several components and
   # coupling methods.
   module Coupler
-
     @children : Hash(Name, Model)?
-    @internal_couplings : Hash(Port,Array(Port))?
-    @output_couplings : Hash(Port,Array(Port))?
-    @input_couplings : Hash(Port,Array(Port))?
+    @internal_couplings : Hash(Port, Array(Port))?
+    @output_couplings : Hash(Port, Array(Port))?
+    @input_couplings : Hash(Port, Array(Port))?
 
     # :nodoc:
     protected def children : Hash(Name, Model)
@@ -14,18 +13,18 @@ module Quartz
     end
 
     # :nodoc:
-    protected def internal_couplings : Hash(Port,Array(Port))
-      @internal_couplings ||= Hash(Port,Array(Port)).new { |h, k| h[k] = Array(Port).new }
+    protected def internal_couplings : Hash(Port, Array(Port))
+      @internal_couplings ||= Hash(Port, Array(Port)).new { |h, k| h[k] = Array(Port).new }
     end
 
     # :nodoc:
-    protected def output_couplings : Hash(Port,Array(Port))
-      @output_couplings ||= Hash(Port,Array(Port)).new { |h, k| h[k] = Array(Port).new }
+    protected def output_couplings : Hash(Port, Array(Port))
+      @output_couplings ||= Hash(Port, Array(Port)).new { |h, k| h[k] = Array(Port).new }
     end
 
     # :nodoc:
-    protected def input_couplings : Hash(Port,Array(Port))
-      @input_couplings ||= Hash(Port,Array(Port)).new { |h, k| h[k] = Array(Port).new }
+    protected def input_couplings : Hash(Port, Array(Port))
+      @input_couplings ||= Hash(Port, Array(Port)).new { |h, k| h[k] = Array(Port).new }
     end
 
     # Returns all internal couplings attached to the given output *port*.
@@ -50,7 +49,9 @@ module Quartz
     end
 
     # Alias for `#<<`.
-    def add_child(child); self << child; end
+    def add_child(child)
+      self << child
+    end
 
     # Deletes the given *model* from childrens
     def remove_child(model : Model)
@@ -96,6 +97,11 @@ module Quartz
       children.each_value
     end
 
+    # Returns the number of children in `self`.
+    def children_size
+      children.size
+    end
+
     # Calls *block* once for each external input coupling (EIC) in
     # `#input_couplings`, passing that element as a parameter. Given *port* is
     # used to filter couplings having this port as a source.
@@ -106,7 +112,7 @@ module Quartz
     # Calls *block* once for each external input coupling (EIC) in
     # `#input_couplings`, passing that element as a parameter.
     def each_input_coupling
-      input_couplings.each { |src,ary| ary.each { |dst| yield(src,dst) }}
+      input_couplings.each { |src, ary| ary.each { |dst| yield(src, dst) } }
     end
 
     # Calls *block* once for each internal coupling (IC) in
@@ -119,7 +125,7 @@ module Quartz
     # Calls *block* once for each internal coupling (IC) in
     # `#internal_couplings`, passing that element as a parameter.
     def each_internal_coupling
-      internal_couplings.each { |src,ary| ary.each { |dst| yield(src,dst) }}
+      internal_couplings.each { |src, ary| ary.each { |dst| yield(src, dst) } }
     end
 
     # Calls *block* once for each external output coupling (EOC) in
@@ -132,7 +138,7 @@ module Quartz
     # Calls *block* once for each external output coupling (EOC) in
     # `#output_couplings`, passing that element as a parameter.
     def each_output_coupling
-      output_couplings.each { |src,ary| ary.each { |dst| yield(src,dst) }}
+      output_couplings.each { |src, ary| ary.each { |dst| yield(src, dst) } }
     end
 
     # Calls *block* once for each coupling (EIC, IC, EOC), passing that element
@@ -155,18 +161,15 @@ module Quartz
     # TODO
     # :nodoc:
     class CouplingIterator
-      include Iterator({Port,Port})
+      include Iterator({Port, Port})
 
       def initialize(@coupler : Coupler, @which : Symbol, @reverse : Bool = false)
-
       end
 
       def next
-
       end
 
       def rewind
-
       end
     end
 
@@ -220,10 +223,10 @@ module Quartz
         raise InvalidPortModeError.new unless p1.output? && p2.input?
         raise FeedbackLoopError.new("#{a} must be different than #{b}") if a.object_id == b.object_id
         internal_couplings[p1] << p2
-      elsif a == self && has_child?(b)  # EIC
+      elsif a == self && has_child?(b) # EIC
         raise InvalidPortModeError.new unless p1.input? && p2.input?
         input_couplings[p1] << p2
-      elsif has_child?(a) && b == self  # EOC
+      elsif has_child?(a) && b == self # EOC
         raise InvalidPortModeError.new unless p1.output? && p2.output?
         output_couplings[p1] << p2
       else
@@ -316,9 +319,9 @@ module Quartz
 
       if has_child?(a) && has_child?(b) # IC
         internal_couplings[p1].delete(p2) != nil
-      elsif a == self && has_child?(b)  # EIC
+      elsif a == self && has_child?(b) # EIC
         input_couplings[p1].delete(p2) != nil
-      elsif has_child?(a) && b == self  # EOC
+      elsif has_child?(a) && b == self # EOC
         output_couplings[p1].delete(p2) != nil
       else
         false

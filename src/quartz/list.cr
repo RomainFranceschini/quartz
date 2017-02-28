@@ -1,5 +1,4 @@
 module Quartz
-
   # A List (implementation of a doubly linked list) is a collection of objects
   # of type T that behaves much like an Array.
   #
@@ -204,10 +203,10 @@ module Quartz
     # l.insert_at(1, 7) # => List{0, 7, 1, 2}
     # ```
     def insert(index : Int, value : T)
-      index += @size+1 if index < 0
+      index += @size + 1 if index < 0
 
       return unshift(value) if index == 0
-      return push(value)    if index == @size
+      return push(value) if index == @size
 
       node = node_at(index) { raise IndexError.new }
       new_node = Node(T).new(value, node, node.try &.prev)
@@ -241,7 +240,7 @@ module Quartz
           e
         else
           e = @tail.not_nil!
-          (@size-1).downto(index+1) { |i| e = e.prev.not_nil! }
+          (@size - 1).downto(index + 1) { |i| e = e.prev.not_nil! }
           e
         end
       end
@@ -503,8 +502,8 @@ module Quartz
       if @size == 1
         clear
       else
-        return shift  if node == @head
-        return pop    if node == @tail
+        return shift if node == @head
+        return pop if node == @tail
 
         @size -= 1
         pn = node.prev
@@ -579,6 +578,5 @@ module Quartz
         self
       end
     end
-
   end
 end

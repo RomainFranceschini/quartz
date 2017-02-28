@@ -3,10 +3,9 @@ module Quartz
   # in line to the PDEVS functions definition (δext, δint, δcon, λ and ta) and
   # the PDEVS variables (σ, e, t).
   module Transitions
-
-    @elapsed  : SimulationTime
-    @sigma    : SimulationTime
-    @time     : SimulationTime
+    @elapsed : SimulationTime
+    @sigma : SimulationTime
+    @time : SimulationTime
 
     # This attribute is updated automatically along simulation and represents
     # the elapsed time since the last transition.
@@ -20,7 +19,6 @@ module Quartz
     # Sigma (σ) is a convenient variable introduced to simplify modeling phase
     # and represent the next activation time (see `#time_advance`)
     getter sigma = INFINITY
-
 
     # PDEVS functions
 
@@ -39,7 +37,7 @@ module Quartz
     #   self.sigma = 0
     # end
     # ```
-    def external_transition(messages : Hash(Port,Array(Any))); end
+    def external_transition(messages : Hash(Port, Array(Any))); end
 
     # Internal transition function (δint), called when the model should be
     # activated, e.g when `#elapsed` reaches `#time_advance`
@@ -49,7 +47,9 @@ module Quartz
     #
     # Example:
     # ```
-    # def internal_transition; self.sigma = Quartz::INFINITY; end
+    # def internal_transition
+    #   self.sigma = Quartz::INFINITY
+    # end
     # ```
     def internal_transition; end
 
@@ -61,7 +61,7 @@ module Quartz
     # opposite order of effects (external transition before internal
     # transition). Of course you can override without reference to the other
     # transitions.
-    def confluent_transition(messages : Hash(Port,Array(Any)))
+    def confluent_transition(messages : Hash(Port, Array(Any)))
       internal_transition
       external_transition(messages)
     end
@@ -74,7 +74,9 @@ module Quartz
     #
     # Example:
     # ```
-    # def time_advance; self.sigma; end
+    # def time_advance
+    #   self.sigma
+    # end
     # ```
     def time_advance : SimulationTime
       @sigma

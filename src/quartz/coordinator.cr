@@ -14,16 +14,16 @@ module Quartz
       scheduler_type = model.class.preferred_event_set? || simulation.default_scheduler
       @scheduler = EventSetFactory(Processor).new_event_set(scheduler_type)
       @synchronize = Array(SyncEntry).new
-      @parent_bag = Hash(Port,Array(Any)).new { |h,k|
+      @parent_bag = Hash(Port, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
       }
     end
 
     struct SyncEntry
       getter processor : Processor
-      getter bag : Hash(Port,Array(Any))?
+      getter bag : Hash(Port, Array(Any))?
 
-      def initialize(@processor, @bag=nil)
+      def initialize(@processor, @bag = nil)
       end
     end
 
@@ -42,7 +42,10 @@ module Quartz
       child.parent = self
       child
     end
-    def add_child(child); self << child; end
+
+    def add_child(child)
+      self << child
+    end
 
     # Deletes the specified child from `#children` list
     def remove_child(child)
@@ -92,10 +95,10 @@ module Quartz
       @time_last = time
 
       imm = if @scheduler.is_a?(RescheduleEventSet)
-        @scheduler.peek_all(time)
-      else
-        @scheduler.delete_all(time)
-      end
+              @scheduler.peek_all(time)
+            else
+              @scheduler.delete_all(time)
+            end
 
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
@@ -105,7 +108,7 @@ module Quartz
 
         output.each do |port, payload|
           if child.is_a?(Simulator)
-            port.notify_observers({ :payload => payload.as(Any) })
+            port.notify_observers({:payload => payload.as(Any)})
           end
 
           # check internal coupling to get children who receive sub-bag of y
@@ -113,27 +116,27 @@ module Quartz
             receiver = dst.host.processor.not_nil!
 
             entry = if receiver.sync
-              i = -1
-              @synchronize.each_with_index do |e, j|
-                if e.processor == receiver
-                  i = j
-                  break
-                end
-              end
-              @synchronize[i] = SyncEntry.new(
-                @synchronize[i].processor,
-                Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
-              ) unless @synchronize[i].bag
-              @synchronize[i]
-            else
-              receiver.sync = true
-              e = SyncEntry.new(
-                receiver,
-                Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
-              )
-              @synchronize << e
-              e
-            end
+                      i = -1
+                      @synchronize.each_with_index do |e, j|
+                        if e.processor == receiver
+                          i = j
+                          break
+                        end
+                      end
+                      @synchronize[i] = SyncEntry.new(
+                        @synchronize[i].processor,
+                        Hash(Port, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                      ) unless @synchronize[i].bag
+                      @synchronize[i]
+                    else
+                      receiver.sync = true
+                      e = SyncEntry.new(
+                        receiver,
+                        Hash(Port, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                      )
+                      @synchronize << e
+                      e
+                    end
 
             if child.is_a?(Coordinator)
               entry.bag.not_nil![dst].concat(payload.as(Array(Any)))
@@ -161,7 +164,7 @@ module Quartz
       @parent_bag
     end
 
-    EMPTY_BAG = Hash(Port,Array(Any)).new
+    EMPTY_BAG = Hash(Port, Array(Any)).new
 
     def perform_transitions(time, bag)
       bag.each do |port, sub_bag|
@@ -170,29 +173,29 @@ module Quartz
           receiver = dst.host.processor.not_nil!
 
           entry = if receiver.sync
-            i = -1
-            @synchronize.each_with_index do |e, j|
-              if e.processor == receiver
-                i = j
-                break
-              end
-            end
+                    i = -1
+                    @synchronize.each_with_index do |e, j|
+                      if e.processor == receiver
+                        i = j
+                        break
+                      end
+                    end
 
-            @synchronize[i] = SyncEntry.new(
-              @synchronize[i].processor,
-              Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
-            ) unless @synchronize[i].bag
+                    @synchronize[i] = SyncEntry.new(
+                      @synchronize[i].processor,
+                      Hash(Port, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                    ) unless @synchronize[i].bag
 
-            @synchronize[i]
-          else
-            receiver.sync = true
-            e = SyncEntry.new(
-              receiver,
-              Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
-            )
-            @synchronize << e
-            e
-          end
+                    @synchronize[i]
+                  else
+                    receiver.sync = true
+                    e = SyncEntry.new(
+                      receiver,
+                      Hash(Port, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                    )
+                    @synchronize << e
+                    e
+                  end
 
           entry.bag.not_nil![dst].concat(sub_bag)
         end

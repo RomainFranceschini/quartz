@@ -1,6 +1,5 @@
 module Quartz
   class Simulator < Processor
-
     @int_count : UInt32 = 0u32
     @ext_count : UInt32 = 0u32
     @con_count : UInt32 = 0u32
@@ -13,9 +12,9 @@ module Quartz
 
     def transition_stats
       {
-        internal: @int_count,
-        external: @ext_count,
-        confluent: @con_count
+        internal:  @int_count,
+        external:  @ext_count,
+        confluent: @con_count,
       }
     end
 
@@ -43,10 +42,9 @@ module Quartz
         })
       end
 
-      atomic.notify_observers({ :transition => Any.new(:init) })
+      atomic.notify_observers({:transition => Any.new(:init)})
 
       @time_next
-
     rescue err : StrictValidationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
@@ -109,10 +107,9 @@ module Quartz
         end
       end
 
-      atomic.notify_observers({ :transition => Any.new(kind) })
+      atomic.notify_observers({:transition => Any.new(kind)})
 
       @time_next
-
     rescue err : StrictValidationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
