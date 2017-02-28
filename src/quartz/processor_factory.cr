@@ -1,5 +1,5 @@
 module Quartz
-  abstract class ProcessorFactory
+  module ProcessorFactory
     class ProcessorAllocationError < Exception; end
 
     def self.processor_for(model : Model, sim : Simulation, root = false)

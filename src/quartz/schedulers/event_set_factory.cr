@@ -1,5 +1,5 @@
 module Quartz
-  abstract class EventSetFactory(T)
+  module EventSetFactory(T)
     def self.new_event_set(event_set) : EventSet(T)
       case event_set
       # when :binary_heap then BinaryHeap(T).new
