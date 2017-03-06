@@ -35,7 +35,7 @@ TODO List:
   - [ ] Internal DSL
   - [x] Scheduler hint
 - Distributed simulations
-  - [x] MPI bindings (WIP in crmpi repository)
+  - [x] MPI bindings (WIP, see [mpi.cr](https://github.com/romain1189/mpi.cr) repository)
   - [ ] Optimistic simulators
   - [ ] Conservative simulators
 - Schedulers
@@ -53,6 +53,18 @@ TODO List:
 ## Differences with [DEVS-Ruby](https://github.com/devs-ruby)
 
 Classic DEVS is not supported.
+
+## Alternatives
+
+Many other tools allow modeling and simulation based on the DEVS theory. Here is a non-exhaustive list:
+- [VLE](http://www.vle-project.org) (Virtual Laboratory Environment)
+- [ADEVS](http://web.ornl.gov/~1qn/adevs/)
+- [PythonPDEVS](http://msdl.cs.mcgill.ca/projects/DEVS/PythonPDEVS)
+- [CD++](http://cell-devs.sce.carleton.ca/mediawiki/index.php/Main_Page)
+- [PowerDEVS](https://sourceforge.net/projects/powerdevs/)
+- [DEVS-Suite](http://acims.asu.edu/software/devs-suite/)
+- [MS4Me](http://www.ms4systems.com)
+- [James II](http://jamesii.informatik.uni-rostock.de/jamesii.org/)
 
 ## Suggested Reading
 
