@@ -9,6 +9,10 @@ module Quartz
   class Port
     include Observable
 
+    getter(upward_ports) { Array(Port).new }
+    getter(peers_ports) { Array(Port).new }
+    getter(downward_ports) { Array(Port).new }
+
     getter mode : IOMode
     getter name : Name
     getter host : Coupleable
