@@ -367,7 +367,12 @@ module Quartz
       end
 
       internal_couplings = cm.internal_couplings.clear
-      internal_couplings.merge!(new_internal_couplings)
+
+      new_internal_couplings.each do |src, ary|
+        src.peers_ports.clear
+        src.peers_ports.concat(ary)
+        internal_couplings << src
+      end
     end
 
     private def find_direct_couplings(cm : CoupledModel, &block : Port, Port ->)
