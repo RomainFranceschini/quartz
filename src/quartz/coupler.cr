@@ -328,9 +328,8 @@ module Quartz
         end
         detached
       elsif a == self && has_child?(b) # EIC
-        # input_couplings.delete(p1) != nil && p1.downward_ports.delete(p2) != nil
         detached = p1.downward_ports.delete(p2) != nil
-        if detached && p1.peers_ports.empty?
+        if detached && p1.downward_ports.empty?
           input_couplings.delete(p1)
         end
         detached
