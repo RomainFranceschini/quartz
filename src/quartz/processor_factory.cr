@@ -5,7 +5,7 @@ module Quartz
     def self.processor_for(model : Model, sim : Simulation, root = false)
       if model.is_a?(DSDE::CoupledModel)
         if root
-          DSDE::RootCoordinator.new(model, sim)
+          RootCoordinator.new(model, sim)
         else
           DSDE::Coordinator.new(model, sim)
         end
