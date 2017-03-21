@@ -31,7 +31,7 @@ module Quartz
       nil
     end
 
-    abstract def collect_outputs(time) : Hash(Port, Any)
-    abstract def perform_transitions(time, bag) : SimulationTime
+    abstract def collect_outputs(time) : Hash(OutputPort, Any)
+    abstract def perform_transitions(time, bag : Hash(InputPort, Array(Any))) : SimulationTime
   end
 end

@@ -338,7 +338,7 @@ module Quartz
     private def direct_connect!
       models = @model.as(CoupledModel).each_child.to_a
       children_list = [] of Model
-      new_internal_couplings = Hash(Port, Array(Port)).new { |h, k| h[k] = [] of Port }
+      new_internal_couplings = Hash(OutputPort, Array(InputPort)).new { |h, k| h[k] = [] of InputPort }
 
       i = 0
       while i < models.size
@@ -370,12 +370,18 @@ module Quartz
 
       new_internal_couplings.each do |src, ary|
         src.peers_ports.clear
-        src.peers_ports.concat(ary)
+        src.upward_ports.clear
+
+        ary.each do |dst|
+          src.peers_ports << dst
+          dst.downward_ports.clear
+        end
+
         internal_couplings << src
       end
     end
 
-    private def find_direct_couplings(cm : CoupledModel, &block : Port, Port ->)
+    private def find_direct_couplings(cm : CoupledModel, &block : OutputPort, InputPort ->)
       couplings = [] of {Port, Port}
       cm.each_coupling { |s, d| couplings << {s, d} }
 
@@ -383,13 +389,13 @@ module Quartz
       while i < couplings.size
         osrc, odst = couplings[i]
         if osrc.host.is_a?(AtomicModel) && odst.host.is_a?(AtomicModel)
-          yield(osrc, odst)                 # found direct coupling
+          yield(osrc.as(OutputPort), odst.as(InputPort))                 # found direct coupling
         elsif osrc.host.is_a?(CoupledModel) # eic
           route = [{osrc, odst}]
           j = 0
           while j < route.size
             rsrc, _ = route[j]
-            rsrc.host.as(CoupledModel).each_output_coupling_reverse(rsrc) do |src, dst|
+            rsrc.host.as(CoupledModel).each_output_coupling_reverse(rsrc.as(OutputPort)) do |src, dst|
               if src.host.is_a?(CoupledModel)
                 route.push({src, dst})
               else
@@ -403,7 +409,7 @@ module Quartz
           j = 0
           while j < route.size
             _, rdst = route[j]
-            rdst.host.as(CoupledModel).each_input_coupling(rdst) do |src, dst|
+            rdst.host.as(CoupledModel).each_input_coupling(rdst.as(InputPort)) do |src, dst|
               if dst.host.is_a?(CoupledModel)
                 route.push({src, dst})
               else

@@ -62,40 +62,6 @@ describe "Coupler" do
           coupler2.attach(c1out, to: c2in)
         end
       end
-
-      it "raises when coupling ports with wrong IO modes" do
-        coupler = MyCoupler.new("c")
-        a = MyCoupleable.new("a")
-        b = MyCoupleable.new("b")
-        coupler << a << b
-        myip = coupler.add_input_port("myin")
-        myop = coupler.add_output_port("myout")
-        aip = a.add_input_port("in")
-        bop = b.add_output_port("out")
-
-        # IC
-        expect_raises InvalidPortModeError do
-          coupler.attach(aip, to: bop)
-        end
-
-        # EOC
-        expect_raises InvalidPortModeError do
-          coupler.attach(myop, to: bop)
-        end
-
-        # EIC
-        expect_raises InvalidPortModeError do
-          coupler.attach(myip, to: bop)
-        end
-
-        expect_raises InvalidPortModeError do
-          coupler.attach(bop, to: myip)
-        end
-
-        expect_raises InvalidPortModeError do
-          coupler.attach(aip, to: myop)
-        end
-      end
     end
 
     describe "detach" do
@@ -123,12 +89,9 @@ describe "Coupler" do
         coupler.detach(bop, from: myop).should be_true
       end
 
-      it "is falsey when coupling illegal or doesn't exist" do
-        coupler.detach(aip, from: bop).should be_false
+      it "is falsey when coupling doesn't exist" do
         coupler.detach(myop, from: bop).should be_false
-        coupler.detach(myip, from: bop).should be_false
         coupler.detach(bop, from: myip).should be_false
-        coupler.detach(aip, from: myop).should be_false
 
         coupler.attach(bop, to: a.add_input_port("in2"))
         coupler.detach(bop, from: aip).should be_false

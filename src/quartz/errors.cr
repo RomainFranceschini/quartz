@@ -7,8 +7,6 @@ module Quartz
 
   class InvalidPortHostError < Exception; end
 
-  class InvalidPortModeError < Exception; end
-
   class MessageAlreadySentError < Exception; end
 
   class FeedbackLoopError < Exception; end

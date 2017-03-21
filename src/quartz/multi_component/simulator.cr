@@ -79,7 +79,7 @@ module Quartz
           @event_set.delete_all(time)
         end
 
-        output_bag = Hash(Port,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+        output_bag = Hash(OutputPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
 
         @imm.not_nil!.each do |component|
           if sub_bag = component.output

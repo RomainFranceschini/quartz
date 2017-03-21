@@ -1,41 +1,37 @@
 module Quartz
-  # A `Port` may be configured as an Input or Output IO mode.
-  enum IOMode
-    Input
-    Output
-  end
-
-  # This class represents a port that belongs to a `Model` (the *host*).
-  class Port
-    include Observable
-
-    getter(upward_ports) { Array(Port).new }
-    getter(peers_ports) { Array(Port).new }
-    getter(downward_ports) { Array(Port).new }
-
-    getter mode : IOMode
+  # Represents a port that belongs to a `Coupleable` (the *host*).
+  abstract class Port
     getter name : Name
     getter host : Coupleable
 
-    def_hash @name, @mode, @host
+    def_hash @name, @host
 
-    delegate output?, to: @mode
-    delegate input?, to: @mode
-
-    # Returns a new `Port` instance, owned by *host*
-    def initialize(@host : Coupleable, @mode : IOMode, @name : Name)
-    end
-
-    def add_observer(observer)
-      if @mode == IOMode::Input || @host.is_a?(CoupledModel)
-        raise UnobservablePortError.new("Only atomic models output ports are observable.")
-      end
-      super(observer)
+    def initialize(@host : Coupleable, @name : Name)
     end
 
     def to_s(io)
       io << @name
       nil
+    end
+  end
+
+  # This class represents an input port that belongs to a `Coupleable` (the *host*).
+  class InputPort < Port
+    getter(downward_ports) { Array(InputPort).new }
+  end
+
+  # This class represents an output port that belongs to a `Coupleable` (the *host*).
+  class OutputPort < Port
+    getter(peers_ports) { Array(InputPort).new }
+    getter(upward_ports) { Array(OutputPort).new }
+
+    include Observable
+
+    def add_observer(observer)
+      if @host.is_a?(CoupledModel)
+        raise UnobservablePortError.new("Only atomic models output ports are observable.")
+      end
+      super(observer)
     end
   end
 end

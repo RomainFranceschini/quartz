@@ -70,12 +70,12 @@ end
 class PortObserver
   include Quartz::ObserverWithInfo
 
-  def initialize(port)
+  def initialize(port : Quartz::OutputPort)
     port.add_observer(self)
   end
 
   def update(observable, info)
-    if observable.is_a?(Quartz::Port) && info
+    if observable.is_a?(Quartz::OutputPort) && info
       payload = info[:payload]
       puts "#{observable.host}@#{observable} sends '#{payload}' at #{observable.host.as(Quartz::AtomicModel).time}"
     end

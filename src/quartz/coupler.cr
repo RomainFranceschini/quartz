@@ -3,9 +3,9 @@ module Quartz
   # coupling methods.
   module Coupler
     @children : Hash(Name, Model)?
-    @internal_couplings : Array(Port)?
-    @output_couplings : Array(Port)?
-    @input_couplings : Array(Port)?
+    @internal_couplings : Array(OutputPort)?
+    @output_couplings : Array(OutputPort)?
+    @input_couplings : Array(InputPort)?
 
     # :nodoc:
     protected def children : Hash(Name, Model)
@@ -13,32 +13,32 @@ module Quartz
     end
 
     # :nodoc:
-    protected def internal_couplings : Array(Port)
-      @internal_couplings ||= Array(Port).new
+    protected def internal_couplings : Array(OutputPort)
+      @internal_couplings ||= Array(OutputPort).new
     end
 
     # :nodoc:
-    protected def output_couplings : Array(Port)
-      @output_couplings ||= Array(Port).new
+    protected def output_couplings : Array(OutputPort)
+      @output_couplings ||= Array(OutputPort).new
     end
 
     # :nodoc:
-    protected def input_couplings : Array(Port)
-      @input_couplings ||= Array(Port).new
+    protected def input_couplings : Array(InputPort)
+      @input_couplings ||= Array(InputPort).new
     end
 
     # Returns all internal couplings attached to the given output *port*.
-    def internal_couplings(port : Port) : Array(Port)
+    def internal_couplings(port : OutputPort) : Array(InputPort)
       port.peers_ports
     end
 
     # Returns all external output couplings attached to the given output *port*.
-    def output_couplings(port : Port) : Array(Port)
+    def output_couplings(port : OutputPort) : Array(OutputPort)
       port.upward_ports
     end
 
     # Returns all external input couplings attached to the given input *port*.
-    def input_couplings(port : Port) : Array(Port)
+    def input_couplings(port : InputPort) : Array(InputPort)
       port.downward_ports
     end
 
@@ -106,7 +106,7 @@ module Quartz
     # `#input_couplings`, passing that element as a parameter. Given *port* is
     # used to filter couplings having this port as a source.
     # TODO check if port in input_couplings ?
-    def each_input_coupling(port : Port)
+    def each_input_coupling(port : InputPort)
       port.downward_ports.each { |dst| yield(port, dst) }
     end
 
@@ -119,7 +119,7 @@ module Quartz
     # Calls *block* once for each internal coupling (IC) in
     # `#internal_couplings`, passing that element as a parameter. Given *port*
     # is used to filter couplings having this port as a source.
-    def each_internal_coupling(port : Port)
+    def each_internal_coupling(port : OutputPort)
       port.peers_ports.each { |dst| yield(port, dst) }
     end
 
@@ -132,7 +132,7 @@ module Quartz
     # Calls *block* once for each external output coupling (EOC) in
     # `#output_couplings`, passing that element as a parameter. Given *port* is
     # used to filter couplings having this port as a source.
-    def each_output_coupling(port : Port)
+    def each_output_coupling(port : OutputPort)
       port.upward_ports.each { |dst| yield(port, dst) }
     end
 
@@ -150,11 +150,17 @@ module Quartz
       each_output_coupling { |src, dst| yield(src, dst) }
     end
 
-    # Calls *block* once for each coupling (EIC, IC, EOC), passing that element
-    # as a parameter. Given *port* is used to filter couplings having this
-    # port as a source.
-    def each_coupling(port : Port)
+    # Calls *block* once for each coupling, passing that element as a parameter.
+    # Given input *port* is used to filter external input couplings (EIC) having
+    # this port as a source.
+    def each_coupling(port : InputPort)
       each_input_coupling(port) { |src, dst| yield(src, dst) }
+    end
+
+    # Calls *block* once for each coupling, passing that element as a parameter.
+    # Given output *port* is used to filter internal couplings and external
+    # output couplings (IC, EOC) having this port as a source.
+    def each_coupling(port : OutputPort)
       each_internal_coupling(port) { |src, dst| yield(src, dst) }
       each_output_coupling(port) { |src, dst| yield(src, dst) }
     end
@@ -175,62 +181,84 @@ module Quartz
     end
 
     # TODO doc
-    def each_input_coupling_reverse(port : Port)
+    def each_input_coupling_reverse(port : InputPort)
       input_couplings.each do |src|
         src.downward_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
     # TODO doc
-    def each_internal_coupling_reverse(port : Port)
+    def each_internal_coupling_reverse(port : InputPort)
       internal_couplings.each do |src|
         src.peers_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
     # TODO doc
-    def each_output_coupling_reverse(port : Port)
+    def each_output_coupling_reverse(port : OutputPort)
       output_couplings.each do |src|
         src.upward_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
     # TODO doc
-    def each_coupling_reverse(port : Port)
+    def each_coupling_reverse(port : InputPort)
       each_input_coupling_reverse(port) { |src, dst| yield(src, dst) }
       each_internal_coupling_reverse(port) { |src, dst| yield(src, dst) }
+    end
+
+    def each_coupling_reverse(port : OutputPort)
       each_output_coupling_reverse(port) { |src, dst| yield(src, dst) }
     end
 
-    # Adds a coupling to self between the two given ports.
+    # Adds an external input coupling (EIC) to self between the two given input
+    # ports.
     #
-    # Depending on *p1* and *p2* hosts, the function will create an internal
-    # coupling (IC), an external input coupling (EIC) or an external output
-    # coupling (EOC).
+    # Raises an `InvalidPortHostError` if no coupling can be established from
+    # given ports hosts.
+    def attach(p1 : InputPort, to p2 : InputPort)
+      a = p1.host
+      b = p2.host
+
+      if a == self && has_child?(b) # EIC
+        p1.downward_ports << p2
+        input_couplings << p1
+      else
+        raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
+      end
+    end
+
+    # Adds an internal coupling (IC) to self between the two given ports.
     #
     # Raises a `FeedbackLoopError` if *p1* and *p2* hosts are the same child
-    # when constructing an internal coupling. Direct feedback loops are not
+    # when constructing the internal coupling. Direct feedback loops are not
     # allowed, i.e, no output port of a component may be connected to an input
     # port of the same component.
-    # Raises an `InvalidPortModeError` if given ports are not of the expected IO
-    # modes.
-    # Raises an InvalidPortHostError if no coupling can be established from
+    # Raises an `InvalidPortHostError` if no coupling can be established from
     # given ports hosts.
-    def attach(p1 : Port, to p2 : Port)
+    def attach(p1 : OutputPort, to p2 : InputPort)
       a = p1.host
       b = p2.host
 
       if has_child?(a) && has_child?(b) # IC
-        raise InvalidPortModeError.new unless p1.output? && p2.input?
         raise FeedbackLoopError.new("#{a} must be different than #{b}") if a.object_id == b.object_id
         p1.peers_ports << p2
         internal_couplings << p1
-      elsif a == self && has_child?(b) # EIC
-        raise InvalidPortModeError.new unless p1.input? && p2.input?
-        p1.downward_ports << p2
-        input_couplings << p1
-      elsif has_child?(a) && b == self # EOC
-        raise InvalidPortModeError.new unless p1.output? && p2.output?
+      else
+        raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
+      end
+    end
+
+    # Adds an external output coupling (EOC) to self between the two given
+    # output ports.
+    #
+    # Raises an `InvalidPortHostError` if no coupling can be established from
+    # given ports hosts.
+    def attach(p1 : OutputPort, to p2 : OutputPort)
+      a = p1.host
+      b = p2.host
+
+      if has_child?(a) && b == self # EOC
         p1.upward_ports << p2
         output_couplings << p1
       else
@@ -316,8 +344,28 @@ module Quartz
       attach(p1, to: p2)
     end
 
-    # Deletes a coupling from *self*. Returns `true` if successful.
-    def detach(p1 : Port, from p2 : Port) : Bool
+    # Deletes a external input coupling (EOC) from *self*.
+    #
+    # Returns `true` if successful.
+    def detach(p1 : InputPort, from p2 : InputPort) : Bool
+      a = p1.host
+      b = p2.host
+
+      if a == self && has_child?(b) # EIC
+        detached = p1.downward_ports.delete(p2) != nil
+        if detached && p1.downward_ports.empty?
+          input_couplings.delete(p1)
+        end
+        return detached
+      end
+
+      false
+    end
+
+    # Deletes an internal coupling (IC) from *self*.
+    #
+    # Returns `true` if successful.
+    def detach(p1 : OutputPort, from p2 : InputPort) : Bool
       a = p1.host
       b = p2.host
 
@@ -326,22 +374,28 @@ module Quartz
         if detached && p1.peers_ports.empty?
           internal_couplings.delete(p1)
         end
-        detached
-      elsif a == self && has_child?(b) # EIC
-        detached = p1.downward_ports.delete(p2) != nil
-        if detached && p1.downward_ports.empty?
-          input_couplings.delete(p1)
-        end
-        detached
-      elsif has_child?(a) && b == self # EOC
+        return detached
+      end
+
+      false
+    end
+
+    # Deletes an external output coupling (EOC) from *self*.
+    #
+    # Returns `true` if successful.
+    def detach(p1 : OutputPort, from p2 : OutputPort) : Bool
+      a = p1.host
+      b = p2.host
+
+      if has_child?(a) && b == self # EOC
         detached = p1.upward_ports.delete(p2) != nil
         if detached && p1.upward_ports.empty?
           output_couplings.delete(p1)
         end
-        detached
-      else
-        false
+        return detached
       end
+
+      false
     end
 
     # Deletes a coupling from *self*. Returns `true` if successful.

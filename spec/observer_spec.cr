@@ -89,20 +89,12 @@ end
 
 describe "Port" do
   describe "Observable" do
-    it "raises when adding a PortObserver on wrong port" do
+    it "raises when adding a PortObserver on output port attached to a coupled" do
       atom = AtomicModel.new("am")
       coupled = CoupledModel.new("cm")
 
-      aip = Port.new(atom, IOMode::Input, "aip")
-      cip = Port.new(coupled, IOMode::Input, "cip")
-      cop = Port.new(coupled, IOMode::Output, "cop")
+      cop = OutputPort.new(coupled, "cop")
 
-      expect_raises UnobservablePortError do
-        aip.add_observer(MyPortObserver.new)
-      end
-      expect_raises UnobservablePortError do
-        cip.add_observer(MyPortObserver.new)
-      end
       expect_raises UnobservablePortError do
         cop.add_observer(MyPortObserver.new)
       end

@@ -39,8 +39,8 @@ describe "Coupleable" do
   describe "port creation" do
     it "adds ports" do
       c = MyCoupleable.new("a")
-      ip = Port.new(c, IOMode::Input, "input")
-      op = Port.new(c, IOMode::Output, :output)
+      ip = InputPort.new(c, "input")
+      op = OutputPort.new(c, :output)
       c.add_port(ip)
       c.add_port(op)
 
@@ -61,8 +61,8 @@ describe "Coupleable" do
   describe "port removal" do
     it "removes ports" do
       c = MyCoupleable.new("a")
-      ip = Port.new(c, IOMode::Input, "input")
-      op = Port.new(c, IOMode::Output, :output)
+      ip = InputPort.new(c, "input")
+      op = OutputPort.new(c, :output)
       c.add_port(ip)
       c.add_port(op)
 
@@ -101,19 +101,19 @@ describe "Coupleable" do
 
     it "creates specified port if it doesn't exist" do
       c = MyCoupleable.new("a")
-      ip = c.find_create("in", IOMode::Input)
-      op = c.find_create("out", IOMode::Output)
+      ip = c.find_or_create_input_port_if_necessary("in")
+      op = c.find_or_create_output_port_if_necessary("out")
 
-      ip.should be_a(Port)
-      op.should be_a(Port)
+      ip.should be_a(InputPort)
+      op.should be_a(OutputPort)
       ip.name.should eq("in")
       op.name.should eq("out")
 
       ip2 = c.add_input_port("in2")
       op2 = c.add_output_port("out2")
 
-      c.find_create("in2", IOMode::Input).should eq(ip2)
-      c.find_create("out2", IOMode::Output).should eq(op2)
+      c.find_or_create_input_port_if_necessary("in2").should eq(ip2)
+      c.find_or_create_output_port_if_necessary("out2").should eq(op2)
     end
   end
 

@@ -4,8 +4,8 @@ module Quartz
   module Coupleable
     include Transferable
 
-    @input_ports : Hash(Name, Port)?
-    @output_ports : Hash(Name, Port)?
+    @input_ports : Hash(Name, InputPort)?
+    @output_ports : Hash(Name, OutputPort)?
 
     macro included
       @@_input_ports : Array(Name)?
@@ -112,48 +112,71 @@ module Quartz
     end
 
     # :nodoc:
-    protected def input_ports : Hash(Name, Port)
-      @input_ports ||= Hash(Name, Port).zip(self.class._input_ports, self.class._input_ports.map { |port_name|
-        Port.new(self, IOMode::Input, port_name)
+    protected def input_ports : Hash(Name, InputPort)
+      @input_ports ||= Hash(Name, InputPort).zip(self.class._input_ports, self.class._input_ports.map { |port_name|
+        InputPort.new(self, port_name)
       })
     end
 
     # :nodoc:
-    protected def output_ports : Hash(Name, Port)
-      @output_ports ||= Hash(Name, Port).zip(self.class._output_ports, self.class._output_ports.map { |port_name|
-        Port.new(self, IOMode::Output, port_name)
+    protected def output_ports : Hash(Name, OutputPort)
+      @output_ports ||= Hash(Name, OutputPort).zip(self.class._output_ports, self.class._output_ports.map { |port_name|
+        OutputPort.new(self, port_name)
       })
     end
 
     # Add given port to *self*.
-    def add_port(port : Port)
+    def add_port(port : InputPort)
       raise InvalidPortHostError.new if port.host != self
-      case port.mode
-      when IOMode::Input
-        input_ports[port.name] = port
-      when IOMode::Output
-        output_ports[port.name] = port
-      end
+      input_ports[port.name] = port
+    end
+
+    # Add given port to *self*.
+    def add_port(port : OutputPort)
+      raise InvalidPortHostError.new if port.host != self
+      output_ports[port.name] = port
     end
 
     # Add given input port to *self*.
     def add_input_port(name)
-      add_port(IOMode::Input, name)
+      if input_ports.has_key?(name)
+        Quartz.logger?.try &.warn(
+          "specified input port #{name} already exists for #{self}. skipping..."
+        )
+
+        new_port = input_ports[name]
+      else
+        new_port = InputPort.new(self, name)
+        input_ports[name] = new_port
+      end
+
+      new_port
     end
 
     # Add given output port to *self*.
     def add_output_port(name)
-      add_port(IOMode::Output, name)
+      if output_ports.has_key?(name)
+        Quartz.logger?.try &.warn(
+          "specified output port #{name} already exists for #{self}. skipping..."
+        )
+
+        new_port = output_ports[name]
+      else
+        new_port = OutputPort.new(self, name)
+        output_ports[name] = new_port
+      end
+
+      new_port
     end
 
-    # Removes given *port* from *self*.
-    def remove_port(port : Port)
-      case port.mode
-      when IOMode::Input
-        input_ports.delete(port.name)
-      when IOMode::Output
-        output_ports.delete(port.name)
-      end
+    # Removes given input *port* from *self*.
+    def remove_port(port : InputPort)
+      input_ports.delete(port.name)
+    end
+
+    # Removes given output *port* from *self*.
+    def remove_port(port : OutputPort)
+      output_ports.delete(port.name)
     end
 
     # Removes given input port by its *name*.
@@ -177,12 +200,12 @@ module Quartz
     end
 
     # Returns the list of input ports
-    def input_port_list : Array(Port)
+    def input_port_list : Array(InputPort)
       input_ports.values
     end
 
     # Returns the list of output ports
-    def output_port_list : Array(Port)
+    def output_port_list : Array(OutputPort)
       output_ports.values
     end
 
@@ -209,23 +232,23 @@ module Quartz
     end
 
     # Find the input port identified by the given *name*.
-    def input_port?(name : Name) : Port?
+    def input_port?(name : Name) : InputPort?
       input_ports[name]?
     end
 
     # Find the input port identified by the given *name*.
-    def input_port(name : Name) : Port
+    def input_port(name : Name) : InputPort
       raise NoSuchPortError.new("input port \"#{name}\" not found") unless input_ports.has_key?(name)
       input_ports[name]
     end
 
     # Find the output port identified by the given *name*
-    def output_port?(name : Name) : Port?
+    def output_port?(name : Name) : OutputPort?
       output_ports[name]?
     end
 
     # Find the output port identified by the given *name*
-    def output_port(name : Name) : Port
+    def output_port(name : Name) : OutputPort
       raise NoSuchPortError.new("output port \"#{name}\" not found") unless output_ports.has_key?(name)
       output_ports[name]
     end
@@ -234,55 +257,26 @@ module Quartz
     # an input port is created with given name. Otherwise, an attempt to
     # find the matching port is made. If the given port doesn't exists, it is
     # created with the given name.
-    protected def find_or_create_input_port_if_necessary(port : Name) : Port
-      find_or_create_port_if_necessary(IOMode::Input, port)
+    protected def find_or_create_input_port_if_necessary(port_name : Name) : InputPort
+      port = input_ports[port_name]?
+      if port.nil?
+        port = add_input_port(port_name)
+        Quartz.logger?.try &.warn("specified input port #{port_name} doesn't exist for #{self}. creating it")
+      end
+      port
     end
 
     # Find or create an output port if necessary. If the given argument is nil,
     # an output port is created with given name. Otherwise, an attempt to
     # find the matching port is made. If the given port doesn't exists, it is
     # created with the given name.
-    protected def find_or_create_output_port_if_necessary(port : Name) : Port
-      find_or_create_port_if_necessary(IOMode::Output, port)
-    end
-
-    # :nodoc:
-    private def find_or_create_port_if_necessary(mode : IOMode, port_name : Name) : Port
-      port = if mode.output?
-               output_ports[port_name]?
-             else
-               input_ports[port_name]?
-             end
-
+    protected def find_or_create_output_port_if_necessary(port_name : Name) : OutputPort
+      port = output_ports[port_name]?
       if port.nil?
-        port = add_port(mode, port_name)
-        Quartz.logger?.try &.warn("specified #{mode} port #{port_name} doesn't exist for #{self}. creating it")
+        port = add_output_port(port_name)
+        Quartz.logger?.try &.warn("specified output port #{port_name} doesn't exist for #{self}. creating it")
       end
-
       port
-    end
-
-    # :nodoc:
-    private def add_port(mode : IOMode, port_name : Name) : Port
-      case mode
-      when IOMode::Input
-        ports = input_ports
-      else
-        ports = output_ports
-      end
-
-      if ports.has_key?(port_name)
-        Quartz.logger?.try &.warn(
-          "specified #{mode} port #{port_name} already exists for #{self}. skipping..."
-        )
-
-        new_port = ports[port_name]
-      else
-        new_port = Port.new(self, mode, port_name)
-        ports[port_name] = new_port
-      end
-
-      new_port
     end
   end
 end

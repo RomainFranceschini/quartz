@@ -16,15 +16,6 @@ end
 
 describe "AtomicModel" do
   describe "post" do
-    it "raises when dropping a value on an input port" do
-      foo = AtomicModel.new("foo")
-      fip = foo.add_input_port("in")
-
-      expect_raises InvalidPortModeError do
-        foo.post("test", fip)
-      end
-    end
-
     it "raises when dropping a value on a port of another model" do
       foo = AtomicModel.new("foo")
       bar = AtomicModel.new("bar")
