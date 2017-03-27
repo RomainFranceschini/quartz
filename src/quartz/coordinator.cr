@@ -74,9 +74,21 @@ module Quartz
     def initialize_processor(time)
       min = Quartz::INFINITY
       selected = Array(Processor).new
-      @children.each do |child|
-        tn = child.initialize_processor(time)
-        selected.push(child) if tn < Quartz::INFINITY
+      channel = Channel({Int32, SimulationTime}).new
+      size = @children.size
+
+      initializer = ->(i : Int32) do
+        spawn do
+          tn = @children[i].initialize_processor(time)
+          channel.send({i, tn})
+        end
+      end
+
+      size.times { |i| initializer.call(i) }
+
+      size.times do
+        i, tn = channel.receive
+        selected.push(@children[i]) if tn < Quartz::INFINITY
         min = tn if tn < min
       end
 
@@ -103,8 +115,18 @@ module Quartz
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
 
-      imm.each do |child|
-        output = child.collect_outputs(time)
+      channel = Channel({Processor, Hash(OutputPort, Array(Any)) | SimpleHash(OutputPort, Any)}).new
+
+      collecter = ->(child : Processor) do
+        spawn do
+          channel.send({child, child.collect_outputs(time)})
+        end
+      end
+
+      imm.each { |child| collecter.call(child) }
+
+      imm.size.times do
+        child, output = channel.receive
 
         output.each do |port, payload|
           if child.is_a?(Simulator)
@@ -201,6 +223,15 @@ module Quartz
         end
       end
 
+      channel = Channel({SimulationTime, Processor, SimulationTime}).new
+      executor = ->(receiver : Processor, sub_bag : Hash(InputPort, Array(Any))) do
+        spawn do
+          old_tn = receiver.time_next
+          new_tn = receiver.perform_transitions(time, sub_bag)
+          channel.send({old_tn, receiver, new_tn})
+        end
+      end
+
       @synchronize.each do |entry|
         receiver = entry.processor
         receiver.sync = false
@@ -208,7 +239,7 @@ module Quartz
         sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
 
         if @scheduler.is_a?(RescheduleEventSet)
-          receiver.perform_transitions(time, sub_bag)
+          executor.call(receiver, sub_bag)
         elsif @scheduler.is_a?(LadderQueue)
           # Special case for the ladder queue
 
@@ -226,7 +257,25 @@ module Quartz
               is_in_scheduler = false
             end
           end
-          new_tn = receiver.perform_transitions(time, sub_bag)
+
+          executor.call(receiver, sub_bag)
+        else
+          tn = receiver.time_next
+          # before trying to cancel a receiver, test if time is not strictly
+          # equal to its time_next. If true, it means that its model will
+          # receiver either an internal transition or a confluent transition,
+          # and that the receiver is no longer in the scheduler.
+          @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
+          executor.call(receiver, sub_bag)
+        end
+      end
+
+      @synchronize.size.times do
+        if @scheduler.is_a?(RescheduleEventSet)
+          channel.receive
+        elsif @scheduler.is_a?(LadderQueue)
+          tn, receiver, new_tn = channel.receive
+          is_in_scheduler = tn < Quartz::INFINITY && time != tn
 
           # No need to reschedule the event if its tn is equal to INFINITY.
           # If a ta(s)=0 occured and that the old event is still present in
@@ -235,13 +284,7 @@ module Quartz
             @scheduler.push(receiver)
           end
         else
-          tn = receiver.time_next
-          # before trying to cancel a receiver, test if time is not strictly
-          # equal to its time_next. If true, it means that its model will
-          # receiver either an internal transition or a confluent transition,
-          # and that the receiver is no longer in the scheduler.
-          @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
-          tn = receiver.perform_transitions(time, sub_bag)
+          _, receiver, tn = channel.receive
           @scheduler.push(receiver) if tn < Quartz::INFINITY
         end
       end
