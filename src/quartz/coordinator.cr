@@ -14,14 +14,14 @@ module Quartz
       scheduler_type = model.class.preferred_event_set? || simulation.default_scheduler
       @scheduler = EventSetFactory(Processor).new_event_set(scheduler_type)
       @synchronize = Array(SyncEntry).new
-      @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
+      @parent_bag = Hash(OutPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
       }
     end
 
     struct SyncEntry
       getter processor : Processor
-      getter bag : Hash(InputPort, Array(Any))?
+      getter bag : Hash(InPort, Array(Any))?
 
       def initialize(@processor, @bag = nil)
       end
@@ -125,14 +125,14 @@ module Quartz
                       end
                       @synchronize[i] = SyncEntry.new(
                         @synchronize[i].processor,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                        Hash(InPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
                       ) unless @synchronize[i].bag
                       @synchronize[i]
                     else
                       receiver.sync = true
                       e = SyncEntry.new(
                         receiver,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                        Hash(InPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
                       )
                       @synchronize << e
                       e
@@ -164,7 +164,7 @@ module Quartz
       @parent_bag
     end
 
-    EMPTY_BAG = Hash(InputPort, Array(Any)).new
+    EMPTY_BAG = Hash(InPort, Array(Any)).new
 
     def perform_transitions(time, bag)
       bag.each do |port, sub_bag|
@@ -183,7 +183,7 @@ module Quartz
 
                     @synchronize[i] = SyncEntry.new(
                       @synchronize[i].processor,
-                      Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                      Hash(InPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
                     ) unless @synchronize[i].bag
 
                     @synchronize[i]
@@ -191,7 +191,7 @@ module Quartz
                     receiver.sync = true
                     e = SyncEntry.new(
                       receiver,
-                      Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                      Hash(InPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
                     )
                     @synchronize << e
                     e

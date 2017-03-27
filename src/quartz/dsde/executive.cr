@@ -89,11 +89,13 @@ module Quartz
       end
 
       protected def add_input_port_to_network(model : Name, port : Name)
-        @network.not_nil![model].as(Coupleable).add_input_port(port)
+        # TODO use specific port types
+        @network.not_nil![model].as(Coupleable).add_input_port(port, Type)
       end
 
       protected def add_output_port_to_network(model : Name, port : Name)
-        @network.not_nil![model].as(Coupleable).add_output_port(port)
+        # TODO use specific port types
+        @network.not_nil![model].as(Coupleable).add_output_port(port, Type)
       end
 
       protected def remove_input_port_from_network(model : Name, port : Name)

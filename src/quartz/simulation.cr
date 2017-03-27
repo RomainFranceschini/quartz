@@ -338,7 +338,7 @@ module Quartz
     private def direct_connect!
       models = @model.as(CoupledModel).each_child.to_a
       children_list = [] of Model
-      new_internal_couplings = Hash(OutputPort, Array(InputPort)).new { |h, k| h[k] = [] of InputPort }
+      new_internal_couplings = Hash(OutPort, Array(InPort)).new { |h, k| h[k] = [] of InPort }
 
       i = 0
       while i < models.size
@@ -381,7 +381,7 @@ module Quartz
       end
     end
 
-    private def find_direct_couplings(cm : CoupledModel, &block : OutputPort, InputPort ->)
+    private def find_direct_couplings(cm : CoupledModel, &block : OutPort, InPort ->)
       couplings = [] of {Port, Port}
       cm.each_coupling { |s, d| couplings << {s, d} }
 
@@ -395,7 +395,7 @@ module Quartz
           j = 0
           while j < route.size
             rsrc, _ = route[j]
-            rsrc.host.as(CoupledModel).each_output_coupling_reverse(rsrc.as(OutputPort)) do |src, dst|
+            rsrc.host.as(CoupledModel).each_output_coupling_reverse(rsrc.as(OutPort)) do |src, dst|
               if src.host.is_a?(CoupledModel)
                 route.push({src, dst})
               else
@@ -409,7 +409,7 @@ module Quartz
           j = 0
           while j < route.size
             _, rdst = route[j]
-            rdst.host.as(CoupledModel).each_input_coupling(rdst.as(InputPort)) do |src, dst|
+            rdst.host.as(CoupledModel).each_input_coupling(rdst.as(InPort)) do |src, dst|
               if dst.host.is_a?(CoupledModel)
                 route.push({src, dst})
               else

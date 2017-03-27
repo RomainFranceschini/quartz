@@ -3,9 +3,9 @@ module Quartz
   # coupling methods.
   module Coupler
     @children : Hash(Name, Model)?
-    @internal_couplings : Array(OutputPort)?
-    @output_couplings : Array(OutputPort)?
-    @input_couplings : Array(InputPort)?
+    @internal_couplings : Array(OutPort)?
+    @output_couplings : Array(OutPort)?
+    @input_couplings : Array(InPort)?
 
     # :nodoc:
     protected def children : Hash(Name, Model)
@@ -13,32 +13,32 @@ module Quartz
     end
 
     # :nodoc:
-    protected def internal_couplings : Array(OutputPort)
-      @internal_couplings ||= Array(OutputPort).new
+    protected def internal_couplings : Array(OutPort)
+      @internal_couplings ||= Array(OutPort).new
     end
 
     # :nodoc:
-    protected def output_couplings : Array(OutputPort)
-      @output_couplings ||= Array(OutputPort).new
+    protected def output_couplings : Array(OutPort)
+      @output_couplings ||= Array(OutPort).new
     end
 
     # :nodoc:
-    protected def input_couplings : Array(InputPort)
-      @input_couplings ||= Array(InputPort).new
+    protected def input_couplings : Array(InPort)
+      @input_couplings ||= Array(InPort).new
     end
 
     # Returns all internal couplings attached to the given output *port*.
-    def internal_couplings(port : OutputPort) : Array(InputPort)
+    def internal_couplings(port : OutPort) : Array(InPort)
       port.peers_ports
     end
 
     # Returns all external output couplings attached to the given output *port*.
-    def output_couplings(port : OutputPort) : Array(OutputPort)
+    def output_couplings(port : OutPort) : Array(OutPort)
       port.upward_ports
     end
 
     # Returns all external input couplings attached to the given input *port*.
-    def input_couplings(port : InputPort) : Array(InputPort)
+    def input_couplings(port : InPort) : Array(InPort)
       port.downward_ports
     end
 
@@ -106,7 +106,7 @@ module Quartz
     # `#input_couplings`, passing that element as a parameter. Given *port* is
     # used to filter couplings having this port as a source.
     # TODO check if port in input_couplings ?
-    def each_input_coupling(port : InputPort)
+    def each_input_coupling(port : InPort)
       port.downward_ports.each { |dst| yield(port, dst) }
     end
 
@@ -119,7 +119,7 @@ module Quartz
     # Calls *block* once for each internal coupling (IC) in
     # `#internal_couplings`, passing that element as a parameter. Given *port*
     # is used to filter couplings having this port as a source.
-    def each_internal_coupling(port : OutputPort)
+    def each_internal_coupling(port : OutPort)
       port.peers_ports.each { |dst| yield(port, dst) }
     end
 
@@ -132,7 +132,7 @@ module Quartz
     # Calls *block* once for each external output coupling (EOC) in
     # `#output_couplings`, passing that element as a parameter. Given *port* is
     # used to filter couplings having this port as a source.
-    def each_output_coupling(port : OutputPort)
+    def each_output_coupling(port : OutPort)
       port.upward_ports.each { |dst| yield(port, dst) }
     end
 
@@ -153,14 +153,14 @@ module Quartz
     # Calls *block* once for each coupling, passing that element as a parameter.
     # Given input *port* is used to filter external input couplings (EIC) having
     # this port as a source.
-    def each_coupling(port : InputPort)
+    def each_coupling(port : InPort)
       each_input_coupling(port) { |src, dst| yield(src, dst) }
     end
 
     # Calls *block* once for each coupling, passing that element as a parameter.
     # Given output *port* is used to filter internal couplings and external
     # output couplings (IC, EOC) having this port as a source.
-    def each_coupling(port : OutputPort)
+    def each_coupling(port : OutPort)
       each_internal_coupling(port) { |src, dst| yield(src, dst) }
       each_output_coupling(port) { |src, dst| yield(src, dst) }
     end
@@ -181,33 +181,33 @@ module Quartz
     end
 
     # TODO doc
-    def each_input_coupling_reverse(port : InputPort)
+    def each_input_coupling_reverse(port : InPort)
       input_couplings.each do |src|
         src.downward_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
     # TODO doc
-    def each_internal_coupling_reverse(port : InputPort)
+    def each_internal_coupling_reverse(port : InPort)
       internal_couplings.each do |src|
         src.peers_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
     # TODO doc
-    def each_output_coupling_reverse(port : OutputPort)
+    def each_output_coupling_reverse(port : OutPort)
       output_couplings.each do |src|
         src.upward_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
     # TODO doc
-    def each_coupling_reverse(port : InputPort)
+    def each_coupling_reverse(port : InPort)
       each_input_coupling_reverse(port) { |src, dst| yield(src, dst) }
       each_internal_coupling_reverse(port) { |src, dst| yield(src, dst) }
     end
 
-    def each_coupling_reverse(port : OutputPort)
+    def each_coupling_reverse(port : OutPort)
       each_output_coupling_reverse(port) { |src, dst| yield(src, dst) }
     end
 
@@ -216,7 +216,11 @@ module Quartz
     #
     # Raises an `InvalidPortHostError` if no coupling can be established from
     # given ports hosts.
-    def attach(p1 : InputPort, to p2 : InputPort)
+    def attach(p1 : InputPort(T), to p2 : InputPort(U)) forall T, U
+      {% unless T <= U || (U.union? && U.union_types.includes?(T)) || (U.union? && T.union? && T.union_types.all? { |type| U.union_types.includes?(type) })
+          raise "Type mismatch: OutputPort(#{T}) can't be coupled with InputPort(#{U})."
+       end %}
+
       a = p1.host
       b = p2.host
 
@@ -236,7 +240,11 @@ module Quartz
     # port of the same component.
     # Raises an `InvalidPortHostError` if no coupling can be established from
     # given ports hosts.
-    def attach(p1 : OutputPort, to p2 : InputPort)
+    def attach(p1 : OutputPort(T), to p2 : InputPort(U)) forall T, U
+      {% unless T <= U || (U.union? && U.union_types.includes?(T)) || (U.union? && T.union? && T.union_types.all? { |type| U.union_types.includes?(type) })
+          raise "Type mismatch: OutputPort(#{T}) can't be coupled with InputPort(#{U})."
+       end %}
+
       a = p1.host
       b = p2.host
 
@@ -254,7 +262,11 @@ module Quartz
     #
     # Raises an `InvalidPortHostError` if no coupling can be established from
     # given ports hosts.
-    def attach(p1 : OutputPort, to p2 : OutputPort)
+    def attach(p1 : OutputPort(T), to p2 : OutputPort(U)) forall T, U
+      {% unless T <= U || (U.union? && U.union_types.includes?(T)) || (U.union? && T.union? && T.union_types.all? { |type| U.union_types.includes?(type) })
+          raise "Type mismatch: OutputPort(#{T}) can't be coupled with InputPort(#{U})."
+       end %}
+
       a = p1.host
       b = p2.host
 
@@ -347,7 +359,7 @@ module Quartz
     # Deletes a external input coupling (EOC) from *self*.
     #
     # Returns `true` if successful.
-    def detach(p1 : InputPort, from p2 : InputPort) : Bool
+    def detach(p1 : InPort, from p2 : InPort) : Bool
       a = p1.host
       b = p2.host
 
@@ -365,7 +377,7 @@ module Quartz
     # Deletes an internal coupling (IC) from *self*.
     #
     # Returns `true` if successful.
-    def detach(p1 : OutputPort, from p2 : InputPort) : Bool
+    def detach(p1 : OutPort, from p2 : InPort) : Bool
       a = p1.host
       b = p2.host
 
@@ -383,7 +395,7 @@ module Quartz
     # Deletes an external output coupling (EOC) from *self*.
     #
     # Returns `true` if successful.
-    def detach(p1 : OutputPort, from p2 : OutputPort) : Bool
+    def detach(p1 : OutPort, from p2 : OutPort) : Bool
       a = p1.host
       b = p2.host
 

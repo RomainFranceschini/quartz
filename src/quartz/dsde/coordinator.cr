@@ -28,7 +28,7 @@ module Quartz
 
               @synchronize[i] = SyncEntry.new(
                 @synchronize[i].processor,
-                Hash(InputPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+                Hash(InPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
               ) unless @synchronize[i].bag
 
               @synchronize[i]
@@ -36,7 +36,7 @@ module Quartz
               receiver.sync = true
               e = SyncEntry.new(
                 receiver,
-                Hash(InputPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
+                Hash(InPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
               )
               @synchronize << e
               e
@@ -47,7 +47,7 @@ module Quartz
         end
 
         old_children = coupled.each_child.to_a
-        executive_bag : Hash(InputPort,Array(Any)) = EMPTY_BAG
+        executive_bag : Hash(InPort,Array(Any)) = EMPTY_BAG
 
         @synchronize.each do |entry|
           receiver = entry.processor

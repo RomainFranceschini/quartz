@@ -7,7 +7,7 @@ module Quartz
       initialize_processor(time)
     end
 
-    EMPTY_BAG = Hash(InputPort, Array(Any)).new
+    EMPTY_BAG = Hash(InPort, Array(Any)).new
 
     @[AlwaysInline]
     def step(time)

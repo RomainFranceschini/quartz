@@ -4,12 +4,12 @@ module Quartz
   module Coupleable
     include Transferable
 
-    @input_ports : Hash(Name, InputPort)?
-    @output_ports : Hash(Name, OutputPort)?
+    @input_ports : Hash(Name, InPort)?
+    @output_ports : Hash(Name, OutPort)?
 
     macro included
-      @@_input_ports : Array(Name)?
-      @@_output_ports : Array(Name)?
+      @@_input_ports : Array(Tuple(Name, InPort.class))?
+      @@_output_ports : Array(Tuple(Name, OutPort.class))?
 
       # Defines default input ports for each of the given arguments.
       # Those default input ports will be available in all instances, including
@@ -45,7 +45,11 @@ module Quartz
       # ```
       macro input(*names)
         \{% for name in names %}
-          self._input_ports << :\{{ name.id }}
+          \{% if name.is_a?(TypeDeclaration) %}
+            self._input_ports << {:\{{ name.var }}, InputPort(\{{ name.type }})}
+          \{% else %}
+            self._input_ports << {:\{{ name.id }}, InputPort(Type)}
+          \{% end %}
         \{% end %}
       end
 
@@ -83,18 +87,22 @@ module Quartz
       # ```
       macro output(*names)
         \{% for name in names %}
-          self._output_ports << :\{{ name.id }}
+          \{% if name.is_a?(TypeDeclaration) %}
+            self._output_ports << {:\{{ name.var }}, OutputPort(\{{ name.type }})}
+          \{% else %}
+            self._output_ports << {:\{{ name.id }}, OutputPort(Type)}
+          \{% end %}
         \{% end %}
       end
 
       # :nodoc:
       protected def self._input_ports
-        @@_input_ports ||= Array(Name).new
+        @@_input_ports ||= Array(Tuple(Name,InPort.class)).new
       end
 
       # :nodoc:
       protected def self._output_ports
-        @@_output_ports ||= Array(Name).new
+        @@_output_ports ||= Array(Tuple(Name,OutPort.class)).new
       end
 
       # Copy ports on inheritance.
@@ -112,58 +120,60 @@ module Quartz
     end
 
     # :nodoc:
-    protected def input_ports : Hash(Name, InputPort)
-      @input_ports ||= Hash(Name, InputPort).zip(self.class._input_ports, self.class._input_ports.map { |port_name|
-        InputPort.new(self, port_name)
+    protected def input_ports #: Hash(Name, InPort)
+      @input_ports ||= Hash(Name, InPort).zip(
+        self.class._input_ports.map &.[0], self.class._input_ports.map { |port_name, type|
+        type.new(self, port_name)
       })
     end
 
     # :nodoc:
-    protected def output_ports : Hash(Name, OutputPort)
-      @output_ports ||= Hash(Name, OutputPort).zip(self.class._output_ports, self.class._output_ports.map { |port_name|
-        OutputPort.new(self, port_name)
+    protected def output_ports #: Hash(Name, OutPort)
+      @output_ports ||= Hash(Name, OutPort).zip(
+        self.class._output_ports.map &.[0], self.class._output_ports.map { |port_name, type|
+        type.new(self, port_name)
       })
     end
 
     # Add given port to *self*.
-    def add_port(port : InputPort)
+    def add_port(port : InputPort(Type))
       raise InvalidPortHostError.new if port.host != self
       input_ports[port.name] = port
     end
 
     # Add given port to *self*.
-    def add_port(port : OutputPort)
+    def add_port(port : OutputPort(Type))
       raise InvalidPortHostError.new if port.host != self
       output_ports[port.name] = port
     end
 
     # Add given input port to *self*.
-    def add_input_port(name)
+    def add_input_port(name, type : T.class) : InputPort(T) forall T
       if input_ports.has_key?(name)
         Quartz.logger?.try &.warn(
           "specified input port #{name} already exists for #{self}. skipping..."
         )
 
-        new_port = input_ports[name]
+        new_port = input_ports[name].as(InputPort(T))
       else
-        new_port = InputPort.new(self, name)
-        input_ports[name] = new_port
+        new_port = InputPort(T).new(self, name)
+        self.add_port(new_port)
       end
 
       new_port
     end
 
     # Add given output port to *self*.
-    def add_output_port(name)
+    def add_output_port(name, type : T.class) : OutputPort(T) forall T
       if output_ports.has_key?(name)
         Quartz.logger?.try &.warn(
           "specified output port #{name} already exists for #{self}. skipping..."
         )
 
-        new_port = output_ports[name]
+        new_port = output_ports[name].as(OutputPort(T))
       else
-        new_port = OutputPort.new(self, name)
-        output_ports[name] = new_port
+        new_port = OutputPort(T).new(self, name)
+        self.add_port(new_port)
       end
 
       new_port
@@ -200,12 +210,12 @@ module Quartz
     end
 
     # Returns the list of input ports
-    def input_port_list : Array(InputPort)
+    def input_port_list #: Array(InPort)
       input_ports.values
     end
 
     # Returns the list of output ports
-    def output_port_list : Array(OutputPort)
+    def output_port_list #: Array(OutPort)
       output_ports.values
     end
 
@@ -232,23 +242,23 @@ module Quartz
     end
 
     # Find the input port identified by the given *name*.
-    def input_port?(name : Name) : InputPort?
+    def input_port?(name : Name) #: InPort?
       input_ports[name]?
     end
 
     # Find the input port identified by the given *name*.
-    def input_port(name : Name) : InputPort
+    def input_port(name : Name) #: InPort
       raise NoSuchPortError.new("input port \"#{name}\" not found") unless input_ports.has_key?(name)
       input_ports[name]
     end
 
     # Find the output port identified by the given *name*
-    def output_port?(name : Name) : OutputPort?
+    def output_port?(name : Name) #: OutPort?
       output_ports[name]?
     end
 
     # Find the output port identified by the given *name*
-    def output_port(name : Name) : OutputPort
+    def output_port(name : Name) #: OutPort
       raise NoSuchPortError.new("output port \"#{name}\" not found") unless output_ports.has_key?(name)
       output_ports[name]
     end
@@ -257,26 +267,26 @@ module Quartz
     # an input port is created with given name. Otherwise, an attempt to
     # find the matching port is made. If the given port doesn't exists, it is
     # created with the given name.
-    protected def find_or_create_input_port_if_necessary(port_name : Name) : InputPort
+    protected def find_or_create_input_port_if_necessary(port_name : Name) : InputPort(Type)
       port = input_ports[port_name]?
       if port.nil?
-        port = add_input_port(port_name)
-        Quartz.logger?.try &.warn("specified input port #{port_name} doesn't exist for #{self}. creating it")
+        port = add_input_port(port_name, Type)
+        Quartz.logger?.try &.warn("specified input port #{port_name} doesn't exist for #{self}. creating it with type Type.")
       end
-      port
+      port.as(InputPort(Type))
     end
 
     # Find or create an output port if necessary. If the given argument is nil,
     # an output port is created with given name. Otherwise, an attempt to
     # find the matching port is made. If the given port doesn't exists, it is
     # created with the given name.
-    protected def find_or_create_output_port_if_necessary(port_name : Name) : OutputPort
+    protected def find_or_create_output_port_if_necessary(port_name : Name) : OutputPort(Type)
       port = output_ports[port_name]?
       if port.nil?
-        port = add_output_port(port_name)
-        Quartz.logger?.try &.warn("specified output port #{port_name} doesn't exist for #{self}. creating it")
+        port = add_output_port(port_name, Type)
+        Quartz.logger?.try &.warn("specified output port #{port_name} doesn't exist for #{self}. creating it with type Type.")
       end
-      port
+      port.as(OutputPort(Type))
     end
   end
 end

@@ -37,7 +37,7 @@ module Quartz
     #   self.sigma = 0
     # end
     # ```
-    def external_transition(messages : Hash(InputPort, Array(Any))); end
+    def external_transition(messages : Hash(InPort, Array(Any))); end
 
     # Internal transition function (δint), called when the model should be
     # activated, e.g when `#elapsed` reaches `#time_advance`
@@ -61,7 +61,7 @@ module Quartz
     # opposite order of effects (external transition before internal
     # transition). Of course you can override without reference to the other
     # transitions.
-    def confluent_transition(messages : Hash(InputPort, Array(Any)))
+    def confluent_transition(messages : Hash(InPort, Array(Any)))
       internal_transition
       external_transition(messages)
     end
