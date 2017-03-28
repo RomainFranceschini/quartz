@@ -71,25 +71,47 @@ module Quartz
       max
     end
 
+    # TODO use the actual number of CPUs at runtime
+    TASKS = 4
+
     def initialize_processor(time)
       min = Quartz::INFINITY
       selected = Array(Processor).new
-      channel = Channel({Int32, SimulationTime}).new
       size = @children.size
+      count = size / TASKS # Number of models to process concurrently
 
-      initializer = ->(i : Int32) do
-        spawn do
-          tn = @children[i].initialize_processor(time)
-          channel.send({i, tn})
+      if count > 0 # process models concurrently
+        # Use a buffered channel
+        channel = Channel({Int32, SimulationTime}).new(count)
+
+        initializer = ->(istart : Int32, iend : Int32) do
+          spawn do
+            (istart...iend).each do |i|
+              tn = @children[i].initialize_processor(time)
+              channel.send({i, tn})
+            end
+          end
         end
-      end
 
-      size.times { |i| initializer.call(i) }
+        # spawn workers
+        TASKS.times do |task_id|
+          istart = task_id * count
+          count += size % TASKS if (task_id == TASKS-1)
+          initializer.call(istart, istart + count)
+        end
 
-      size.times do
-        i, tn = channel.receive
-        selected.push(@children[i]) if tn < Quartz::INFINITY
-        min = tn if tn < min
+        # master gather
+        size.times do
+          i, tn = channel.receive
+          selected.push(@children[i]) if tn < Quartz::INFINITY
+          min = tn if tn < min
+        end
+      else # process models sequentially
+        @children.each do |child|
+          tn = child.initialize_processor(time)
+          selected.push(child) if tn < Quartz::INFINITY
+          min = tn if tn < min
+        end
       end
 
       @scheduler.clear
@@ -112,78 +134,110 @@ module Quartz
               @scheduler.delete_all(time)
             end
 
-      coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
 
-      channel = Channel({Processor, Hash(OutputPort, Array(Any)) | SimpleHash(OutputPort, Any)}).new
+      size = imm.size
+      count = size / TASKS # Number of models to process concurrently
 
-      collecter = ->(child : Processor) do
-        spawn do
-          channel.send({child, child.collect_outputs(time)})
-        end
-      end
+      if count > 0 # process models concurrently
+        channel = Channel({Processor, Hash(OutputPort, Array(Any)) | SimpleHash(OutputPort, Any)}).new(count)
 
-      imm.each { |child| collecter.call(child) }
-
-      imm.size.times do
-        child, output = channel.receive
-
-        output.each do |port, payload|
-          if child.is_a?(Simulator)
-            port.notify_observers({:payload => payload.as(Any)})
-          end
-
-          # check internal coupling to get children who receive sub-bag of y
-          coupled.each_internal_coupling(port) do |src, dst|
-            receiver = dst.host.processor.not_nil!
-
-            entry = if receiver.sync
-                      i = -1
-                      @synchronize.each_with_index do |e, j|
-                        if e.processor == receiver
-                          i = j
-                          break
-                        end
-                      end
-                      @synchronize[i] = SyncEntry.new(
-                        @synchronize[i].processor,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                      ) unless @synchronize[i].bag
-                      @synchronize[i]
-                    else
-                      receiver.sync = true
-                      e = SyncEntry.new(
-                        receiver,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                      )
-                      @synchronize << e
-                      e
-                    end
-
-            if child.is_a?(Coordinator)
-              entry.bag.not_nil![dst].concat(payload.as(Array(Any)))
-            else
-              entry.bag.not_nil![dst] << payload.as(Any)
-            end
-          end
-
-          # check external coupling to form sub-bag of parent output
-          coupled.each_output_coupling(port) do |src, dst|
-            if child.is_a?(Coordinator)
-              @parent_bag[dst].concat(payload.as(Array(Any)))
-            else
-              @parent_bag[dst] << (payload.as(Any))
+        collecter = ->(istart : Int32, iend : Int32) do
+          spawn do
+            (istart...iend).each do |i|
+              child = imm[i]
+              channel.send({child, child.collect_outputs(time)})
             end
           end
         end
 
-        if !child.sync
-          child.sync = true
-          @synchronize << SyncEntry.new(child.as(Processor))
+        # spawn workers
+        TASKS.times do |task_id|
+          istart = task_id * count
+          count += size % TASKS if (task_id == TASKS-1)
+          collecter.call(istart, istart + count)
+        end
+
+        # master gather
+        imm.size.times do
+          child, output = channel.receive
+
+          dispatch_outputs(child, output)
+
+          if !child.sync
+            child.sync = true
+            @synchronize << SyncEntry.new(child.as(Processor))
+          end
+        end
+      else # process models sequentially
+        imm.each do |child|
+          output = child.collect_outputs(time)
+          dispatch_outputs(child, output)
+
+          if !child.sync
+            child.sync = true
+            @synchronize << SyncEntry.new(child.as(Processor))
+          end
         end
       end
 
       @parent_bag
+    end
+
+    # TODO: Also parallelize output dispatch
+    # Requires adding mutexes: Processor#sync, @synchronize, entry#bag
+    # Observers of outputs ports should be notified on the "main fiber"
+    private def dispatch_outputs(child, output)
+      coupled = @model.as(CoupledModel)
+
+      output.each do |port, payload|
+        if child.is_a?(Simulator)
+          port.notify_observers({:payload => payload.as(Any)})
+        end
+
+        # check internal coupling to get children who receive sub-bag of y
+        coupled.each_internal_coupling(port) do |src, dst|
+          receiver = dst.host.processor.not_nil!
+
+          entry = if receiver.sync
+                    i = -1
+                    @synchronize.each_with_index do |e, j|
+                      if e.processor == receiver
+                        i = j
+                        break
+                      end
+                    end
+                    @synchronize[i] = SyncEntry.new(
+                      @synchronize[i].processor,
+                      Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                    ) unless @synchronize[i].bag
+                    @synchronize[i]
+                  else
+                    receiver.sync = true
+                    e = SyncEntry.new(
+                      receiver,
+                      Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                    )
+                    @synchronize << e
+                    e
+                  end
+
+          if child.is_a?(Coordinator)
+            entry.bag.not_nil![dst].concat(payload.as(Array(Any)))
+          else
+            entry.bag.not_nil![dst] << payload.as(Any)
+          end
+        end
+
+        # check external coupling to form sub-bag of parent output
+        coupled.each_output_coupling(port) do |src, dst|
+          if child.is_a?(Coordinator)
+            @parent_bag[dst].concat(payload.as(Array(Any)))
+          else
+            @parent_bag[dst] << (payload.as(Any))
+          end
+        end
+      end
     end
 
     EMPTY_BAG = Hash(InputPort, Array(Any)).new
@@ -223,69 +277,124 @@ module Quartz
         end
       end
 
-      channel = Channel({SimulationTime, Processor, SimulationTime}).new
-      executor = ->(receiver : Processor, sub_bag : Hash(InputPort, Array(Any))) do
-        spawn do
-          old_tn = receiver.time_next
-          new_tn = receiver.perform_transitions(time, sub_bag)
-          channel.send({old_tn, receiver, new_tn})
-        end
-      end
+      size = @synchronize.size
+      count = size / TASKS # Number of models to process concurrently
 
-      @synchronize.each do |entry|
-        receiver = entry.processor
-        receiver.sync = false
+      if count > 0 # process models concurrently
+        channel = Channel(Nil).new
+        event_set_mutex = Mutex.new
 
-        sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
+        executor = ->(slice : Array(SyncEntry)) do
+          spawn do
+            slice.each do |entry|
+              receiver = entry.processor
+              receiver.sync = false
+              tn = receiver.time_next
 
-        if @scheduler.is_a?(RescheduleEventSet)
-          executor.call(receiver, sub_bag)
-        elsif @scheduler.is_a?(LadderQueue)
-          # Special case for the ladder queue
+              sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
 
-          tn = receiver.time_next
-          # Before trying to cancel a receiver, test if time is not strictly
-          # equal to its tn. If true, it means that its model will
-          # receiver either an internal transition or a confluent transition,
-          # and that the receiver is no longer in the scheduler.
-          is_in_scheduler = tn < Quartz::INFINITY && time != tn
-          if is_in_scheduler
-            # The ladder queue might successfully delete the event if it is
-            # stored in the *ladder* tier, but is allowed to return nil since
-            # deletion strategy is based on event invalidation.
-            if @scheduler.delete(receiver)
-              is_in_scheduler = false
+              if @scheduler.is_a?(RescheduleEventSet)
+                new_tn = receiver.perform_transitions(time, sub_bag)
+              elsif @scheduler.is_a?(LadderQueue)
+                # Special case for the ladder queue
+
+                # Before trying to cancel a receiver, test if time is not strictly
+                # equal to its tn. If true, it means that its model will
+                # receiver either an internal transition or a confluent transition,
+                # and that the receiver is no longer in the scheduler.
+                is_in_scheduler = tn < Quartz::INFINITY && time != tn
+                if is_in_scheduler
+                  # The ladder queue might successfully delete the event if it is
+                  # stored in the *ladder* tier, but is allowed to return nil since
+                  # deletion strategy is based on event invalidation.
+                  event_set_mutex.synchronize do
+                    if @scheduler.delete(receiver)
+                      is_in_scheduler = false
+                    end
+                  end
+                end
+
+                new_tn = receiver.perform_transitions(time, sub_bag)
+
+                # No need to reschedule the event if its tn is equal to INFINITY.
+                # If a ta(s)=0 occured and that the old event is still present in
+                # the ladder queue, we don't need to reschedule it either.
+                if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
+                  event_set_mutex.synchronize { @scheduler.push(receiver) }
+                end
+              else
+                tn = receiver.time_next
+                # before trying to cancel a receiver, test if time is not strictly
+                # equal to its time_next. If true, it means that its model will
+                # receiver either an internal transition or a confluent transition,
+                # and that the receiver is no longer in the scheduler.
+                if tn < Quartz::INFINITY && time != tn
+                  event_set_mutex.synchronize { @scheduler.delete(receiver) }
+                end
+                new_tn = receiver.perform_transitions(time, sub_bag)
+                if new_tn < Quartz::INFINITY
+                  event_set_mutex.synchronize { @scheduler.push(receiver) }
+                end
+              end
             end
-          end
 
-          executor.call(receiver, sub_bag)
-        else
-          tn = receiver.time_next
-          # before trying to cancel a receiver, test if time is not strictly
-          # equal to its time_next. If true, it means that its model will
-          # receiver either an internal transition or a confluent transition,
-          # and that the receiver is no longer in the scheduler.
-          @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
-          executor.call(receiver, sub_bag)
+            channel.send(nil)
+          end
         end
-      end
 
-      @synchronize.size.times do
-        if @scheduler.is_a?(RescheduleEventSet)
-          channel.receive
-        elsif @scheduler.is_a?(LadderQueue)
-          tn, receiver, new_tn = channel.receive
-          is_in_scheduler = tn < Quartz::INFINITY && time != tn
+        # spawn tasks
+        i = 0
+        @synchronize.each_slice(count) do |slice|
+          executor.call(slice)
+          i += 1
+        end
 
-          # No need to reschedule the event if its tn is equal to INFINITY.
-          # If a ta(s)=0 occured and that the old event is still present in
-          # the ladder queue, we don't need to reschedule it either.
-          if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
-            @scheduler.push(receiver)
+        # wait tasks
+        i.times { channel.receive }
+      else # process models sequentially
+        @synchronize.each do |entry|
+          receiver = entry.processor
+          receiver.sync = false
+
+          sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
+
+          if @scheduler.is_a?(RescheduleEventSet)
+            receiver.perform_transitions(time, sub_bag)
+          elsif @scheduler.is_a?(LadderQueue)
+            # Special case for the ladder queue
+
+            tn = receiver.time_next
+            # Before trying to cancel a receiver, test if time is not strictly
+            # equal to its tn. If true, it means that its model will
+            # receiver either an internal transition or a confluent transition,
+            # and that the receiver is no longer in the scheduler.
+            is_in_scheduler = tn < Quartz::INFINITY && time != tn
+            if is_in_scheduler
+              # The ladder queue might successfully delete the event if it is
+              # stored in the *ladder* tier, but is allowed to return nil since
+              # deletion strategy is based on event invalidation.
+              if @scheduler.delete(receiver)
+                is_in_scheduler = false
+              end
+            end
+            new_tn = receiver.perform_transitions(time, sub_bag)
+
+            # No need to reschedule the event if its tn is equal to INFINITY.
+            # If a ta(s)=0 occured and that the old event is still present in
+            # the ladder queue, we don't need to reschedule it either.
+            if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
+              @scheduler.push(receiver)
+            end
+          else
+            tn = receiver.time_next
+            # before trying to cancel a receiver, test if time is not strictly
+            # equal to its time_next. If true, it means that its model will
+            # receiver either an internal transition or a confluent transition,
+            # and that the receiver is no longer in the scheduler.
+            @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
+            tn = receiver.perform_transitions(time, sub_bag)
+            @scheduler.push(receiver) if tn < Quartz::INFINITY
           end
-        else
-          _, receiver, tn = channel.receive
-          @scheduler.push(receiver) if tn < Quartz::INFINITY
         end
       end
 
