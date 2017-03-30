@@ -6,6 +6,9 @@ module Quartz
 
     @scheduler : EventSet(Processor)
 
+    # TODO use the actual number of CPUs at runtime
+    TASKS = 4
+
     # Returns a new instance of Coordinator
     def initialize(model : Model, simulation : Simulation)
       super(model)
@@ -16,6 +19,9 @@ module Quartz
       @synchronize = Array(SyncEntry).new
       @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
+      }
+      @collecters = StaticArray(Array({Processor, Hash(OutputPort, Array(Any)) | SimpleHash(OutputPort, Any)}), TASKS).new { |i|
+        Array({Processor, Hash(OutputPort, Array(Any)) | SimpleHash(OutputPort, Any)}).new
       }
     end
 
@@ -71,9 +77,6 @@ module Quartz
       max
     end
 
-    # TODO use the actual number of CPUs at runtime
-    TASKS = 4
-
     def initialize_processor(time)
       min = Quartz::INFINITY
       selected = Array(Processor).new
@@ -82,14 +85,16 @@ module Quartz
 
       if count > 0 # process models concurrently
         # Use a buffered channel
-        channel = Channel({Int32, SimulationTime}).new(count)
+        channel = Channel(Array({Int32, SimulationTime})).new(TASKS)
 
         initializer = ->(istart : Int32, iend : Int32) do
           spawn do
+            res = Array({Int32, SimulationTime}).new(count)
             (istart...iend).each do |i|
               tn = @children[i].initialize_processor(time)
-              channel.send({i, tn})
+              res << {i, tn}
             end
+            channel.send(res)
           end
         end
 
@@ -101,10 +106,12 @@ module Quartz
         end
 
         # master gather
-        size.times do
-          i, tn = channel.receive
-          selected.push(@children[i]) if tn < Quartz::INFINITY
-          min = tn if tn < min
+        TASKS.times do
+          res = channel.receive
+          res.each do |i, tn|
+            selected.push(@children[i]) if tn < Quartz::INFINITY
+            min = tn if tn < min
+          end
         end
       else # process models sequentially
         @children.each do |child|
@@ -140,14 +147,16 @@ module Quartz
       count = size / TASKS # Number of models to process concurrently
 
       if count > 0 # process models concurrently
-        channel = Channel({Processor, Hash(OutputPort, Array(Any)) | SimpleHash(OutputPort, Any)}).new(count)
+        channel = Channel(Array({Processor, Hash(OutputPort, Array(Any)) | SimpleHash(OutputPort, Any)})).new(TASKS)
 
-        collecter = ->(istart : Int32, iend : Int32) do
+        collecter = ->(tid : Int32, istart : Int32, iend : Int32) do
           spawn do
+            res = @collecters[tid]
             (istart...iend).each do |i|
               child = imm[i]
-              channel.send({child, child.collect_outputs(time)})
+              res << {child, child.collect_outputs(time)}
             end
+            channel.send(res)
           end
         end
 
@@ -155,19 +164,21 @@ module Quartz
         TASKS.times do |task_id|
           istart = task_id * count
           count += size % TASKS if (task_id == TASKS-1)
-          collecter.call(istart, istart + count)
+          collecter.call(task_id, istart, istart + count)
         end
 
         # master gather
-        imm.size.times do
-          child, output = channel.receive
+        TASKS.times do
+          res = channel.receive
+          res.each do |child, output|
+            dispatch_outputs(child, output)
 
-          dispatch_outputs(child, output)
-
-          if !child.sync
-            child.sync = true
-            @synchronize << SyncEntry.new(child.as(Processor))
+            if !child.sync
+              child.sync = true
+              @synchronize << SyncEntry.new(child.as(Processor))
+            end
           end
+          res.clear
         end
       else # process models sequentially
         imm.each do |child|
