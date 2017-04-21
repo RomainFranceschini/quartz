@@ -31,9 +31,10 @@ module Quartz
         @event_set.clear
 
         @components.each_value do |component|
-          component.notify_observers({ :transition => Any.new(:init) })
           component.time_last = component.time = time - component.elapsed
+          component.__initialize_state__(self)
           component.time_next = component.time_last + component.time_advance
+          component.notify_observers({ :transition => Any.new(:init) })
 
           case @event_set
           when RescheduleEventSet

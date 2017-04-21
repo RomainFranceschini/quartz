@@ -8,12 +8,33 @@ module Quartz
     abstract class Component < Model
       include Transitions
       include Observable
+      include Validations
+      include AutoState
 
       property time_last : SimulationTime = 0
       property time_next : SimulationTime = 0
 
       getter influencers = Array(Component).new
       getter influencees = Array(Component).new
+
+      macro inherited
+        def initialize(name)
+          super(name)
+        end
+
+        def initialize(name, state : {{(@type.name + "::State").id}})
+          super(name)
+          self.state = state
+        end
+      end
+
+      # :nodoc:
+      # Used internally by the simulator
+      def __initialize_state__(processor)
+        if processor == @processor && (state = initial_state)
+          self.state = state
+        end
+      end
 
       # TODO: doc
       abstract def reaction_transition(states)

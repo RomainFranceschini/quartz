@@ -23,6 +23,7 @@ module Quartz
       @int_count = @ext_count = @con_count = 0u32
 
       @time_last = atomic.time = time
+      atomic.__initialize_state__(self)
       @time_next = @time_last + atomic.time_advance
 
       if @run_validations && atomic.invalid?(:initialization)
