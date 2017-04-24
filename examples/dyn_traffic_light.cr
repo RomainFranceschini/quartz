@@ -1,14 +1,11 @@
 require "../src/quartz"
 
 class TrafficLight < Quartz::AtomicModel
-  getter phase : Symbol
 
-  def initialize(name)
-    super(name)
-    @phase = :red
-    add_input_port :interrupt
-    add_output_port :observed
-  end
+  input :interrupt
+  output :observed
+
+  state_var phase : Symbol = :red
 
   def external_transition(messages)
     value = messages[input_ports[:interrupt]].first.as_sym
@@ -56,13 +53,10 @@ class TrafficLight < Quartz::AtomicModel
 end
 
 class Policeman < Quartz::AtomicModel
-  def initialize(name)
-    super(name)
-    @phase = :idle1
-    add_output_port :alternate
-    add_output_port :add_coupling
-    add_output_port :remove_coupling
-  end
+
+  state_var phase : Symbol = :idle1
+
+  output :alternate, :add_coupling, :remove_coupling
 
   def internal_transition
     @phase = case @phase

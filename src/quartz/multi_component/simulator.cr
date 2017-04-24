@@ -13,6 +13,7 @@ module Quartz
         sched_type = model.class.preferred_event_set? || simulation.default_scheduler
         @event_set = EventSetFactory(Component).new_event_set(sched_type)
         @components = model.components
+        @components.each_value { |component| component.processor = self }
       end
 
       @reac_count : UInt32 = 0u32

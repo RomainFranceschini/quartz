@@ -12,21 +12,20 @@ module Quartz
       @bag = SimpleHash(OutputPort, Any).new
     end
 
-    macro inherited
-      def initialize(name)
-        super(name)
-      end
-
-      def initialize(name, state : {{(@type.name + "::State").id}})
-        super(name)
-        self.state = state
-      end
+    def initialize(name, state)
+      super(name)
+      @bag = SimpleHash(OutputPort, Any).new
+      self.state = state
     end
 
     # :nodoc:
     # Used internally by the simulator
     def __initialize_state__(processor)
-      if processor == @processor && (state = initial_state)
+      if @processor != processor
+        raise InvalidProcessorError.new("trying to initialize state of model \"#{name}\" from an invalid processor")
+      end
+
+      if state = initial_state
         self.state = state
       end
     end

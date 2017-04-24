@@ -8,7 +8,7 @@ module Quartz
     macro included
       {% if !@type.constant :STATE_VARIABLES %}
         private STATE_VARIABLES = [] of Nil
-        private AFTER_INITIALIZE = [] of Nil
+        private STATE_INITIALIZE = [] of Nil
       {% end %}
 
       # The `state_var` macro defines a state variable of a model. Its primary
@@ -41,35 +41,86 @@ module Quartz
       #   state_var x : Int32 = 0
       #   state_var y : Int32 = 0
       #   state_var z : Int32 { (rand * 100 + 1).to_i32 }
+      #   state_var ß : Int32 { x * 42 }
       # end
       # ```
       #
+      # Note from previous example that the initialization block of ß is
+      # allowed to reference the value of another state variable.
+      #
       # If default values are omitted, a chance is given to initialize those
-      # state variables through a constructor or using the `after_initialize`
-      # macro :
+      # state variables through the `state_initialize` macro :
       #
       # ```
       # class MyModel < AtomicModel
-      #   state_var x : Int32 = 0
-      #   state_var y : Int32 = 0
+      #   state_var x : Int32
+      #   state_var y : Int32
       #
-      #   def initialize
+      #   state_initialize do
       #     @x = 0
       #     @y = 0
       #   end
       # end
       # ```
       #
-      # `state_var` also accept a hash or named tuple literal whose
-      # keys corresponds to the following options :
-      # * *visibility*: used to restrict the visibility of the getter that
-      # is defined for this state variable (`:private` or `:protected`). No
-      # restriction is applied by default (public).
-      # * *converter*: specify an alternate type for parsing and generation.
-      # The converter must define `from_json(JSON::PullParser)` and
-      # `to_json(value, JSON::Builder)` as class methods. Examples of converters
-      # are `Time::Format` and `Time::EpochConverter` for `Time`.
+      # All `initialize` methods defined in the included type and its subclasses
+      # will be redefined to include the body of the given block.
+      # Note that the block content is always included at the top of the method
+      # definition. Thus, if you define :
       #
+      # ```
+      # class MyModel < AtomicModel
+      #   state_var x : Int32
+      #   state_var y : Int32
+      #
+      #   state_initialize do
+      #     @x = 0
+      #     @y = 0
+      #   end
+      #
+      #   def initialize(name)
+      #     super(name)
+      #     add_input_port("in")
+      #   end
+      # end
+      # ```
+      #
+      # The constructor will be automatically redefined to :
+      #
+      # ```
+      #   def initialize(name)
+      #     @x = 0
+      #     @y = 0
+      #     super(name)
+      #     add_input_port("in")
+      #   end
+      # end
+      # ```
+      #
+      # #### Options
+      #
+      # Along with the type declaration, `state_var` also accept a hash or
+      # named tuple literal whose keys corresponds to the following options :
+      # * **visibility**: used to restrict the visibility of the getter that
+      # is defined for this state variable (`:private` or `:protected`). No
+      # restriction is applied by default (public) :
+      # ```
+      # state_var hidden : Bool = true, visibility: :private
+      # ```
+      # * **converter**: specify an alternate type for parsing and generation.
+      # Examples of converters are `Time::Format` and `Time::EpochConverter`
+      # for `Time`.
+      # ```
+      # state_var timestamp : Time, converter: Time::EpochConverter
+      # ```
+      #
+      # #### Code generation
+      #
+      # A getter is generated for each declared state variable, whose visibility
+      # can be restricted through the **visibility** option.
+      #
+      # When the type definition is complete, a struct wrapping all state
+      # variables is defined for convenience.
       macro state_var(prop, **opts, &block)
         \{%
           opts[:name] = prop.var
@@ -92,8 +143,61 @@ module Quartz
         %}
       end
 
-      macro after_initialize(&block)
-        \{% AFTER_INITIALIZE << block.body %}
+      # The `state_initialize` macro defines an initialization block
+      # that is automatically included in all constructor defined in the
+      # included type and its subclasses.
+      #
+      # It can be used to initialize state variables declared using the
+      # `state_var` macro.
+      #
+      # Example :
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   state_var x : Int32
+      #   state_var y : Int32
+      #
+      #   state_initialize do
+      #     @x = 0
+      #     @y = 0
+      #   end
+      # ```
+      #
+      macro state_initialize(&block)
+        \{% STATE_INITIALIZE << block.body %}
+      end
+
+      private macro redefine_constructors
+        \{% if @type.methods.any? { |m| m.name.stringify == "initialize" } %}
+          \{% for method in @type.methods %}
+            \{% if method.name == "initialize" %}
+              \{{ method.visibility.id }} def \{{ method.name.id }}(
+                \{% if method.splat_index.is_a?(NumberLiteral) %}
+                  \{% for arg, index in method.args %}
+                    \{{ (index == method.splat_index ? "*" + arg.stringify : arg.stringify).id }},
+                  \{% end %}
+                \{% else %}
+                  \{{ method.args.splat }} \{{ (method.double_splat.is_a?(Nop) && method.block_arg.is_a?(Nop) ? "" : ",").id }}
+                \{% end %}
+                \{{ (method.double_splat.is_a?(Nop) ? "" : "**" + method.double_splat.stringify).id }}
+                \{{ (method.block_arg.is_a?(Nop) ? "" : "&" + method.block_arg.stringify).id }}
+              ) \{{ (method.return_type.is_a?(Nop) ? "" : ":").id }} \{{ method.return_type }}
+
+                \{% for block in STATE_INITIALIZE %}
+                  \{{ block }}
+                \{% end %}
+
+                \{{ method.body }}
+              end
+            \{% end %}
+          \{% end %}
+        \{% else %}
+          def initialize
+            \{% for block in STATE_INITIALIZE %}
+              \{{ block }}
+            \{% end %}
+          end
+        \{% end %}
       end
 
       macro finished
@@ -119,10 +223,15 @@ module Quartz
           \{% end %}
         \{% end %}
 
-        \{% if !STATE_VARIABLES.empty? %}
+        \{% if !STATE_INITIALIZE.empty? %}
+          redefine_constructors
+        \{% end %}
 
+        \{% if !STATE_VARIABLES.empty? %}
           # A struct that wraps the state of a model
           struct \{{ @type.name.id }}::State < Quartz::State
+            include Quartz::Transferable
+
             \{% for var in STATE_VARIABLES %}
               getter \{{var[:name].id}} : \{{var[:type]}}
             \{% end %}
@@ -140,6 +249,10 @@ module Quartz
               \{% end %}
               **args
             )
+              \{% for block in STATE_INITIALIZE %}
+                \{{ block }}
+              \{% end %}
+
               \{% for var in STATE_VARIABLES %}
                 \{% if var[:value] != nil %}
                   \{% if var[:value].is_a?(Block) %}
@@ -160,9 +273,36 @@ module Quartz
                   end
                 \{% end %}
               \{% end %}
+            end
 
-              \{% for block in AFTER_INITIALIZE %}
+            def initialize(
+              \{% for var in STATE_VARIABLES %}
+                \{% if var[:value] != nil %}
+                  \{% if var[:value].is_a?(Block) %}
+                    \{{ var[:name].id }} : \{{ var[:type] }}? = nil,
+                  \{% elsif var[:name] == nil %}
+                    \{{ var[:name].id }} : \{{ var[:type] }},
+                  \{% else %}
+                    \{{ var[:name].id }} : \{{ var[:type] }} = \{{ var[:value] }},
+                  \{% end %}
+                \{% end %}
+              \{% end %}
+            )
+              \{% for block in STATE_INITIALIZE %}
                 \{{ block }}
+              \{% end %}
+
+              \{% for var in STATE_VARIABLES %}
+                \{% if var[:value] != nil %}
+                  \{% if var[:value].is_a?(Block) %}
+                    if \{{ var[:name].id }}.nil?
+                      \{{ var[:name].id }} = (
+                        \{{ var[:value].body }}
+                      )
+                    end
+                  \{% end %}
+                  @\{{ var[:name].id }} = \{{ var[:name].id }}
+                \{% end %}
               \{% end %}
             end
 
@@ -171,6 +311,10 @@ module Quartz
                 \{{ var[:type] }} \{{ (index == STATE_VARIABLES.size-1 ? ")" : "|").id }}
               \{% end %}
             ))
+              \{% for block in STATE_INITIALIZE %}
+                \{{ block }}
+              \{% end %}
+
               \{% for var in STATE_VARIABLES %}
                 \{% if var[:value] != nil %}
                   if !hash.has_key?(:\{{ var[:name].id }})
@@ -193,10 +337,6 @@ module Quartz
                   end
                 \{% end %}
               \{% end %}
-
-              \{% for block in AFTER_INITIALIZE %}
-                \{{ block }}
-              \{% end %}
             end
 
             def initialize(hash : Hash(String, Union(
@@ -204,6 +344,10 @@ module Quartz
                 \{{ var[:type] }} \{{ (index == STATE_VARIABLES.size-1 ? ")" : "|").id }}
               \{% end %}
             ))
+              \{% for block in STATE_INITIALIZE %}
+                \{{ block }}
+              \{% end %}
+
               \{% for var in STATE_VARIABLES %}
                 \{% if var[:value] != nil %}
                   if !hash.has_key?(\{{ var[:name].stringify }})
@@ -226,13 +370,13 @@ module Quartz
                   end
                 \{% end %}
               \{% end %}
-
-              \{% for block in AFTER_INITIALIZE %}
-                \{{ block }}
-              \{% end %}
             end
 
             def initialize(%pull : ::JSON::PullParser)
+              \{% for block in STATE_INITIALIZE %}
+                \{{ block }}
+              \{% end %}
+
               \{% for var in STATE_VARIABLES %}
                 \%found{var[:name].id} = false
                 \%json{var[:name].id} = nil
@@ -265,17 +409,21 @@ module Quartz
                   else
                     \{{ var[:value].body }}
                   end
+                \{% elsif var[:value] == nil %}
+                  if \%found{var[:name].id} && (value = \%json{var[:name].id})
+                    @\{{var[:name].id}} = value.as(\{{var[:type]}})
+                  end
                 \{% else %}
                   @\{{var[:name].id}} = \%found{var[:name].id} ? \%json{var[:name].id}.as(\{{var[:type]}}) : \{{var[:value]}}
                 \{% end %}
               \{% end %}
-
-              \{% for block in AFTER_INITIALIZE %}
-                \{{ block }}
-              \{% end %}
             end
 
             def initialize(%pull : ::MessagePack::Unpacker)
+              \{% for block in STATE_INITIALIZE %}
+                \{{ block }}
+              \{% end %}
+
               \{% for var in STATE_VARIABLES %}
                 \%found{var[:name].id} = false
                 \%mp{var[:name].id} = nil
@@ -308,13 +456,13 @@ module Quartz
                   else
                     \{{ var[:value].body }}
                   end
+                \{% elsif var[:value] == nil %}
+                  if \%found{var[:name].id} && (value = \%mp{var[:name].id})
+                    @\{{var[:name].id}} = value.as(\{{var[:type]}})
+                  end
                 \{% else %}
                   @\{{var[:name].id}} = \%found{var[:name].id} ? \%mp{var[:name].id}.as(\{{var[:type]}}) : \{{var[:value]}}
                 \{% end %}
-              \{% end %}
-
-              \{% for block in AFTER_INITIALIZE %}
-                \{{ block }}
               \{% end %}
             end
 
@@ -394,15 +542,18 @@ module Quartz
             end
           end
 
-          # Function used
           def initial_state=(state : \{{@type.name.id}}::State)
             @_initial_state = state
           end
 
-          @_initial_state : \{{@type.name.id}}::State?
+          @_initial_state : Quartz::State?
 
           protected def initial_state
-            @_initial_state
+            if state = @_initial_state
+              state.as(\{{@type.name.id}}::State)
+            else
+              nil
+            end
           end
 
           def state
@@ -418,17 +569,14 @@ module Quartz
               @\{{ var[:name].id }} = state.\{{ var[:name].id }}
             \{% end %}
           end
-
         \{% else %}
           def state
-            Quartz::State.new
           end
 
           protected def state=(state : Quartz::State)
           end
 
           protected def initial_state
-            nil
           end
         \{% end %}
       end

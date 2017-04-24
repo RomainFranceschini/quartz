@@ -4,7 +4,7 @@ class TrafficLight < Quartz::AtomicModel
   input interrupt
   output observed
 
-  getter phase : Symbol = :red
+  state_var phase : Symbol = :red
 
   def external_transition(bag)
     value = bag[input_port(:interrupt)].first.as_sym
@@ -45,7 +45,8 @@ end
 
 class Policeman < Quartz::AtomicModel
   output traffic_light
-  getter phase : Symbol = :idle
+
+  state_var phase : Symbol = :idle
 
   def internal_transition
     @phase = case @phase

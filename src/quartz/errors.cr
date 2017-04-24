@@ -13,6 +13,8 @@ module Quartz
 
   class UnobservablePortError < Exception; end
 
+  class InvalidProcessorError < Exception; end
+
   class StrictValidationFailed < Exception
     getter validation_errors : ValidationErrors
 

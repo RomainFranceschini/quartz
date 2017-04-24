@@ -3,13 +3,14 @@ module Quartz
     module Generators
       class SinusGenerator < Quartz::AtomicModel
 
-        @pulsation : Float32
+        state_var amplitude : Float64 = 1.0
+        state_var frequency : Float64 = 50.0
+        state_var phase : Float64 = 0.0
+        state_var step : Int32 = 20
+        state_var qss_order : Int8 = 2i8
+        state_var pulsation : Float64 { 2.0 * Math::PI * frequency }
 
-        def initialize(name, @amplitude : Float = 1.0 , @frequency : Float = 50.0, @phase : Float = 0.0, @step : Int = 20, @qss_order : Int = 2)
-          super(name)
-          @pulsation = 2.0 * Math::PI * @frequency
-          @sigma = 0
-        end
+        @sigma = 0
 
         def internal_transition
           @sigma = 1.0 / @frequency / @step
