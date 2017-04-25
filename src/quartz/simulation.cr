@@ -3,6 +3,7 @@ module Quartz
   class Simulation
     include Logging
     include Enumerable(SimulationTime)
+    include Iterable(SimulationTime)
 
     getter processor, model, start_time, final_time, time
     getter duration
