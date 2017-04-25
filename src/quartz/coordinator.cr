@@ -74,6 +74,7 @@ module Quartz
     def initialize_processor(time)
       min = Quartz::INFINITY
       selected = Array(Processor).new
+
       @children.each do |child|
         tn = child.initialize_processor(time)
         selected.push(child) if tn < Quartz::INFINITY
@@ -83,6 +84,8 @@ module Quartz
       @scheduler.clear
       list = @scheduler.is_a?(RescheduleEventSet) ? @children : selected
       list.each { |c| @scheduler << c }
+
+      @model.as(CoupledModel).notify_observers({:phase => Any.new(:init)})
 
       @time_last = max_time_last
       @time_next = min
@@ -160,6 +163,8 @@ module Quartz
           @synchronize << SyncEntry.new(child.as(Processor))
         end
       end
+
+      coupled.notify_observers({:phase => Any.new(:collect_outputs)})
 
       @parent_bag
     end
@@ -249,6 +254,8 @@ module Quartz
       @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
 
       @synchronize.clear
+
+      @model.as(CoupledModel).notify_observers({:phase => Any.new(:perform_transitions)})
 
       @time_last = time
       @time_next = min_time_next
