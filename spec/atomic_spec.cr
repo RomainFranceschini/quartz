@@ -14,14 +14,23 @@ private class FetchOutputTest < AtomicModel
   end
 end
 
-private class ModelSample < AtomicModel
+class ModelSample < AtomicModel
   state_var x : Int32 = 0
   state_var y : Int32 = 0
 
   @sigma = 25
+
+  def evolve
+    @x = 100
+    @y = 254
+  end
 end
 
 private class MockProcessor < Processor
+  def initialize_processor(time)
+    0
+  end
+
   def collect_outputs(time)
     Hash(OutputPort, Any).new
   end
@@ -74,6 +83,22 @@ describe "AtomicModel" do
 
       m.x.should eq 5
       m.y.should eq 10
+    end
+
+    it "uses default state if no initial state is specified before running a simulation" do
+      m = ModelSample.new("foo")
+      m.x.should eq 0
+      m.y.should eq 0
+      p = MockProcessor.new(m)
+
+      m.evolve
+
+      m.x.should eq 100
+      m.y.should eq 254
+
+      m.__initialize_state__(p)
+      m.x.should eq 0
+      m.y.should eq 0
     end
 
     it "raises if wrong processor asks initialization" do
@@ -142,7 +167,7 @@ describe "AtomicModel" do
       m = ModelSample.new(MessagePack::Unpacker.new(io))
       m.name.should eq "foo"
       m.sigma.should eq 25
-      m.time.should eq 100
+      m.time.should eq 42
       m.x.should eq 5
       m.y.should eq 10
     end

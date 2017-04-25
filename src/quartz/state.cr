@@ -171,7 +171,7 @@ module Quartz
         \{% if @type.methods.any? { |m| m.name.stringify == "initialize" } %}
           \{% for method in @type.methods %}
             \{% if method.name == "initialize" %}
-              \{{ method.visibility.id }} def \{{ method.name.id }}(
+              def \{{ method.name.id }}(
                 \{% if method.splat_index.is_a?(NumberLiteral) %}
                   \{% for arg, index in method.args %}
                     \{{ (index == method.splat_index ? "*" + arg.stringify : arg.stringify).id }},
@@ -181,7 +181,7 @@ module Quartz
                 \{% end %}
                 \{{ (method.double_splat.is_a?(Nop) ? "" : "**" + method.double_splat.stringify).id }}
                 \{{ (method.block_arg.is_a?(Nop) ? "" : "&" + method.block_arg.stringify).id }}
-              ) \{{ (method.return_type.is_a?(Nop) ? "" : ":").id }} \{{ method.return_type }}
+              )
 
                 \{% for block in STATE_INITIALIZE %}
                   \{{ block }}
@@ -268,40 +268,9 @@ module Quartz
 
               \{% for var in STATE_VARIABLES %}
                 \{% if var[:value] == nil %}
-                  if value = args[:\{{ var[:name].id }}]? || args[\{{ var[:name].stringify }}]?
+                  if value = args[:\{{ var[:name].id }}]?
                     @\{{ var[:name].id }} = value
                   end
-                \{% end %}
-              \{% end %}
-            end
-
-            def initialize(
-              \{% for var in STATE_VARIABLES %}
-                \{% if var[:value] != nil %}
-                  \{% if var[:value].is_a?(Block) %}
-                    \{{ var[:name].id }} : \{{ var[:type] }}? = nil,
-                  \{% elsif var[:name] == nil %}
-                    \{{ var[:name].id }} : \{{ var[:type] }},
-                  \{% else %}
-                    \{{ var[:name].id }} : \{{ var[:type] }} = \{{ var[:value] }},
-                  \{% end %}
-                \{% end %}
-              \{% end %}
-            )
-              \{% for block in STATE_INITIALIZE %}
-                \{{ block }}
-              \{% end %}
-
-              \{% for var in STATE_VARIABLES %}
-                \{% if var[:value] != nil %}
-                  \{% if var[:value].is_a?(Block) %}
-                    if \{{ var[:name].id }}.nil?
-                      \{{ var[:name].id }} = (
-                        \{{ var[:value].body }}
-                      )
-                    end
-                  \{% end %}
-                  @\{{ var[:name].id }} = \{{ var[:name].id }}
                 \{% end %}
               \{% end %}
             end
@@ -549,11 +518,7 @@ module Quartz
           @_initial_state : Quartz::State?
 
           protected def initial_state
-            if state = @_initial_state
-              state.as(\{{@type.name.id}}::State)
-            else
-              nil
-            end
+            (@_initial_state || \{{@type.name.id}}::State.new).as(\{{@type.name.id}}::State)
           end
 
           def state
@@ -587,6 +552,8 @@ module Quartz
           \{% for x in STATE_VARIABLES %}
             \{% if x[:value].is_a?(Block) %}
               state_var \{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || ""}} \{{ x[:value] }}
+            \{% elsif x[:value] == nil %}
+              state_var \{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || "" }}
             \{% else %}
               state_var \{{x[:name]}} : \{{x[:type]}} = \{{ x[:value] }}, visibility: \{{x[:visibility] || "" }}
             \{% end %}
@@ -596,3 +563,4 @@ module Quartz
     end
   end
 end
+

@@ -15,6 +15,7 @@ module Quartz
     def initialize(name, state)
       super(name)
       @bag = SimpleHash(OutputPort, Any).new
+      self.initial_state = state
       self.state = state
     end
 
@@ -25,8 +26,8 @@ module Quartz
         raise InvalidProcessorError.new("trying to initialize state of model \"#{name}\" from an invalid processor")
       end
 
-      if state = initial_state
-        self.state = state
+      if s = initial_state
+        self.state = s
       end
     end
 
@@ -44,7 +45,8 @@ module Quartz
         when "time"
           _time = SimulationTime.new(pull)
         when "state"
-          self.state = {{ (@type.name + "::State").id }}.new(pull)
+          self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
+          self.state = initial_state
         else
           raise ::JSON::ParseException.new("Unknown json attribute: #{key}", 0, 0)
         end
@@ -68,7 +70,8 @@ module Quartz
         when "time".to_slice
           _time = SimulationTime.new(pull)
         when "state".to_slice
-          self.state = {{ (@type.name + "::State").id }}.new(pull)
+          self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
+          self.state = initial_state
         else
           raise MessagePack::UnpackException.new("unknown msgpack attribute: #{String.new(key)}")
         end

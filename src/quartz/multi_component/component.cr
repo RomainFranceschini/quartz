@@ -18,6 +18,7 @@ module Quartz
 
       def initialize(name, state)
         super(name)
+        self.initial_state = state
         self.state = state
       end
 
@@ -28,8 +29,8 @@ module Quartz
           raise InvalidProcessorError.new("trying to initialize state of model \"#{name}\" from an invalid processor")
         end
 
-        if state = initial_state
-          self.state = state
+        if s = initial_state
+          self.state = s
         end
       end
 
