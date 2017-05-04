@@ -54,7 +54,7 @@ class GOLCell < Quartz::MultiComponent::Component
 
     proposed_states.unsafe_assoc(
       self.name,
-      Quartz::Any.new(GOLCell::State.new(phase, alive))
+      Quartz::Any.new(GOLCell::State.new(phase: phase, nalive: alive))
     )
     proposed_states
   end
@@ -131,7 +131,7 @@ class GOLMultiPDEVS < Quartz::MultiComponent::Model
         end
 
         # update initial state
-        cell.initial_state = GOLCell::State.new(cell.phase, nalive)
+        cell.initial_state = GOLCell::State.new(phase: cell.phase, nalive: nalive)
       end
     end
   end
