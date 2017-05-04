@@ -1,6 +1,13 @@
 module Quartz
   abstract class Processor # (T)
 
+    # :nodoc:
+    OBS_INFO_INIT_PHASE = { :phase => Any.new(:init) }
+    # :nodoc:
+    OBS_INFO_COLLECT_PHASE = { :phase => Any.new(:collect_outputs) }
+    # :nodoc:
+    OBS_INFO_TRANSITIONS_PHASE = { :phase => Any.new(:perform_transitions) }
+
     include Logging
     # include Comparable(self)
 

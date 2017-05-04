@@ -2,21 +2,30 @@ module Quartz
   module MultiComponent
     class Simulator < Quartz::Simulator
 
+      # :nodoc:
+      OBS_INFO_REAC_TRANSITION = { :transition => Any.new(:reaction) }
+
       @components : Hash(Name, Component)
       @event_set : EventSet(Component)
-      @imm : Array(Quartz::MultiComponent::Component)?
-
-      @state_bags = Hash(Quartz::MultiComponent::Component,Array(Tuple(Name,Any))).new { |h,k| h[k] = Array(Tuple(Name,Any)).new }
+      @imm : Array(Quartz::MultiComponent::Component)
+      @state_bags : Hash(Quartz::MultiComponent::Component,Array(Tuple(Name,Any)))
+      @parent_bag : Hash(OutputPort, Array(Any))
+      @reac_count : UInt32 = 0u32
 
       def initialize(model, simulation)
         super(model, simulation)
         sched_type = model.class.preferred_event_set? || simulation.default_scheduler
         @event_set = EventSetFactory(Component).new_event_set(sched_type)
+        @state_bags = Hash(Quartz::MultiComponent::Component,Array(Tuple(Name,Any))).new { |h,k|
+          h[k] = Array(Tuple(Name,Any)).new
+        }
+        @imm = Array(Quartz::MultiComponent::Component).new
+        @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
+          h[k] = Array(Any).new
+        }
         @components = model.components
         @components.each_value { |component| component.processor = self }
       end
-
-      @reac_count : UInt32 = 0u32
 
       def transition_stats
         {
@@ -35,7 +44,7 @@ module Quartz
           component.time_last = component.time = time - component.elapsed
           component.__initialize_state__(self)
           component.time_next = component.time_last + component.time_advance
-          component.notify_observers({ :transition => Any.new(:init) })
+          component.notify_observers(OBS_INFO_INIT_TRANSITION)
 
           case @event_set
           when RescheduleEventSet
@@ -53,12 +62,12 @@ module Quartz
               str << component.time_next << ')'
             })
           end
-
-          component.notify_observers({ :transition => Any.new(:init) })
         end
 
         @time_last = time
         @time_next = min_time_next
+
+        @model.as(MultiComponent::Model).notify_observers(OBS_INFO_INIT_PHASE)
 
         @time_next
       end
@@ -75,23 +84,20 @@ module Quartz
       def collect_outputs(time)
         raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
 
-        @imm = if @event_set.is_a?(RescheduleEventSet)
-          @event_set.peek_all(time)
-        else
-          @event_set.delete_all(time)
-        end
+        @parent_bag.clear unless @parent_bag.empty?
 
-        output_bag = Hash(OutputPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
-
-        @imm.not_nil!.each do |component|
+        @event_set.each_imminent(time) do |component|
+          @imm << component
           if sub_bag = component.output
             sub_bag.each do |k,v|
-              output_bag[@model.ensure_output_port(k)] << v
+              @parent_bag[@model.ensure_output_port(k)] << v
             end
           end
         end
 
-        output_bag
+        @model.as(MultiComponent::Model).notify_observers(OBS_INFO_COLLECT_PHASE)
+
+        @parent_bag
       end
 
       def perform_transitions(time, bag)
@@ -100,8 +106,8 @@ module Quartz
         end
 
         if time == @time_next && bag.empty?
-          @int_count += @imm.not_nil!.size
-          @imm.not_nil!.each do |component|
+          @int_count += @imm.size
+          @imm.each do |component|
             component.internal_transition.try do |ps|
               ps.each do |k,v|
                 @state_bags[@components[k]] << {component.name, v}
@@ -112,17 +118,20 @@ module Quartz
                 str << '\'' << component.name << "': internal transition"
               })
             end
-            component.notify_observers({ :transition => Any.new(:internal) })
+            component.notify_observers(OBS_INFO_INT_TRANSITION)
           end
         elsif !bag.empty?
           @components.each do |component_name, component|
             # TODO test if component defined delta_ext
-            kind = :unknown
+            info = nil
+            kind = nil
             o = if time == @time_next && component.time_next == @time_next
+              info = OBS_INFO_CON_TRANSITION
               kind = :confluent
               @con_count += 1u32
               component.confluent_transition(bag)
             else
+              info = OBS_INFO_EXT_TRANSITION
               kind = :external
               @ext_count += 1u32
               component.external_transition(bag)
@@ -138,9 +147,11 @@ module Quartz
               })
             end
 
-            component.notify_observers({ :transition => Any.new(kind) })
+            component.notify_observers(info)
           end
         end
+
+        @imm.clear
 
         @state_bags.each do |component, states|
           if @event_set.is_a?(RescheduleEventSet)
@@ -178,7 +189,7 @@ module Quartz
             })
           end
 
-          component.notify_observers({ :transition => Any.new(:reaction) })
+          component.notify_observers(OBS_INFO_REAC_TRANSITION)
         end
 
         @reac_count += @state_bags.size
@@ -186,7 +197,7 @@ module Quartz
 
         @event_set.reschedule! if @event_set.is_a?(RescheduleEventSet)
 
-        @model.as(MultiComponent::Model).notify_observers
+        @model.as(MultiComponent::Model).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
 
         @time_last = time
         @time_next = min_time_next

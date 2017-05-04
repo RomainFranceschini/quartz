@@ -88,7 +88,11 @@ module Quartz
 
     # Returns the number of objects currently observing this object.
     def count_observers
-      @observers.try(&.size)
+      if obs = @observers
+        obs.size
+      else
+        0
+      end
     end
 
     # Notifies observers of a change in state. A dictionary, *info*, can be

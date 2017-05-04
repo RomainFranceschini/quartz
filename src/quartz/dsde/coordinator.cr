@@ -142,6 +142,7 @@ module Quartz
 
         @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
         @synchronize.clear
+        @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
 
         @time_last = time
         @time_next = min_time_next

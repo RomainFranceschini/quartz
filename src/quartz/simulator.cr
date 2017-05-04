@@ -1,5 +1,15 @@
 module Quartz
   class Simulator < Processor
+
+    # :nodoc:
+    OBS_INFO_INIT_TRANSITION = { :transition => Any.new(:init) }
+    # :nodoc:
+    OBS_INFO_INT_TRANSITION = { :transition => Any.new(:internal) }
+    # :nodoc:
+    OBS_INFO_EXT_TRANSITION = { :transition => Any.new(:external) }
+    # :nodoc:
+    OBS_INFO_CON_TRANSITION = { :transition => Any.new(:confluent) }
+
     @int_count : UInt32 = 0u32
     @ext_count : UInt32 = 0u32
     @con_count : UInt32 = 0u32
@@ -43,7 +53,7 @@ module Quartz
         })
       end
 
-      atomic.notify_observers({:transition => Any.new(:init)})
+      atomic.notify_observers(OBS_INFO_INIT_TRANSITION)
 
       @time_next
     rescue err : StrictValidationFailed
@@ -67,22 +77,26 @@ module Quartz
       synced = @time_last <= time && time <= @time_next
       atomic = @model.as(AtomicModel)
 
+      info = nil
       kind = nil
       if time == @time_next
         atomic.elapsed = 0
         if bag.empty?
           @int_count += 1u32
           atomic.internal_transition
+          info = OBS_INFO_INT_TRANSITION
           kind = :internal
         else
           @con_count += 1u32
           atomic.confluent_transition(bag)
+          info = OBS_INFO_CON_TRANSITION
           kind = :confluent
         end
       elsif synced && !bag.empty?
         @ext_count += 1u32
         atomic.elapsed = time - @time_last
         atomic.external_transition(bag)
+        info = OBS_INFO_EXT_TRANSITION
         kind = :external
       elsif !synced
         raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
@@ -108,7 +122,7 @@ module Quartz
         end
       end
 
-      atomic.notify_observers({:transition => Any.new(kind)})
+      atomic.notify_observers(info)
 
       @time_next
     rescue err : StrictValidationFailed

@@ -85,7 +85,7 @@ module Quartz
       list = @scheduler.is_a?(RescheduleEventSet) ? @children : selected
       list.each { |c| @scheduler << c }
 
-      @model.as(CoupledModel).notify_observers({:phase => Any.new(:init)})
+      @model.as(CoupledModel).notify_observers(OBS_INFO_INIT_PHASE)
 
       @time_last = max_time_last
       @time_next = min
@@ -97,20 +97,14 @@ module Quartz
       end
       @time_last = time
 
-      imm = if @scheduler.is_a?(RescheduleEventSet)
-              @scheduler.peek_all(time)
-            else
-              @scheduler.delete_all(time)
-            end
-
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
 
-      imm.each do |child|
+      @scheduler.each_imminent(time) do |child|
         output = child.collect_outputs(time)
 
         output.each do |port, payload|
-          if child.is_a?(Simulator)
+          if child.is_a?(Simulator) && port.count_observers > 0
             port.notify_observers({:payload => payload.as(Any)})
           end
 
@@ -164,7 +158,7 @@ module Quartz
         end
       end
 
-      coupled.notify_observers({:phase => Any.new(:collect_outputs)})
+      coupled.notify_observers(OBS_INFO_COLLECT_PHASE)
 
       @parent_bag
     end
@@ -255,7 +249,7 @@ module Quartz
 
       @synchronize.clear
 
-      @model.as(CoupledModel).notify_observers({:phase => Any.new(:perform_transitions)})
+      @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
 
       @time_last = time
       @time_next = min_time_next

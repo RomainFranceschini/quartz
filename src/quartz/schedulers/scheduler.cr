@@ -41,6 +41,12 @@ module Quartz
       ary
     end
 
+    def each_imminent(priority : Priority)
+      while !self.empty? && self.next_priority == priority
+        yield self.pop
+      end
+    end
+
     def peek_all(priority : Priority) : Array(T)
       raise Exception.new("Not implemented.")
     end
