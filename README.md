@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/romain1189/quartz.svg?branch=master)](https://travis-ci.org/romain1189/quartz)
+
 # Quartz - A DEVS-based Modeling & Simulation Environment (WIP)
 
 Quartz is a Crystal library for defining models and constructing discrete
@@ -29,7 +31,7 @@ TODO List:
   - [x] Hierarchy flattening
   - [x] Graphviz output of coupled structure
   - [x] Class-level definition of ports (through macros)
-  - [ ] Model serialization
+  - [x] Model serialization
   - [x] Model runtime validation (WIP)
   - [x] Logging
   - [ ] Internal DSL
