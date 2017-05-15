@@ -110,7 +110,7 @@ module Quartz
 
           # check internal coupling to get children who receive sub-bag of y
           coupled.each_internal_coupling(port) do |src, dst|
-            receiver = dst.host.processor.not_nil!
+            receiver = dst.host.processor
 
             entry = if receiver.sync
                       i = -1
@@ -169,7 +169,7 @@ module Quartz
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y
         @model.as(CoupledModel).each_input_coupling(port) do |src, dst|
-          receiver = dst.host.processor.not_nil!
+          receiver = dst.host.processor
 
           entry = if receiver.sync
                     i = -1

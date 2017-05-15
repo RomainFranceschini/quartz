@@ -1,10 +1,12 @@
 module Quartz
   # Base model class
   abstract class Model
-    property name : Name, processor : Processor?
+    property name : Name
+    property! processor : Processor?
 
     # Returns a new model.
-    def initialize(@name : Name); end
+    def initialize(@name : Name)
+    end
 
     def inspect(io)
       io << self.class << "(" << @name << ")"

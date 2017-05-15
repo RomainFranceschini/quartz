@@ -1,7 +1,6 @@
 module Quartz
   module DSDE
     class Coordinator < Quartz::Coordinator
-
       @simulation : Simulation
 
       def initialize(model, simulation)
@@ -15,39 +14,39 @@ module Quartz
         bag.each do |port, sub_bag|
           # check external input couplings to get children who receive sub-bag of y
           coupled.each_input_coupling(port) do |src, dst|
-            receiver = dst.host.processor.not_nil!
+            receiver = dst.host.processor
 
             entry = if receiver.sync
-              i = -1
-              @synchronize.each_with_index do |e, j|
-                if e.processor == receiver
-                  i = j
-                  break
-                end
-              end
+                      i = -1
+                      @synchronize.each_with_index do |e, j|
+                        if e.processor == receiver
+                          i = j
+                          break
+                        end
+                      end
 
-              @synchronize[i] = SyncEntry.new(
-                @synchronize[i].processor,
-                Hash(InputPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
-              ) unless @synchronize[i].bag
+                      @synchronize[i] = SyncEntry.new(
+                        @synchronize[i].processor,
+                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                      ) unless @synchronize[i].bag
 
-              @synchronize[i]
-            else
-              receiver.sync = true
-              e = SyncEntry.new(
-                receiver,
-                Hash(InputPort,Array(Any)).new { |h,k| h[k] = Array(Any).new }
-              )
-              @synchronize << e
-              e
-            end
+                      @synchronize[i]
+                    else
+                      receiver.sync = true
+                      e = SyncEntry.new(
+                        receiver,
+                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+                      )
+                      @synchronize << e
+                      e
+                    end
 
             entry.bag.not_nil![dst].concat(sub_bag)
           end
         end
 
         old_children = coupled.each_child.to_a
-        executive_bag : Hash(InputPort,Array(Any)) = EMPTY_BAG
+        executive_bag : Hash(InputPort, Array(Any)) = EMPTY_BAG
 
         @synchronize.each do |entry|
           receiver = entry.processor
@@ -99,7 +98,7 @@ module Quartz
           end
         end
 
-        receiver = coupled.executive.processor.not_nil!
+        receiver = coupled.executive.processor
         if receiver.sync
           receiver.sync = false
 
@@ -118,7 +117,7 @@ module Quartz
         # unschedule processors of deleted models
         to_remove = old_children - current_children
         to_remove.each do |old_model|
-          old_processor = old_model.processor.not_nil!
+          old_processor = old_model.processor
           if @scheduler.is_a?(RescheduleEventSet)
             @scheduler.delete(old_processor)
           else
