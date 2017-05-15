@@ -283,82 +283,12 @@ module Quartz
     def generate_graph(path = "model_hierarchy.dot")
       path = "#{path}.dot" if File.extname(path).empty?
       file = File.new(path, "w+")
-      file.puts "digraph"
-      file.puts '{'
-      file.puts "compound = true;"
-      file.puts "rankdir = LR;"
-      file.puts "node [shape = box];"
-
-      fill_graph(file, @model.as(CoupledModel))
-
-      file.puts '}'
+      generate_graph(file)
       file.close
     end
 
-    private def fill_graph(graph, cm : CoupledModel)
-      cm.each_child do |model|
-        name = model.to_s
-        if model.is_a?(CoupledModel)
-          graph.puts "subgraph \"cluster_#{name}\""
-          graph.puts '{'
-          graph.puts "label = \"#{name}\";"
-          fill_graph(graph, model.as(CoupledModel))
-          model.each_internal_coupling do |src, dst|
-            if src.host.is_a?(AtomicModel) && dst.host.is_a?(AtomicModel)
-              graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
-            end
-          end
-          graph.puts "};"
-        else
-          graph.puts "\"#{name}\" [style=filled];"
-        end
-      end
-
-      find_direct_couplings(cm) do |src, dst|
-        graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
-      end if cm == @model
-    end
-
-    private def find_direct_couplings(cm : CoupledModel, &block : OutputPort, InputPort ->)
-      couplings = [] of {Port, Port}
-      cm.each_coupling { |s, d| couplings << {s, d} }
-
-      i = 0
-      while i < couplings.size
-        osrc, odst = couplings[i]
-        if osrc.host.is_a?(AtomicModel) && odst.host.is_a?(AtomicModel)
-          yield(osrc.as(OutputPort), odst.as(InputPort))                 # found direct coupling
-        elsif osrc.host.is_a?(CoupledModel) # eic
-          route = [{osrc, odst}]
-          j = 0
-          while j < route.size
-            rsrc, _ = route[j]
-            rsrc.host.as(CoupledModel).each_output_coupling_reverse(rsrc.as(OutputPort)) do |src, dst|
-              if src.host.is_a?(CoupledModel)
-                route.push({src, dst})
-              else
-                couplings.push({src, odst})
-              end
-            end
-            j += 1
-          end
-        elsif odst.host.is_a?(CoupledModel) # eoc
-          route = [{osrc, odst}]
-          j = 0
-          while j < route.size
-            _, rdst = route[j]
-            rdst.host.as(CoupledModel).each_input_coupling(rdst.as(InputPort)) do |src, dst|
-              if dst.host.is_a?(CoupledModel)
-                route.push({src, dst})
-              else
-                couplings.push({osrc, dst})
-              end
-            end
-            j += 1
-          end
-        end
-        i += 1
-      end
+    def generate_graph(io : IO)
+      DotVisitor.new(@model, io).graph
     end
   end
 end
