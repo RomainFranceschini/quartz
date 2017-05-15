@@ -128,8 +128,9 @@ module Quartz
         # initialize new models and their processors
         new_children = current_children - old_children
         new_children.each do |new_model|
-          processor = ProcessorFactory.processor_for(new_model, @simulation)
-          self << processor
+          visitor = ProcessorAllocator.new(@simulation, self)
+          new_model.accept(visitor)
+          processor = new_model.processor.not_nil!
 
           tn = processor.initialize_processor(time)
           if @scheduler.is_a?(RescheduleEventSet)
