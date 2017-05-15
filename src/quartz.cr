@@ -30,6 +30,7 @@ require "./quartz/dsde"
 require "./quartz/multi_component"
 require "./quartz/visitor"
 require "./quartz/processor_allocator"
+require "./quartz/direct_connection_visitor"
 require "./quartz/simulation"
 
 module Quartz

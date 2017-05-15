@@ -33,13 +33,10 @@ module Quartz
       @scheduler = scheduler
       @run_validations = run_validations
 
-      # TODO check direct_connect correctness
       unless maintain_hierarchy
-        time = Time.now
-        direct_connect!
-        if logger = Quartz.logger?
-          logger.info "Flattened modeling tree in #{Time.now - time} secs"
-        end
+        Quartz.timing("Modeling tree flattening") {
+          @model.accept(DirectConnectionVisitor.new(@model))
+        }
       end
     end
 
@@ -320,53 +317,6 @@ module Quartz
       find_direct_couplings(cm) do |src, dst|
         graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
       end if cm == @model
-    end
-
-    # TODO don't alter original hierarchy
-    private def direct_connect!
-      models = @model.as(CoupledModel).each_child.to_a
-      children_list = [] of Model
-      new_internal_couplings = Hash(OutputPort, Array(InputPort)).new { |h, k| h[k] = [] of InputPort }
-
-      i = 0
-      while i < models.size
-        model = models[i]
-        if model.is_a?(CoupledModel)
-          # get internal couplings between atomics that we can reuse as-is in the root model
-          coupled = model.as(CoupledModel)
-          coupled.each_internal_coupling do |src, dst|
-            if src.host.is_a?(AtomicModel) && dst.host.is_a?(AtomicModel)
-              new_internal_couplings[src] << dst
-            end
-          end
-          coupled.each_child { |c| models << c }
-        else
-          children_list << model
-        end
-        i += 1
-      end
-
-      cm = @model.as(CoupledModel)
-      cm.each_child.each { |c| cm.remove_child(c) }
-      children_list.each { |c| cm << c }
-
-      find_direct_couplings(cm) do |src, dst|
-        new_internal_couplings[src] << dst
-      end
-
-      internal_couplings = cm.internal_couplings.clear
-
-      new_internal_couplings.each do |src, ary|
-        src.peers_ports.clear
-        src.upward_ports.clear
-
-        ary.each do |dst|
-          src.peers_ports << dst
-          dst.downward_ports.clear
-        end
-
-        internal_couplings << src
-      end
     end
 
     private def find_direct_couplings(cm : CoupledModel, &block : OutputPort, InputPort ->)

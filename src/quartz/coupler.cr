@@ -447,5 +447,51 @@ module Quartz
       p2 = self.output_port(myport)
       detach(p1, from: p2)
     end
+
+    # Finds and yields direct connections in the coupling graph of *self*.
+    def find_direct_couplings(&block : OutputPort, InputPort ->)
+      couplings = [] of {Port, Port}
+      each_coupling { |s, d| couplings << {s, d} }
+      coupling_set = Set({Port, Port}).new(couplings)
+
+      while !couplings.empty?
+        osrc, odst = couplings.pop
+
+        if !osrc.host.is_a?(Coupler) && !odst.host.is_a?(Coupler)
+          yield(osrc.as(OutputPort), odst.as(InputPort)) # found direct coupling
+        elsif osrc.host.is_a?(Coupler)                   # eic
+          route = [{osrc, odst}]
+          while !route.empty?
+            rsrc, _ = route.pop
+            rsrc.host.as(Coupler).each_output_coupling_reverse(rsrc.as(OutputPort)) do |src, dst|
+              if src.host.is_a?(Coupler)
+                route.push({src, dst})
+              else
+                unless coupling_set.includes?({src, odst})
+                  couplings.push({src, odst})
+                  coupling_set.add({src, odst})
+                end
+              end
+            end
+          end
+        elsif odst.host.is_a?(Coupler) # eoc
+          route = [{osrc, odst}]
+          j = 0
+          while !route.empty?
+            _, rdst = route.pop
+            rdst.host.as(Coupler).each_input_coupling(rdst.as(InputPort)) do |src, dst|
+              if dst.host.is_a?(Coupler)
+                route.push({src, dst})
+              else
+                unless coupling_set.includes?({osrc, dst})
+                  couplings.push({osrc, dst})
+                  coupling_set.add({osrc, dst})
+                end
+              end
+            end
+          end
+        end
+      end
+    end
   end
 end
