@@ -5,15 +5,33 @@ module Quartz
     include Enumerable(SimulationTime)
     include Iterable(SimulationTime)
 
+    # Represents the current simulation status.
+    enum Status
+      Ready,
+      Initialized,
+      Running,
+      Done,
+      Aborted
+    end
+
     getter processor, model, start_time, final_time, time
     getter duration
+    getter status
 
+    @status : Status
     @time : SimulationTime
     @scheduler : Symbol
     @processor : RootCoordinator?
     @start_time : Time?
     @final_time : Time?
     @run_validations : Bool
+    @model : CoupledModel
+
+    delegate ready?, to: @status
+    delegate initialized?, to: @status
+    delegate running?, to: @status
+    delegate done?, to: @status
+    delegate aborted?, to: @status
 
     def initialize(model : Model, *,
                    scheduler : Symbol = :calendar_queue,
@@ -32,6 +50,7 @@ module Quartz
       @duration = duration
       @scheduler = scheduler
       @run_validations = run_validations
+      @status = Status::Ready
 
       unless maintain_hierarchy
         Quartz.timing("Modeling tree flattening") {
@@ -68,40 +87,13 @@ module Quartz
       @run_validations
     end
 
-    # Returns *true* if the simulation is done, *false* otherwise.
-    def done?
-      @time >= @duration
-    end
-
-    # Returns *true* if the simulation is currently running,
-    # *false* otherwise.
-    def running?
-      @start_time != nil && !done?
-    end
-
-    # Returns *true* if the simulation is waiting to be started,
-    # *false* otherwise.
-    def waiting?
-      @start_time == nil
-    end
-
-    # Returns the simulation status: *waiting*, *running* or
-    # *done*.
-    def status
-      if waiting?
-        :waiting
-      elsif running?
-        :running
-      elsif done?
-        :done
-      end
-    end
-
     def percentage
-      case status
-      when :waiting then 0.0 * 100
-      when :done    then 1.0 * 100
-      when :running
+      case @status
+      when Status::Ready, Status::Initialized
+        0.0 * 100
+      when Status::Done
+        1.0 * 100
+      when Status::Running, Status::Aborted
         if @time > @duration
           1.0 * 100
         else
@@ -111,12 +103,12 @@ module Quartz
     end
 
     def elapsed_secs
-      case status
-      when :waiting
+      case @status
+      when Status::Ready, Status::Initialized
         0.0
-      when :done
+      when Status::Done, Status::Aborted
         @final_time.not_nil! - @start_time.not_nil!
-      when :running
+      when Status::Running
         Time.now - @start_time.not_nil!
       end
     end
@@ -140,33 +132,41 @@ module Quartz
       stats
     end
 
+    # Abort the currently running or initialized simulation. Goes to an
+    # aborted state.
     def abort
-      if running?
+      if running? || initialized?
         info "Aborting simulation."
         @time = @duration
         @final_time = Time.now
+        @status = Status::Aborted
       end
     end
 
+    # Restart a terminated simulation (either done or aborted) and goes to a
+    # ready state.
     def restart
-      case status
-      when :done
+      case @status
+      when Status::Done, Status::Aborted
         @time = 0
         @start_time = nil
         @final_time = nil
-      when :running
+        @status = Status::Ready
+      when Status::Running, Status::Initialized
         info "Cannot restart, the simulation is currently running."
       end
     end
 
     private def begin_simulation
       @start_time = Time.now
+      @status = Status::Running
       info "Beginning simulation with duration: #{@duration}"
       Hooks.notifier.notify(:before_simulation_hook)
     end
 
     private def end_simulation
       @final_time = Time.now
+      @status = Status::Done
 
       if logger = Quartz.logger?
         logger.info "Simulation ended after #{elapsed_secs} secs."
@@ -185,24 +185,31 @@ module Quartz
       Hooks.notifier.notify(:after_simulation_hook)
     end
 
-    private def initialize_simulation
-      Hooks.notifier.notify(:before_simulation_initialization_hook)
-      @time = self.processor.initialize_state(@time)
-      Hooks.notifier.notify(:after_simulation_initialization_hook)
+    def initialize_simulation
+      if ready?
+        begin_simulation
+        Hooks.notifier.notify(:before_simulation_initialization_hook)
+        Quartz.timing("Simulation initialization") do
+          @time = self.processor.initialize_state(@time)
+        end
+        @status = Status::Initialized
+        Hooks.notifier.notify(:after_simulation_initialization_hook)
+      else
+        info "Cannot initialize simulation while it is running or terminated."
+      end
     end
 
     def step : SimulationTime?
-      simulable = self.processor
-      if waiting?
+      case @status
+      when Status::Ready
         initialize_simulation
-        begin_simulation
         @time
-      elsif running?
+      when Status::Initialized, Status::Running
         if (logger = Quartz.logger?) && logger.debug?
           logger.debug("Tick at #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
         end
-        @time = simulable.step(@time)
-        end_simulation if done?
+        @time = processor.step(@time)
+        end_simulation if @time >= @duration
         @time
       else
         nil
@@ -211,23 +218,22 @@ module Quartz
 
     # TODO error hook
     def simulate
-      if waiting?
-        simulable = self.processor
-        initialize_simulation
+      case @status
+      when Status::Ready, Status::Initialized
+        initialize_simulation unless initialized?
+
         begin_simulation
         while @time < @duration
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug("Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
-          @time = simulable.step(@time)
+          @time = processor.step(@time)
         end
         end_simulation
-      elsif logger = Quartz.logger?
-        if running?
-          logger.error "Simulation already started at #{@start_time} and is currently running."
-        else
-          logger.error "Simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
-        end
+      when Status::Running
+        error "Simulation already started at #{@start_time} and is currently running."
+      when Status::Done, Status::Aborted
+        error "Simulation is terminated."
       end
       self
     end
@@ -237,26 +243,25 @@ module Quartz
     end
 
     def each
-      if waiting?
-        simulable = self.processor
-        initialize_simulation
+      case @status
+      when Status::Ready, Status::Initialized
+        initialize_simulation unless initialized?
+
         begin_simulation
         while @time < @duration
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug("Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
-          @time = simulable.step(@time)
+          @time = processor.step(@time)
           yield(self)
         end
         end_simulation
-      elsif logger = Quartz.logger?
-        if running?
-          logger.error "Simulation already started at #{@start_time} and is currently running."
-        else
-          logger.error "Simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
-        end
-        nil
+      when Status::Running
+        error "Simulation already started at #{@start_time} and is currently running."
+      when Status::Done, Status::Aborted
+        error "Simulation is terminated."
       end
+      self
     end
 
     class StepIterator

@@ -12,10 +12,10 @@ describe "Simulation" do
 
     it "is in waiting status" do
       sim = Simulation.new(AtomicModel.new("am"))
-      sim.waiting?.should be_true
+      sim.ready?.should be_true
       sim.done?.should be_false
       sim.running?.should be_false
-      sim.status.should eq(:waiting)
+      sim.status.should eq(Simulation::Status::Ready)
     end
   end
 
