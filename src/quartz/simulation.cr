@@ -41,15 +41,17 @@ module Quartz
           logger.info "Flattened modeling tree in #{Time.now - time} secs"
         end
       end
-
-      time = Time.now
-      self.processor # allocate processors
-      info "Allocated processors in #{Time.now - time} secs"
     end
 
     @[AlwaysInline]
     protected def processor
-      @processor ||= self.allocate_processors.as(RootCoordinator)
+      @processor ||= begin
+        Quartz.timing("Processor allocation") do
+          visitor = ProcessorAllocator.new(self, @model)
+          model.accept(visitor)
+          visitor.root_coordinator
+        end
+      end
     end
 
     def inspect(io)
@@ -318,21 +320,6 @@ module Quartz
       find_direct_couplings(cm) do |src, dst|
         graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
       end if cm == @model
-    end
-
-    def allocate_processors(coupled = @model)
-      is_root = coupled == @model
-      processor = ProcessorFactory.processor_for(coupled, self, is_root).as(Coordinator)
-
-      coupled.as(CoupledModel).each_child do |model|
-        processor << if model.is_a?(CoupledModel)
-          allocate_processors(model)
-        else
-          ProcessorFactory.processor_for(model, self)
-        end
-      end
-
-      processor
     end
 
     # TODO don't alter original hierarchy
