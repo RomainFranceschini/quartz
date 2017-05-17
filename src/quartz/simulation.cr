@@ -271,9 +271,12 @@ module Quartz
       end
 
       def next
-        if @simulation.done?
+        case @simulation.status
+        when Simulation::Status::Done, Simulation::Status::Aborted
           stop
-        else
+        when Simulation::Status::Ready
+          @simulation.initialize_simulation
+        when Simulation::Status::Initialized, Simulation::Status::Running
           @simulation.step.not_nil!
         end
       end
