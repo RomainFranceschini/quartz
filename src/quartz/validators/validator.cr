@@ -105,7 +105,7 @@ module Quartz
       # `#validates_each` to determine validity therefore subclasses should
       # override `#validates_each` with validation logic.
       def validate(model) : Bool
-        model_attributes = model.attributes
+        model_attributes = model.state.to_named_tuple
         @attributes.each do |attribute|
           value = model_attributes[attribute]
           next if (value.nil? && @allow_nil)

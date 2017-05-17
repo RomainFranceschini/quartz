@@ -3,6 +3,44 @@ module Quartz
   # A base struct that wraps the state of a model. Automatically extended by
   # models through use of the `state_var` macro.
   abstract struct State
+    def initialize
+    end
+
+    def initialize(pull : JSON::PullParser)
+    end
+
+    def initialize(pull : MessagePack::PullParser)
+    end
+
+    def to_tuple
+      Tuple.new
+    end
+
+    def to_named_tuple
+      NamedTuple.new
+    end
+
+    def to_json(json : JSON::Builder)
+    end
+
+    def to_msgpack(packer : ::MessagePack::Packer)
+    end
+
+    def self.from_json(io : IO)
+      self.new(::JSON::PullParser.new(io))
+    end
+
+    def self.from_json(str : String)
+      from_json(IO::Memory.new(str))
+    end
+
+    def self.from_msgpack(io : IO)
+      self.new(::MessagePack::Unpacker.new(io))
+    end
+
+    def self.from_msgpack(bytes : Bytes)
+      from_msgpack(IO::Memory.new(bytes))
+    end
   end
 
   module AutoState
@@ -495,22 +533,6 @@ module Quartz
                 \{% end %}
               \{% end %}
             end
-
-            def self.from_json(io : IO)
-              self.new(::JSON::PullParser.new(io))
-            end
-
-            def self.from_json(str : String)
-              from_json(IO::Memory.new(str))
-            end
-
-            def self.from_msgpack(io : IO)
-              self.new(::MessagePack::Unpacker.new(io))
-            end
-
-            def self.from_msgpack(bytes : Bytes)
-              from_msgpack(IO::Memory.new(bytes))
-            end
           end
 
           def initial_state=(state : \{{@type.name.id}}::State)
@@ -537,7 +559,11 @@ module Quartz
             \{% end %}
           end
         \{% else %}
+          struct \{{ @type.name }}::State < Quartz::State
+          end
+
           def state
+            \{{ @type.name }}::State.new
           end
 
           protected def state=(state : Quartz::State)

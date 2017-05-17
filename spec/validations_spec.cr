@@ -27,26 +27,6 @@ describe "Validations" do
     end
   end
 
-  describe "#attributes" do
-    it "returns a hash of the attributes with their values" do
-      model = SmallModel.new
-      model.weight = 76.23
-      model.height = 175
-
-      model.attributes.should eq({
-        :weight => 76.23,
-        :height => 175
-      })
-    end
-
-    it "does not contain an errors attribute" do
-      model = SmallModel.new
-      model.weight = 76.23
-      model.height = 175
-      model.attributes.has_key?(:errors).should be_false
-    end
-  end
-
   describe "#errors" do
     it "returns an instance of ValidationErrors" do
       model = MyModel.new

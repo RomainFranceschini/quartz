@@ -123,16 +123,6 @@ module Quartz
       @errors.try &.clear
     end
 
-    def attributes
-      values = {{ ("{} of Symbol => " + @type.instance_vars.map(&.type).join("|")).id }}
-      {% for ivar in @type.instance_vars %}
-        {% unless ivar.id.ends_with?("errors") && ivar.id.size == "errors".size %}
-          values[:"{{ ivar.id }}"] = @{{ ivar.id }}
-        {% end %}
-      {% end %}
-      values
-    end
-
     # Runs all the specified validations and returns *true* if no errors were
     # added otherwise *false*.
     #
