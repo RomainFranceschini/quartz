@@ -34,7 +34,7 @@ module Quartz
     def end_visit(model : CoupledModel)
       if model == @root
         model.find_direct_couplings do |src, dst|
-          graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
+          @io.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
         end
       else
         model.each_internal_coupling do |src, dst|

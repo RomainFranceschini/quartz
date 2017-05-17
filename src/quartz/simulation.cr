@@ -293,7 +293,7 @@ module Quartz
     end
 
     def generate_graph(io : IO)
-      DotVisitor.new(@model, io).graph
+      DotVisitor.new(@model, io).to_graph
     end
   end
 end
