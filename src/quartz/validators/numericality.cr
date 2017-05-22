@@ -1,7 +1,7 @@
 module Quartz
   module Validators
     class NumericalityValidator < EachValidator
-      getter targets : Hash(Symbol, AnyNumber)
+      getter targets : Hash(Symbol, Number::Primitive)
 
       VALID_KEYS = {
         {:greater_than, :gt, :>},
@@ -23,7 +23,7 @@ module Quartz
       # TODO option for float comparison within error
       def initialize(*attributes, **kwargs)
         super(*attributes, **kwargs)
-        @targets = Hash(Symbol, AnyNumber).new
+        @targets = Hash(Symbol, Number::Primitive).new
 
         VALID_KEYS.each do |tuple|
           tuple.each do |option|

@@ -38,18 +38,6 @@ module Quartz
   module Transferable
   end
 
-  # `AnyNumber` is an alias defined for convenience.
-  alias AnyNumber = Int8 |
-                    Int16 |
-                    Int32 |
-                    Int64 |
-                    UInt8 |
-                    UInt16 |
-                    UInt32 |
-                    UInt64 |
-                    Float32 |
-                    Float64
-
   # The `Type` alias is used to denote all types that may be transmitted
   # between two `Port`s through couplings.
   #
@@ -57,7 +45,7 @@ module Quartz
   # types.
   alias Type = Nil |
                Bool |
-               AnyNumber |
+               Number::Primitive |
                String |
                Symbol |
                Array(Type) |
@@ -65,7 +53,7 @@ module Quartz
                Transferable
 
   # TODO Rename to virtual time, use an interface ?
-  alias SimulationTime = AnyNumber
+  alias SimulationTime = Number::Primitive
 
   INFINITY = Float32::INFINITY
 end
