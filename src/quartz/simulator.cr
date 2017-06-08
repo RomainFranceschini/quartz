@@ -1,4 +1,5 @@
 module Quartz
+  # This class defines a PDEVS simulator.
   class Simulator < Processor
 
     # :nodoc:
@@ -32,8 +33,9 @@ module Quartz
       atomic = @model.as(AtomicModel)
       @int_count = @ext_count = @con_count = 0u32
 
-      @time_last = atomic.time = time
+      atomic.time = time
       atomic.__initialize_state__(self)
+      @time_last = time - atomic.elapsed
       @time_next = @time_last + atomic.time_advance
 
       if @run_validations && atomic.invalid?(:initialization)
@@ -70,6 +72,7 @@ module Quartz
 
     def collect_outputs(time)
       raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
+      @model.as(AtomicModel).time = time
       @model.as(AtomicModel).fetch_output!
     end
 
@@ -93,6 +96,7 @@ module Quartz
           kind = :confluent
         end
       elsif synced && !bag.empty?
+        atomic.time = time
         @ext_count += 1u32
         atomic.elapsed = time - @time_last
         atomic.external_transition(bag)
@@ -102,7 +106,7 @@ module Quartz
         raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
       end
 
-      @time_last = atomic.time = time
+      @time_last = time
       @time_next = @time_last + atomic.time_advance
 
       if (logger = Quartz.logger?) && logger.debug?

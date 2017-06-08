@@ -55,20 +55,13 @@ module Quartz
     end
 
     # Returns the minimum time next in all children
-    def min_time_next
+    protected def min_time_next
       @scheduler.next_priority
     end
 
     # Returns the maximum time last in all children
-    def max_time_last
-      max = 0
-      i = 0
-      while i < @children.size
-        tl = @children[i].time_last
-        max = tl if tl > max
-        i += 1
-      end
-      max
+    protected def max_time_last
+      @children.reduce(-INFINITY) { |memo, child| Math.max(memo, child.time_last) }
     end
 
     def initialize_processor(time)

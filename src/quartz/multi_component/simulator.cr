@@ -1,5 +1,6 @@
 module Quartz
   module MultiComponent
+    # This class defines a multiPDEVS simulator.
     class Simulator < Quartz::Simulator
 
       # :nodoc:
@@ -36,6 +37,11 @@ module Quartz
         }
       end
 
+      # Returns the maximum time last in all components
+      protected def max_time_last
+        @components.each_value.reduce(-INFINITY) { |memo, child| Math.max(memo, child.time_last) }
+      end
+
       def initialize_processor(time)
         @reac_count = @int_count = @ext_count = @con_count = 0u32
         @event_set.clear
@@ -64,7 +70,7 @@ module Quartz
           end
         end
 
-        @time_last = time
+        @time_last = max_time_last
         @time_next = min_time_next
 
         @model.as(MultiComponent::Model).notify_observers(OBS_INFO_INIT_PHASE)
@@ -74,11 +80,7 @@ module Quartz
 
       # Returns the minimum time next in all components
       def min_time_next
-        tn = Quartz::INFINITY
-        if (obj = @event_set.peek?)
-          tn = obj.time_next
-        end
-        tn
+        @event_set.next_priority
       end
 
       def collect_outputs(time)
@@ -88,6 +90,7 @@ module Quartz
 
         @event_set.each_imminent(time) do |component|
           @imm << component
+          component.time = time
           if sub_bag = component.output
             sub_bag.each do |k,v|
               @parent_bag[@model.ensure_output_port(k)] << v
@@ -108,6 +111,9 @@ module Quartz
         if time == @time_next && bag.empty?
           @int_count += @imm.size
           @imm.each do |component|
+            component.time = time
+            component.elapsed = time - component.time_last
+            component.influencers.each { |i| i.elapsed = time - i.time_last }
             component.internal_transition.try do |ps|
               ps.each do |k,v|
                 @state_bags[@components[k]] << {component.name, v}
@@ -125,6 +131,9 @@ module Quartz
             # TODO test if component defined delta_ext
             info = nil
             kind = nil
+            component.time = time
+            component.elapsed = time - component.time_last
+            component.influencers.each { |i| i.elapsed = time - i.time_last }
             o = if time == @time_next && component.time_next == @time_next
               info = OBS_INFO_CON_TRANSITION
               kind = :confluent
@@ -154,9 +163,11 @@ module Quartz
         @imm.clear
 
         @state_bags.each do |component, states|
+          component.time = time
           if @event_set.is_a?(RescheduleEventSet)
             component.reaction_transition(states)
-            component.time_last = component.time = time - component.elapsed
+            component.elapsed = 0
+            component.time_last = time
             component.time_next = component.time_last + component.time_advance
           elsif @event_set.is_a?(LadderQueue)
             tn = component.time_next
@@ -167,7 +178,8 @@ module Quartz
               end
             end
             component.reaction_transition(states)
-            component.time_last = component.time = time - component.elapsed
+            component.elapsed = 0
+            component.time_last = time
             new_tn = component.time_next = component.time_last + component.time_advance
             if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
               @event_set.push(component)
@@ -176,7 +188,8 @@ module Quartz
             tn = component.time_next
             @event_set.delete(component) if tn < Quartz::INFINITY && time != tn
             component.reaction_transition(states)
-            component.time_last = component.time = time - component.elapsed
+            component.elapsed = 0
+            component.time_last = time
             tn = component.time_next = component.time_last + component.time_advance
             @event_set.push(component) if tn < Quartz::INFINITY
           end
