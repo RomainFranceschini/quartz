@@ -231,6 +231,28 @@ module Quartz
               end
             \{% end %}
           \{% end %}
+        \{% elsif @type.superclass.methods.any? { |m| m.name.stringify == "initialize" } %}
+          \{% for method in @type.superclass.methods %}
+            \{% if method.name == "initialize" %}
+              def \{{ method.name.id }}(
+                \{% if method.splat_index.is_a?(NumberLiteral) %}
+                  \{% for arg, index in method.args %}
+                    \{{ (index == method.splat_index ? "*" + arg.stringify : arg.stringify).id }},
+                  \{% end %}
+                \{% else %}
+                  \{{ method.args.splat }} \{{ (method.double_splat.is_a?(Nop) && method.block_arg.is_a?(Nop) ? "" : ",").id }}
+                \{% end %}
+                \{{ (method.double_splat.is_a?(Nop) ? "" : "**" + method.double_splat.stringify).id }}
+                \{{ (method.block_arg.is_a?(Nop) ? "" : "&" + method.block_arg.stringify).id }}
+              )
+                super
+
+                \{% for block in STATE_INITIALIZE %}
+                  \{{ block }}
+                \{% end %}
+              end
+            \{% end %}
+          \{% end %}
         \{% else %}
           def initialize
             \{% for block in STATE_INITIALIZE %}
@@ -588,6 +610,7 @@ module Quartz
           \{% end %}
         \{% end %}
       end
+
     end
   end
 end

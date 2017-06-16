@@ -36,6 +36,27 @@ private struct AfterInitialize
   end
 end
 
+abstract struct AfterInitializeParent
+  include AutoState
+
+  @name : String
+
+  def initialize(@name)
+  end
+end
+
+private struct AfterInitializeChild < AfterInitializeParent
+  state_var test : Int32
+
+  state_initialize do
+    @test = 42
+  end
+end
+
+private struct NoAfterInitializeChild < AfterInitializeParent
+  state_var test : Int32 = 42
+end
+
 private struct BlockStateVars
   include AutoState
 
@@ -215,6 +236,18 @@ describe "AutoState" do
       s.x.should eq 1
       s.y.should eq 1
       s.z.should eq 1
+    end
+
+    it "parent constructors are still available when `state_initialize` is used in subclasses" do
+      m = AfterInitializeChild.new("bar")
+      m.@name.should eq "bar"
+      m.@test.should eq 42
+    end
+
+    it "it inherits constructors of parents" do
+      m = NoAfterInitializeChild.new("foo")
+      m.@name.should eq "foo"
+      m.@test.should eq 42
     end
   end
 
