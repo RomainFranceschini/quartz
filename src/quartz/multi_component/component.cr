@@ -44,17 +44,6 @@ module Quartz
       # TODO: doc
       def internal_transition : SimpleHash(Name, Any)?
       end
-
-      # Event condition function (C), called only with an activity scanning
-      # strategy, whenever the time elapses. If the event condition returns
-      # true, the component is ready to be activated. By defaults returns
-      # true.
-      #
-      # Override this method to implement the appropriate behavior of your
-      # model.
-      def event_condition
-        true
-      end
     end
   end
 end
