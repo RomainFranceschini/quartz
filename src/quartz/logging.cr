@@ -4,12 +4,12 @@ require "colorize"
 module Quartz
   # :nodoc:
   private LOGGER_COLORS = {
-    "ERROR"   => :light_red,
-    "FATAL"   => :red,
-    "WARN"    => :light_yellow,
-    "INFO"    => :light_green,
-    "DEBUG"   => :light_blue,
-    "UNKNOWN" => :light_gray,
+    Logger::Severity::ERROR   => :light_red,
+    Logger::Severity::FATAL   => :red,
+    Logger::Severity::WARN    => :light_yellow,
+    Logger::Severity::INFO    => :light_green,
+    Logger::Severity::DEBUG   => :light_blue,
+    Logger::Severity::UNKNOWN => :light_gray,
   }
 
   @@logger : Logger? = Logger.new(STDOUT).tap do |logger|
