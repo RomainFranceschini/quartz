@@ -1,6 +1,6 @@
 # Quartz - A DEVS-based Modeling & Simulation Environment (WIP)
 
-[![Build Status](https://travis-ci.org/romain1189/quartz.svg?branch=master)](https://travis-ci.org/romain1189/quartz)
+[![Build Status](https://travis-ci.org/rumenzu/quartz.svg?branch=master)](https://travis-ci.org/rumenzu/quartz)
 
 Quartz is a Crystal library for defining models and constructing discrete
 event simulations based on the PDEVS (Parallel Discrete EVent System Specification) and
@@ -30,7 +30,7 @@ at their root. Create a `shard.yml` file in your project's folder (or add to it)
 ```yaml
 dependencies:
   quartz:
-    github: romain1189/quartz
+    github: rumenzu/quartz
     version: 0.1.0
 ```
 
@@ -83,7 +83,7 @@ See the [examples](examples) folder.
 ## Getting the code
 
 - Install Crystal compiler (<http://crystal-lang.org/docs/installation>)
-- Clone the git repository (`git clone git://github.com/romain1189/quartz.git`).
+- Clone the git repository (`git clone git://github.com/rumenzu/quartz.git`).
 - Resolves dependencies (`cd quartz; crystal deps`).
 - Run specs (`crystal spec`).
 - Build examples (`crystal build examples/*.cr`)/
@@ -110,7 +110,7 @@ TODO List:
   - [ ] Internal DSL
   - [x] Scheduler hint
 - Distributed simulations
-  - [x] MPI bindings (WIP, see [mpi.cr](https://github.com/romain1189/mpi.cr) repository)
+  - [x] MPI bindings (WIP, see [mpi.cr](https://github.com/rumenzu/mpi.cr) repository)
   - [ ] Optimistic simulators
   - [ ] Conservative simulators
 - Schedulers
@@ -147,11 +147,11 @@ Many other tools allow modeling and simulation based on the DEVS theory. Here is
 
 ## Contributors
 
-- [[romain1189]](https://github.com/[romain1189]) Romain Franceschini - creator, maintainer (Université de Corse Pasquale Paoli)
+- [[rumenzu]](https://github.com/[rumenzu]) Romain Franceschini - creator, maintainer (Université de Corse Pasquale Paoli)
 
 ## Contributing
 
-1. Fork it (https://github.com/romain1189/quartz/fork)
+1. Fork it (https://github.com/rumenzu/quartz/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
