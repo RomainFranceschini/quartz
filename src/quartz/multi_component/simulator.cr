@@ -16,9 +16,9 @@ module Quartz
       def initialize(model, simulation)
         super(model, simulation)
         sched_type = model.class.preferred_event_set? || simulation.default_scheduler
-        @event_set = EventSetFactory(Component).new_event_set(sched_type)
         @state_bags = Hash(Quartz::MultiComponent::Component,Array(Tuple(Name,Any))).new { |h,k|
           h[k] = Array(Tuple(Name,Any)).new
+        @event_set = EventSet(Component).new(sched_type)
         }
         @imm = Array(Quartz::MultiComponent::Component).new
         @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|

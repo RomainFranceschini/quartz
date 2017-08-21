@@ -12,7 +12,7 @@ module Quartz
 
       @children = Array(Processor).new
       scheduler_type = model.class.preferred_event_set? || simulation.default_scheduler
-      @scheduler = EventSetFactory(Processor).new_event_set(scheduler_type)
+      @scheduler = EventSet(Processor).new(scheduler_type)
       @synchronize = Array(SyncEntry).new
       @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
