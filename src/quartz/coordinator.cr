@@ -13,18 +13,10 @@ module Quartz
       @children = Array(Processor).new
       scheduler_type = model.class.preferred_event_set? || simulation.default_scheduler
       @scheduler = EventSet(Processor).new(scheduler_type)
-      @synchronize = Array(SyncEntry).new
+      @synchronize = Array(Processor).new
       @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
       }
-    end
-
-    struct SyncEntry
-      getter processor : Processor
-      getter bag : Hash(InputPort, Array(Any))?
-
-      def initialize(@processor, @bag = nil)
-      end
     end
 
     def inspect(io)
@@ -105,33 +97,15 @@ module Quartz
           coupled.each_internal_coupling(port) do |src, dst|
             receiver = dst.host.processor
 
-            entry = if receiver.sync
-                      i = -1
-                      @synchronize.each_with_index do |e, j|
-                        if e.processor == receiver
-                          i = j
-                          break
-                        end
-                      end
-                      @synchronize[i] = SyncEntry.new(
-                        @synchronize[i].processor,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                      ) unless @synchronize[i].bag
-                      @synchronize[i]
-                    else
-                      receiver.sync = true
-                      e = SyncEntry.new(
-                        receiver,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                      )
-                      @synchronize << e
-                      e
-                    end
+            if !receiver.sync
+              @synchronize << receiver
+              receiver.sync = true
+            end
 
             if child.is_a?(Coordinator)
-              entry.bag.not_nil![dst].concat(payload.as(Array(Any)))
+              receiver.bag[dst].concat(payload.as(Array(Any)))
             else
-              entry.bag.not_nil![dst] << payload.as(Any)
+              receiver.bag[dst] << payload.as(Any)
             end
           end
 
@@ -147,7 +121,7 @@ module Quartz
 
         if !child.sync
           child.sync = true
-          @synchronize << SyncEntry.new(child.as(Processor))
+          @synchronize << child.as(Processor)
         end
       end
 
@@ -156,51 +130,28 @@ module Quartz
       @parent_bag
     end
 
-    EMPTY_BAG = Hash(InputPort, Array(Any)).new
+    def perform_transitions(time)
+      bag = @bag || EMPTY_BAG
 
-    def perform_transitions(time, bag)
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y
         @model.as(CoupledModel).each_input_coupling(port) do |src, dst|
           receiver = dst.host.processor
 
-          entry = if receiver.sync
-                    i = -1
-                    @synchronize.each_with_index do |e, j|
-                      if e.processor == receiver
-                        i = j
-                        break
-                      end
-                    end
+          if !receiver.sync
+            @synchronize << receiver
+            receiver.sync = true
+          end
 
-                    @synchronize[i] = SyncEntry.new(
-                      @synchronize[i].processor,
-                      Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                    ) unless @synchronize[i].bag
-
-                    @synchronize[i]
-                  else
-                    receiver.sync = true
-                    e = SyncEntry.new(
-                      receiver,
-                      Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                    )
-                    @synchronize << e
-                    e
-                  end
-
-          entry.bag.not_nil![dst].concat(sub_bag)
+          receiver.bag[dst].concat(sub_bag)
         end
       end
 
-      @synchronize.each do |entry|
-        receiver = entry.processor
+      @synchronize.each do |receiver|
         receiver.sync = false
 
-        sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
-
         if @scheduler.is_a?(RescheduleEventSet)
-          receiver.perform_transitions(time, sub_bag)
+          receiver.perform_transitions(time)
         elsif @scheduler.is_a?(LadderQueue)
           # Special case for the ladder queue
 
@@ -218,7 +169,7 @@ module Quartz
               is_in_scheduler = false
             end
           end
-          new_tn = receiver.perform_transitions(time, sub_bag)
+          new_tn = receiver.perform_transitions(time)
 
           # No need to reschedule the event if its tn is equal to INFINITY.
           # If a ta(s)=0 occured and that the old event is still present in
@@ -233,13 +184,13 @@ module Quartz
           # receiver either an internal transition or a confluent transition,
           # and that the receiver is no longer in the scheduler.
           @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
-          tn = receiver.perform_transitions(time, sub_bag)
+          tn = receiver.perform_transitions(time)
           @scheduler.push(receiver) if tn < Quartz::INFINITY
         end
       end
 
       @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
-
+      bag.each_value &.clear
       @synchronize.clear
 
       @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)

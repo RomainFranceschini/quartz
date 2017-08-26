@@ -1,12 +1,13 @@
 module Quartz
   abstract class Processor
-
     # :nodoc:
-    OBS_INFO_INIT_PHASE = { :phase => Any.new(:init) }
+    OBS_INFO_INIT_PHASE = {:phase => Any.new(:init)}
     # :nodoc:
-    OBS_INFO_COLLECT_PHASE = { :phase => Any.new(:collect_outputs) }
+    OBS_INFO_COLLECT_PHASE = {:phase => Any.new(:collect_outputs)}
     # :nodoc:
-    OBS_INFO_TRANSITIONS_PHASE = { :phase => Any.new(:perform_transitions) }
+    OBS_INFO_TRANSITIONS_PHASE = {:phase => Any.new(:perform_transitions)}
+    # :nodoc:
+    EMPTY_BAG = Hash(InputPort, Array(Any)).new
 
     include Logging
 
@@ -16,11 +17,21 @@ module Quartz
     property sync : Bool
     property parent : Coordinator?
 
+    @bag : Hash(InputPort, Array(Any))?
+
     def initialize(@model : Model)
       @time_next = 0
       @time_last = 0
       @sync = false
       @model.processor = self
+    end
+
+    def bag
+      @bag ||= Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+    end
+
+    def bag?
+      @bag
     end
 
     def inspect(io)

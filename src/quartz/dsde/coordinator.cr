@@ -8,59 +8,35 @@ module Quartz
         @simulation = simulation
       end
 
-      def perform_transitions(time, bag)
+      def perform_transitions(time)
         coupled = @model.as(Quartz::DSDE::CoupledModel)
+        bag = @bag || EMPTY_BAG
 
         bag.each do |port, sub_bag|
           # check external input couplings to get children who receive sub-bag of y
           coupled.each_input_coupling(port) do |src, dst|
             receiver = dst.host.processor
 
-            entry = if receiver.sync
-                      i = -1
-                      @synchronize.each_with_index do |e, j|
-                        if e.processor == receiver
-                          i = j
-                          break
-                        end
-                      end
+            if !receiver.sync
+              @synchronize << receiver
+              receiver.sync = true
+            end
 
-                      @synchronize[i] = SyncEntry.new(
-                        @synchronize[i].processor,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                      ) unless @synchronize[i].bag
-
-                      @synchronize[i]
-                    else
-                      receiver.sync = true
-                      e = SyncEntry.new(
-                        receiver,
-                        Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
-                      )
-                      @synchronize << e
-                      e
-                    end
-
-            entry.bag.not_nil![dst].concat(sub_bag)
+            receiver.bag[dst].concat(sub_bag)
           end
         end
 
         old_children = coupled.each_child.to_a
-        executive_bag : Hash(InputPort, Array(Any)) = EMPTY_BAG
 
-        @synchronize.each do |entry|
-          receiver = entry.processor
+        @synchronize.each do |receiver|
           if receiver.model == coupled.executive
-            executive_bag = entry.bag.not_nil! if entry.bag
             next
           end
 
           receiver.sync = false
 
-          sub_bag = entry.bag || EMPTY_BAG # avoid useless allocations
-
           if @scheduler.is_a?(RescheduleEventSet)
-            receiver.perform_transitions(time, sub_bag)
+            receiver.perform_transitions(time)
           elsif @scheduler.is_a?(LadderQueue)
             # Special case for the ladder queue
 
@@ -78,7 +54,7 @@ module Quartz
                 is_in_scheduler = false
               end
             end
-            new_tn = receiver.perform_transitions(time, sub_bag)
+            new_tn = receiver.perform_transitions(time)
 
             # No need to reschedule the event if its tn is equal to INFINITY.
             # If a ta(s)=0 occured and that the old event is still present in
@@ -93,7 +69,7 @@ module Quartz
             # receiver either an internal_transition or a confluent transition,
             # and that the receiver is no longer in the scheduler
             @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
-            tn = receiver.perform_transitions(time, sub_bag)
+            tn = receiver.perform_transitions(time)
             @scheduler.push(receiver) if tn < Quartz::INFINITY
           end
         end
@@ -103,11 +79,23 @@ module Quartz
           receiver.sync = false
 
           if @scheduler.is_a?(RescheduleEventSet)
-            receiver.perform_transitions(time, executive_bag)
+            receiver.perform_transitions(time)
+          elsif @scheduler.is_a?(LadderQueue)
+            tn = receiver.time_next
+            is_in_scheduler = tn < Quartz::INFINITY && time != tn
+            if is_in_scheduler
+              if @scheduler.delete(receiver)
+                is_in_scheduler = false
+              end
+            end
+            new_tn = receiver.perform_transitions(time)
+            if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
+              @scheduler.push(receiver)
+            end
           else
             tn = receiver.time_next
             @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
-            tn = receiver.perform_transitions(time, executive_bag)
+            tn = receiver.perform_transitions(time)
             @scheduler.push(receiver) if tn < Quartz::INFINITY
           end
         end
@@ -141,6 +129,7 @@ module Quartz
         end
 
         @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
+        bag.each_value &.clear
         @synchronize.clear
         @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
 

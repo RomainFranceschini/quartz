@@ -35,7 +35,7 @@ private class MockProcessor < Processor
     Hash(OutputPort, Any).new
   end
 
-  def perform_transitions(time, bag : Hash(InputPort, Array(Any)))
+  def perform_transitions(time)
     0
   end
 end

@@ -76,9 +76,10 @@ module Quartz
       @model.as(AtomicModel).fetch_output!
     end
 
-    def perform_transitions(time, bag)
+    def perform_transitions(time)
       synced = @time_last <= time && time <= @time_next
       atomic = @model.as(AtomicModel)
+      bag = @bag || EMPTY_BAG
 
       info = nil
       kind = nil
@@ -106,6 +107,7 @@ module Quartz
         raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
       end
 
+      bag.each_value &.clear
       @time_last = time
       @time_next = @time_last + atomic.time_advance
 
