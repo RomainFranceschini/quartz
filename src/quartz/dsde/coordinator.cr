@@ -1,6 +1,6 @@
 module Quartz
   module DSDE
-    class Coordinator < Quartz::Coordinator
+    class DynamicCoordinator < Quartz::Coordinator
       @simulation : Simulation
 
       def initialize(model, simulation)

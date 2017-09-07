@@ -21,7 +21,7 @@ module Quartz
     @status : Status
     @time : SimulationTime
     @scheduler : Symbol
-    @processor : RootCoordinator?
+    @processor : Simulable?
     @start_time : Time?
     @final_time : Time?
     @run_validations : Bool
@@ -65,7 +65,7 @@ module Quartz
         Quartz.timing("Processor allocation") do
           visitor = ProcessorAllocator.new(self, @model)
           model.accept(visitor)
-          visitor.root_coordinator
+          visitor.simulable
         end
       end
     end

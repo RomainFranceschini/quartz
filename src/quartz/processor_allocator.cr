@@ -8,7 +8,11 @@ module Quartz
     @stack : Array(Coordinator)
     @root_model : CoupledModel?
 
-    getter! root_coordinator : RootCoordinator
+    @root_coordinator : Coordinator?
+
+    def simulable : Simulable
+      @root_coordinator.as(Simulable)
+    end
 
     def initialize(@simulation, @root_model)
       @stack = Array(Coordinator).new
@@ -21,9 +25,9 @@ module Quartz
 
     def visit(model : DSDE::CoupledModel)
       processor = if model == @root_model
-                    @root_coordinator = RootCoordinator.new(model, @simulation)
+                    @root_coordinator = DSDE::RootCoordinator.new(model, @simulation)
                   else
-                    DSDE::Coordinator.new(model, @simulation)
+                    DSDE::DynamicCoordinator.new(model, @simulation)
                   end
       if parent = @stack.last?
         parent << processor
