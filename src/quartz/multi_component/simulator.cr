@@ -93,7 +93,7 @@ module Quartz
           component.time = time
           if sub_bag = component.output
             sub_bag.each do |k,v|
-              @parent_bag[@model.output_port(k)] << v
+              @parent_bag[k] << v
             end
           end
         end

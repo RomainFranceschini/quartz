@@ -41,6 +41,7 @@ module Quartz
       getter components = Hash(Name, Component).new
 
       def <<(component)
+        component.__parent__ = self
         @components[component.name] = component
       end
     end

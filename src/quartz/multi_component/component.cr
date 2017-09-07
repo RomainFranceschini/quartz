@@ -12,6 +12,19 @@ module Quartz
       getter influencers = Array(Component).new
       getter influencees = Array(Component).new
 
+      @__parent__ : MultiComponent::Model?
+      def __parent__=(parent : MultiComponent::Model)
+        @__parent__ = parent
+      end
+
+      def input_port(port)
+        @__parent__.not_nil!.input_port(port)
+      end
+
+      def output_port(port)
+        @__parent__.not_nil!.output_port(port)
+      end
+
       def initialize(name)
         super(name)
       end
