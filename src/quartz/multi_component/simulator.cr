@@ -103,10 +103,11 @@ module Quartz
         @parent_bag
       end
 
-      def perform_transitions(time, bag)
+      def perform_transitions(time)
         if !(@time_last <= time && time <= @time_next)
           raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
         end
+        bag = @bag || EMPTY_BAG
 
         if time == @time_next && bag.empty?
           @int_count += @imm.size
@@ -160,6 +161,7 @@ module Quartz
           end
         end
 
+        bag.each_value &.clear
         @imm.clear
 
         @state_bags.each do |component, states|
