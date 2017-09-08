@@ -601,11 +601,11 @@ module Quartz
           include Quartz::AutoState
           \{% for x in STATE_VARIABLES %}
             \{% if x[:value].is_a?(Block) %}
-              state_var \{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || ""}} \{{ x[:value] }}
+              state_var(\{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || ""}} \{{ x[:value] }})
             \{% elsif x[:value] == nil %}
-              state_var \{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || "" }}
+              state_var(\{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || "" }})
             \{% else %}
-              state_var \{{x[:name]}} : \{{x[:type]}} = \{{ x[:value] }}, visibility: \{{x[:visibility] || "" }}
+              state_var(\{{x[:name]}} : \{{x[:type]}} = \{{ x[:value] }}, visibility: \{{x[:visibility] || "" }})
             \{% end %}
           \{% end %}
         \{% end %}
