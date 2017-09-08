@@ -33,7 +33,7 @@ describe "ProcessorAllocator" do
     nested["b"].processor.should be_a(Simulator)
     nested["c"].processor.should be_a(Simulator)
 
-    coupled["dynamic"].processor.should be_a(DSDE::Coordinator)
+    coupled["dynamic"].processor.should be_a(DSDE::DynamicCoordinator)
     coupled["multipdevs"].processor.should be_a(MultiComponent::Simulator)
   end
 
