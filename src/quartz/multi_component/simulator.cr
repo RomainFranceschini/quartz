@@ -161,7 +161,7 @@ module Quartz
           end
         end
 
-        bag.each_value &.clear
+        bag.clear
         @imm.clear
 
         @state_bags.each do |component, states|

@@ -107,7 +107,7 @@ module Quartz
         raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
       end
 
-      bag.each_value &.clear
+      bag.clear
       @time_last = time
       @time_next = @time_last + atomic.time_advance
 
