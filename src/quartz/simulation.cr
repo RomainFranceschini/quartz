@@ -136,10 +136,12 @@ module Quartz
     # aborted state.
     def abort
       if running? || initialized?
+        Hooks.notifier.notify(Hooks::PRE_ABORT)
         info "Aborting simulation."
         @time = @duration
         @final_time = Time.now
         @status = Status::Aborted
+        Hooks.notifier.notify(Hooks::POST_ABORT)
       end
     end
 
@@ -148,10 +150,12 @@ module Quartz
     def restart
       case @status
       when Status::Done, Status::Aborted
+        Hooks.notifier.notify(Hooks::PRE_RESTART)
         @time = 0
         @start_time = nil
         @final_time = nil
         @status = Status::Ready
+        Hooks.notifier.notify(Hooks::POST_RESTART)
       when Status::Running, Status::Initialized
         info "Cannot restart, the simulation is currently running."
       end
@@ -161,7 +165,7 @@ module Quartz
       @start_time = Time.now
       @status = Status::Running
       info "Beginning simulation with duration: #{@duration}"
-      Hooks.notifier.notify(:before_simulation_hook)
+      Hooks.notifier.notify(Hooks::PRE_SIMULATION)
     end
 
     private def end_simulation
@@ -182,18 +186,18 @@ module Quartz
           logger.debug "Running post simulation hook"
         end
       end
-      Hooks.notifier.notify(:after_simulation_hook)
+      Hooks.notifier.notify(Hooks::POST_SIMULATION)
     end
 
     def initialize_simulation
       if ready?
         begin_simulation
-        Hooks.notifier.notify(:before_simulation_initialization_hook)
+        Hooks.notifier.notify(Hooks::PRE_INIT)
         Quartz.timing("Simulation initialization") do
           @time = self.processor.initialize_state(@time)
         end
         @status = Status::Initialized
-        Hooks.notifier.notify(:after_simulation_initialization_hook)
+        Hooks.notifier.notify(Hooks::POST_INIT)
       else
         info "Cannot initialize simulation while it is running or terminated."
       end

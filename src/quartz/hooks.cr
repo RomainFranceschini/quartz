@@ -1,5 +1,14 @@
 module Quartz
   module Hooks
+    PRE_SIMULATION  = :pre_simulation
+    POST_SIMULATION = :post_simulation
+    PRE_INIT        = :pre_init
+    POST_INIT       = :post_init
+    PRE_ABORT       = :pre_abort
+    POST_ABORT      = :post_abort
+    PRE_RESTART     = :pre_restart
+    POST_RESTART    = :post_restart
+
     # Returns the simulation default notifier.
     def self.notifier
       @@notifier ||= Notifier.new

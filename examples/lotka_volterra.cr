@@ -30,17 +30,17 @@ class Plotter
   SPACES = 30
 
   def initialize(model)
-    Quartz::Hooks.notifier.subscribe(:before_simulation_initialization_hook, self)
-    Quartz::Hooks.notifier.subscribe(:after_simulation_hook, self)
+    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::PRE_INIT, self)
+    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::POST_SIMULATION, self)
     model.add_observer(self)
   end
 
   def notify(hook)
     case hook
-    when :before_simulation_initialization_hook
+    when Quartz::Hooks::PRE_INIT
       @file = File.new("lotkavolterra.dat", "w+")
       @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", 't', 'x', 'y')
-    when :after_simulation_hook
+    when Quartz::Hooks::POST_SIMULATION
       @file.not_nil!.close
       @file = nil
     end
