@@ -98,16 +98,11 @@ module Quartz
     # Notifies observers of a change in state. A dictionary, *info*, can be
     # passed to observers that conforms to the `ObserverWithInfo` protocol.
     def notify_observers(info : Hash(Symbol, Any)? = nil)
-      @observers.try &.reject! do |observer|
-        begin
-          if observer.is_a?(Observer)
-            observer.update(self)
-          else
-            observer.update(self, info)
-          end
-          false
-        rescue
-          true # deletes the element in place since it raised
+      @observers.try &.each do |observer|
+        if observer.is_a?(Observer)
+          observer.update(self)
+        else
+          observer.update(self, info)
         end
       end
     end

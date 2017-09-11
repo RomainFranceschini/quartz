@@ -13,13 +13,6 @@ private class Bar
   end
 end
 
-private class RaiseBar < Bar
-  def update(observer)
-    super(observer)
-    raise "ohno"
-  end
-end
-
 describe "Observable" do
   it "adds observers" do
     f = Foo.new
@@ -63,19 +56,6 @@ describe "Observable" do
       b.calls.should eq(1)
       f.notify_observers
       b.calls.should eq(2)
-    end
-
-    it "automatically delete observers that raised" do
-      f = Foo.new
-      b = RaiseBar.new
-      f.add_observer b
-
-      f.notify_observers
-      b.calls.should eq(1)
-      f.notify_observers
-      b.calls.should eq(1)
-
-      f.delete_observer(b).should be_false
     end
   end
 end

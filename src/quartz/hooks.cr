@@ -81,13 +81,8 @@ module Quartz
       # is notified.
       def notify(hook : Symbol)
         @listeners.try do |listeners|
-          listeners[hook].reject! do |l|
-            begin
-              l.is_a?(Notifiable) ? l.notify(hook) : l.call(hook)
-              false
-            rescue
-              true # deletes the element in place since it raised
-            end
+          listeners[hook].each do |l|
+            l.is_a?(Notifiable) ? l.notify(hook) : l.call(hook)
           end
         end
       end

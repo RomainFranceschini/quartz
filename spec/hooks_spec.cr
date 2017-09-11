@@ -10,13 +10,6 @@ private class MyNotifiable
   end
 end
 
-private class RaiseNotifiable < MyNotifiable
-  def notify(hook : Symbol)
-    super(hook)
-    raise "ohno"
-  end
-end
-
 describe "Hooks" do
   describe "#subscribe" do
     it "accepts blocks" do
@@ -73,34 +66,6 @@ describe "Hooks" do
       notifier.notify(:bar)
       calls.should eq(1)
       notifiable.calls.should eq(1)
-    end
-
-    it "doens't fails when a subscriber raises" do
-      notifier = Hooks::Notifier.new
-      notifier.subscribe(:foo) { raise "ohno" }
-      notifier.subscribe(:foo, RaiseNotifiable.new)
-      notifier.notify(:foo)
-    end
-
-    it "automatically unsubscribes notifiables that raised" do
-      notifier = Hooks::Notifier.new
-
-      i = 0
-      block = ->(s : Symbol) { i += 1; raise "ohno" }
-      notifier.subscribe(:foo, &block)
-
-      notifiable = RaiseNotifiable.new
-      notifier.subscribe(:foo, notifiable)
-
-      notifier.count_listeners(:foo).should eq(2)
-      notifier.notify(:foo)
-      notifier.count_listeners(:foo).should eq(0)
-
-      notifiable.calls.should eq(1)
-      i.should eq(1)
-
-      notifier.unsubscribe(:foo, notifiable).should be_false
-      notifier.unsubscribe(:foo, block).should be_false
     end
   end
 
