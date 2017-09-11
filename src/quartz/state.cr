@@ -575,6 +575,14 @@ module Quartz
             )
           end
 
+          def dup_state
+            \{{ @type.name }}::State.new(
+              \{% for var in STATE_VARIABLES %}
+                \{{ var[:name].id }}: \{{ var[:name].id }}.dup,
+              \{% end %}
+            )
+          end
+
           protected def state=(state : \{{@type.name.id}}::State)
             \{% for var in STATE_VARIABLES %}
               @\{{ var[:name].id }} = state.\{{ var[:name].id }}
@@ -585,6 +593,10 @@ module Quartz
           end
 
           def state
+            \{{ @type.name }}::State.new
+          end
+
+          def dup_state
             \{{ @type.name }}::State.new
           end
 
