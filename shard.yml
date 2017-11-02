@@ -1,7 +1,14 @@
 name: quartz
 version: 0.1.0
 
+description: |
+  A PDEVS-based Modeling & Simulation Environment
+
 authors:
   - Romain Franceschini <r.franceschini@univ-corse.fr>
 
 license: CeCILL-C
+
+dependencies:
+  msgpack:
+    github: benoist/msgpack-crystal

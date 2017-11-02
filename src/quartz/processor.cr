@@ -1,14 +1,23 @@
 module Quartz
-  abstract class Processor # (T)
+  abstract class Processor
+    # :nodoc:
+    OBS_INFO_INIT_PHASE = {:phase => Any.new(:init)}
+    # :nodoc:
+    OBS_INFO_COLLECT_PHASE = {:phase => Any.new(:collect_outputs)}
+    # :nodoc:
+    OBS_INFO_TRANSITIONS_PHASE = {:phase => Any.new(:perform_transitions)}
+    # :nodoc:
+    EMPTY_BAG = Hash(InputPort, Array(Any)).new
 
     include Logging
-    # include Comparable(self)
 
     getter model : Model
     getter time_next : SimulationTime
     getter time_last : SimulationTime
     property sync : Bool
     property parent : Coordinator?
+
+    @bag : Hash(InputPort, Array(Any))?
 
     def initialize(@model : Model)
       @time_next = 0
@@ -17,13 +26,13 @@ module Quartz
       @model.processor = self
     end
 
-    # The comparison operator. Compares two processors given their #time_next
-    #
-    # @param other [Processor]
-    # @return [Integer]
-    # def <=>(other)
-    #   other.time_next <=> @time_next
-    # end
+    def bag
+      @bag ||= Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
+    end
+
+    def bag?
+      @bag
+    end
 
     def inspect(io)
       io << "<" << self.class.name << ": tn=" << @time_next.to_s(io)
@@ -32,6 +41,6 @@ module Quartz
     end
 
     abstract def collect_outputs(time) : Hash(OutputPort, Any)
-    abstract def perform_transitions(time, bag : Hash(InputPort, Array(Any))) : SimulationTime
+    abstract def perform_transitions(time) : SimulationTime
   end
 end

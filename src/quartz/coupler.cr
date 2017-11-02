@@ -29,7 +29,7 @@ module Quartz
 
     # Returns all internal couplings attached to the given output *port*.
     def internal_couplings(port : OutPort) : Array(InPort)
-      port.peers_ports
+      port.siblings_ports
     end
 
     # Returns all external output couplings attached to the given output *port*.
@@ -120,13 +120,13 @@ module Quartz
     # `#internal_couplings`, passing that element as a parameter. Given *port*
     # is used to filter couplings having this port as a source.
     def each_internal_coupling(port : OutPort)
-      port.peers_ports.each { |dst| yield(port, dst) }
+      port.siblings_ports.each { |dst| yield(port, dst) }
     end
 
     # Calls *block* once for each internal coupling (IC) in
     # `#internal_couplings`, passing that element as a parameter.
     def each_internal_coupling
-      internal_couplings.each { |src| src.peers_ports.each { |dst| yield(src, dst) } }
+      internal_couplings.each { |src| src.siblings_ports.each { |dst| yield(src, dst) } }
     end
 
     # Calls *block* once for each external output coupling (EOC) in
@@ -190,7 +190,7 @@ module Quartz
     # TODO doc
     def each_internal_coupling_reverse(port : InPort)
       internal_couplings.each do |src|
-        src.peers_ports.each { |dst| yield(src, dst) if dst == port }
+        src.siblings_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
@@ -250,7 +250,7 @@ module Quartz
 
       if has_child?(a) && has_child?(b) # IC
         raise FeedbackLoopError.new("#{a} must be different than #{b}") if a.object_id == b.object_id
-        p1.peers_ports << p2
+        p1.siblings_ports << p2
         internal_couplings << p1
       else
         raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
@@ -382,8 +382,8 @@ module Quartz
       b = p2.host
 
       if has_child?(a) && has_child?(b) # IC
-        detached = p1.peers_ports.delete(p2) != nil
-        if detached && p1.peers_ports.empty?
+        detached = p1.siblings_ports.delete(p2) != nil
+        if detached && p1.siblings_ports.empty?
           internal_couplings.delete(p1)
         end
         return detached
@@ -458,6 +458,52 @@ module Quartz
       p1 = sender.output_port(oport)
       p2 = self.output_port(myport)
       detach(p1, from: p2)
+    end
+
+    # Finds and yields direct connections in the coupling graph of *self*.
+    def find_direct_couplings(&block : OutputPort, InputPort ->)
+      couplings = [] of {Port, Port}
+      each_coupling { |s, d| couplings << {s, d} }
+      coupling_set = Set({Port, Port}).new(couplings)
+
+      while !couplings.empty?
+        osrc, odst = couplings.pop
+
+        if !osrc.host.is_a?(Coupler) && !odst.host.is_a?(Coupler)
+          yield(osrc.as(OutputPort), odst.as(InputPort)) # found direct coupling
+        elsif osrc.host.is_a?(Coupler)                   # eic
+          route = [{osrc, odst}]
+          while !route.empty?
+            rsrc, _ = route.pop
+            rsrc.host.as(Coupler).each_output_coupling_reverse(rsrc.as(OutputPort)) do |src, dst|
+              if src.host.is_a?(Coupler)
+                route.push({src, dst})
+              else
+                unless coupling_set.includes?({src, odst})
+                  couplings.push({src, odst})
+                  coupling_set.add({src, odst})
+                end
+              end
+            end
+          end
+        elsif odst.host.is_a?(Coupler) # eoc
+          route = [{osrc, odst}]
+          j = 0
+          while !route.empty?
+            _, rdst = route.pop
+            rdst.host.as(Coupler).each_input_coupling(rdst.as(InputPort)) do |src, dst|
+              if dst.host.is_a?(Coupler)
+                route.push({src, dst})
+              else
+                unless coupling_set.includes?({osrc, dst})
+                  couplings.push({osrc, dst})
+                  coupling_set.add({osrc, dst})
+                end
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

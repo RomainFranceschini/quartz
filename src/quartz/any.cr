@@ -7,12 +7,22 @@ module Quartz
 
     getter raw : Quartz::Type
 
+    def self.build_hash(default_block : (Hash(K, V), K -> V)? = nil, initial_capacity = nil) : self
+      hash = Hash(Type, Type).new(block, initial_capacity: initial_capacity)
+      yield hash
+      Any.new(hash)
+    end
+
+    def self.build_array(initial_capacity : Int = 0) : self
+      ary = Array(Type).new(initial_capacity)
+      yield ary
+      Any.new(ary)
+    end
+
     def initialize(@raw : Quartz::Type)
     end
 
-    def hash
-      @raw.hash
-    end
+    def_hash @raw
 
     # Assumes the underlying value is an `Array`, `Slice` or `Hash` and returns
     # its size.

@@ -4,12 +4,12 @@ require "colorize"
 module Quartz
   # :nodoc:
   private LOGGER_COLORS = {
-    "ERROR"   => :light_red,
-    "FATAL"   => :red,
-    "WARN"    => :light_yellow,
-    "INFO"    => :light_green,
-    "DEBUG"   => :light_blue,
-    "UNKNOWN" => :light_gray,
+    Logger::Severity::ERROR   => :light_red,
+    Logger::Severity::FATAL   => :red,
+    Logger::Severity::WARN    => :light_yellow,
+    Logger::Severity::INFO    => :light_green,
+    Logger::Severity::DEBUG   => :light_blue,
+    Logger::Severity::UNKNOWN => :light_gray,
   }
 
   @@logger : Logger? = Logger.new(STDOUT).tap do |logger|
@@ -35,6 +35,30 @@ module Quartz
 
   def self.logger=(logger : Logger?)
     @@logger = logger
+  end
+
+  def self.timing(label, delay = false, display_memory = true, padding_size = 34)
+    if @@logger
+      io = IO::Memory.new
+
+      io.print "%-*s" % {padding_size, "#{label}:"} unless delay
+      time = Time.now
+      value = yield
+      elapsed_time = Time.now - time
+      io.print "%-*s" % {padding_size, "#{label}:"} if delay
+      if display_memory
+        heap_size = GC.stats.heap_size
+        mb = heap_size / 1024.0 / 1024.0
+        io.print " %s (%7.2fMB)" % {elapsed_time, mb}
+      else
+        io.print " %s" % elapsed_time
+      end
+      logger.info io.to_s
+
+      value
+    else
+      yield
+    end
   end
 
   module Logging

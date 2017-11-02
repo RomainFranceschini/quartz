@@ -3,6 +3,7 @@ module Quartz
   class CoupledModel < Model
     include Coupleable
     include Coupler
+    include Observable
 
     class_property! preferred_event_set : Symbol
 

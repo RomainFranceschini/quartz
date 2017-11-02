@@ -3,16 +3,35 @@ module Quartz
   class Simulation
     include Logging
     include Enumerable(SimulationTime)
+    include Iterable(SimulationTime)
+
+    # Represents the current simulation status.
+    enum Status
+      Ready,
+      Initialized,
+      Running,
+      Done,
+      Aborted
+    end
 
     getter processor, model, start_time, final_time, time
     getter duration
+    getter status
 
+    @status : Status
     @time : SimulationTime
     @scheduler : Symbol
-    @processor : RootCoordinator?
+    @processor : Simulable?
     @start_time : Time?
     @final_time : Time?
     @run_validations : Bool
+    @model : CoupledModel
+
+    delegate ready?, to: @status
+    delegate initialized?, to: @status
+    delegate running?, to: @status
+    delegate done?, to: @status
+    delegate aborted?, to: @status
 
     def initialize(model : Model, *,
                    scheduler : Symbol = :calendar_queue,
@@ -31,24 +50,24 @@ module Quartz
       @duration = duration
       @scheduler = scheduler
       @run_validations = run_validations
+      @status = Status::Ready
 
-      # TODO check direct_connect correctness
       unless maintain_hierarchy
-        time = Time.now
-        direct_connect!
-        if logger = Quartz.logger?
-          logger.info "Flattened modeling tree in #{Time.now - time} secs"
-        end
+        Quartz.timing("Modeling tree flattening") {
+          @model.accept(DirectConnectionVisitor.new(@model))
+        }
       end
-
-      time = Time.now
-      self.processor # allocate processors
-      info "Allocated processors in #{Time.now - time} secs"
     end
 
     @[AlwaysInline]
     protected def processor
-      @processor ||= self.allocate_processors.as(RootCoordinator)
+      @processor ||= begin
+        Quartz.timing("Processor allocation") do
+          visitor = ProcessorAllocator.new(self, @model)
+          model.accept(visitor)
+          visitor.simulable
+        end
+      end
     end
 
     def inspect(io)
@@ -68,40 +87,13 @@ module Quartz
       @run_validations
     end
 
-    # Returns *true* if the simulation is done, *false* otherwise.
-    def done?
-      @time >= @duration
-    end
-
-    # Returns *true* if the simulation is currently running,
-    # *false* otherwise.
-    def running?
-      @start_time != nil && !done?
-    end
-
-    # Returns *true* if the simulation is waiting to be started,
-    # *false* otherwise.
-    def waiting?
-      @start_time == nil
-    end
-
-    # Returns the simulation status: *waiting*, *running* or
-    # *done*.
-    def status
-      if waiting?
-        :waiting
-      elsif running?
-        :running
-      elsif done?
-        :done
-      end
-    end
-
     def percentage
-      case status
-      when :waiting then 0.0 * 100
-      when :done    then 1.0 * 100
-      when :running
+      case @status
+      when Status::Ready, Status::Initialized
+        0.0 * 100
+      when Status::Done
+        1.0 * 100
+      when Status::Running, Status::Aborted
         if @time > @duration
           1.0 * 100
         else
@@ -111,12 +103,12 @@ module Quartz
     end
 
     def elapsed_secs
-      case status
-      when :waiting
+      case @status
+      when Status::Ready, Status::Initialized
         0.0
-      when :done
+      when Status::Done, Status::Aborted
         @final_time.not_nil! - @start_time.not_nil!
-      when :running
+      when Status::Running
         Time.now - @start_time.not_nil!
       end
     end
@@ -140,33 +132,45 @@ module Quartz
       stats
     end
 
+    # Abort the currently running or initialized simulation. Goes to an
+    # aborted state.
     def abort
-      if running?
+      if running? || initialized?
+        Hooks.notifier.notify(Hooks::PRE_ABORT)
         info "Aborting simulation."
         @time = @duration
         @final_time = Time.now
+        @status = Status::Aborted
+        Hooks.notifier.notify(Hooks::POST_ABORT)
       end
     end
 
+    # Restart a terminated simulation (either done or aborted) and goes to a
+    # ready state.
     def restart
-      case status
-      when :done
+      case @status
+      when Status::Done, Status::Aborted
+        Hooks.notifier.notify(Hooks::PRE_RESTART)
         @time = 0
         @start_time = nil
         @final_time = nil
-      when :running
+        @status = Status::Ready
+        Hooks.notifier.notify(Hooks::POST_RESTART)
+      when Status::Running, Status::Initialized
         info "Cannot restart, the simulation is currently running."
       end
     end
 
     private def begin_simulation
       @start_time = Time.now
+      @status = Status::Running
       info "Beginning simulation with duration: #{@duration}"
-      Hooks.notifier.notify(:before_simulation_hook)
+      Hooks.notifier.notify(Hooks::PRE_SIMULATION)
     end
 
     private def end_simulation
       @final_time = Time.now
+      @status = Status::Done
 
       if logger = Quartz.logger?
         logger.info "Simulation ended after #{elapsed_secs} secs."
@@ -182,27 +186,34 @@ module Quartz
           logger.debug "Running post simulation hook"
         end
       end
-      Hooks.notifier.notify(:after_simulation_hook)
+      Hooks.notifier.notify(Hooks::POST_SIMULATION)
     end
 
-    private def initialize_simulation
-      Hooks.notifier.notify(:before_simulation_initialization_hook)
-      @time = self.processor.initialize_state(@time)
-      Hooks.notifier.notify(:after_simulation_initialization_hook)
+    def initialize_simulation
+      if ready?
+        begin_simulation
+        Hooks.notifier.notify(Hooks::PRE_INIT)
+        Quartz.timing("Simulation initialization") do
+          @time = self.processor.initialize_state(@time)
+        end
+        @status = Status::Initialized
+        Hooks.notifier.notify(Hooks::POST_INIT)
+      else
+        info "Cannot initialize simulation while it is running or terminated."
+      end
     end
 
     def step : SimulationTime?
-      simulable = self.processor
-      if waiting?
+      case @status
+      when Status::Ready
         initialize_simulation
-        begin_simulation
         @time
-      elsif running?
+      when Status::Initialized, Status::Running
         if (logger = Quartz.logger?) && logger.debug?
           logger.debug("Tick at #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
         end
-        @time = simulable.step(@time)
-        end_simulation if done?
+        @time = processor.step(@time)
+        end_simulation if @time >= @duration
         @time
       else
         nil
@@ -211,23 +222,22 @@ module Quartz
 
     # TODO error hook
     def simulate
-      if waiting?
-        simulable = self.processor
-        initialize_simulation
+      case @status
+      when Status::Ready, Status::Initialized
+        initialize_simulation unless initialized?
+
         begin_simulation
         while @time < @duration
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug("Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
-          @time = simulable.step(@time)
+          @time = processor.step(@time)
         end
         end_simulation
-      elsif logger = Quartz.logger?
-        if running?
-          logger.error "Simulation already started at #{@start_time} and is currently running."
-        else
-          logger.error "Simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
-        end
+      when Status::Running
+        error "Simulation already started at #{@start_time} and is currently running."
+      when Status::Done, Status::Aborted
+        error "Simulation is terminated."
       end
       self
     end
@@ -237,26 +247,25 @@ module Quartz
     end
 
     def each
-      if waiting?
-        simulable = self.processor
-        initialize_simulation
+      case @status
+      when Status::Ready, Status::Initialized
+        initialize_simulation unless initialized?
+
         begin_simulation
         while @time < @duration
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug("Tick at: #{@time}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
-          @time = simulable.step(@time)
+          @time = processor.step(@time)
           yield(self)
         end
         end_simulation
-      elsif logger = Quartz.logger?
-        if running?
-          logger.error "Simulation already started at #{@start_time} and is currently running."
-        else
-          logger.error "Simulation is already done. Started at #{@start_time} and finished at #{@final_time} in #{elapsed_secs} secs."
-        end
-        nil
+      when Status::Running
+        error "Simulation already started at #{@start_time} and is currently running."
+      when Status::Done, Status::Aborted
+        error "Simulation is terminated."
       end
+      self
     end
 
     class StepIterator
@@ -266,9 +275,12 @@ module Quartz
       end
 
       def next
-        if @simulation.done?
+        case @simulation.status
+        when Simulation::Status::Done, Simulation::Status::Aborted
           stop
-        else
+        when Simulation::Status::Ready
+          @simulation.initialize_simulation
+        when Simulation::Status::Initialized, Simulation::Status::Running
           @simulation.step.not_nil!
         end
       end
@@ -283,144 +295,12 @@ module Quartz
     def generate_graph(path = "model_hierarchy.dot")
       path = "#{path}.dot" if File.extname(path).empty?
       file = File.new(path, "w+")
-      file.puts "digraph"
-      file.puts '{'
-      file.puts "compound = true;"
-      file.puts "rankdir = LR;"
-      file.puts "node [shape = box];"
-
-      fill_graph(file, @model.as(CoupledModel))
-
-      file.puts '}'
+      generate_graph(file)
       file.close
     end
 
-    private def fill_graph(graph, cm : CoupledModel)
-      cm.each_child do |model|
-        name = model.to_s
-        if model.is_a?(CoupledModel)
-          graph.puts "subgraph \"cluster_#{name}\""
-          graph.puts '{'
-          graph.puts "label = \"#{name}\";"
-          fill_graph(graph, model.as(CoupledModel))
-          model.each_internal_coupling do |src, dst|
-            if src.host.is_a?(AtomicModel) && dst.host.is_a?(AtomicModel)
-              graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
-            end
-          end
-          graph.puts "};"
-        else
-          graph.puts "\"#{name}\" [style=filled];"
-        end
-      end
-
-      find_direct_couplings(cm) do |src, dst|
-        graph.puts "\"#{src.host.name.to_s}\" -> \"#{dst.host.name.to_s}\" [label=\"#{src.name.to_s} → #{dst.name.to_s}\"];"
-      end if cm == @model
-    end
-
-    def allocate_processors(coupled = @model)
-      is_root = coupled == @model
-      processor = ProcessorFactory.processor_for(coupled, self, is_root).as(Coordinator)
-
-      coupled.as(CoupledModel).each_child do |model|
-        processor << if model.is_a?(CoupledModel)
-          allocate_processors(model)
-        else
-          ProcessorFactory.processor_for(model, self)
-        end
-      end
-
-      processor
-    end
-
-    # TODO don't alter original hierarchy
-    private def direct_connect!
-      models = @model.as(CoupledModel).each_child.to_a
-      children_list = [] of Model
-      new_internal_couplings = Hash(OutPort, Array(InPort)).new { |h, k| h[k] = [] of InPort }
-
-      i = 0
-      while i < models.size
-        model = models[i]
-        if model.is_a?(CoupledModel)
-          # get internal couplings between atomics that we can reuse as-is in the root model
-          coupled = model.as(CoupledModel)
-          coupled.each_internal_coupling do |src, dst|
-            if src.host.is_a?(AtomicModel) && dst.host.is_a?(AtomicModel)
-              new_internal_couplings[src] << dst
-            end
-          end
-          coupled.each_child { |c| models << c }
-        else
-          children_list << model
-        end
-        i += 1
-      end
-
-      cm = @model.as(CoupledModel)
-      cm.each_child.each { |c| cm.remove_child(c) }
-      children_list.each { |c| cm << c }
-
-      find_direct_couplings(cm) do |src, dst|
-        new_internal_couplings[src] << dst
-      end
-
-      internal_couplings = cm.internal_couplings.clear
-
-      new_internal_couplings.each do |src, ary|
-        src.peers_ports.clear
-        src.upward_ports.clear
-
-        ary.each do |dst|
-          src.peers_ports << dst
-          dst.downward_ports.clear
-        end
-
-        internal_couplings << src
-      end
-    end
-
-    private def find_direct_couplings(cm : CoupledModel, &block : OutPort, InPort ->)
-      couplings = [] of {Port, Port}
-      cm.each_coupling { |s, d| couplings << {s, d} }
-
-      i = 0
-      while i < couplings.size
-        osrc, odst = couplings[i]
-        if osrc.host.is_a?(AtomicModel) && odst.host.is_a?(AtomicModel)
-          yield(osrc.as(OutputPort), odst.as(InputPort))                 # found direct coupling
-        elsif osrc.host.is_a?(CoupledModel) # eic
-          route = [{osrc, odst}]
-          j = 0
-          while j < route.size
-            rsrc, _ = route[j]
-            rsrc.host.as(CoupledModel).each_output_coupling_reverse(rsrc.as(OutPort)) do |src, dst|
-              if src.host.is_a?(CoupledModel)
-                route.push({src, dst})
-              else
-                couplings.push({src, odst})
-              end
-            end
-            j += 1
-          end
-        elsif odst.host.is_a?(CoupledModel) # eoc
-          route = [{osrc, odst}]
-          j = 0
-          while j < route.size
-            _, rdst = route[j]
-            rdst.host.as(CoupledModel).each_input_coupling(rdst.as(InPort)) do |src, dst|
-              if dst.host.is_a?(CoupledModel)
-                route.push({src, dst})
-              else
-                couplings.push({osrc, dst})
-              end
-            end
-            j += 1
-          end
-        end
-        i += 1
-      end
+    def generate_graph(io : IO)
+      DotVisitor.new(@model, io).to_graph
     end
   end
 end

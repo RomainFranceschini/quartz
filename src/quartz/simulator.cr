@@ -1,5 +1,15 @@
 module Quartz
+  # This class defines a PDEVS simulator.
   class Simulator < Processor
+    # :nodoc:
+    OBS_INFO_INIT_TRANSITION = {:transition => Any.new(:init)}
+    # :nodoc:
+    OBS_INFO_INT_TRANSITION = {:transition => Any.new(:internal)}
+    # :nodoc:
+    OBS_INFO_EXT_TRANSITION = {:transition => Any.new(:external)}
+    # :nodoc:
+    OBS_INFO_CON_TRANSITION = {:transition => Any.new(:confluent)}
+
     @int_count : UInt32 = 0u32
     @ext_count : UInt32 = 0u32
     @con_count : UInt32 = 0u32
@@ -22,7 +32,9 @@ module Quartz
       atomic = @model.as(AtomicModel)
       @int_count = @ext_count = @con_count = 0u32
 
-      @time_last = atomic.time = time
+      atomic.time = time
+      atomic.__initialize_state__(self)
+      @time_last = time - atomic.elapsed
       @time_next = @time_last + atomic.time_advance
 
       if @run_validations && atomic.invalid?(:initialization)
@@ -42,10 +54,10 @@ module Quartz
         })
       end
 
-      atomic.notify_observers({:transition => Any.new(:init)})
+      atomic.notify_observers(OBS_INFO_INIT_TRANSITION)
 
       @time_next
-    rescue err : StrictValidationFailed
+    rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
         logger.fatal(String.build { |str|
@@ -59,35 +71,43 @@ module Quartz
 
     def collect_outputs(time)
       raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
+      @model.as(AtomicModel).time = time
       @model.as(AtomicModel).fetch_output!
     end
 
-    def perform_transitions(time, bag)
+    def perform_transitions(time)
       synced = @time_last <= time && time <= @time_next
       atomic = @model.as(AtomicModel)
+      bag = @bag || EMPTY_BAG
 
+      info = nil
       kind = nil
       if time == @time_next
         atomic.elapsed = 0
         if bag.empty?
           @int_count += 1u32
           atomic.internal_transition
+          info = OBS_INFO_INT_TRANSITION
           kind = :internal
         else
           @con_count += 1u32
           atomic.confluent_transition(bag)
+          info = OBS_INFO_CON_TRANSITION
           kind = :confluent
         end
       elsif synced && !bag.empty?
+        atomic.time = time
         @ext_count += 1u32
         atomic.elapsed = time - @time_last
         atomic.external_transition(bag)
+        info = OBS_INFO_EXT_TRANSITION
         kind = :external
       elsif !synced
         raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
       end
 
-      @time_last = atomic.time = time
+      bag.clear
+      @time_last = time
       @time_next = @time_last + atomic.time_advance
 
       if (logger = Quartz.logger?) && logger.debug?
@@ -107,10 +127,10 @@ module Quartz
         end
       end
 
-      atomic.notify_observers({:transition => Any.new(kind)})
+      atomic.notify_observers(info)
 
       @time_next
-    rescue err : StrictValidationFailed
+    rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
         logger.fatal(String.build { |str|

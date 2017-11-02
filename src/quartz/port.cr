@@ -22,7 +22,7 @@ module Quartz
 
   # :nodoc:
   abstract class OutPort < Port
-    getter(peers_ports) { Array(InPort).new }
+    getter(siblings_ports) { Array(InPort).new }
     getter(upward_ports) { Array(OutPort).new }
   end
 
@@ -41,9 +41,12 @@ module Quartz
     # if port is output, check in reverse upward ports until find an atomic output port
     def add_observer(observer)
       if @host.is_a?(CoupledModel)
-        raise UnobservablePortError.new("Only atomic models output ports are observable.")
+        @host.as(CoupledModel).each_output_coupling_reverse(self) do |src, _|
+          src.add_observer(observer)
+        end
+      else
+        super(observer)
       end
-      super(observer)
     end
   end
 end

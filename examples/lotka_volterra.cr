@@ -2,13 +2,15 @@ require "../src/quartz"
 
 class LotkaVolterra < Quartz::AtomicModel
 
-  getter x = 1.0, y = 1.0
+  state_var x : Float64 = 1.0
+  state_var y : Float64 = 1.0
 
-  @alpha = 5.2          # prey reproduction rate
-  @beta = 3.4           # predator per prey mortality rate
-  @gamma = 2.1          # predator mortality rate
-  @delta = 1.4          # predator per prey reproduction rate
-  @sigma = 0.0001       # euler integration
+  state_var alpha : Float64 = 5.2     # prey reproduction rate
+  state_var beta : Float64 = 3.4      # predator per prey mortality rate
+  state_var gamma : Float64 = 2.1     # predator mortality rate
+  state_var delta : Float64 = 1.4     # predator per prey reproduction rate
+
+  @sigma = 0.0001                     # euler integration
 
   def internal_transition
     dxdt = ((@x * @alpha) - (@beta * @x * @y))
@@ -28,17 +30,17 @@ class Plotter
   SPACES = 30
 
   def initialize(model)
-    Quartz::Hooks.notifier.subscribe(:before_simulation_initialization_hook, self)
-    Quartz::Hooks.notifier.subscribe(:after_simulation_hook, self)
+    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::PRE_INIT, self)
+    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::POST_SIMULATION, self)
     model.add_observer(self)
   end
 
   def notify(hook)
     case hook
-    when :before_simulation_initialization_hook
+    when Quartz::Hooks::PRE_INIT
       @file = File.new("lotkavolterra.dat", "w+")
       @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", 't', 'x', 'y')
-    when :after_simulation_hook
+    when Quartz::Hooks::POST_SIMULATION
       @file.not_nil!.close
       @file = nil
     end

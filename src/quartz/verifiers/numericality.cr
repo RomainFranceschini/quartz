@@ -1,7 +1,7 @@
 module Quartz
-  module Validators
-    class NumericalityValidator < EachValidator
-      getter targets : Hash(Symbol, AnyNumber)
+  module Verifiers
+    class NumericalityChecker < EachChecker
+      getter targets : Hash(Symbol, Number::Primitive)
 
       VALID_KEYS = {
         {:greater_than, :gt, :>},
@@ -15,7 +15,7 @@ module Quartz
         {:zero},
         {:not_zero},
         {:finite},
-        {:infinite}
+        {:infinite},
       }
 
       # TODO what about big numbers?
@@ -23,7 +23,7 @@ module Quartz
       # TODO option for float comparison within error
       def initialize(*attributes, **kwargs)
         super(*attributes, **kwargs)
-        @targets = Hash(Symbol, AnyNumber).new
+        @targets = Hash(Symbol, Number::Primitive).new
 
         VALID_KEYS.each do |tuple|
           tuple.each do |option|
@@ -35,7 +35,7 @@ module Quartz
         end
       end
 
-      def validate_each(model, attribute, value)
+      def check_each(model, attribute, value)
         return if value.nil? && allow_nil?
 
         if value.is_a?(Number)

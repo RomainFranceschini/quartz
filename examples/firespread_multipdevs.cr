@@ -1,45 +1,35 @@
 require "../src/quartz"
 
 class HeatCell < Quartz::MultiComponent::Component
-  T_AMBIENT = 27.0f32
-  T_IGNITE = 300.0f32
+  T_AMBIENT  =  27.0f32
+  T_IGNITE   = 300.0f32
   T_GENERATE = 500.0f32
-  T_BURNED = 60.0f32
-  TIMESTEP = 1
-  RADIUS = 3
-  TMP_DIFF = T_AMBIENT
+  T_BURNED   =  60.0f32
+  TIMESTEP   =        1
+  RADIUS     =        3
+  TMP_DIFF   = T_AMBIENT
 
-  # TODO : make immutable and fix transitions accordingly
-  struct HeatState < Quartz::MultiComponent::ComponentState
-    include Quartz::Transferable
+  state_var temperature : Float32 = T_AMBIENT
+  state_var ignite_time : Quartz::SimulationTime = Quartz::INFINITY
+  state_var phase : Symbol = :inactive
+  state_var old_temp : Float32 = T_AMBIENT
+  state_var surrounding_temps : Hash(Quartz::Name, Float32) = Hash(Quartz::Name, Float32).new(default_value: T_AMBIENT.to_f32)
 
-    property temperature : Float32 = T_AMBIENT
-    property ignite_time : Quartz::SimulationTime = Quartz::INFINITY
-    property phase : Symbol = :inactive
-    property old_temp : Float32 = T_AMBIENT
-    property surrounding_temps = Hash(Quartz::Name,Float32).new(default_value: T_AMBIENT.to_f32)
+  getter x : Int32 = 0
+  getter y : Int32 = 0
 
-    def initialize(@temperature = T_AMBIENT, @ignite_time = Quartz::INFINITY, @phase = :inactive)
-    end
+  def initialize(name, state, @x, @y)
+    super(name, state)
   end
 
-  getter state : HeatState
-  property x : Int32 = 0
-  property y : Int32 = 0
-
-  def initialize(name, @state : HeatState)
+  def initialize(name, @x, @y)
     super(name)
-  end
-
-  def initialize(name)
-    super(name)
-    @state = HeatState.new
   end
 
   def new_phase
-    if @state.temperature > T_IGNITE || (@state.temperature > T_BURNED && @state.phase == :burning)
+    if @temperature > T_IGNITE || (@temperature > T_BURNED && @phase == :burning)
       :burning
-    elsif @state.temperature < T_BURNED && @state.phase == :burning
+    elsif @temperature < T_BURNED && @phase == :burning
       :burned
     else
       :unburned
@@ -47,10 +37,10 @@ class HeatCell < Quartz::MultiComponent::Component
   end
 
   def time_advance
-    case @state.phase
+    case @phase
     when :inactive, :burned
       Quartz::INFINITY
-    else #when :unburned, :burning
+    else # when :unburned, :burning
       1
     end
   end
@@ -58,55 +48,61 @@ class HeatCell < Quartz::MultiComponent::Component
   def internal_transition
     proposed_states = Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
 
-    nstate = @state.dup
+    new_old_temp = @old_temp
+    sum = influencers.map { |i| @surrounding_temps[i.name] }.reduce { |acc, i| acc + i }
 
-    sum = influencers.map { |i| @state.surrounding_temps[i.name] }.reduce  { |acc, i| acc + i }
-
-    if (@state.temperature - @state.old_temp).abs > TMP_DIFF
+    if (@temperature - @old_temp).abs > TMP_DIFF
       influencees.each do |j|
         next if j == self
-        proposed_states.unsafe_assoc(j.name, Quartz::Any.new(@state.temperature))
+        proposed_states.unsafe_assoc(j.name, Quartz::Any.new(@temperature))
       end
-      nstate.old_temp = @state.temperature
+      new_old_temp = @temperature
     end
 
     ct = @time + self.time_advance
 
-    new_temp = case @state.phase
-    when :burning
-      0.98689 * @state.temperature + 0.0031 * sum + 2.74 * Math.exp(-0.19 * (ct * TIMESTEP - @state.ignite_time)) + 0.213
-    when :unburned
-      0.98689 * @state.temperature + 0.0031 * sum + 0.213
-    else
-      @state.temperature
-    end
+    new_temp = case @phase
+               when :burning
+                 0.98689 * @temperature + 0.0031 * sum + 2.74 * Math.exp(-0.19 * (ct * TIMESTEP - @ignite_time)) + 0.213
+               when :unburned
+                 0.98689 * @temperature + 0.0031 * sum + 0.213
+               else
+                 @temperature
+               end
 
     n_phase = self.new_phase
+    new_ignite_time = ct * TIMESTEP if @phase == :unburned && n_phase == :burning
 
-    nstate.ignite_time = ct * TIMESTEP if @state.phase == :unburned && n_phase == :burning
-    nstate.phase = n_phase
-    nstate.temperature = new_temp.to_f32
+    nstate = HeatCell::State.new(
+      old_temp: new_old_temp,
+      temperature: new_temp.to_f32,
+      phase: n_phase,
+      ignite_time: new_ignite_time || @ignite_time,
+      surrounding_temps: @surrounding_temps
+    )
 
     proposed_states.unsafe_assoc(self.name, Quartz::Any.new(nstate))
     proposed_states
   end
 
   def reaction_transition(states)
-    temps = @state.surrounding_temps
+    temps = @surrounding_temps
+
     influence = false
     states.each_with_index do |tuple, i|
       influencer, val = tuple
       case influencer
       when self.name
-        @state = val.raw.as(HeatState)
+        self.state = val.raw.as(HeatCell::State)
       else
         influence = true
         temps[influencer] = val.as_f32
       end
     end
-    @state.surrounding_temps = temps
-    if influence && @state.phase == :inactive
-      @state.phase = :unburned
+
+    @surrounding_temps = temps
+    if influence && @phase == :inactive
+      @phase = :unburned
     end
   end
 end
@@ -127,14 +123,12 @@ class HeatMultiPDEVS < Quartz::MultiComponent::Model
       row = l.split(/[ ]+/).map(&.to_i).map do |value|
         name = "cell_#{x}_#{y}"
         cell = if value > HeatCell::T_AMBIENT
-          phase = value >= HeatCell::T_IGNITE ? :burning : :unburned
-          state = HeatCell::HeatState.new(temperature: value.to_f32, ignite_time: 0, phase: phase)
-          HeatCell.new(name, state)
-        else
-          HeatCell.new(name)
-        end
-        cell.x = x
-        cell.y = y
+                 phase = value >= HeatCell::T_IGNITE ? :burning : :unburned
+                 state = HeatCell::State.new(temperature: value.to_f32, ignite_time: 0, phase: phase)
+                 HeatCell.new(name, state, x, y)
+               else
+                 HeatCell.new(name, x, y)
+               end
         self << cell
         x += 1
         cell
@@ -165,7 +159,6 @@ class HeatMultiPDEVS < Quartz::MultiComponent::Model
         end
       end
     end
-
   end
 end
 
@@ -193,7 +186,7 @@ class Consolify
       while i < @rows
         j = 0
         while j < @columns
-          case model.cells[i][j].state.phase
+          case model.cells[i][j].phase
           when :inactive, :unburned
             print "❀ "
           when :burning
@@ -201,10 +194,10 @@ class Consolify
           when :burned
             print "  "
           end
-          j+=1
+          j += 1
         end
         print "\n"
-        i+=1
+        i += 1
       end
       print "\n\nt=#{@sim.time}\n"
       STDOUT.flush

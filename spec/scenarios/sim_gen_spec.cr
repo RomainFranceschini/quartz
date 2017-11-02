@@ -20,7 +20,7 @@ private module GeneratorScenario
       @internal_calls += 1
 
       raise GenTestError.new unless @elapsed == 0
-      raise GenTestError.new unless @time == @internal_calls-1
+      raise GenTestError.new unless @time == @internal_calls
     end
   end
 

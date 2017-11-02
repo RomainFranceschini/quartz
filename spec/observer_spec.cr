@@ -13,13 +13,6 @@ private class Bar
   end
 end
 
-private class RaiseBar < Bar
-  def update(observer)
-    super(observer)
-    raise "ohno"
-  end
-end
-
 describe "Observable" do
   it "adds observers" do
     f = Foo.new
@@ -64,40 +57,30 @@ describe "Observable" do
       f.notify_observers
       b.calls.should eq(2)
     end
-
-    it "automatically delete observers that raised" do
-      f = Foo.new
-      b = RaiseBar.new
-      f.add_observer b
-
-      f.notify_observers
-      b.calls.should eq(1)
-      f.notify_observers
-      b.calls.should eq(1)
-
-      f.delete_observer(b).should be_false
-    end
-  end
-end
-
-private class MyPortObserver
-  include Observer
-
-  def update(observer)
   end
 end
 
 describe "Port" do
   describe "Observable" do
-    it "raises when adding a PortObserver on output port attached to a coupled" do
+    it "adds an observer to attached atomic models when the host is a coupled" do
       atom = AtomicModel.new("am")
       coupled = CoupledModel.new("cm")
-
+      coupled << atom
+      aop = OutputPort.new(atom, "aop")
       cop = OutputPort.new(coupled, "cop")
+      coupled.attach(aop, cop)
 
-      expect_raises UnobservablePortError do
-        cop.add_observer(MyPortObserver.new)
-      end
+      observer = Bar.new
+      cop.add_observer(observer)
+
+      cop.count_observers.should eq(0)
+      aop.count_observers.should eq(1)
+
+      cop.notify_observers
+      observer.calls.should eq(0)
+
+      aop.notify_observers
+      observer.calls.should eq(1)
     end
   end
 end

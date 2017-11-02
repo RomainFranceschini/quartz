@@ -23,6 +23,17 @@ module Quartz
   # end
 
   abstract class EventSet(T) < PriorityQueue(T)
+    def self.new(event_set : Symbol) : self
+      case event_set
+      when :ladder_queue   then LadderQueue(T).new
+      when :calendar_queue then CalendarQueue(T).new
+      else
+        if (logger = Quartz.logger?) && logger.warn?
+          logger.warn("Unknown event set '#{event_set}', defaults to calendar queue")
+        end
+        CalendarQueue(T).new
+      end
+    end
 
     @[AlwaysInline]
     def next_priority : Priority
@@ -39,6 +50,12 @@ module Quartz
         ary << self.pop
       end
       ary
+    end
+
+    def each_imminent(priority : Priority)
+      while !self.empty? && self.next_priority == priority
+        yield self.pop
+      end
     end
 
     def peek_all(priority : Priority) : Array(T)

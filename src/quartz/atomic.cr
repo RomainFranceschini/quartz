@@ -4,17 +4,87 @@ module Quartz
     include Coupleable
     include Transitions
     include Observable
-    include Validations
+    include Verifiable
+    include AutoState
 
     def initialize(name)
       super(name)
       @senders = Set(OutPort).new
     end
 
+    def initialize(name, state)
+      super(name)
+      @bag = SimpleHash(OutputPort, Any).new
+      self.initial_state = state
+      self.state = state
+    end
+
+    # :nodoc:
+    # Used internally by the simulator
+    def __initialize_state__(processor)
+      if @processor != processor
+        raise InvalidProcessorError.new("trying to initialize state of model \"#{name}\" from an invalid processor")
+      end
+
+      if s = initial_state
+        self.state = s
+      end
+    end
+
+    def initialize(pull : ::JSON::PullParser)
+      @bag = SimpleHash(OutputPort, Any).new
+      _sigma = INFINITY
+      _time = -INFINITY
+
+      pull.read_object do |key|
+        case key
+        when "name"
+          super(String.new(pull))
+        when "sigma"
+          _sigma = SimulationTime.new(pull)
+        when "time"
+          _time = SimulationTime.new(pull)
+        when "state"
+          self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
+          self.state = initial_state
+        else
+          raise ::JSON::ParseException.new("Unknown json attribute: #{key}", 0, 0)
+        end
+      end
+
+      @sigma = _sigma
+      @time = _time
+    end
+
+    def initialize(pull : ::MessagePack::Unpacker)
+      @bag = SimpleHash(OutputPort, Any).new
+      _sigma = INFINITY
+      _time = -INFINITY
+
+      pull.read_hash(false) do
+        case key = Bytes.new(pull)
+        when "name".to_slice
+          super(String.new(pull))
+        when "sigma".to_slice
+          _sigma = SimulationTime.new(pull)
+        when "time".to_slice
+          _time = SimulationTime.new(pull)
+        when "state".to_slice
+          self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
+          self.state = initial_state
+        else
+          raise MessagePack::UnpackException.new("unknown msgpack attribute: #{String.new(key)}")
+        end
+      end
+
+      @sigma = _sigma
+      @time = _time
+    end
+
     def inspect(io)
       io << "<" << self.class.name << ": name=" << @name
       io << ", time=" << @time.to_s(io)
-      io << ", elapsed" << @elapsed.to_s(io)
+      io << ", elapsed=" << @elapsed.to_s(io)
       io << ">"
       nil
     end
@@ -67,6 +137,44 @@ module Quartz
         bag[port] = Any.new(port.value)
       end
       bag
+    end
+
+    def to_json(json : ::JSON::Builder)
+      json.object do
+        json.field("name") { @name.to_json(json) }
+        json.field("state") { state.to_json(json) }
+        json.field("time") { @time.to_json(json) } unless @time.abs == INFINITY
+        json.field("sigma") { @sigma.to_json(json) } unless @sigma.abs == INFINITY
+      end
+    end
+
+    def to_msgpack(packer : ::MessagePack::Packer)
+      packer.write_hash_start(4)
+
+      packer.write("name")
+      @name.to_msgpack(packer)
+      packer.write("state")
+      state.to_msgpack(packer)
+      packer.write("time")
+      @time.to_msgpack(packer)
+      packer.write("sigma")
+      @sigma.to_msgpack(packer)
+    end
+
+    def self.from_json(io : IO)
+      self.new(::JSON::PullParser.new(io))
+    end
+
+    def self.from_json(str : String)
+      from_json(IO::Memory.new(str))
+    end
+
+    def self.from_msgpack(io : IO)
+      self.new(::MessagePack::Unpacker.new(io))
+    end
+
+    def self.from_msgpack(bytes : Bytes)
+      from_msgpack(IO::Memory.new(bytes))
     end
   end
 end
