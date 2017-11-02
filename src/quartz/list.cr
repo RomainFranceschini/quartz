@@ -270,10 +270,12 @@ module Quartz
       self
     end
 
-    def hash
-      reduce(31 * @size) do |memo, elem|
-        31 * memo + elem.hash
+    def hash(hasher)
+      hasher = @size.hash(hasher)
+      each do |elem|
+        hasher = elem.hash(hasher)
       end
+      hasher
     end
 
     # Removes and returns the last item. Raises `NoSuchElementError` if empty.

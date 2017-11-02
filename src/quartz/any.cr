@@ -22,9 +22,7 @@ module Quartz
     def initialize(@raw : Quartz::Type)
     end
 
-    def hash
-      @raw.hash
-    end
+    def_hash @raw
 
     # Assumes the underlying value is an `Array`, `Slice` or `Hash` and returns
     # its size.
