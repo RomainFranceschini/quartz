@@ -3,7 +3,7 @@ module Quartz
     abstract class Component < Model
       include Transitions
       include Observable
-      include Validations
+      include Verifiable
       include AutoState
 
       property time_last : SimulationTime = 0
@@ -13,6 +13,7 @@ module Quartz
       getter influencees = Array(Component).new
 
       @__parent__ : MultiComponent::Model?
+
       def __parent__=(parent : MultiComponent::Model)
         @__parent__ = parent
       end

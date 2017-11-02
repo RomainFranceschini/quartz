@@ -1,15 +1,14 @@
 module Quartz
   # This class defines a PDEVS simulator.
   class Simulator < Processor
-
     # :nodoc:
-    OBS_INFO_INIT_TRANSITION = { :transition => Any.new(:init) }
+    OBS_INFO_INIT_TRANSITION = {:transition => Any.new(:init)}
     # :nodoc:
-    OBS_INFO_INT_TRANSITION = { :transition => Any.new(:internal) }
+    OBS_INFO_INT_TRANSITION = {:transition => Any.new(:internal)}
     # :nodoc:
-    OBS_INFO_EXT_TRANSITION = { :transition => Any.new(:external) }
+    OBS_INFO_EXT_TRANSITION = {:transition => Any.new(:external)}
     # :nodoc:
-    OBS_INFO_CON_TRANSITION = { :transition => Any.new(:confluent) }
+    OBS_INFO_CON_TRANSITION = {:transition => Any.new(:confluent)}
 
     @int_count : UInt32 = 0u32
     @ext_count : UInt32 = 0u32
@@ -58,7 +57,7 @@ module Quartz
       atomic.notify_observers(OBS_INFO_INIT_TRANSITION)
 
       @time_next
-    rescue err : StrictValidationFailed
+    rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
         logger.fatal(String.build { |str|
@@ -131,7 +130,7 @@ module Quartz
       atomic.notify_observers(info)
 
       @time_next
-    rescue err : StrictValidationFailed
+    rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
         logger.fatal(String.build { |str|

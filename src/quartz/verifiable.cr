@@ -1,17 +1,17 @@
-require "./validators/validator"
-require "./validators/presence"
-require "./validators/numericality"
+require "./verifiers/checker"
+require "./verifiers/presence"
+require "./verifiers/numericality"
 
 module Quartz
-  # Provides a validation framework for your models.
+  # Provides a runtime verification framework for your models.
   #
   # Example:
   # ```
   # class WeightModel
-  #   include Quartz::Validations
+  #   include Quartz::Verifiable
   #
   #   property weight : Float64 = 0.0 # in kg
-  #   validates :weight, numericality: {greater_than: 40, lesser_than: 160}
+  #   check :weight, numericality: {greater_than: 40, lesser_than: 160}
   # end
   #
   # model = WeightModel.new
@@ -24,40 +24,40 @@ module Quartz
   # model.invalid?        # => true
   # model.errors.messages # => { :weight => ["must be lesser than 160"] }
   # ```
-  module Validations
+  module Verifiable
     macro included
-      def self.validators
-        @@validators ||= Array(Validators::Validator).new
+      def self.verifiers
+        @@verifiers ||= Array(Verifiers::RuntimeChecker).new
       end
 
-      def self.clear_validators
-        @@validators.try &.clear
+      def self.clear_verifiers
+        @@verifiers.try &.clear
       end
 
-      def self.validates(*attributes : Symbol, **kwargs)
+      def self.check(*attributes : Symbol, **kwargs)
         if kwargs.empty?
-          raise ArgumentError.new("You must inform at least one validation rule")
+          raise ArgumentError.new("You must inform at least one verification rule")
         end
 
         kwargs.each do |name, value|
-          validator = case name
+          verifier = case name
           when :presence
             if value.is_a?(NamedTuple)
-              Validators::PresenceValidator.new(*attributes, **value)
+              Verifiers::PresenceChecker.new(*attributes, **value)
             else
-              Validators::PresenceValidator.new(*attributes)
+              Verifiers::PresenceChecker.new(*attributes)
             end
           when :numericality
             if value.is_a?(NamedTuple)
-              Validators::NumericalityValidator.new(*attributes, **value)
+              Verifiers::NumericalityChecker.new(*attributes, **value)
             else
-              Validators::NumericalityValidator.new(*attributes)
+              Verifiers::NumericalityChecker.new(*attributes)
             end
           else
-            raise ArgumentError.new("Unknown validator \"#{name}\"")
+            raise ArgumentError.new("Unknown verifier \"#{name}\"")
           end
 
-          validators.push(validator)
+          verifiers.push(verifier)
         end
       end
 
@@ -66,12 +66,12 @@ module Quartz
       #
       # ```
       # class MyModel
-      #   include Quartz::Validations
-      #   validates_with MyValidator
+      #   include Quartz::Verifiable
+      #   check_with MyVerifier
       # end
       #
-      # class MyValidator < Quartz::Validators::EachValidator
-      #   def validate_each(model, attribute, value)
+      # class MyVerifier < Quartz::Verifiers::EachChecker
+      #   def check_each(model, attribute, value)
       #     if some_test
       #       model.errors.add(attribute, "This model attribute is invalid")
       #     end
@@ -80,9 +80,9 @@ module Quartz
       #   # ...
       # end
       # ```
-      def self.validates_with(klass : Validators::EachValidator.class, *attributes : Symbol, **kwargs)
-        validator = klass.new(*attributes, **kwargs)
-        validators.push(validator)
+      def self.check_with(klass : Verifiers::EachChecker.class, *attributes : Symbol, **kwargs)
+        verifier = klass.new(*attributes, **kwargs)
+        verifiers.push(verifier)
       end
 
       # Passes the model off to the class or classes specified and allows them
@@ -90,11 +90,11 @@ module Quartz
       #
       # ```
       # class MyModel
-      #   include Quartz::Validations
-      #   validates_with MyValidator
+      #   include Quartz::Verifiable
+      #   check_with MyVerifier
       # end
       #
-      # class MyValidator < Quartz::Validators::Validator
+      # class MyVerifier < Quartz::Verifiers::RuntimeChecker
       #   def validate(model)
       #     if some_test
       #       model.errors.add(:phase, "This model state is invalid")
@@ -104,31 +104,31 @@ module Quartz
       #   # ...
       # end
       # ```
-      def self.validates_with(klass : Validators::Validator.class, **kwargs)
-        validator = klass.new(**kwargs)
-        validators.push(validator)
+      def self.check_with(klass : Verifiers::RuntimeValidator.class, **kwargs)
+        verifier = klass.new(**kwargs)
+        verifiers.push(verifier)
       end
 
-      # TODO: Copy validators on inheritance
+      # TODO: Copy verifiers on inheritance
       macro inherited
       end
     end
 
-    # Returns the `ValidationErrors` object that holds all information about
+    # Returns the `VerificationErrors` object that holds all information about
     # attribute error messages.
-    getter(errors) { Quartz::ValidationErrors.new }
+    getter(errors) { Quartz::VerificationErrors.new }
 
     # Clears attribute error messages.
     def clear_errors
       @errors.try &.clear
     end
 
-    # Runs all the specified validations and returns *true* if no errors were
+    # Runs all the specified verifications and returns *true* if no errors were
     # added otherwise *false*.
     #
     def valid?(context : Symbol? = nil) : Bool
       errors.clear
-      run_validators(context)
+      run_verifiers(context)
       errors.empty?
     end
 
@@ -138,10 +138,10 @@ module Quartz
     # Usage:
     # ```
     # class MyModel
-    #   include Quartz::Validations
+    #   include Quartz::Verifiable
     #
     #   property :phase : String?
-    #   validates :phase, presence: true
+    #   check :phase, presence: true
     # end
     #
     # model = MyModel.new
@@ -151,18 +151,19 @@ module Quartz
     # model.invalid?          # => false
     # ```
     #
-    # Context can optionally be supplied to define which validators to test
-    # against (the context is defined on the validators using *on:* option).
+    # Context can optionally be supplied to define which verifiers to test
+    # against (the context is defined on the verifiers using *on:* option).
     def invalid?(context : Symbol? = nil) : Bool
       !valid?(context)
     end
 
-    protected def run_validators(context : Symbol? = nil)
-      self.class.validators.each do |validator|
-        contexts = validator.contexts
+    # :nodoc:
+    protected def run_verifiers(context : Symbol? = nil)
+      self.class.verifiers.each do |verifier|
+        contexts = verifier.contexts
         if !contexts || contexts.includes?(context)
-          if !validator.validate(self) && validator.strict?
-            raise StrictValidationFailed.new(errors)
+          if !verifier.check(self) && verifier.strict?
+            raise StrictVerificationFailed.new(errors)
           end
         end
       end

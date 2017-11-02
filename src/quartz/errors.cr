@@ -15,22 +15,22 @@ module Quartz
 
   class InvalidProcessorError < Exception; end
 
-  class StrictValidationFailed < Exception
-    getter validation_errors : ValidationErrors
+  class StrictVerificationFailed < Exception
+    getter verification_errors : VerificationErrors
 
-    def initialize(@validation_errors)
+    def initialize(@verification_errors)
     end
 
     def message : String?
       String.build do |str|
-        @validation_errors.each do |attribute, message|
+        @verification_errors.each do |attribute, message|
           str << '\'' << attribute << "' " << message << '\n'
         end
       end
     end
   end
 
-  class ValidationErrors
+  class VerificationErrors
     include Enumerable({Symbol, String})
 
     @messages : Hash(Symbol, Array(String))?

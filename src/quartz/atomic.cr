@@ -4,7 +4,7 @@ module Quartz
     include Coupleable
     include Transitions
     include Observable
-    include Validations
+    include Verifiable
     include AutoState
 
     def initialize(name)
