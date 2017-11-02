@@ -29,7 +29,7 @@ module Quartz
 
     # Returns all internal couplings attached to the given output *port*.
     def internal_couplings(port : OutputPort) : Array(InputPort)
-      port.peers_ports
+      port.siblings_ports
     end
 
     # Returns all external output couplings attached to the given output *port*.
@@ -120,13 +120,13 @@ module Quartz
     # `#internal_couplings`, passing that element as a parameter. Given *port*
     # is used to filter couplings having this port as a source.
     def each_internal_coupling(port : OutputPort)
-      port.peers_ports.each { |dst| yield(port, dst) }
+      port.siblings_ports.each { |dst| yield(port, dst) }
     end
 
     # Calls *block* once for each internal coupling (IC) in
     # `#internal_couplings`, passing that element as a parameter.
     def each_internal_coupling
-      internal_couplings.each { |src| src.peers_ports.each { |dst| yield(src, dst) } }
+      internal_couplings.each { |src| src.siblings_ports.each { |dst| yield(src, dst) } }
     end
 
     # Calls *block* once for each external output coupling (EOC) in
@@ -190,7 +190,7 @@ module Quartz
     # TODO doc
     def each_internal_coupling_reverse(port : InputPort)
       internal_couplings.each do |src|
-        src.peers_ports.each { |dst| yield(src, dst) if dst == port }
+        src.siblings_ports.each { |dst| yield(src, dst) if dst == port }
       end
     end
 
@@ -242,7 +242,7 @@ module Quartz
 
       if has_child?(a) && has_child?(b) # IC
         raise FeedbackLoopError.new("#{a} must be different than #{b}") if a.object_id == b.object_id
-        p1.peers_ports << p2
+        p1.siblings_ports << p2
         internal_couplings << p1
       else
         raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
@@ -370,8 +370,8 @@ module Quartz
       b = p2.host
 
       if has_child?(a) && has_child?(b) # IC
-        detached = p1.peers_ports.delete(p2) != nil
-        if detached && p1.peers_ports.empty?
+        detached = p1.siblings_ports.delete(p2) != nil
+        if detached && p1.siblings_ports.empty?
           internal_couplings.delete(p1)
         end
         return detached
