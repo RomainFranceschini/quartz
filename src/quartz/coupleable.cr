@@ -8,8 +8,10 @@ module Quartz
     @output_ports : Hash(Name, OutPort)?
 
     macro included
-      @@_input_ports : Array(Tuple(Name, InPort.class))?
-      @@_output_ports : Array(Tuple(Name, OutPort.class))?
+      {% if !@type.has_constant? :INPUT_PORTS %}
+        INPUT_REGISTRY = [] of _
+        OUTPUT_REGISTRY = [] of _
+      {% end %}
 
       # Defines default input ports for each of the given arguments.
       # Those default input ports will be available in all instances, including
@@ -43,12 +45,12 @@ module Quartz
       #   input :in1, "in2", in3
       # end
       # ```
-      macro input(*names)
-        \{% for name in names %}
-          \{% if name.is_a?(TypeDeclaration) %}
-            self._input_ports << {:\{{ name.var }}, InputPort(\{{ name.type }})}
+      macro input(*portsdef)
+        \{% for portdef in portsdef %}
+          \{% if portdef.is_a?(TypeDeclaration) %}
+            \{% INPUT_REGISTRY << {name: portdef.var, type: portdef.type} %}
           \{% else %}
-            self._input_ports << {:\{{ name.id }}, InputPort(Type)}
+            \{% INPUT_REGISTRY << {name: portdef.id, type: Type} %}
           \{% end %}
         \{% end %}
       end
@@ -85,54 +87,66 @@ module Quartz
       #   output :out1, "out2", out3
       # end
       # ```
-      macro output(*names)
-        \{% for name in names %}
-          \{% if name.is_a?(TypeDeclaration) %}
-            self._output_ports << {:\{{ name.var }}, OutputPort(\{{ name.type }})}
+      macro output(*portsdef)
+        \{% for portdef in portsdef %}
+          \{% if portdef.is_a?(TypeDeclaration) %}
+            \{% OUTPUT_REGISTRY << {name: portdef.var, type: portdef.type} %}
           \{% else %}
-            self._output_ports << {:\{{ name.id }}, OutputPort(Type)}
+            \{% OUTPUT_REGISTRY << {name: portdef.id, type: Type} %}
           \{% end %}
         \{% end %}
       end
 
-      # :nodoc:
-      protected def self._input_ports
-        @@_input_ports ||= Array(Tuple(Name,InPort.class)).new
-      end
-
-      # :nodoc:
-      protected def self._output_ports
-        @@_output_ports ||= Array(Tuple(Name,OutPort.class)).new
-      end
-
       # Copy ports on inheritance.
       macro inherited
-        # :nodoc:
-        protected def self._input_ports
-          @@_input_ports ||= \{{ @type.superclass }}._input_ports.dup
-        end
+        \{% puts "#{@type} inherits #{@type.superclass}" %}
 
-        # :nodoc:
-        protected def self._output_ports
-          @@_output_ports ||= \{{ @type.superclass }}._output_ports.dup
-        end
+        \{% puts INPUT_REGISTRY %}
+
+        \{% if INPUT_REGISTRY.empty? %}
+          \{% for port in INPUT_REGISTRY %}
+            input \{{ port[:name] }} : \{{ port[:type] }}
+          \{% end %}
+        \{% else %}
+          INPUT_REGISTRY = [] of _
+        \{% end %}
+
+        \{% if OUTPUT_REGISTRY.empty? %}
+          \{% for port in OUTPUT_REGISTRY %}
+            output \{{ port[:name] }} : \{{ port[:type] }}
+          \{% end %}
+        \{% else %}
+          OUTPUT_REGISTRY = [] of _
+        \{% end %}
       end
+
     end
 
     # :nodoc:
-    protected def input_ports #: Hash(Name, InPort)
-      @input_ports ||= Hash(Name, InPort).zip(
-        self.class._input_ports.map &.[0], self.class._input_ports.map { |port_name, type|
-        type.new(self, port_name)
-      })
+    protected def input_ports # : Hash(Name, InPort)
+      @input_ports ||= (
+        iports = Hash(Name, InPort).new
+        {{ puts "#{@type} output #{@type.constant(:INPUT_REGISTRY)}" }}
+        {% for port in @type.constant(:INPUT_REGISTRY) %}
+          iports[:{{ port[:name] }}] = InputPort({{port[:type]}}).new(self, :{{ port[:name] }})
+        {% end %}
+        iports
+      )
     end
 
     # :nodoc:
-    protected def output_ports #: Hash(Name, OutPort)
-      @output_ports ||= Hash(Name, OutPort).zip(
-        self.class._output_ports.map &.[0], self.class._output_ports.map { |port_name, type|
-        type.new(self, port_name)
-      })
+    protected def output_ports # : Hash(Name, OutPort)
+      @output_ports ||= (
+        oports = Hash(Name, OutPort).new
+        {% for port in @type.constant(:OUTPUT_REGISTRY) %}
+          {% if port[:type] == Type %}
+            oports[:{{ port[:name] }}] = OutputPort(Type).new(self, :{{ port[:name] }})
+          {% else %}
+            oports[:{{ port[:name] }}] = OutputPort({{port[:type]}}).new(self, :{{ port[:name] }})
+          {% end %}
+        {% end %}
+        oports
+      )
     end
 
     # Add given port to *self*.
@@ -163,6 +177,22 @@ module Quartz
       new_port
     end
 
+    # Add given input port to *self*.
+    def add_input_port(name) : InputPort(Type)
+      if input_ports.has_key?(name)
+        Quartz.logger?.try &.warn(
+          "specified input port #{name} already exists for #{self}. skipping..."
+        )
+
+        new_port = input_ports[name].as(InputPort(Type))
+      else
+        new_port = InputPort(Type).new(self, name)
+        self.add_port(new_port)
+      end
+
+      new_port
+    end
+
     # Add given output port to *self*.
     def add_output_port(name, type : T.class) : OutputPort(T) forall T
       if output_ports.has_key?(name)
@@ -173,6 +203,22 @@ module Quartz
         new_port = output_ports[name].as(OutputPort(T))
       else
         new_port = OutputPort(T).new(self, name)
+        self.add_port(new_port)
+      end
+
+      new_port
+    end
+
+    # Add given output port to *self*.
+    def add_output_port(name) : OutputPort(Type)
+      if output_ports.has_key?(name)
+        Quartz.logger?.try &.warn(
+          "specified output port #{name} already exists for #{self}. skipping..."
+        )
+
+        new_port = output_ports[name].as(OutputPort(Type))
+      else
+        new_port = OutputPort(Type).new(self, name)
         self.add_port(new_port)
       end
 
@@ -210,12 +256,12 @@ module Quartz
     end
 
     # Returns the list of input ports
-    def input_port_list #: Array(InPort)
+    def input_port_list # : Array(InPort)
       input_ports.values
     end
 
     # Returns the list of output ports
-    def output_port_list #: Array(OutPort)
+    def output_port_list # : Array(OutPort)
       output_ports.values
     end
 
@@ -242,23 +288,23 @@ module Quartz
     end
 
     # Find the input port identified by the given *name*.
-    def input_port?(name : Name) #: InPort?
+    def input_port?(name : Name) # : InPort?
       input_ports[name]?
     end
 
     # Find the input port identified by the given *name*.
-    def input_port(name : Name) #: InPort
+    def input_port(name : Name) # : InPort
       raise NoSuchPortError.new("input port \"#{name}\" not found") unless input_ports.has_key?(name)
       input_ports[name]
     end
 
     # Find the output port identified by the given *name*
-    def output_port?(name : Name) #: OutPort?
+    def output_port?(name : Name) # : OutPort?
       output_ports[name]?
     end
 
     # Find the output port identified by the given *name*
-    def output_port(name : Name) #: OutPort
+    def output_port(name : Name) # : OutPort
       raise NoSuchPortError.new("output port \"#{name}\" not found") unless output_ports.has_key?(name)
       output_ports[name]
     end

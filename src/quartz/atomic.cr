@@ -7,14 +7,15 @@ module Quartz
     include Verifiable
     include AutoState
 
+    @senders = Set(OutPort).new
+    @bag = SimpleHash(OutPort, Any).new
+
     def initialize(name)
       super(name)
-      @senders = Set(OutPort).new
     end
 
     def initialize(name, state)
       super(name)
-      @bag = SimpleHash(OutputPort, Any).new
       self.initial_state = state
       self.state = state
     end
@@ -32,7 +33,6 @@ module Quartz
     end
 
     def initialize(pull : ::JSON::PullParser)
-      @bag = SimpleHash(OutputPort, Any).new
       _sigma = INFINITY
       _time = -INFINITY
 
@@ -57,7 +57,6 @@ module Quartz
     end
 
     def initialize(pull : ::MessagePack::Unpacker)
-      @bag = SimpleHash(OutputPort, Any).new
       _sigma = INFINITY
       _time = -INFINITY
 
@@ -131,12 +130,12 @@ module Quartz
     # Note: this method should be called only by the simulator.
     def fetch_output! : SimpleHash(OutPort, Any)
       @senders.clear
+      @bag.clear
       self.output
-      bag = SimpleHash(OutPort, Any).new
       @senders.each do |port|
-        bag[port] = Any.new(port.value)
+        @bag.unsafe_assoc(port, Any.new(port.value.as(Type)))
       end
-      bag
+      @bag
     end
 
     def to_json(json : ::JSON::Builder)
