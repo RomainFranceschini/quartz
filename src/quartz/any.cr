@@ -34,14 +34,16 @@ module Quartz
 
     def self.build_hash(default_block : (Hash(K, V), K -> V)? = nil, initial_capacity = nil) : self
       hash = Hash(Any, Any).new(default_block, initial_capacity: initial_capacity)
-      yield hash
-      Any.new(hash)
+      any = Any.new(hash)
+      yield any
+      any
     end
 
     def self.build_array(initial_capacity : Int = 0) : self
       ary = Array(Any).new(initial_capacity)
-      yield ary
-      Any.new(ary)
+      any = Any.new(ary)
+      yield any
+      any
     end
 
     # Creates a `Any` value that wraps the given value.
@@ -51,28 +53,15 @@ module Quartz
     # See `Object#hash(hasher)`
     def_hash @raw
 
-    # Assumes the underlying value is an `Array`, `Slice` or `Hash` and returns
+    # Assumes the underlying value is an `Array` or `Hash` and returns
     # its size.
-    # Raises if the underlying value is not an `Array`, `Slice` or `Hash`.
+    # Raises if the underlying value is not an `Array` or `Hash`.
     def size : Int
       case object = @raw
-      when Array, Hash, Slice
+      when Array, Hash
         object.size
       else
-        raise "expected Array, Slice or Hash for #size, not #{object.class}"
-      end
-    end
-
-    # Assumes the underlying value is an `Array` and returns the element at the
-    # given index.
-    #
-    # Raises if the underlying value is not an `Array`.
-    def [](index : Int) : Any
-      case object = @raw
-      when Array
-        object[index]
-      else
-        raise "Expected Array for #[](index : Int), not #{object.class}"
+        raise "expected Array or Hash for #size, not #{object.class}"
       end
     end
 
@@ -80,7 +69,7 @@ module Quartz
     # given index, or `nil` if out of bounds.
     #
     # Raises if the underlying value is not an `Array`.
-    def []?(index : Int) : Any
+    def []?(index : Int) : Any?
       case object = @raw
       when Array
         object[index]?
@@ -102,16 +91,41 @@ module Quartz
       end
     end
 
-    # Assumes the underlying value is a `Hash` and returns the element with the
-    # given key.
+    # Assumes the underlying value is a `Hash` or `Array` and returns the element
+    # with the given index or key.
     #
-    # Raises if the underlying value is not a `Hash`.
+    # Raises if the underlying value is not a `Hash` or `Array`.
     def [](key : Any::Type) : Any
       case object = @raw
+      when Array
+        if key.is_a?(Int)
+          object[key]
+        else
+          raise "Expected integer key for Array for #[](index), not #{key.class}"
+        end
       when Hash
         object[Any.new(key)]
       else
-        raise "Expected Hash for #[](key : Any::Type), not #{object.class}"
+        raise "Expected Array or Hash for #[](index), not #{object.class}"
+      end
+    end
+
+    # Assumes the underlying value is a `Hash` or `Array` and returns the element
+    # with the given index or key.
+    #
+    # Raises if the underlying value is not a `Hash` or `Array`.
+    def []?(key : Any::Type) : Any?
+      case object = @raw
+      when Array
+        if key.is_a?(Int)
+          object[key]?
+        else
+          raise "Expected integer key for Array for #[](index), not #{key.class}"
+        end
+      when Hash
+        object[Any.new(key)]?
+      else
+        raise "Expected Array or Hash for #[](index), not #{object.class}"
       end
     end
 
@@ -130,6 +144,7 @@ module Quartz
 
     # Assumes the underlying value is a `Array` and sets the given value at the
     # given index.
+    # Raises if the underlying value is not an `Array`.
     def []=(index : Int, value : Any) : Any
       case object = @raw
       when Array
@@ -141,13 +156,29 @@ module Quartz
 
     # Assumes the underlying value is a `Array` and sets the given value at the
     # given index.
+    # Raises if the underlying value is not an `Array`.
     def []=(index : Int, value : Any::Type) : Any
+      self[index] = Any.new(value)
+    end
+
+    # Assumes the underlying value is a `Array` and appends the given value at the
+    # end of the array.
+    # Raises if the underlying value is not an `Array`.
+    def <<(value : Any) : Any
       case object = @raw
       when Array
-        object[index] = Any.new(value)
+        object << value
       else
-        raise "Expected Array for #[](index : Int, value : Any::Type), not #{object.class}"
+        raise "Expected Array for #<<(value : Any), not #{object.class}"
       end
+      self
+    end
+
+    # Assumes the underlying value is a `Array` and appends the given value at the
+    # end of the array.
+    # Raises if the underlying value is not an `Array`.
+    def <<(value : Any::Type) : Any
+      self << Any.new(value)
     end
 
     # Assumes the underlying value is a `Hash` and sets the given value at the
@@ -164,23 +195,13 @@ module Quartz
     # Assumes the underlying value is a `Hash` and sets the given value at the
     # given key.
     def []=(key : Any, value : Any::Type) : Any
-      case object = @raw
-      when Hash
-        object[key] = Any.new(value)
-      else
-        raise "Expected Hash for #[](index : Any, value : Any::Type), not #{object.class}"
-      end
+      self[key] = Any.new(value)
     end
 
     # Assumes the underlying value is a `Hash` and sets the given value at the
     # given key.
     def []=(key : Any::Type, value : Any::Type) : Any
-      case object = @raw
-      when Hash
-        object[Any.new(key)] = Any.new(value)
-      else
-        raise "Expected Hash for #[](index : Any::Type, value : Any::Type), not #{object.class}"
-      end
+      self[Any.new(key)] = Any.new(value)
     end
 
     # :nodoc:
@@ -221,6 +242,30 @@ module Quartz
     # Checks that the underlying value is `Bool`, and returns its value. Returns nil otherwise.
     def as_bool? : (Bool | Nil)
       as_bool if @raw.is_a?(Bool)
+    end
+
+    # Checks that the underlying value is `Int`, and returns its value as an `Int32`.
+    # Raises otherwise.
+    def as_i : Int32
+      @raw.as(Int).to_i
+    end
+
+    # Checks that the underlying value is `Int`, and returns its value as an `Int32`.
+    # Returns `nil` otherwise.
+    def as_i? : Int32?
+      as_i if @raw.is_a?(Int)
+    end
+
+    # Checks that the underlying value is `Float`, and returns its value as an `Float64`.
+    # Raises otherwise.
+    def as_f : Float64
+      @raw.as(Float).to_f
+    end
+
+    # Checks that the underlying value is `Float`, and returns its value as an `Float64`.
+    # Returns `nil` otherwise.
+    def as_f? : Float64?
+      as_f if @raw.is_a?(Float64)
     end
 
     # Checks that the underlying value is `Int`, and returns its value as an `UInt8`. Raises otherwise.
