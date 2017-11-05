@@ -19,10 +19,12 @@ describe "VTime" do
   describe "arithmetics" do
     it "does addition" do
       (VirtualTime.new(1) + VirtualTime.new(1)).should eq(VirtualTime.new(2))
+      (VirtualTime.new(10.0) + VirtualTime.new(12i64)).should eq VirtualTime.new(22)
     end
 
     it "does substraction" do
       (VirtualTime.new(2) - VirtualTime.new(1)).should eq(VirtualTime.new(1))
+      (VirtualTime.new(10.0) - VirtualTime.new(1.0f32)).should eq VirtualTime.new(9)
     end
 
     # it "does division" do
@@ -31,6 +33,7 @@ describe "VTime" do
 
     it "does multiplication" do
       (VirtualTime.new(2) * VirtualTime.new(2)).should eq(VirtualTime.new(4))
+      (VirtualTime.new(4.0) * VirtualTime.new(2)).should eq(VirtualTime.new(8.0))
     end
 
     it "does -" do
@@ -40,28 +43,28 @@ describe "VTime" do
 
   describe "infinity" do
     it "has specific infinity value" do
-      VirtualTime(Int32).infinity.should eq(VirtualTime(Float32).infinity)
+      VirtualTime.infinity.should eq(VirtualTime::Infinity.positive)
     end
 
     it "has negative infinity" do
-      (-VirtualTime(Int32).infinity).should eq(VirtualTime(Float64).new(VirtualTime::Infinity.negative))
+      (-VirtualTime.infinity).should eq(VirtualTime::Infinity.negative)
     end
 
     it "is equal to IEE-754 infinity values" do
-      (VirtualTime(Int32).infinity).should eq(Float32::INFINITY)
-      (VirtualTime(Int64).infinity).should eq(Float64::INFINITY)
-      (-VirtualTime(Int32).infinity).should eq(-Float32::INFINITY)
-      (-VirtualTime(Int32).infinity).should eq(-Float64::INFINITY)
+      (VirtualTime.infinity).should eq(Float32::INFINITY)
+      (VirtualTime.infinity).should eq(Float64::INFINITY)
+      (-VirtualTime.infinity).should eq(-Float32::INFINITY)
+      (-VirtualTime.infinity).should eq(-Float64::INFINITY)
     end
 
     it "support comparison" do
       (VirtualTime::Infinity.new > Int64::MAX).should be_true
       (-VirtualTime::Infinity.new < Int64::MIN).should be_true
 
-      (VirtualTime(Int64).infinity > VirtualTime.new(Int64::MAX)).should be_true
-      (-VirtualTime(Int64).infinity < VirtualTime.new(Int64::MIN)).should be_true
-      (VirtualTime(Int32).infinity < VirtualTime(Int32).zero).should be_false
-      (VirtualTime(Int32).infinity > VirtualTime(Int32).zero).should be_true
+      (VirtualTime.infinity > VirtualTime.new(Int64::MAX)).should be_true
+      (-VirtualTime.infinity < VirtualTime.new(Int64::MIN)).should be_true
+      (VirtualTime.infinity < VirtualTime.zero).should be_false
+      (VirtualTime.infinity > VirtualTime.zero).should be_true
     end
 
     it "support arithmetic operators" do
@@ -115,27 +118,27 @@ describe "VTime" do
 
   describe "zero" do
     it "has specific zero value" do
-      VirtualTime(Int32).zero.should eq(VirtualTime(Float64).new(0.0))
+      VirtualTime.zero.should eq(VirtualTime(Float64).new(0.0))
     end
 
     it "is equal to primitive number zero values" do
-      VirtualTime(Int32).zero.should eq(Int32.zero)
-      VirtualTime(Int32).zero.should eq(Int64.zero)
-      VirtualTime(Int32).zero.should eq(Int16.zero)
-      VirtualTime(Int32).zero.should eq(Int8.zero)
-      VirtualTime(Int32).zero.should eq(UInt32.zero)
-      VirtualTime(Int32).zero.should eq(UInt64.zero)
-      VirtualTime(Int32).zero.should eq(UInt16.zero)
-      VirtualTime(Int32).zero.should eq(UInt8.zero)
-      VirtualTime(Int32).zero.should eq(Float32.zero)
-      VirtualTime(Int32).zero.should eq(Float64.zero)
+      VirtualTime.zero.should eq(Int32.zero)
+      VirtualTime.zero.should eq(Int64.zero)
+      VirtualTime.zero.should eq(Int16.zero)
+      VirtualTime.zero.should eq(Int8.zero)
+      VirtualTime.zero.should eq(UInt32.zero)
+      VirtualTime.zero.should eq(UInt64.zero)
+      VirtualTime.zero.should eq(UInt16.zero)
+      VirtualTime.zero.should eq(UInt8.zero)
+      VirtualTime.zero.should eq(Float32.zero)
+      VirtualTime.zero.should eq(Float64.zero)
     end
 
     it "support comparison" do
-      (VirtualTime(Int32).zero < 1).should be_true
-      (VirtualTime(Int32).zero > 1.0).should be_false
-      (VirtualTime(Int32).zero < VirtualTime(Int32).infinity).should be_true
-      (VirtualTime(Int32).zero > VirtualTime(Int32).infinity).should be_false
+      (VirtualTime.zero < 1).should be_true
+      (VirtualTime.zero > 1.0).should be_false
+      (VirtualTime.zero < VirtualTime.infinity).should be_true
+      (VirtualTime.zero > VirtualTime.infinity).should be_false
     end
 
     it "support arithmetic operators" do

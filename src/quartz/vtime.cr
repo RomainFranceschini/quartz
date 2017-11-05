@@ -164,24 +164,21 @@ module Quartz
     # JSON.mapping(raw: T)
 
     def self.zero
-      {% if T < Number %}
-        new({{T}}.zero)
-      {% else %}
-        new(Zero.new)
-      {% end %}
+      new(Zero.new)
     end
 
     def self.infinity
       new(Infinity.positive)
     end
 
-    getter raw : T | Infinity | Zero
+    # getter raw : T | Infinity | Zero
+    getter raw : T
 
-    def initialize(@raw : Zero)
-    end
+    # def initialize(@raw : Zero)
+    # end
 
-    def initialize(@raw : Infinity)
-    end
+    # def initialize(@raw : Infinity)
+    # end
 
     def initialize(@raw : T)
       {% if T < Infinity || T == Zero %}
@@ -284,48 +281,94 @@ module Quartz
     end
 
     # Returns the result of subtracting `self` and *other*'s raw object.
-    def -(other : VirtualTime) : VirtualTime(T)
-      VirtualTime(T).new(@raw - other.raw)
+    def -(other : VirtualTime)
+      VirtualTime.new(@raw - other.raw)
     end
 
     # Returns the result of subtracting the raw object and *other*.
-    def -(other : T) : VirtualTime(T)
-      VirtualTime(T).new(@raw - other)
+    def -(other : T)
+      VirtualTime.new(@raw - other)
     end
 
     # Returns the result of adding `self` and *other*'s raw object.
-    def +(other : VirtualTime) : VirtualTime(T)
-      VirtualTime(T).new(@raw + other.raw)
+    def +(other : VirtualTime)
+      VirtualTime.new(@raw + other.raw)
     end
 
     # Returns the result of adding the raw object and *other*.
-    def +(other : T) : VirtualTime(T)
-      VirtualTime(T).new(@raw + other)
+    def +(other : T)
+      VirtualTime.new(@raw + other)
     end
 
     # Returns the result of multiplying `self` and *other*'s raw object.
-    def *(other : VirtualTime) : VirtualTime(T)
-      VirtualTime(T).new(@raw * other.raw)
+    def *(other : VirtualTime)
+      VirtualTime.new(@raw * other.raw)
     end
 
     # Returns the result of multiplying the raw object and *other*.
-    def *(other : T) : VirtualTime(T)
-      VirtualTime(T).new(@raw * other)
+    def *(other : T)
+      VirtualTime.new(@raw * other)
     end
 
     # Returns the result of dividing `self` and *other*'s raw object.
-    def /(other : VirtualTime) : VirtualTime(T)
-      VirtualTime(T).new(@raw / other.raw)
+    def /(other : VirtualTime)
+      VirtualTime.new(@raw / other.raw)
     end
 
     # Returns the result of dividing the raw object and *other*.
-    def /(other : T) : VirtualTime(T)
-      VirtualTime(T).new(@raw / other)
+    def /(other : T)
+      VirtualTime.new(@raw / other)
     end
 
-    def - : VirtualTime(T)
-      VirtualTime(T).new(-@raw)
+    def -
+      VirtualTime.new(-@raw)
     end
+
+    # # Returns the result of subtracting `self` and *other*'s raw object.
+    # def -(other : VirtualTime) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw - other.raw)
+    # end
+
+    # # Returns the result of subtracting the raw object and *other*.
+    # def -(other : T) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw - other)
+    # end
+
+    # # Returns the result of adding `self` and *other*'s raw object.
+    # def +(other : VirtualTime(T)) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw + other.raw)
+    # end
+
+    # # Returns the result of adding the raw object and *other*.
+    # def +(other : T) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw + other)
+    # end
+
+    # # Returns the result of multiplying `self` and *other*'s raw object.
+    # def *(other : VirtualTime) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw * other.raw)
+    # end
+
+    # # Returns the result of multiplying the raw object and *other*.
+    # def *(other : T) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw * other)
+    # end
+
+    # # Returns the result of dividing `self` and *other*'s raw object.
+    # def /(other : VirtualTime) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw / other.raw)
+    # end
+
+    # # Returns the result of dividing the raw object and *other*.
+    # def /(other : T) : VirtualTime(T)
+    #   VirtualTime(T).new(@raw / other)
+    # end
+
+    # def - : VirtualTime(T)
+    #   VirtualTime(T).new(-@raw)
+    # end
+
+    # --------------------------------------------
 
     # # Returns the result of subtracting `self` and *other*'s raw object.
     # def -(other : VTime) : VirtualTime(T)
