@@ -33,17 +33,17 @@ module Quartz
 
     def initialize(pull : ::JSON::PullParser)
       @bag = SimpleHash(OutputPort, Any).new
-      _sigma = INFINITY
-      _time = -INFINITY
+      _sigma = VirtualTime.infinity
+      _time = -VirtualTime.infinity
 
       pull.read_object do |key|
         case key
         when "name"
           super(String.new(pull))
         when "sigma"
-          _sigma = SimulationTime.new(pull)
+          _sigma = VirtualTime.new(pull)
         when "time"
-          _time = SimulationTime.new(pull)
+          _time = VirtualTime.new(pull)
         when "state"
           self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
           self.state = initial_state
@@ -58,17 +58,17 @@ module Quartz
 
     def initialize(pull : ::MessagePack::Unpacker)
       @bag = SimpleHash(OutputPort, Any).new
-      _sigma = INFINITY
-      _time = -INFINITY
+      _sigma = VirtualTime.infinity
+      _time = -VirtualTime.infinity
 
       pull.read_hash(false) do
         case key = Bytes.new(pull)
         when "name".to_slice
           super(String.new(pull))
         when "sigma".to_slice
-          _sigma = SimulationTime.new(pull)
+          _sigma = VirtualTime.new(pull)
         when "time".to_slice
-          _time = SimulationTime.new(pull)
+          _time = VirtualTime.new(pull)
         when "state".to_slice
           self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
           self.state = initial_state
@@ -125,8 +125,8 @@ module Quartz
       json.object do
         json.field("name") { @name.to_json(json) }
         json.field("state") { state.to_json(json) }
-        json.field("time") { @time.to_json(json) } unless @time.abs == INFINITY
-        json.field("sigma") { @sigma.to_json(json) } unless @sigma.abs == INFINITY
+        json.field("time") { @time.to_json(json) } unless @time.abs == VirtualTime.infinity
+        json.field("sigma") { @sigma.to_json(json) } unless @sigma.abs == VirtualTime.infinity
       end
     end
 

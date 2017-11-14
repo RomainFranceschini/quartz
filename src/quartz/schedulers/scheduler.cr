@@ -15,7 +15,7 @@ module Quartz
     abstract def delete(value : T) : T
   end
 
-  alias Priority = SimulationTime
+  alias Priority = VTime
 
   # Try with 0.19
   # module Schedulable

@@ -2,8 +2,8 @@ module Quartz
   # This class represent the interface to the simulation
   class Simulation
     include Logging
-    include Enumerable(SimulationTime)
-    include Iterable(SimulationTime)
+    include Enumerable(VTime)
+    include Iterable(VTime)
 
     # Represents the current simulation status.
     enum Status
@@ -19,7 +19,7 @@ module Quartz
     getter status
 
     @status : Status
-    @time : SimulationTime
+    @time : VTime
     @scheduler : Symbol
     @processor : Simulable?
     @start_time : Time?
@@ -36,9 +36,9 @@ module Quartz
     def initialize(model : Model, *,
                    scheduler : Symbol = :calendar_queue,
                    maintain_hierarchy : Bool = true,
-                   duration : SimulationTime = Quartz::INFINITY,
+                   duration : VTime = VirtualTime.infinity,
                    run_validations : Bool = false)
-      @time = 0
+      @time = VirtualTime.zero
 
       @model = case model
                when AtomicModel, MultiComponent::Model
@@ -203,7 +203,7 @@ module Quartz
       end
     end
 
-    def step : SimulationTime?
+    def step : VTime?
       case @status
       when Status::Ready
         initialize_simulation
@@ -269,7 +269,7 @@ module Quartz
     end
 
     class StepIterator
-      include Iterator(SimulationTime)
+      include Iterator(VTime)
 
       def initialize(@simulation : Simulation)
       end

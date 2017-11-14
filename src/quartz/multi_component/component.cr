@@ -6,13 +6,14 @@ module Quartz
       include Validations
       include AutoState
 
-      property time_last : SimulationTime = 0
-      property time_next : SimulationTime = 0
+      property time_last : VTime = VirtualTime.zero
+      property time_next : VTime = VirtualTime.zero
 
       getter influencers = Array(Component).new
       getter influencees = Array(Component).new
 
       @__parent__ : MultiComponent::Model?
+
       def __parent__=(parent : MultiComponent::Model)
         @__parent__ = parent
       end

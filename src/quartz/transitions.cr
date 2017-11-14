@@ -3,22 +3,22 @@ module Quartz
   # in line to the PDEVS functions definition (δext, δint, δcon, λ and ta) and
   # the PDEVS variables (σ, e, t).
   module Transitions
-    @elapsed : SimulationTime
-    @sigma : SimulationTime
-    @time : SimulationTime
+    @elapsed : VTime
+    @sigma : VTime
+    @time : VTime
 
     # This attribute is updated automatically along simulation and represents
     # the elapsed time since the last transition.
-    property elapsed = 0.0
+    property elapsed = VirtualTime.zero
 
     # This attribute is updated along with simulation clock and
     # represent the last simulation time at which this model
     # was activated. Its default assigned value is -INFINITY.
-    property time = -INFINITY
+    property time = -VirtualTime.infinity
 
     # Sigma (σ) is a convenient variable introduced to simplify modeling phase
     # and represent the next activation time (see `#time_advance`)
-    getter sigma = INFINITY
+    getter sigma = VirtualTime.infinity
 
     # PDEVS functions
 
@@ -78,7 +78,7 @@ module Quartz
     #   self.sigma
     # end
     # ```
-    def time_advance : SimulationTime
+    def time_advance : VTime
       @sigma
     end
 

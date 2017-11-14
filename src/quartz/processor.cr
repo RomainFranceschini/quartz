@@ -12,8 +12,8 @@ module Quartz
     include Logging
 
     getter model : Model
-    getter time_next : SimulationTime
-    getter time_last : SimulationTime
+    getter time_next : VTime
+    getter time_last : VTime
     property sync : Bool
     property parent : Coordinator?
 
@@ -41,6 +41,6 @@ module Quartz
     end
 
     abstract def collect_outputs(time) : Hash(OutputPort, Any)
-    abstract def perform_transitions(time) : SimulationTime
+    abstract def perform_transitions(time) : VTime
   end
 end

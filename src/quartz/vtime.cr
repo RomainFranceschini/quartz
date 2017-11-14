@@ -171,6 +171,20 @@ module Quartz
       new(Infinity.positive)
     end
 
+    # Reads a `Quartz::VTime` value from the given pull parser.
+    # Note: this may lead to a loss of precision.
+    # Raises if the underlying value is a special data type.
+    def self.new(pull : JSON::PullParser)
+      case pull.kind
+      when :int
+        new pull.read_int
+      when :float
+        new pull.read_float
+      else
+        raise "Unknown pull kind: #{pull.kind}"
+      end
+    end
+
     # getter raw : T | Infinity | Zero
     getter raw : T
 
@@ -420,6 +434,11 @@ module Quartz
 
     def to_f
       @raw.to_f
+    end
+
+    # :nodoc:
+    def to_json(json : JSON::Builder)
+      raw.to_json(json)
     end
   end
 
