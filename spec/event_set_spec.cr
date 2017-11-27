@@ -15,20 +15,24 @@ end
 private class EventSetTester
   @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new
   @lq : LadderQueue(Ev) = LadderQueue(Ev).new
+  @bh : BinaryHeap(Ev) = BinaryHeap(Ev).new
 
   def test(&block : EventSet(Ev) ->)
     it "(CalendarQueue)" { block.call(@cq) }
     it "(LadderQueue)" { block.call(@lq) }
+    it "(BinaryHeap)" { block.call(@bh) }
   end
 end
 
 private class EventSetTesterF
   @cq : CalendarQueue(EvF) = CalendarQueue(EvF).new
   @lq : LadderQueue(EvF) = LadderQueue(EvF).new
+  @bh : BinaryHeap(EvF) = BinaryHeap(EvF).new
 
   def test(&block : EventSet(EvF) ->)
     it "(CalendarQueue)" { block.call(@cq) }
     it "(LadderQueue)" { block.call(@lq) }
+    it "(BinaryHeap)" { block.call(@bh) }
   end
 end
 
