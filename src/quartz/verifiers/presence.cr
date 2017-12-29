@@ -1,7 +1,7 @@
 module Quartz
-  module Validators
-    class PresenceValidator < EachValidator
-      def validate_each(model, attribute, value)
+  module Verifiers
+    class PresenceChecker < EachChecker
+      def check_each(model, attribute, value)
         if value.nil?
           model.errors.add(attribute, "can't be nil")
         elsif value.responds_to?(:empty?)

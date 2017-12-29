@@ -27,6 +27,7 @@ module Quartz
       case event_set
       when :ladder_queue   then LadderQueue(T).new
       when :calendar_queue then CalendarQueue(T).new
+      when :binary_heap    then BinaryHeap(T).new
       else
         if (logger = Quartz.logger?) && logger.warn?
           logger.warn("Unknown event set '#{event_set}', defaults to calendar queue")

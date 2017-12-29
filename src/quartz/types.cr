@@ -38,22 +38,8 @@ module Quartz
   module Transferable
   end
 
-  # The `Type` alias is used to denote all types that may be transmitted
-  # between two `Port`s through couplings.
-  #
-  # See the `Transferable` marker module to extend the list of transferable
-  # types.
-  alias Type = Nil |
-               Bool |
-               Number::Primitive |
-               String |
-               Symbol |
-               Array(Type) |
-               Hash(Type, Type) |
-               Transferable
-
   # TODO Rename to virtual time, use an interface ?
-  alias SimulationTime = Number::Primitive
+  alias SimulationTime = Float::Primitive | Int16 | Int32 | Int64 | Int8 | UInt16 | UInt32 | UInt64 | UInt8
 
   INFINITY = Float32::INFINITY
 end

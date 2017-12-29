@@ -1,89 +1,89 @@
 require "./spec_helper"
-require "./validations_helper"
+require "./verifiable_helper"
 
-describe "Validations" do
-  describe ".validates" do
-    it "requires at least one validation rule" do
-      expect_raises ArgumentError, "You must inform at least one validation rule" do
-        MyModel.validates :test
+describe "Verifiable" do
+  describe ".check" do
+    it "requires at least one verification rule" do
+      expect_raises ArgumentError, "You must inform at least one verification rule" do
+        MyModel.check :test
       end
     end
 
-    it "does not allow invalid validation rules" do
-      expect_raises ArgumentError, "Unknown validator \"unknown_validator\"" do
-        MyModel.validates :number, unknown_validator: true
+    it "does not allow invalid verification rules" do
+      expect_raises ArgumentError, "Unknown verifier \"unknown_verifier\"" do
+        MyModel.check :number, unknown_verifier: true
       end
     end
   end
 
-  describe ".clear_validators" do
-    it "removes all validators associated with the class" do
-      MyModel.validates :number, presence: true
-      MyModel.validates :string, presence: true
+  describe ".clear_verifiers" do
+    it "removes all verifiers associated with the class" do
+      MyModel.check :number, presence: true
+      MyModel.check :string, presence: true
 
-      MyModel.validators.size.should eq(2)
-      MyModel.clear_validators
-      MyModel.validators.size.should eq(0)
+      MyModel.verifiers.size.should eq(2)
+      MyModel.clear_verifiers
+      MyModel.verifiers.size.should eq(0)
     end
   end
 
   describe "#errors" do
-    it "returns an instance of ValidationErrors" do
+    it "returns an instance of VerificationErrors" do
       model = MyModel.new
-      model.errors.should be_a(ValidationErrors)
+      model.errors.should be_a(VerificationErrors)
     end
   end
 
   describe "#valid?" do
-    context "without validation rules" do
+    context "without verification rules" do
       it "returns always true" do
         MyModel.new.valid?.should be_true
       end
     end
 
-    context "with strict validators" do
+    context "with strict verifiers" do
       it "raises an error when invalid" do
-        MyModel.validates :buffer, presence: { strict: true }
-        expect_raises StrictValidationFailed do
+        MyModel.check :buffer, presence: {strict: true}
+        expect_raises StrictVerificationFailed do
           model = MyModel.new.valid?
         end
-        MyModel.clear_validators
+        MyModel.clear_verifiers
       end
     end
 
     context "with valid attributes" do
       it "returns true" do
-        MyModel.validates :buffer, presence: true
+        MyModel.check :buffer, presence: true
         model = MyModel.new
-        model.buffer = [1,2]
+        model.buffer = [1, 2]
         model.valid?.should be_true
-        MyModel.clear_validators
+        MyModel.clear_verifiers
       end
 
       context "after unsuccessful validation" do
         it "returns true" do
-          MyModel.validates :number, presence: true
+          MyModel.check :number, presence: true
           model = MyModel.new
           model.number = Float32::NAN
           model.valid?.should be_false
           model.number = 42.0f32
           model.valid?.should be_true
-          MyModel.clear_validators
+          MyModel.clear_verifiers
         end
       end
     end
 
     context "with invalid attributes" do
       it "returns false" do
-        MyModel.validates :string, presence: true
+        MyModel.check :string, presence: true
         model = MyModel.new
         model.string = ""
         model.valid?.should be_false
-        MyModel.clear_validators
+        MyModel.clear_verifiers
       end
 
       it "adds error messages" do
-        MyModel.validates :bool, :string, presence: true
+        MyModel.check :bool, :string, presence: true
         model = MyModel.new
         model.bool = false
         model.string = ""
@@ -95,13 +95,13 @@ describe "Validations" do
         model.errors.messages[:bool].size.should_not eq(0)
         model.errors.messages[:string].size.should_not eq(0)
 
-        MyModel.clear_validators
+        MyModel.clear_verifiers
       end
 
       context "and a given context" do
-        MyModel.validates(:number, numericality: { greater_than: 20, on: :some_context })
+        MyModel.check(:number, numericality: {greater_than: 20, on: :some_context})
 
-        it "validators with matching context adds error messages" do
+        it "verifiers with matching context adds error messages" do
           model = MyModel.new
           model.number = 0.0f32
 
@@ -112,7 +112,7 @@ describe "Validations" do
           model.errors.messages[:number].first.should eq("must be greater than 20")
         end
 
-        it "validators that doesn't match context don't add errors" do
+        it "verifiers that doesn't match context don't add errors" do
           model = MyModel.new
           model.number = 0f32
 
@@ -122,7 +122,7 @@ describe "Validations" do
           model.errors.messages.has_key?(:number).should be_false
         end
 
-        MyModel.clear_validators
+        MyModel.clear_verifiers
       end
     end
   end

@@ -3,7 +3,7 @@ module Quartz
     abstract class Component < Model
       include Transitions
       include Observable
-      include Validations
+      include Verifiable
       include AutoState
 
       property time_last : VTime = VirtualTime.zero

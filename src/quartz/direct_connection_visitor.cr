@@ -33,11 +33,11 @@ module Quartz
         internal_couplings = model.internal_couplings.clear
 
         @new_internal_couplings.each do |src, ary|
-          src.peers_ports.clear
+          src.siblings_ports.clear
           src.upward_ports.clear
 
           ary.each do |dst|
-            src.peers_ports << dst
+            src.siblings_ports << dst
             dst.downward_ports.clear
           end
 

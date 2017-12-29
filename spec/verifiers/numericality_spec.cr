@@ -1,24 +1,24 @@
 require "../spec_helper"
-require "../validations_helper"
+require "../verifiable_helper"
 
-describe "NumericalityValidator" do
-  describe "#validate" do
+describe "NumericalityChecker" do
+  describe "#check" do
     context "greater than" do
       it "don't adds error for numbers greater than target" do
         model = NumericModel.new(NumericModel::State.new(int: 42))
-        Validators::NumericalityValidator.new(:int, greater_than: 10).validate(model)
+        Verifiers::NumericalityChecker.new(:int, greater_than: 10).check(model)
         model.errors[:int].should be_nil
       end
 
       it "adds error for numbers equal to target" do
         model = NumericModel.new(NumericModel::State.new(int: 50))
-        Validators::NumericalityValidator.new(:int, greater_than: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, greater_than: 50).check(model)
         model.errors[:int].should eq(["must be greater than 50"])
       end
 
       it "adds error for numbers lesser than target" do
         model = NumericModel.new(NumericModel::State.new(int: 1))
-        Validators::NumericalityValidator.new(:int, greater_than: 10).validate(model)
+        Verifiers::NumericalityChecker.new(:int, greater_than: 10).check(model)
         model.errors[:int].should eq(["must be greater than 10"])
       end
     end
@@ -26,19 +26,19 @@ describe "NumericalityValidator" do
     context "greater than or equal to" do
       it "don't adds error for numbers greater than target" do
         model = NumericModel.new(NumericModel::State.new(int: 42))
-        Validators::NumericalityValidator.new(:int, greater_than_or_equal_to: 10).validate(model)
+        Verifiers::NumericalityChecker.new(:int, greater_than_or_equal_to: 10).check(model)
         model.errors[:int].should be_nil
       end
 
       it "don't adds error for numbers equal to target" do
         model = NumericModel.new(NumericModel::State.new(int: 42))
-        Validators::NumericalityValidator.new(:int, greater_than_or_equal_to: 42).validate(model)
+        Verifiers::NumericalityChecker.new(:int, greater_than_or_equal_to: 42).check(model)
         model.errors[:int].should be_nil
       end
 
       it "adds error for numbers lesser than target" do
         model = NumericModel.new(NumericModel::State.new(int: 1))
-        Validators::NumericalityValidator.new(:int, greater_than_or_equal_to: 10).validate(model)
+        Verifiers::NumericalityChecker.new(:int, greater_than_or_equal_to: 10).check(model)
         model.errors[:int].should eq(["must be greater than or equal to 10"])
       end
     end
@@ -46,19 +46,19 @@ describe "NumericalityValidator" do
     context "lesser than" do
       it "don't adds error for numbers lesser than target" do
         model = NumericModel.new(NumericModel::State.new(int: 42))
-        Validators::NumericalityValidator.new(:int, lesser_than: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, lesser_than: 50).check(model)
         model.errors[:int].should be_nil
       end
 
       it "adds error for numbers equal to target" do
         model = NumericModel.new(NumericModel::State.new(int: 50))
-        Validators::NumericalityValidator.new(:int, lesser_than: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, lesser_than: 50).check(model)
         model.errors[:int].should eq(["must be lesser than 50"])
       end
 
       it "adds error for numbers greater than target" do
         model = NumericModel.new(NumericModel::State.new(int: 65))
-        Validators::NumericalityValidator.new(:int, lesser_than: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, lesser_than: 50).check(model)
         model.errors[:int].should eq(["must be lesser than 50"])
       end
     end
@@ -66,19 +66,19 @@ describe "NumericalityValidator" do
     context "lesser than or equal to" do
       it "don't adds error for numbers lesser than target" do
         model = NumericModel.new(NumericModel::State.new(int: 42))
-        Validators::NumericalityValidator.new(:int, lesser_than_or_equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, lesser_than_or_equal_to: 50).check(model)
         model.errors[:int].should be_nil
       end
 
       it "don't adds error for numbers equal to target" do
         model = NumericModel.new(NumericModel::State.new(int: 42))
-        Validators::NumericalityValidator.new(:int, lesser_than_or_equal_to: 42).validate(model)
+        Verifiers::NumericalityChecker.new(:int, lesser_than_or_equal_to: 42).check(model)
         model.errors[:int].should be_nil
       end
 
       it "adds error for numbers greater than target" do
         model = NumericModel.new(NumericModel::State.new(int: 65))
-        Validators::NumericalityValidator.new(:int, lesser_than_or_equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, lesser_than_or_equal_to: 50).check(model)
         model.errors[:int].should eq(["must be lesser than or equal to 50"])
       end
     end
@@ -86,19 +86,19 @@ describe "NumericalityValidator" do
     context "equal to" do
       it "adds error for numbers greater than target" do
         model = NumericModel.new(NumericModel::State.new(int: 65))
-        Validators::NumericalityValidator.new(:int, equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, equal_to: 50).check(model)
         model.errors[:int].should eq(["must be equal to 50"])
       end
 
       it "adds error for numbers lesser than target" do
         model = NumericModel.new(NumericModel::State.new(int: 9))
-        Validators::NumericalityValidator.new(:int, equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, equal_to: 50).check(model)
         model.errors[:int].should eq(["must be equal to 50"])
       end
 
       it "don't adds errors for numbers equal to target" do
         model = NumericModel.new(NumericModel::State.new(int: 50))
-        Validators::NumericalityValidator.new(:int, equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, equal_to: 50).check(model)
         model.errors[:int].should be_nil
       end
     end
@@ -106,19 +106,19 @@ describe "NumericalityValidator" do
     context "not equal to" do
       it "don't adds error for numbers greater than target" do
         model = NumericModel.new(NumericModel::State.new(int: 65))
-        Validators::NumericalityValidator.new(:int, not_equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, not_equal_to: 50).check(model)
         model.errors[:int].should be_nil
       end
 
       it "don't adds error for numbers lesser than target" do
         model = NumericModel.new(NumericModel::State.new(int: 9))
-        Validators::NumericalityValidator.new(:int, not_equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, not_equal_to: 50).check(model)
         model.errors[:int].should be_nil
       end
 
       it "adds errors for numbers equal to target" do
         model = NumericModel.new(NumericModel::State.new(int: 50))
-        Validators::NumericalityValidator.new(:int, not_equal_to: 50).validate(model)
+        Verifiers::NumericalityChecker.new(:int, not_equal_to: 50).check(model)
         model.errors[:int].should eq(["must be other than 50"])
       end
     end
@@ -126,7 +126,7 @@ describe "NumericalityValidator" do
     context "allow nil" do
       it "don't adds error if number is nan?" do
         model = NumericModel.new(NumericModel::State.new(float: Float64::NAN))
-        Validators::NumericalityValidator.new(:float, allow_nil: true).validate(model)
+        Verifiers::NumericalityChecker.new(:float, allow_nil: true).check(model)
         model.errors[:float].should be_nil
       end
     end
@@ -134,10 +134,9 @@ describe "NumericalityValidator" do
     context "don't allow nil" do
       it "don't adds error if number is nan?" do
         model = NumericModel.new(NumericModel::State.new(float: Float64::NAN))
-        Validators::NumericalityValidator.new(:float, allow_nil: false).validate(model)
+        Verifiers::NumericalityChecker.new(:float, allow_nil: false).check(model)
         model.errors[:float].should eq(["is not a number"])
       end
     end
-
   end
 end

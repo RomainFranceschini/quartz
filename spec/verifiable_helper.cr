@@ -2,7 +2,7 @@ require "big"
 
 class MyModel
   include Quartz::AutoState
-  include Quartz::Validations
+  include Quartz::Verifiable
 
   state_var buffer : Array(Int32)?
   state_var number : Float32
@@ -28,7 +28,7 @@ end
 
 class NumericModel
   include Quartz::AutoState
-  include Quartz::Validations
+  include Quartz::Verifiable
 
   state_var int : Int32
   state_var float : Float64
@@ -58,7 +58,7 @@ end
 
 class SmallModel
   include Quartz::AutoState
-  include Quartz::Validations
+  include Quartz::Verifiable
 
   state_var weight : Float64 = 0.0 # in kg
   state_var height : Int32 = 0     # in cm

@@ -60,24 +60,27 @@ describe "Observable" do
   end
 end
 
-private class MyPortObserver
-  include Observer
-
-  def update(observer)
-  end
-end
-
 describe "Port" do
   describe "Observable" do
-    it "raises when adding a PortObserver on output port attached to a coupled" do
+    it "adds an observer to attached atomic models when the host is a coupled" do
       atom = AtomicModel.new("am")
       coupled = CoupledModel.new("cm")
-
+      coupled << atom
+      aop = OutputPort.new(atom, "aop")
       cop = OutputPort.new(coupled, "cop")
+      coupled.attach(aop, cop)
 
-      expect_raises UnobservablePortError do
-        cop.add_observer(MyPortObserver.new)
-      end
+      observer = Bar.new
+      cop.add_observer(observer)
+
+      cop.count_observers.should eq(0)
+      aop.count_observers.should eq(1)
+
+      cop.notify_observers
+      observer.calls.should eq(0)
+
+      aop.notify_observers
+      observer.calls.should eq(1)
     end
   end
 end

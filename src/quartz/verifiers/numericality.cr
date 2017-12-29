@@ -1,6 +1,6 @@
 module Quartz
-  module Validators
-    class NumericalityValidator < EachValidator
+  module Verifiers
+    class NumericalityChecker < EachChecker
       getter targets : Hash(Symbol, Number::Primitive)
 
       VALID_KEYS = {
@@ -15,7 +15,7 @@ module Quartz
         {:zero},
         {:not_zero},
         {:finite},
-        {:infinite}
+        {:infinite},
       }
 
       # TODO what about big numbers?
@@ -35,7 +35,7 @@ module Quartz
         end
       end
 
-      def validate_each(model, attribute, value)
+      def check_each(model, attribute, value)
         return if value.nil? && allow_nil?
 
         if value.is_a?(Number)

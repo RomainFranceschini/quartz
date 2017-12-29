@@ -22,16 +22,19 @@ module Quartz
 
   # This class represents an output port that belongs to a `Coupleable` (the *host*).
   class OutputPort < Port
-    getter(peers_ports) { Array(InputPort).new }
+    getter(siblings_ports) { Array(InputPort).new }
     getter(upward_ports) { Array(OutputPort).new }
 
     include Observable
 
     def add_observer(observer)
       if @host.is_a?(CoupledModel)
-        raise UnobservablePortError.new("Only atomic models output ports are observable.")
+        @host.as(CoupledModel).each_output_coupling_reverse(self) do |src, _|
+          src.add_observer(observer)
+        end
+      else
+        super(observer)
       end
-      super(observer)
     end
   end
 end
