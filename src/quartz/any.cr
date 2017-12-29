@@ -12,7 +12,7 @@ module Quartz
     # types.
     alias Type = Nil |
                  Bool |
-                 Number::Primitive |
+                 Float::Primitive | Int16 | Int32 | Int64 | Int8 | UInt16 | UInt32 | UInt64 | UInt8 |
                  String |
                  Symbol |
                  Array(Any) |

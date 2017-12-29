@@ -39,7 +39,7 @@ module Quartz
   end
 
   # TODO Rename to virtual time, use an interface ?
-  alias SimulationTime = Number::Primitive
+  alias SimulationTime = Float::Primitive | Int16 | Int32 | Int64 | Int8 | UInt16 | UInt32 | UInt64 | UInt8
 
   INFINITY = Float32::INFINITY
 end
