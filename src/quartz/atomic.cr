@@ -93,9 +93,8 @@ module Quartz
     #
     # Raises an `InvalidPortHostError` if the given port doesn't belong to this
     # model.
-    protected def post(value : Type, on : OutputPort)
-      raise InvalidPortHostError.new("Given port doesn't belong to this model") if on.host != self
-      @bag.unsafe_assoc(on, Any.new(value))
+    protected def post(value : Any::Type, on : OutputPort)
+      post(Any.new(value), on)
     end
 
     # Drops off an output *value* to the specified output *port*.
@@ -104,7 +103,16 @@ module Quartz
     # model.
     # Raises an `NoSuchPortError` if the given output port doesn't exists.
     @[AlwaysInline]
-    protected def post(value : Type, on : Name)
+    protected def post(value : Any::Type, on : Name)
+      post(Any.new(value), self.output_port(on))
+    end
+
+    protected def post(value : Any, on : OutputPort)
+      raise InvalidPortHostError.new("Given port doesn't belong to this model") if on.host != self
+      @bag.unsafe_assoc(on, value)
+    end
+
+    protected def post(value : Any, on : Name)
       post(value, self.output_port(on))
     end
 

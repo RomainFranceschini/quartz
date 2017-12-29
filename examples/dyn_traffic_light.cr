@@ -1,7 +1,6 @@
 require "../src/quartz"
 
 class TrafficLight < Quartz::AtomicModel
-
   input :interrupt
   output :observed
 
@@ -53,7 +52,6 @@ class TrafficLight < Quartz::AtomicModel
 end
 
 class Policeman < Quartz::AtomicModel
-
   state_var phase : Symbol = :idle1
 
   output :alternate, :add_coupling, :remove_coupling
@@ -77,11 +75,12 @@ class Policeman < Quartz::AtomicModel
     when :working1, :working2
       post :to_autonomous, :alternate
     else
-      tl1 = Hash(Quartz::Type, Quartz::Type).new
-      tl1[:src] = :policeman
-      tl1[:dst] = :traffic_light1
-      tl1[:src_port] = :alternate
-      tl1[:dst_port] = :interrupt
+      tl1 = Quartz::Any.hash.tap do |h|
+        h[:src] = :policeman
+        h[:dst] = :traffic_light1
+        h[:src_port] = :alternate
+        h[:dst_port] = :interrupt
+      end
 
       tl2 = tl1.dup
       tl2[:dst] = :traffic_light2
@@ -119,7 +118,7 @@ class Grapher
 
   def update(model, info)
     if model.is_a?(Quartz::DSDE::Executive) && info
-      kind = info[:kind]
+      kind = info[:transition]
       if kind == :internal || kind == :confluent
         @simulation.generate_graph("dyntrafficlight_#{@simulation.time.to_i}")
       end
