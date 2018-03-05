@@ -3,6 +3,7 @@ require "msgpack"
 
 require "./quartz/version"
 require "./quartz/types"
+require "./quartz/scale"
 require "./quartz/comparison"
 require "./quartz/any"
 require "./quartz/list"
