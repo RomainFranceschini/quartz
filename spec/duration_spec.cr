@@ -24,7 +24,6 @@ describe "Duration" do
         (Duration.new(100) / 5).equals?(Duration.new(20)).should be_true
         (Duration.new(4010, Scale::MILLI) / 4).equals?(Duration.new(1002500, Scale::MICRO)).should be_true
 
-        # TODO fix: first returns infinity, but shouldn't overflow
         (Duration.new(1000, Scale::MILLI) / 3).should eq(Duration.new(333333333333333, Scale.new(-5)))
       end
 
