@@ -1,6 +1,10 @@
 require "./spec_helper"
 
 describe "Scale" do
+  it "defines a factor constant" do
+    Scale::FACTOR.should eq(1000_i64)
+  end
+
   it "scale division yields a power of factor constant" do
     (Scale::TERA / Scale::MEGA).should eq(Scale::FACTOR ** 2)
     (Scale::MILLI / Scale::PICO).should eq(1000000000)

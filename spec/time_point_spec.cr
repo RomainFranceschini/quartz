@@ -18,14 +18,14 @@ describe "TimePoint" do
   end
 
   describe "#at" do
-    it "returns block content if given precision is out of range" do
+    it "returns 0 if given precision is out of range" do
       tp = TimePoint.new(5000388, Scale::MICRO)
-      tp.at(Scale.new(-3)) { 0_i16 }.should eq(0_i16)
-      tp.at(Scale.new(1)) { 0_i16 }.should eq(0_i16)
+      tp[Scale.new(-3)].should eq(0_i16)
+      tp[Scale.new(1)].should eq(0_i16)
 
       tp = TimePoint.new(1170, Scale::MILLI)
-      tp.at(Scale::MICRO) { 0_i16 }.should eq(0_i16)
-      tp.at(Scale::KILO) { 0_i16 }.should eq(0_i16)
+      tp[Scale::MICRO].should eq(0_i16)
+      tp[Scale::KILO].should eq(0_i16)
     end
   end
 
@@ -253,13 +253,21 @@ describe "TimePoint" do
     it "returns the exact difference between two time points when possible" do
       a = TimePoint.new(31775100, Scale.new(-2))
       b = TimePoint.new(1170, Scale.new(-1))
-      (a.gap(b)).should eq(Duration.new(30605100, Scale.new(-2)))
+      a.gap(b).should eq(Duration.new(30605100, Scale.new(-2)))
+
+      c = TimePoint.new(5, Scale.new(-4))
+      d = TimePoint.new(982734, Scale.new(-1))
+      d.gap(c).should eq(Duration.new(982733999999995, Scale.new(-4)))
     end
 
     it "returns a coarser precision when the exact difference cannot be represented" do
       a = TimePoint.new(7, 3, 5, 6, 2, 9, precision: Scale.new(-5))
       b = TimePoint.new(6, Scale.new(0))
       (a.gap(b)).should eq(Duration.new(1003005006002, Scale.new(-4)))
+
+      a = TimePoint.new(5, 5, 5, 5, 5, 5, 5, 5, 5, 5, precision: Scale.new(-4))
+      b = TimePoint.new(3, 3, 3, 3, 3, 3, 3, precision: Scale.new(3))
+      b.gap(a).should eq(Duration.new(3_003_003_002_997, Scale.new(5)))
     end
 
     it "approximates based on the result" do

@@ -10,11 +10,20 @@ module Quartz
 
     # The limiting multiplier of the `Duration` type.
     #
-    # The 1000^5 limit is chosen as the largest power of 1000 less than 2^53, the
-    # point at which `Float64` ceases to exactly represent all integers.
-    MULTIPLIER_MAX = Scale::FACTOR ** EPOCH
+    # The 1000^5 limit is chosen as the largest power of 1000 less than 2^53,
+    # the point at which `Float64` ceases to exactly represent all integers.
+    MULTIPLIER_LIMIT = Scale::FACTOR ** EPOCH
 
-    # An infinite duration
+    # The largest finite multiplier that can be represented by a `Duration`.
+    MULTIPLIER_MAX = MULTIPLIER_LIMIT - 1
+
+    # The smallest finite multiplier that can be represented by a `Duration`.
+    MULTIPLIER_MIN = 0_i64
+
+    # The infinite multiplier
+    MULTIPLIER_INFINITE = Float64::INFINITY
+
+    # An infinite duration with a base scale.
     INFINITY = new(Float64::INFINITY)
 
     @fixed : Bool = false
@@ -22,9 +31,9 @@ module Quartz
     @multiplier : Float64
 
     def initialize(m : Number = 0i64, @precision : Scale = Scale::BASE, @fixed : Bool = false)
-      @multiplier = if m >= MULTIPLIER_MAX
+      @multiplier = if m > MULTIPLIER_MAX
                       Float64::INFINITY
-                    elsif m <= -MULTIPLIER_MAX
+                    elsif m < -MULTIPLIER_MAX
                       -Float64::INFINITY
                     elsif m.is_a?(Float)
                       m.round
@@ -117,7 +126,7 @@ module Quartz
                     @multiplier + other.multiplier
                   end
             # coarsen precision while multiplier overflows
-            until -MULTIPLIER_MAX < tmp < MULTIPLIER_MAX
+            until -MULTIPLIER_LIMIT < tmp < MULTIPLIER_LIMIT
               precision += 1
               tmp /= Scale::FACTOR
             end
@@ -149,7 +158,7 @@ module Quartz
                     @multiplier - other.multiplier
                   end
             # coarsen precision while multiplier overflows
-            until -MULTIPLIER_MAX < tmp < MULTIPLIER_MAX
+            until -MULTIPLIER_LIMIT < tmp < MULTIPLIER_LIMIT
               precision += 1
               tmp /= Scale::FACTOR
             end
@@ -166,13 +175,13 @@ module Quartz
         m = m.round
       elsif n.abs < 1
         # while multiplier has a fractional part and precision refining doesn't overflow
-        while (m % 1 > 0) && (m < MULTIPLIER_MAX / Scale::FACTOR) && (m > -MULTIPLIER_MAX / Scale::FACTOR)
+        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT / Scale::FACTOR) && (m > -MULTIPLIER_LIMIT / Scale::FACTOR)
           precision -= 1
           m *= Scale::FACTOR
         end
       else
         # coarsen precisison while multiplier overflows
-        until -MULTIPLIER_MAX < m < MULTIPLIER_MAX
+        until -MULTIPLIER_LIMIT < m < MULTIPLIER_LIMIT
           precision += 1
           m /= Scale::FACTOR
         end
@@ -188,7 +197,7 @@ module Quartz
         m = m.round
       elsif n.abs > 1
         # while multiplier has a fractional part and scale refining doesn't overflow
-        while (m % 1 > 0) && (m < MULTIPLIER_MAX / Scale::FACTOR) && (m > -MULTIPLIER_MAX / Scale::FACTOR)
+        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT / Scale::FACTOR) && (m > -MULTIPLIER_LIMIT / Scale::FACTOR)
           precision -= 1
           m *= Scale::FACTOR
         end
@@ -207,7 +216,7 @@ module Quartz
     # The numerator and denominator may have different precision levels and the
     # result is a scalar with no prescribed precision.
     def /(other : Duration) : Float64
-      (@multiplier / other.@multiplier) * (@precision / other.precision)
+      (@multiplier / other.multiplier) * (@precision / other.precision)
     end
 
     # Implements the comparison operator.
@@ -217,16 +226,18 @@ module Quartz
     # with different precision levels.
     def <=>(other : self)
       if (@precision == other.precision) || (infinite? || other.infinite?)
-        @multiplier <=> other.@multiplier
+        multiplier <=> other.multiplier
+      elsif @precision < other.precision
+        multiplier <=> other.rescale(@precision).multiplier
       else
-        @multiplier <=> other.rescale(@precision).@multiplier
+        rescale(other.precision).multiplier <=> other.multiplier
       end
     end
 
     # Equality — Returns `true` only if `self` and *other* are equivalent in both
     # multiplier and time precision.
     def equals?(other : self)
-      @multiplier == other.@multiplier && @precision == other.precision
+      multiplier == other.multiplier && @precision == other.precision
     end
 
     def to_s(io)
@@ -234,8 +245,11 @@ module Quartz
         io << @multiplier
       else
         io << @multiplier.to_i64
-        io << "x1e"
-        io << @precision.level*3
+        if @precision.level != 0
+          io << 'e'
+          io << (@precision.level < 0 ? '-' : '+')
+          io << (@precision.level * 3).abs
+        end
       end
       io
     end

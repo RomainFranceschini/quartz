@@ -1,6 +1,13 @@
 require "./spec_helper"
 
 describe "Duration" do
+  it "defines epoch and multiplier constants" do
+    Duration::EPOCH.should eq(5)
+    Duration::MULTIPLIER_LIMIT.should eq(1000i64 ** 5)
+    Duration::MULTIPLIER_MAX.should eq(1000i64 ** 5 - 1)
+    Duration::MULTIPLIER_MIN.should eq(0)
+  end
+
   describe "with unfixed precision" do
     describe "may refine scale" do
       it "for addition" do
@@ -147,9 +154,13 @@ describe "Duration" do
 
     Duration.new(1).rescale(Scale::FEMTO).infinite?.should be_true
     Duration.new(1).fixed_at(Scale::FEMTO).infinite?.should be_true
-
     Duration.new(1).rescale(Scale::FEMTO).should eq(Duration::INFINITY)
     Duration.new(1).fixed_at(Scale::FEMTO).should eq(Duration::INFINITY)
+  end
+
+  it "rounds off when scaling up" do
+    Duration.new(1552, Scale::MILLI).rescale(Scale::BASE).should eq(Duration.new(2, Scale::BASE))
+    Duration.new(1499, Scale::MILLI).rescale(Scale::BASE).should eq(Duration.new(1, Scale::BASE))
   end
 
   it "can be compared" do

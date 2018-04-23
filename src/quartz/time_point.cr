@@ -1,12 +1,14 @@
 module Quartz
-  # The `TimePoint` data type represents points in simulated time. It is
-  # intended internally. The modeller only has to manipulate `Duration` values.
+  # The `TimePoint` data type represents points in simulated time, and is
+  # intended to be used internally.
   #
   # Its main purpose is to describe event times as offsets from a common
   # reference point. It may be perturbed by a `Duration` value.
   #
   # It is implemented as an arbitrary-precision integer, and provides only
   # relevant methods.
+  #
+  # The modeller should only manipulate `Duration` values.
   #
   # **TODO**:
   #   - handle sign.
@@ -17,10 +19,7 @@ module Quartz
     include Comparable(self)
 
     # The base of the simulated arithmetic.
-    private BASE = 1000_i16
-
-    # The `TimePoint` constant zero.
-    ZERO = new(0, Scale::BASE)
+    private BASE = Scale::FACTOR.to_i16
 
     # Returns the precision associated with the least significant number.
     getter precision : Scale
@@ -41,15 +40,25 @@ module Quartz
         @magnitude << (n % BASE).to_i16
         n /= BASE
       end
+
+      coarsen! if @magnitude.size > 1
     end
 
     # Creates a new `TimePoint`, whose value is given by *numbers*, initialized at
-    # the given *precision*, and given *sign*.
+    # the given *precision*.
     #
     # The *numbers* must be ordered and organized from the most-significant number
     # to the least-significant number.
     def initialize(*numbers : Int, @precision : Scale = Scale::BASE)
       @magnitude = numbers.reverse.map(&.abs.to_i16).to_a
+    end
+
+    # Creates a new `TimePoint`, whose value depends on the given *magnitude,
+    # initialized at the given *precision*.
+    #
+    # The *magnitude* must be ordered and organized from the least-significant
+    # number to the least-signifiant number.
+    def initialize(@magnitude : Array(Int16), @precision : Scale)
     end
 
     # Whether `self` is a zero time point value.
@@ -63,22 +72,20 @@ module Quartz
       @magnitude.size
     end
 
-    # Returns the integer corresponding to the indicated precision, raises otherwise.
+    # Returns a shallow copy of `self`.
+    def dup
+      TimePoint.new(@magnitude.dup, @precision)
+    end
+
+    # Returns the integer corresponding to the indicated precision, or zero if
+    # not in bounds.
     def [](scale : Scale) : Int16
-      if @precision <= scale < (@precision + @magnitude.size)
-        @magnitude[scale - @precision]
-      else
-        raise IndexError.new
-      end
+      at(scale) { 0_i16 }
     end
 
     # Returns the integer corresponding to the indicated precision, or `nil`.
     def []?(scale : Scale) : Int16?
-      if @precision <= scale < (@precision + @magnitude.size)
-        @magnitude[scale - @precision]
-      else
-        nil
-      end
+      at(scale) { nil }
     end
 
     # Returns the element at the given *precision*, if in bounds,
@@ -181,14 +188,14 @@ module Quartz
     #
     # Doesn't truncate result to the duration precision.
     def +(duration : Duration) : TimePoint
-      self.dup.advance(duration, truncate: false)
+      dup.advance(duration, truncate: false)
     end
 
     # Returns a new `TimePoint` to which the given `Duration` is subtracted.
     #
     # Doesn't truncate result to the duration precision.
     def -(duration : Duration) : TimePoint
-      self.dup.advance(-duration, truncate: false)
+      dup.advance(-duration, truncate: false)
     end
 
     # Measure the difference between `self` and another instance of `self`.
@@ -199,12 +206,7 @@ module Quartz
     #
     # See also `#gap`.
     def -(other : TimePoint) : Duration
-      if (@precision - other.precision) > Duration::EPOCH
-        Duration::INFINITY
-      else
-        multiplier, precision = difference(with: other)
-        Duration.new(multiplier, precision)
-      end
+      difference with: other, approximate: false
     end
 
     # Measure the difference between `self` and another instance of `self`.
@@ -215,58 +217,66 @@ module Quartz
     #
     # See also `#-`.
     def gap(other : TimePoint) : Duration
-      if (@precision - other.precision) > Duration::EPOCH
-        if other.precision < @precision
-          other.coarse_to!(other.precision + (((@precision - other.precision) - Duration::EPOCH)))
-        else
-          self.coarse_to!(@precision + (((@precision - other.precision) - Duration::EPOCH)))
-        end
-      end
-
-      multiplier, precision = difference(with: other)
-
-      until multiplier < Duration::MULTIPLIER_MAX
-        multiplier /= BASE
-        precision += 1
-      end
-
-      Duration.new(multiplier, precision)
+      difference with: other, approximate: true
     end
 
     # Computes the difference between two instances of `self`.
-    private def difference(with other : TimePoint) : {Int64, Scale}
-      multiplier = 0_i64
-      carry = 0_i64
-
-      diff = (@precision - other.precision)
+    private def difference(with other : TimePoint, approximate : Bool) : Duration
       little, big = (@precision < other.precision) ? {self, other} : {other, self}
-      precision = little.precision
+      diff = @precision - other.precision
+      count = Math.max(diff + big.size, little.size)
 
-      Math.max(diff + big.size - 1, little.size).times do |i|
-        carry += if i < little.size
-                   self.at(precision) { 0_i16 } - other.at(precision) { 0_i16 }
-                 else
-                   big.at(precision) { 0_i16 }
-                 end
-        multiplier += (carry % BASE).to_i64 * BASE.to_i64 ** i
-        carry = carry / BASE
-        precision += 1
+      if diff > Duration::EPOCH && !approximate
+        return Duration::INFINITY
       end
 
-      multiplier += carry
+      precision = little.precision + Math.max(0, count - Duration::EPOCH - 1)
 
-      {multiplier, little.precision}
+      truncated = precision - little.precision
+      result_precision = precision
+
+      multiplier = 0_i64
+      carry = 0_i64
+      exponent = 0
+
+      (count - truncated).times do |i|
+        carry += if i < little.size - truncated
+                   self[precision + i] - other[precision + i]
+                 else
+                   big[precision + i]
+                 end
+
+        n = (carry % BASE) * BASE.to_i64 ** exponent
+
+        # check overflow
+        if (n > Duration::MULTIPLIER_MAX - multiplier)
+          if approximate
+            result_precision += 1
+            exponent -= 1
+            n /= BASE
+            multiplier /= BASE
+          else
+            return Duration.new(Duration::MULTIPLIER_INFINITE, precision)
+          end
+        end
+
+        multiplier += n
+        carry = carry / BASE
+        exponent += 1
+      end
+
+      Duration.new(multiplier, result_precision)
     end
 
-    # Convert this `TimePoint`to an `Int64`.
+    # Convert this `TimePoint` to an `Int64`.
     #
     # Note: this conversion can lose information about the overall magnitude of
     # `self` as well as return a result with the opposite sign.
     def to_i64
       n = 0_i64
-      @magnitude.each_with_index(0) { |digit, i|
+      @magnitude.each_with_index(0) do |digit, i|
         n += digit.to_i64 * BASE.to_i64 ** (@precision.level.abs + i)
-      }
+      end
       n
     end
 
@@ -293,8 +303,8 @@ module Quartz
         # lengths are equal, compare the values
         cmp = 0
         Math.max(lhs_size, rhs_size).times do
-          lhs = self.at(precision) { 0_i16 }
-          rhs = other.at(precision) { 0_i16 }
+          lhs = self[precision]
+          rhs = other[precision]
           if lhs < rhs
             cmp = -1
             break
@@ -305,6 +315,19 @@ module Quartz
           precision += 1
         end
         cmp
+      end
+    end
+
+    def to_s(io)
+      if zero?
+        io << '0'
+      else
+        @magnitude.reverse_each.join("_", io)
+      end
+      if @precision.level != 0
+        io << 'e'
+        io << (@precision.level < 0 ? '-' : '+')
+        io << (@precision.level * 3).abs
       end
     end
 
