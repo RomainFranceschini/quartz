@@ -71,6 +71,18 @@ module Quartz
     def <=>(other : Number) : Int32
       @level <=> other
     end
+
+    def to_f32
+      FACTOR.to_f32 ** @level
+    end
+
+    def to_f64
+      FACTOR.to_f64 ** @level
+    end
+
+    def to_f
+      to_f64
+    end
   end
 end
 

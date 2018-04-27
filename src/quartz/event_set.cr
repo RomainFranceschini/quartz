@@ -53,7 +53,7 @@ module Quartz
 
     def initialize(priority_queue : Symbol, @current_time : TimePoint = TimePoint.new(0))
       {% if T < Schedulable || (T.union? && T.union_types.all? { |t| t < Schedulable }) %}
-        # Support schedulable types, or union types with only nil or reference types
+        # Support schedulable types, or union types with only scheulable types
       {% else %}
         {{ raise "Can only create EventSet with types that implements Schedulable, not #{T}" }}
       {% end %}

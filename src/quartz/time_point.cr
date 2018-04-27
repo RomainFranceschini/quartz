@@ -280,6 +280,26 @@ module Quartz
       n
     end
 
+    # Convert this `TimePoint` to an `Int32`.
+    #
+    # Note: this conversion can lose information about the overall magnitude of
+    # `self` as well as return a result with the opposite sign.
+    def to_i32
+      to_i64.to_i32
+    end
+
+    def to_i
+      to_i32
+    end
+
+    # Convert this `TimePoint` to a `BigInt`.
+    def to_big_i
+      str = String.build do |io|
+        a.reverse_each { |digit| io.printf("%03d", digit) }
+      end
+      BigInt.new(str, BASE.to_i)
+    end
+
     # Comparison operator
     def <=>(other : TimePoint)
       compare_magnitudes(other)
