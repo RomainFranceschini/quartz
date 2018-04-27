@@ -1,5 +1,7 @@
 module Quartz
   abstract class Processor
+    include Schedulable
+
     # :nodoc:
     OBS_INFO_INIT_PHASE = {:phase => Any.new(:init)}
     # :nodoc:
@@ -12,16 +14,12 @@ module Quartz
     include Logging
 
     getter model : Model
-    getter time_next : SimulationTime
-    getter time_last : SimulationTime
     property sync : Bool
     property parent : Coordinator?
 
     @bag : Hash(InputPort, Array(Any))?
 
     def initialize(@model : Model)
-      @time_next = 0
-      @time_last = 0
       @sync = false
       @model.processor = self
     end
@@ -40,7 +38,8 @@ module Quartz
       nil
     end
 
-    abstract def collect_outputs(time) : Hash(OutputPort, Any)
-    abstract def perform_transitions(time) : SimulationTime
+    abstract def initialize_processor(time : TimePoint) : {Duration, Duration}
+    abstract def collect_outputs(time : TimePoint) : Hash(OutputPort, Any)
+    abstract def perform_transitions(planned : Duration, elapsed : Duration) : Duration
   end
 end

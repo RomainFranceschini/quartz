@@ -4,7 +4,7 @@ private module ObservedSimulationScenario
   class ObserverTestError < Exception; end
 
   class Foo < Quartz::AtomicModel
-    @sigma = 0
+    @sigma = Duration.new(0)
 
     def initialize(name)
       super(name)
@@ -12,7 +12,7 @@ private module ObservedSimulationScenario
     end
 
     def internal_transition
-      @sigma = Quartz::INFINITY
+      @sigma = Duration::INFINITY
     end
 
     def output

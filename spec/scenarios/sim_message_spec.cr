@@ -1,13 +1,12 @@
 require "../spec_helper"
 
 private module MsgScenario
-
   class MsgTestError < Exception; end
 
   class G < Quartz::AtomicModel
     def initialize(name)
       super(name)
-      @sigma = 1
+      @sigma = Duration.new(1)
       add_output_port :out
     end
 
@@ -21,15 +20,15 @@ private module MsgScenario
 
     def internal_transition
       @int_calls += 1
-      raise MsgTestError.new unless @elapsed == 0
-      @sigma = Quartz::INFINITY
+      raise MsgTestError.new unless @elapsed == Duration.new(1)
+      @sigma = Duration::INFINITY
     end
   end
 
   class R < Quartz::AtomicModel
     def initialize(name)
       super(name)
-      @sigma = Quartz::INFINITY
+      @sigma = Duration::INFINITY
       add_input_port :in
     end
 
@@ -40,9 +39,8 @@ private module MsgScenario
     def external_transition(bag)
       @ext_calls += 1
 
-      raise MsgTestError.new unless @elapsed == 1
+      raise MsgTestError.new unless @elapsed == Duration.new(1)
       raise MsgTestError.new unless bag[input_port(:in)] == ["value", "value"]
-
     end
   end
 
@@ -90,7 +88,6 @@ private module MsgScenario
   end
 
   describe "MessageTest" do
-
     describe "with IC, EOC and EIC couplings involved" do
       describe "transition are properly called" do
         it "for full hierarchy" do
@@ -162,6 +159,5 @@ private module MsgScenario
         end
       end
     end
-
   end
 end

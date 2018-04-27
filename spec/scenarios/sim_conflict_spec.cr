@@ -1,13 +1,12 @@
 require "../spec_helper"
 
 private module ConflictScenario
-
   class ConflictTestError < Exception; end
 
   class G < Quartz::AtomicModel
     def initialize(name)
       super(name)
-      @sigma = 1
+      @sigma = Duration.new(1)
       add_output_port :out
     end
 
@@ -21,14 +20,14 @@ private module ConflictScenario
 
     def internal_transition
       @int_calls += 1
-      @sigma = Quartz::INFINITY
+      @sigma = Duration::INFINITY
     end
   end
 
   class R < Quartz::AtomicModel
     def initialize(name)
       super(name)
-      @sigma = 1
+      @sigma = Duration.new(1)
       add_input_port :in
     end
 
@@ -43,10 +42,10 @@ private module ConflictScenario
       @con_calls += 1
 
       # TODO use observer ?
-      raise ConflictTestError.new("elapsed time should eq 0") unless @elapsed == 0
+      raise ConflictTestError.new("elapsed time should eq 0") unless @elapsed.zero?
       raise ConflictTestError.new("bag should contain (:in, [\"value\"])") unless bag[input_port(:in)] == ["value"]
 
-      @sigma = Quartz::INFINITY
+      @sigma = Duration::INFINITY
     end
 
     def internal_transition

@@ -33,17 +33,14 @@ module Quartz
 
     def initialize(pull : ::JSON::PullParser)
       @bag = SimpleHash(OutputPort, Any).new
-      _sigma = INFINITY
-      _time = -INFINITY
+      _sigma = Duration::INFINITY
 
       pull.read_object do |key|
         case key
         when "name"
           super(String.new(pull))
         when "sigma"
-          _sigma = SimulationTime.new(pull)
-        when "time"
-          _time = SimulationTime.new(pull)
+          _sigma = Duration.new(pull)
         when "state"
           self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
           self.state = initial_state
@@ -53,22 +50,18 @@ module Quartz
       end
 
       @sigma = _sigma
-      @time = _time
     end
 
     def initialize(pull : ::MessagePack::Unpacker)
       @bag = SimpleHash(OutputPort, Any).new
-      _sigma = INFINITY
-      _time = -INFINITY
+      _sigma = Duration::INFINITY
 
       pull.read_hash(false) do
         case key = Bytes.new(pull)
         when "name".to_slice
           super(String.new(pull))
         when "sigma".to_slice
-          _sigma = SimulationTime.new(pull)
-        when "time".to_slice
-          _time = SimulationTime.new(pull)
+          _sigma = Duration.new(pull)
         when "state".to_slice
           self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
           self.state = initial_state
@@ -78,12 +71,10 @@ module Quartz
       end
 
       @sigma = _sigma
-      @time = _time
     end
 
     def inspect(io)
       io << "<" << self.class.name << ": name=" << @name
-      io << ", time=" << @time.to_s(io)
       io << ", elapsed=" << @elapsed.to_s(io)
       io << ">"
       nil
@@ -133,8 +124,7 @@ module Quartz
       json.object do
         json.field("name") { @name.to_json(json) }
         json.field("state") { state.to_json(json) }
-        json.field("time") { @time.to_json(json) } unless @time.abs == INFINITY
-        json.field("sigma") { @sigma.to_json(json) } unless @sigma.abs == INFINITY
+        json.field("sigma") { @sigma.to_json(json) } unless @sigma.infinite?
       end
     end
 
@@ -145,8 +135,6 @@ module Quartz
       @name.to_msgpack(packer)
       packer.write("state")
       state.to_msgpack(packer)
-      packer.write("time")
-      @time.to_msgpack(packer)
       packer.write("sigma")
       @sigma.to_msgpack(packer)
     end

@@ -28,14 +28,14 @@ module Quartz
       }
     end
 
-    def initialize_processor(time)
+    def initialize_processor(time : TimePoint) : {Duration, Duration}
       atomic = @model.as(AtomicModel)
       @int_count = @ext_count = @con_count = 0u32
 
-      atomic.time = time
+      # atomic.time = time
       atomic.__initialize_state__(self)
-      @time_last = time - atomic.elapsed
-      @time_next = @time_last + atomic.time_advance
+      elapsed = atomic.elapsed
+      planned_duration = atomic.time_advance
 
       if @run_validations && atomic.invalid?(:initialization)
         if (logger = Quartz.logger?) && logger.error?
@@ -50,13 +50,13 @@ module Quartz
       if (logger = Quartz.logger?) && logger.debug?
         logger.debug(String.build { |str|
           str << '\'' << atomic.name << "' initialized ("
-          str << "tl: " << @time_last << ", tn: " << @time_next << ')'
+          str << "elapsed: " << elapsed << ", time_next: " << planned_duration << ')'
         })
       end
 
       atomic.notify_observers(OBS_INFO_INIT_TRANSITION)
 
-      @time_next
+      {elapsed, planned_duration}
     rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
@@ -69,21 +69,18 @@ module Quartz
       raise err
     end
 
-    def collect_outputs(time)
-      raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
-      @model.as(AtomicModel).time = time
+    def collect_outputs(time : TimePoint)
       @model.as(AtomicModel).fetch_output!
     end
 
-    def perform_transitions(time)
-      synced = @time_last <= time && time <= @time_next
+    def perform_transitions(planned : Duration, elapsed : Duration) : Duration
       atomic = @model.as(AtomicModel)
       bag = @bag || EMPTY_BAG
 
       info = nil
       kind = nil
-      if time == @time_next
-        atomic.elapsed = 0
+      if elapsed == planned
+        atomic.elapsed = elapsed
         if bag.empty?
           @int_count += 1u32
           atomic.internal_transition
@@ -95,25 +92,23 @@ module Quartz
           info = OBS_INFO_CON_TRANSITION
           kind = :confluent
         end
-      elsif synced && !bag.empty?
-        atomic.time = time
+      elsif elapsed < planned && !bag.empty?
         @ext_count += 1u32
-        atomic.elapsed = time - @time_last
+        atomic.elapsed = elapsed
         atomic.external_transition(bag)
         info = OBS_INFO_EXT_TRANSITION
         kind = :external
-      elsif !synced
-        raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
+      else
+        raise BadSynchronisationError.new
       end
 
       bag.clear
-      @time_last = time
-      @time_next = @time_last + atomic.time_advance
+      planned_duration = atomic.time_advance
 
       if (logger = Quartz.logger?) && logger.debug?
         logger.debug(String.build { |str|
           str << '\'' << atomic.name << "': " << kind << " transition "
-          str << "(tl: " << @time_last << ", tn: " << @time_next << ')'
+          str << "(elapsed: " << elapsed << ", time_next: " << planned_duration << ')'
         })
       end
 
@@ -121,7 +116,7 @@ module Quartz
         if (logger = Quartz.logger?) && logger.error?
           logger.error(String.build { |str|
             str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
-            str << " (context: '" << kind << "', time: )" << time << "). "
+            str << " (context: '" << kind << "')."
             str << "Errors: " << atomic.errors.full_messages
           })
         end
@@ -129,13 +124,13 @@ module Quartz
 
       atomic.notify_observers(info)
 
-      @time_next
+      planned_duration
     rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
         logger.fatal(String.build { |str|
           str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
-          str << " (context: 'init', time: " << time << "). "
+          str << " (context: '" << kind << "')."
           str << "Errors: " << atomic.errors.full_messages
         })
       end
