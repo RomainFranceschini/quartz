@@ -1,4 +1,9 @@
 module Quartz
+  # The `Schedulable` module is used as an interface for data types that may
+  # be scheduled within an `EventSet`.
+  module Schedulable
+    property planned_phase : Duration = Duration::INFINITY
+  end
   # A `PriorityQueue` is the base class to implement a planning strategy for all
   # future events to be evaluated. Events should be dequeued in a strict order
   # of precedence, according to their associated priority.
@@ -9,16 +14,16 @@ module Quartz
   #
   # It is internally used by the pending event set `EventSet`.
   abstract class PriorityQueue(T)
-    def self.new(priority_queue : Symbol) : self
+    def self.new(priority_queue : Symbol, &comparator : Duration, Duration -> Int32) : self
       case priority_queue
-      when :ladder_queue   then LadderQueue(T).new
-      when :calendar_queue then CalendarQueue(T).new
-      when :binary_heap    then BinaryHeap(T).new
+      when :ladder_queue   then LadderQueue(T).new(&comparator)
+      when :calendar_queue then CalendarQueue(T).new(&comparator)
+      when :binary_heap    then BinaryHeap(T).new(&comparator)
       else
         if (logger = Quartz.logger?) && logger.warn?
-          logger.warn("Unknown event set '#{priority_queue}', defaults to calendar queue")
+          logger.warn("Unknown priority queue '#{priority_queue}', defaults to calendar queue")
         end
-        CalendarQueue(T).new
+        CalendarQueue(T).new(&comparator)
       end
     end
 
@@ -30,8 +35,7 @@ module Quartz
     abstract def peek : T
     abstract def peek? : T?
     abstract def pop : T
-    abstract def delete(value : T) : T
-    abstract def priority(value : T) : Duration
+    abstract def delete(priority : Duration, value : T)
     abstract def next_priority : Duration
   end
 
@@ -41,19 +45,23 @@ module Quartz
     # Returns the current time associated with the event set.
     getter current_time : TimePoint
 
-    @priority_queue : PriorityQueue(T)
-
-    @future_events : Hash(T, Duration)
+    getter priority_queue : PriorityQueue(T)
 
     def self.new(time : TimePoint = TimePoint.new(0)) : self
       new(:calendar_queue, time)
     end
 
     def initialize(priority_queue : Symbol, @current_time : TimePoint = TimePoint.new(0))
-      @priority_queue = PriorityQueue(T).new { |a, b|
+      {% if T < Schedulable || (T.union? && T.union_types.all? { |t| t < Schedulable }) %}
+        # Support schedulable types, or union types with only nil or reference types
+      {% else %}
+        {{ raise "Can only create EventSet with types that implements Schedulable, not #{T}" }}
+      {% end %}
+
+      @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b|
         cmp_planned_phases(a, b)
       }
-      @future_events = Hash(T, Duration).new
+      @future_events = Set(T).new
     end
 
     # Returns the number of scheduled events.
@@ -103,29 +111,33 @@ module Quartz
 
     # Cancel the specified event.
     def cancel_event(event : T)
-      if @future_events.delete(event)
+      phase = event.planned_phase
+      if @future_events.includes?(event)
+        @future_events.delete(event)
         event
       else
-        @priority_queue.delete(event)
+        @priority_queue.delete(phase, event)
       end
     end
 
     # Returns the planned duration after which the specified event will occur.
     def duration_of(event : T) : Duration
-      phase = @future_events[event]? || @priority_queue.priority(event)
-      duration_from_phase(phase)
+      duration_from_phase(event.planned_phase)
     end
 
-    # Schedules a future event.
+    # Schedules a future event at a given planned *duration*.
     def plan_event(event : T, duration : Duration)
       planned_phase = phase_from_duration(duration)
 
+      event.planned_phase = planned_phase
       if planned_phase < duration
         # The event is in the next epoch
-        @future_events[event] = planned_phase
+        @future_events.add(event)
       else
         @priority_queue.push(planned_phase, event)
       end
+
+      planned_phase
     end
 
     # Returns the planned `Duration` associated with the future imminent events
@@ -174,10 +186,10 @@ module Quartz
     end
 
     private def plan_next_epoch_events
-      @future_events.each do |event, planned_phase|
-        @priority_queue.push(planned_phase, event)
+      @future_events.each do |event|
+        @priority_queue.push(event.planned_phase, event)
       end
-      @future_events.clear # TODO: optimize
+      @future_events.clear
     end
 
     # Converts a planned duration to a planned phase (offset from epoch).

@@ -51,7 +51,7 @@ module Quartz
       self
     end
 
-    def peek? : T
+    def peek? : T?
       peek { nil }
     end
 
@@ -104,20 +104,11 @@ module Quartz
       nil
     end
 
-    def delete(e) : T?
+    def delete(priority : Duration, event : T) : T
       raise "heap is empty" if @size == 0
-      index = @cache[e]
-      @cache[e] = 0
-      if index
-        delete_at(index)[1]
-      else
-        nil
-      end
-    end
-
-    def priority(e) : Duration
-      raise "heap is empty" if @size == 0
-      @heap[@cache[e]][0]
+      index = @cache[event]
+      @cache[event] = -1
+      delete_at(index)[1]
     end
 
     private def delete_at(index) : {Duration, T}
