@@ -129,7 +129,7 @@ module Quartz
         end
 
         @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
-        bag.each_value &.clear
+        bag.clear
         @synchronize.clear
         @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
 
