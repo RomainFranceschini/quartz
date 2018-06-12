@@ -23,17 +23,17 @@ module Quartz
       @stack.push parent_processor
     end
 
-    def visit(model : DSDE::CoupledModel)
-      processor = if model == @root_model
-                    @root_coordinator = DSDE::RootCoordinator.new(model, @simulation)
-                  else
-                    DSDE::DynamicCoordinator.new(model, @simulation)
-                  end
-      if parent = @stack.last?
-        parent << processor
-      end
-      @stack.push processor
-    end
+    # def visit(model : DSDE::CoupledModel)
+    #   processor = if model == @root_model
+    #                 @root_coordinator = DSDE::RootCoordinator.new(model, @simulation)
+    #               else
+    #                 DSDE::DynamicCoordinator.new(model, @simulation)
+    #               end
+    #   if parent = @stack.last?
+    #     parent << processor
+    #   end
+    #   @stack.push processor
+    # end
 
     def visit(model : CoupledModel)
       processor = if model == @root_model
@@ -55,9 +55,9 @@ module Quartz
       @stack.last << Simulator.new(model, @simulation)
     end
 
-    def visit(model : MultiComponent::Model)
-      @stack.last << MultiComponent::Simulator.new(model, @simulation)
-    end
+    # def visit(model : MultiComponent::Model)
+    #   @stack.last << MultiComponent::Simulator.new(model, @simulation)
+    # end
 
     def visit(model)
       raise ProcessorAllocationError.new("No processor able to simulate \"#{model.name}\" model.")

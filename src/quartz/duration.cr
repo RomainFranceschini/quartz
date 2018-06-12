@@ -24,11 +24,19 @@ module Quartz
     MULTIPLIER_INFINITE = Float64::INFINITY
 
     # An infinite duration with a base scale.
-    INFINITY = new(Float64::INFINITY)
+    INFINITY = new(MULTIPLIER_INFINITE)
 
     @fixed : Bool = false
     getter precision : Scale = Scale::BASE
     @multiplier : Float64
+
+    def self.infinity(precision : Scale = Scale::BASE, fixed : Bool = false)
+      new(MULTIPLIER_INFINITE, precision, fixed)
+    end
+
+    def self.zero(precision : Scale = Scale::BASE, fixed : Bool = false)
+      new(0, precision, fixed)
+    end
 
     def initialize(m : Number = 0i64, @precision : Scale = Scale::BASE, @fixed : Bool = false)
       @multiplier = if m > MULTIPLIER_MAX
@@ -62,28 +70,11 @@ module Quartz
     end
 
     def initialize(pull : ::MessagePack::Unpacker)
-      m = nil
-      p = nil
-
       pull.read_hash_size
       Bytes.new(pull)
       @multiplier = pull.read_uint.to_f64
       Bytes.new(pull)
       @precision = Scale.new(pull.read_uint)
-
-      # pull.read_hash(read_key: false) do
-      #   case key = Bytes.new(pull)
-      #   when "multiplier".to_slice
-      #     m = pull.read_uint.to_f64
-      #   when "precision".to_slice
-      #     p = Scale.new(pull.read_uint)
-      #   else
-      #     raise MessagePack::UnpackException.new("Unknown msgpack attribute: #{String.new(key)}")
-      #   end
-      # end
-
-      # @multiplier = m.as(Float64)
-      # @precision = p.as(Scale)
     end
 
     # Returns the multiplier of `self`.

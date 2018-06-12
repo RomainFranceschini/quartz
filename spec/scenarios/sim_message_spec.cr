@@ -12,6 +12,7 @@ private module MsgScenario
 
     getter output_calls : Int32 = 0
     getter int_calls : Int32 = 0
+    getter elapsed_values : Array(Duration) = Array(Duration).new
 
     def output
       @output_calls += 1
@@ -20,7 +21,7 @@ private module MsgScenario
 
     def internal_transition
       @int_calls += 1
-      raise MsgTestError.new unless @elapsed == Duration.new(1)
+      @elapsed_values << @elapsed
       @sigma = Duration::INFINITY
     end
   end
@@ -35,11 +36,11 @@ private module MsgScenario
     getter ext_calls : Int32 = 0
     getter int_calls : Int32 = 0
     getter output_calls : Int32 = 0
+    getter elapsed_values : Array(Duration) = Array(Duration).new
 
     def external_transition(bag)
       @ext_calls += 1
-
-      raise MsgTestError.new unless @elapsed == Duration.new(1)
+      @elapsed_values << @elapsed
       raise MsgTestError.new unless bag[input_port(:in)] == ["value", "value"]
     end
   end
@@ -98,12 +99,16 @@ private module MsgScenario
           m.r.ext_calls.should eq(1)
           m.r.int_calls.should eq(0)
           m.r.output_calls.should eq(0)
+          m.r.elapsed_values.first.should eq(Duration.new(1))
 
           m.g1.int_calls.should eq(1)
           m.g2.int_calls.should eq(1)
 
           m.g1.output_calls.should eq(1)
           m.g2.output_calls.should eq(1)
+
+          m.g1.elapsed_values.first.should eq(Duration.new(0))
+          m.g2.elapsed_values.first.should eq(Duration.new(0))
         end
 
         it "with flattening" do
@@ -114,12 +119,16 @@ private module MsgScenario
           m.r.ext_calls.should eq(1)
           m.r.int_calls.should eq(0)
           m.r.output_calls.should eq(0)
+          m.r.elapsed_values.first.should eq(Duration.new(1))
 
           m.g1.int_calls.should eq(1)
           m.g2.int_calls.should eq(1)
 
           m.g1.output_calls.should eq(1)
           m.g2.output_calls.should eq(1)
+
+          m.g1.elapsed_values.first.should eq(Duration.new(0))
+          m.g2.elapsed_values.first.should eq(Duration.new(0))
         end
       end
     end
@@ -134,12 +143,16 @@ private module MsgScenario
           m.r.ext_calls.should eq(1)
           m.r.int_calls.should eq(0)
           m.r.output_calls.should eq(0)
+          m.r.elapsed_values.first.should eq(Duration.new(1))
 
           m.g1.int_calls.should eq(1)
           m.g2.int_calls.should eq(1)
 
           m.g1.output_calls.should eq(1)
           m.g2.output_calls.should eq(1)
+
+          m.g1.elapsed_values.first.should eq(Duration.new(0))
+          m.g2.elapsed_values.first.should eq(Duration.new(0))
         end
 
         it "with flattening" do
@@ -150,12 +163,16 @@ private module MsgScenario
           m.r.ext_calls.should eq(1)
           m.r.int_calls.should eq(0)
           m.r.output_calls.should eq(0)
+          m.r.elapsed_values.first.should eq(Duration.new(1))
 
           m.g1.int_calls.should eq(1)
           m.g2.int_calls.should eq(1)
 
           m.g1.output_calls.should eq(1)
           m.g2.output_calls.should eq(1)
+
+          m.g1.elapsed_values.first.should eq(Duration.new(0))
+          m.g2.elapsed_values.first.should eq(Duration.new(0))
         end
       end
     end

@@ -19,7 +19,7 @@ module Quartz
 
     @status : Status
     @vtime : TimePoint
-    @final_vtime : TimePoint
+    @final_vtime : TimePoint?
     @scheduler : Symbol
     @processor : Simulable?
     @start_time : Time?
@@ -39,7 +39,12 @@ module Quartz
                    duration : Duration = Duration::INFINITY,
                    run_validations : Bool = false)
       @vtime = TimePoint.new(0)
-      @final_vtime = TimePoint.new(duration.multiplier, duration.precision)
+
+      @final_vtime = if duration.infinite?
+                       nil
+                     else
+                       TimePoint.new(duration.multiplier, duration.precision)
+                     end
 
       @model = case model
                when AtomicModel, MultiComponent::Model
@@ -73,7 +78,7 @@ module Quartz
     def inspect(io)
       io << "<" << self.class.name << ": status=" << status.to_s(io)
       io << ", time=" << @vtime.to_s(io)
-      io << ", final_time=" << @final_vtime.to_s(io)
+      io << ", final_time=" << @final_vtime ? @final_vtime.to_s(io) : "INFINITY"
       nil
     end
 
@@ -94,10 +99,14 @@ module Quartz
       when Status::Done
         1.0 * 100
       when Status::Running, Status::Aborted
-        if @vtime > @final_vtime
-          1.0 * 100
+        if final = @final_vtime
+          if @vtime > final
+            1.0 * 100
+          else
+            (@vtime.to_i64 - final) / (Duration.new(final.to_i64, final.precision)) * 100
+          end
         else
-          (@vtime.to_i64 - @final_vtime) / (Duration.new(@final_vtime.to_i64, @final_vtime.precision)) * 100
+          Float::NAN
         end
       end
     end
@@ -163,7 +172,7 @@ module Quartz
     private def begin_simulation
       @start_time = Time.now
       @status = Status::Running
-      info "Beginning simulation until time point: #{@final_vtime}"
+      info "Beginning simulation until time point: #{@final_vtime ? @final_vtime : "INFINITY"}"
       Hooks.notifier.notify(Hooks::PRE_SIMULATION)
     end
 
@@ -213,8 +222,14 @@ module Quartz
           logger.debug("Tick at #{@vtime}, #{Time.now - @start_time.not_nil!} secs elapsed.")
         end
         duration = processor.step(@vtime)
-        @vtime = @vtime.advance(duration)
-        end_simulation if @vtime >= @final_vtime
+        if duration.infinite?
+          end_simulation
+        else
+          @vtime = @vtime.advance(duration)
+          if (final = @final_vtime) && @vtime >= final
+            end_simulation
+          end
+        end
         @vtime
       else
         nil
@@ -228,12 +243,17 @@ module Quartz
         initialize_simulation unless initialized?
 
         begin_simulation
-        while @vtime < @final_vtime
+        loop do
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug("Tick at: #{@vtime}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
           duration = processor.step(@vtime)
-          @vtime = @vtime.advance(duration)
+          if duration.infinite?
+            break
+          else
+            @vtime = @vtime.advance(duration)
+            break if (final = @final_vtime) && @vtime >= final
+          end
         end
         end_simulation
       when Status::Running
@@ -254,12 +274,17 @@ module Quartz
         initialize_simulation unless initialized?
 
         begin_simulation
-        while @vtime < @final_vtime
+        loop do
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug("Tick at: #{@vtime}, #{Time.now - @start_time.not_nil!} secs elapsed.")
           end
           duration = processor.step(@vtime)
-          @vtime = @vtime.advance(duration)
+          if duration.infinite?
+            break
+          else
+            @vtime = @vtime.advance(duration)
+            break if (final = @final_vtime) && @vtime >= final
+          end
           yield(self)
         end
         end_simulation

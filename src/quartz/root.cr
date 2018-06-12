@@ -9,9 +9,9 @@ module Quartz
 
     @[AlwaysInline]
     def step(time : TimePoint) : Duration
-      planned = @event_set.imminent_duration # aweful hack
+      planned = @event_set.imminent_duration.fixed
       collect_outputs(time)
-      perform_transitions(planned, planned)
+      perform_transitions(time, planned)
     end
   end
 end

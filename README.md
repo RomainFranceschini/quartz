@@ -55,7 +55,7 @@ class LotkaVolterra < Quartz::AtomicModel
   state_var gamma : Float64 = 2.1     # predator mortality rate
   state_var delta : Float64 = 1.4     # predator per prey reproduction rate
 
-  @sigma = 0.0001                     # euler integration
+  @sigma = Duration.new(10, Scale::MICRO) # euler integration
 
   def internal_transition
     dxdt = ((@x * @alpha) - (@beta * @x * @y))

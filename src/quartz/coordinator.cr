@@ -60,9 +60,10 @@ module Quartz
       @children.each do |child|
         elapsed, planned_duration = child.initialize_processor(time)
         @time_cache.retain_event(child, elapsed)
-        # selected.push(child) if !planned_duration.infinite?
         if !planned_duration.infinite?
           @event_set.plan_event(child, planned_duration)
+        else
+          child.planned_phase = planned_duration
         end
         min_planned_duration = planned_duration if planned_duration < min_planned_duration
         max_elapsed = elapsed if elapsed > max_elapsed
@@ -74,7 +75,7 @@ module Quartz
 
       @model.as(CoupledModel).notify_observers(OBS_INFO_INIT_PHASE)
 
-      {max_elapsed, min_planned_duration}
+      {max_elapsed.fixed, min_planned_duration.fixed}
     end
 
     def collect_outputs(time : TimePoint)
@@ -129,8 +130,13 @@ module Quartz
       @parent_bag
     end
 
-    def perform_transitions(planned : Duration, elapsed : Duration) : Duration
+    def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
       bag = @bag || EMPTY_BAG
+
+      if @event_set.current_time < time && !bag.empty?
+        @event_set.advance until: time
+        @time_cache.advance until: time
+      end
 
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y
@@ -179,28 +185,36 @@ module Quartz
         #     @event_set.plan_duration(receiver, new_planned_duration)
         #   end
         # else
-        planned_duration = @event_set.duration_of(receiver)
+
+        remaining_duration = @event_set.duration_of(receiver)
+
         # before trying to cancel a receiver, test if time is not strictly
         # equal to its time_next. If true, it means that its model will
         # receiver either an internal transition or a confluent transition,
         # and that the receiver is no longer in the scheduler.
-        if !planned_duration.infinite? && planned_duration > elapsed_duration
+        if remaining_duration.zero?
+          elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+        elsif !remaining_duration.infinite?
+          @time_cache.release_event(receiver)
           @event_set.cancel_event(receiver)
         end
 
-        planned_duration = receiver.perform_transitions(planned, elapsed_duration)
-        if !planned_duration.infinite?
+        planned_duration = receiver.perform_transitions(time, elapsed_duration)
+
+        unless planned_duration.infinite?
           @event_set.plan_event(receiver, planned_duration)
         end
+
+        @time_cache.retain_event(receiver, planned_duration.precision)
       end
 
       # @event_set.reschedule! if @event_set.is_a?(ReschedulePriorityQueue)
-      bag.each_value &.clear
+      bag.clear
       @synchronize.clear
 
       @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
 
-      @event_set.imminent_duration
+      @event_set.imminent_duration.fixed
     end
   end
 end

@@ -2,7 +2,49 @@ module Quartz
   # The `Schedulable` module is used as an interface for data types that may
   # be scheduled within an `EventSet`.
   module Schedulable
-    property planned_phase : Duration = Duration::INFINITY
+    # Represents the planned phase, or the offset from the current epoch of the
+    # event set, associated with the event.
+    property planned_phase : Duration = Duration::INFINITY.fixed
+    # Represents the imaginary planned phase.
+    property imaginary_phase : Duration = Duration::INFINITY.fixed
+  end
+
+  # The `PhaseDelegate` mixin is used as an interface to represent an `EventSet`
+  # delegate object, which must adopt the `#get_phase` and `#set_phase` methods.
+  #
+  # The delegate manage the storage and the retrieval of a phase (offset from
+  # event set current epoch) associated with a given event.
+  module PhaseDelegate
+    abstract def get_phase(of event : Schedulable) : Duration
+    abstract def set_phase(phase : Duration, for event : Schedulable)
+  end
+
+  # A `PhaseDelegate` to use as a default with an `EventSet`.
+  # Store phases with `Schedulable#planned_phase` property.
+  module EventSetPhaseDelegate
+    extend PhaseDelegate
+
+    def self.get_phase(of event : Schedulable) : Duration
+      event.planned_phase
+    end
+
+    def self.set_phase(phase : Duration, for event : Schedulable)
+      event.planned_phase = phase
+    end
+  end
+
+  # A `PhaseDelegate` to use with `TimeCache`, which re-purpose the `EventSet`.
+  # Store phases with `Schedulable#imaginary_phase` property.
+  module TimeCachePhaseDelegate
+    extend PhaseDelegate
+
+    def self.get_phase(of event : Schedulable) : Duration
+      event.imaginary_phase
+    end
+
+    def self.set_phase(phase : Duration, for event : Schedulable)
+      event.imaginary_phase = phase
+    end
   end
   # A `PriorityQueue` is the base class to implement a planning strategy for all
   # future events to be evaluated. Events should be dequeued in a strict order
@@ -16,14 +58,15 @@ module Quartz
   abstract class PriorityQueue(T)
     def self.new(priority_queue : Symbol, &comparator : Duration, Duration -> Int32) : self
       case priority_queue
-      when :ladder_queue   then LadderQueue(T).new(&comparator)
-      when :calendar_queue then CalendarQueue(T).new(&comparator)
-      when :binary_heap    then BinaryHeap(T).new(&comparator)
+      # when :ladder_queue   then LadderQueue(T).new(&comparator)
+      # when :calendar_queue then CalendarQueue(T).new(&comparator)
+      when :binary_heap then BinaryHeap(T).new(&comparator)
       else
         if (logger = Quartz.logger?) && logger.warn?
-          logger.warn("Unknown priority queue '#{priority_queue}', defaults to calendar queue")
+          logger.warn("Unknown priority queue '#{priority_queue}', defaults to binary heap")
         end
-        CalendarQueue(T).new(&comparator)
+        # CalendarQueue(T).new(&comparator)
+        BinaryHeap(T).new(&comparator)
       end
     end
 
@@ -47,17 +90,18 @@ module Quartz
 
     getter priority_queue : PriorityQueue(T)
 
-    def self.new(time : TimePoint = TimePoint.new(0)) : self
+    def self.new(time : TimePoint = TimePoint.new(0), delegate : PhaseDelegate = EventSetPhaseDelegate) : self
       new(:calendar_queue, time)
     end
 
-    def initialize(priority_queue : Symbol, @current_time : TimePoint = TimePoint.new(0))
+    def initialize(priority_queue : Symbol, @current_time : TimePoint = TimePoint.new(0), delegate : PhaseDelegate = EventSetPhaseDelegate)
       {% if T < Schedulable || (T.union? && T.union_types.all? { |t| t < Schedulable }) %}
-        # Support schedulable types, or union types with only scheulable types
+        # Only support Schedulable types
       {% else %}
         {{ raise "Can only create EventSet with types that implements Schedulable, not #{T}" }}
       {% end %}
 
+      @delegate = delegate
       @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b|
         cmp_planned_phases(a, b)
       }
@@ -96,7 +140,7 @@ module Quartz
     # Raises if the current time advances beyond the imminent events.
     def advance(by duration : Duration) : TimePoint
       if duration > imminent_duration
-        raise "Current time cannot advance beyond imminent events."
+        raise BadSynchronisationError.new("Current time cannot advance beyond imminent events.")
       end
       @current_time = @current_time.advance by: duration
     end
@@ -111,7 +155,7 @@ module Quartz
 
     # Cancel the specified event.
     def cancel_event(event : T)
-      phase = event.planned_phase
+      phase = @delegate.get_phase(event)
       if @future_events.includes?(event)
         @future_events.delete(event)
         event
@@ -122,14 +166,14 @@ module Quartz
 
     # Returns the planned duration after which the specified event will occur.
     def duration_of(event : T) : Duration
-      duration_from_phase(event.planned_phase)
+      duration_from_phase(@delegate.get_phase(event))
     end
 
     # Schedules a future event at a given planned *duration*.
     def plan_event(event : T, duration : Duration)
       planned_phase = phase_from_duration(duration)
 
-      event.planned_phase = planned_phase
+      @delegate.set_phase(planned_phase, event)
       if planned_phase < duration
         # The event is in the next epoch
         @future_events.add(event)
@@ -187,7 +231,7 @@ module Quartz
 
     private def plan_next_epoch_events
       @future_events.each do |event|
-        @priority_queue.push(event.planned_phase, event)
+        @priority_queue.push(@delegate.get_phase(event), event)
       end
       @future_events.clear
     end

@@ -32,14 +32,15 @@ module Quartz
       @bag
     end
 
-    def inspect(io)
-      io << "<" << self.class.name << ": tn=" << @time_next.to_s(io)
-      io << ", tl=" << @time_last.to_s(io) << ">"
-      nil
-    end
+    # def inspect(io)
+    #   io << "<" << self.class.name << ": "
+    #   io << "planned_duration=" << @event_set.duration_from_phase(@planned_phase).to_s(io)
+    #   io << ", elapsed=" << @time_cache.elapsed_duration_of(self).to_s(io) << ">"
+    #   nil
+    # end
 
     abstract def initialize_processor(time : TimePoint) : {Duration, Duration}
     abstract def collect_outputs(time : TimePoint) : Hash(OutputPort, Any)
-    abstract def perform_transitions(planned : Duration, elapsed : Duration) : Duration
+    abstract def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
   end
 end

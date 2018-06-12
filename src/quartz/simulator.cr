@@ -32,7 +32,6 @@ module Quartz
       atomic = @model.as(AtomicModel)
       @int_count = @ext_count = @con_count = 0u32
 
-      # atomic.time = time
       atomic.__initialize_state__(self)
       elapsed = atomic.elapsed
       planned_duration = atomic.time_advance
@@ -56,7 +55,7 @@ module Quartz
 
       atomic.notify_observers(OBS_INFO_INIT_TRANSITION)
 
-      {elapsed, planned_duration}
+      {elapsed.fixed, planned_duration.fixed}
     rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
@@ -73,14 +72,15 @@ module Quartz
       @model.as(AtomicModel).fetch_output!
     end
 
-    def perform_transitions(planned : Duration, elapsed : Duration) : Duration
+    def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
       atomic = @model.as(AtomicModel)
       bag = @bag || EMPTY_BAG
 
       info = nil
       kind = nil
-      if elapsed == planned
-        atomic.elapsed = elapsed
+      atomic.elapsed = elapsed
+
+      if elapsed.zero?
         if bag.empty?
           @int_count += 1u32
           atomic.internal_transition
@@ -92,9 +92,8 @@ module Quartz
           info = OBS_INFO_CON_TRANSITION
           kind = :confluent
         end
-      elsif elapsed < planned && !bag.empty?
+      elsif elapsed > Duration.zero && !bag.empty?
         @ext_count += 1u32
-        atomic.elapsed = elapsed
         atomic.external_transition(bag)
         info = OBS_INFO_EXT_TRANSITION
         kind = :external
@@ -124,7 +123,7 @@ module Quartz
 
       atomic.notify_observers(info)
 
-      planned_duration
+      planned_duration.fixed
     rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?
