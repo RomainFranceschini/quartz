@@ -33,6 +33,8 @@ private module ConflictScenario
 
     getter con_calls : Int32 = 0
     getter output_calls : Int32 = 0
+    getter elapsed_values : Array(Duration) = Array(Duration).new
+    getter bags : Array(Hash(InputPort, Array(Quartz::Any))) = Array(Hash(InputPort, Array(Quartz::Any))).new
 
     def external_transition(bag)
       raise ConflictTestError.new
@@ -41,9 +43,8 @@ private module ConflictScenario
     def confluent_transition(bag)
       @con_calls += 1
 
-      # TODO use observer ?
-      raise ConflictTestError.new("elapsed time should eq 0") unless @elapsed.zero?
-      raise ConflictTestError.new("bag should contain (:in, [\"value\"])") unless bag[input_port(:in)] == ["value"]
+      @elapsed_values << @elapsed
+      @bags << bag.dup
 
       @sigma = Duration::INFINITY
     end
@@ -80,6 +81,11 @@ private module ConflictScenario
         sim.simulate
 
         m.r.con_calls.should eq(1)
+        m.r.elapsed_values.first.should eq(Duration.new(0))
+        m.r.bags.first.has_key?(m.r.input_port(:in)).should be_true
+        m.r.bags.first[m.r.input_port(:in)].should eq(["value"])
+        m.r.bags.first.keys.size.should eq(1)
+
         m.g.int_calls.should eq(1)
         m.g.output_calls.should eq(1)
       end
@@ -90,6 +96,11 @@ private module ConflictScenario
         sim.simulate
 
         m.r.con_calls.should eq(1)
+        m.r.elapsed_values.first.should eq(Duration.new(0))
+        m.r.bags.first.has_key?(m.r.input_port(:in)).should be_true
+        m.r.bags.first[m.r.input_port(:in)].should eq(["value"])
+        m.r.bags.first.keys.size.should eq(1)
+
         m.g.int_calls.should eq(1)
         m.g.output_calls.should eq(1)
       end

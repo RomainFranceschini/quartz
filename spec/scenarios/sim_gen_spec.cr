@@ -1,11 +1,10 @@
 require "../spec_helper"
 
 private module GeneratorScenario
-  class GenTestError < Exception; end
-
   class TestGen < Quartz::AtomicModel
     getter output_calls : Int32 = 0
     getter internal_calls : Int32 = 0
+    getter elapsed_values : Array(Duration) = Array(Duration).new
     getter time : TimePoint = TimePoint.new
 
     def output
@@ -18,10 +17,8 @@ private module GeneratorScenario
 
     def internal_transition
       @internal_calls += 1
-      @time = @time.advance(by: @elapsed)
-
-      raise GenTestError.new unless @elapsed == Duration.new(1)
-      raise GenTestError.new unless @time.to_i == @internal_calls
+      @time = @time.advance(by: Duration.new(1))
+      @elapsed_values << @elapsed
     end
   end
 
@@ -35,11 +32,13 @@ private module GeneratorScenario
           gen.output_calls.should eq(i + 1)
           gen.internal_calls.should eq(i + 1)
           gen.time.to_i.should eq(i + 1)
+          gen.elapsed_values[i].should eq(Duration.new(0))
         }
 
         gen.output_calls.should eq(9)
         gen.internal_calls.should eq(9)
         gen.time.to_i.should eq(9)
+        gen.elapsed_values.last.should eq(Duration.new(0))
       end
     end
   end

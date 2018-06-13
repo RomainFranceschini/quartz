@@ -63,7 +63,7 @@ describe "TimeCache" do
   end
 
   describe "#elapsed_duration_of" do
-    it "returns elapsed duration associated with a retained event" do
+    pending "returns elapsed duration associated with a retained event" do
       cache = TimeCache(MySchedulable).new
       ev1 = MySchedulable.new(1)
       cache.retain_event(ev1, Scale::BASE)

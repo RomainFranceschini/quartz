@@ -1,12 +1,12 @@
 require "../spec_helper"
 
 private module NegativeInitialTimeScenario
-  class NegativeTestError < Exception; end
 
   class TestInitialElapsed < Quartz::AtomicModel
     getter output_calls : Int32 = 0
     getter internal_calls : Int32 = 0
     getter generated : Bool = false
+    getter elapsed_values : Array(Duration) = Array(Duration).new
 
     # Set the initial elapsed time to 4 so that initial time may be negative
     @elapsed = Duration.new(4)
@@ -22,7 +22,7 @@ private module NegativeInitialTimeScenario
     def internal_transition
       @generated = true
       @internal_calls += 1
-      raise NegativeTestError.new unless @elapsed == Duration.new(2)
+      @elapsed_values << @elapsed
     end
   end
 
@@ -37,6 +37,7 @@ private module NegativeInitialTimeScenario
         atom.output_calls.should eq(0)
         atom.internal_calls.should eq(0)
         atom.generated.should be_false
+        atom.elapsed_values.empty?.should be_true
 
         sim.step
 
@@ -44,6 +45,7 @@ private module NegativeInitialTimeScenario
         atom.internal_calls.should eq(1)
         atom.generated.should be_true
         atom.time_advance.should eq(Quartz::Duration::INFINITY)
+        atom.elapsed_values.first.should eq(Duration.new(0))
       end
     end
   end
