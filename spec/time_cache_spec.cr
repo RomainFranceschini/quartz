@@ -2,63 +2,31 @@ require "./spec_helper"
 require "./event_set_helper"
 
 describe "TimeCache" do
-  describe "#advance" do
-    it "advance current time removes obsolete events" do
-      cache = TimeCache(MySchedulable).new
-      ev1 = MySchedulable.new(1)
-      ev2 = MySchedulable.new(2)
-
-      cache.retain_event(ev1, Scale::BASE)
-      cache.advance by: Duration.new(499999999999999, Scale::BASE)
-      cache.retain_event(ev2, Scale::BASE)
-      cache.size.should eq(2)
-
-      cache.advance by: Duration.new(500000000000000)
-      cache.size.should eq(1)
-      cache.advance by: Duration.new(Duration::MULTIPLIER_MAX, Scale::BASE)
-      cache.size.should eq(0)
-    end
-  end
-
-  describe "#release_event" do
-    it "cancels previously retained events" do
-      cache = TimeCache(MySchedulable).new
-      ev1 = MySchedulable.new(1)
-      cache.retain_event(ev1, Scale::BASE)
-      cache.size.should eq(1)
-      cache.release_event(ev1).should eq(ev1)
-      cache.size.should eq(0)
-
-      cache.advance by: Duration.new(1234)
-      cache.retain_event(ev1, Scale::BASE)
-      cache.advance by: Duration.new(762534)
-      cache.size.should eq(1)
-      cache.release_event(ev1).should eq(ev1)
-      cache.size.should eq(0)
-    end
-  end
-
   describe "#retain_event" do
     it "tracks events relative to the current time" do
       cache = TimeCache(MySchedulable).new
       ev1 = MySchedulable.new(1)
-      cache.size.should eq(0)
       cache.retain_event(ev1, Scale::BASE)
-      cache.@time_queue.duration_of(ev1).should eq(Duration.new(Duration::MULTIPLIER_MAX, Scale::BASE))
+      ev1.imaginary_phase.should eq(Duration.new(Duration::MULTIPLIER_MAX, Scale::BASE))
+      cache.elapsed_duration_of(ev1).should eq(Duration.new(0))
+
       cache.advance by: Duration.new(234)
-      cache.size.should eq(1)
-      cache.@time_queue.duration_of(ev1).should eq(Duration.new(Duration::MULTIPLIER_MAX - 234, Scale::BASE))
+      cache.elapsed_duration_of(ev1).should eq(Duration.new(234))
+
+      ev2 = MySchedulable.new(2)
+      cache.retain_event(ev2, Scale::BASE)
+
+      ev2.imaginary_phase.should eq(Duration.new(233, Scale::BASE))
+      cache.elapsed_duration_of(ev2).should eq(Duration.new(0))
     end
 
     it "may be given an initial elapsed duration" do
       cache = TimeCache(MySchedulable).new
       ev1 = MySchedulable.new(1)
-      cache.size.should eq(0)
       cache.retain_event(ev1, Duration.new(50, Scale::BASE))
-      cache.@time_queue.duration_of(ev1).should eq(Duration.new(Duration::MULTIPLIER_MAX - 50, Scale::BASE))
+      ev1.imaginary_phase.should eq(Duration.new(Duration::MULTIPLIER_MAX - 50, Scale::BASE))
       cache.advance by: Duration.new(234)
-      cache.size.should eq(1)
-      cache.@time_queue.duration_of(ev1).should eq(Duration.new(Duration::MULTIPLIER_MAX - 234 - 50, Scale::BASE))
+      ev1.imaginary_phase.should eq(Duration.new(Duration::MULTIPLIER_MAX - 234 - 50 + 234, Scale::BASE))
     end
   end
 
