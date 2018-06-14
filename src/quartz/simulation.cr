@@ -203,7 +203,7 @@ module Quartz
         Hooks.notifier.notify(Hooks::PRE_INIT)
         Quartz.timing("Simulation initialization") do
           duration = processor.initialize_state(@vtime)
-          @vtime = @vtime.advance(duration)
+          @vtime.advance(duration)
         end
         @status = Status::Initialized
         Hooks.notifier.notify(Hooks::POST_INIT)
@@ -225,7 +225,7 @@ module Quartz
         if duration.infinite?
           end_simulation
         else
-          @vtime = @vtime.advance(duration)
+          @vtime.advance(duration)
           if (final = @final_vtime) && @vtime >= final
             end_simulation
           end
@@ -251,7 +251,7 @@ module Quartz
           if duration.infinite?
             break
           else
-            @vtime = @vtime.advance(duration)
+            @vtime.advance(duration)
             break if (final = @final_vtime) && @vtime >= final
           end
         end
@@ -282,7 +282,7 @@ module Quartz
           if duration.infinite?
             break
           else
-            @vtime = @vtime.advance(duration)
+            @vtime.advance(duration)
             break if (final = @final_vtime) && @vtime >= final
           end
           yield(self)

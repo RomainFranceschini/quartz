@@ -15,7 +15,7 @@ module Quartz
   #   - one zero representation.
   #   - make immutable
   #   - transform mod operations by bit masking (e.g.  (n & (BASE-1)))
-  struct TimePoint
+  class TimePoint
     include Comparable(self)
 
     # The base of the simulated arithmetic.
