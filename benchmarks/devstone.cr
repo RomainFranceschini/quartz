@@ -7,11 +7,11 @@ module DEVStone
 
     def external_transition(messages)
       #puts "#{name} received #{messages[input_ports[:in1]]} at #{time}(+#{elapsed})"
-      @sigma = rand
+      @sigma = Quartz::Duration.new(rand(5000))
     end
 
     def internal_transition
-      @sigma = Quartz::INFINITY
+      @sigma = Quartz::Duration::INFINITY
     end
 
     def output
@@ -21,14 +21,14 @@ module DEVStone
 
   class Generator < Quartz::AtomicModel
     output :out
-    @sigma = 1
+    @sigma = Quartz::Duration.new(1)
 
     def output
       post(name, :out)
     end
 
     def internal_transition
-      @sigma = Quartz::INFINITY
+      @sigma = Quartz::Duration::INFINITY
     end
   end
 
@@ -102,7 +102,7 @@ class PortObserver
   def update(port, info)
     if port.is_a?(Quartz::OutputPort) && info
       host = port.host.as(Quartz::AtomicModel)
-      puts "#{host.name}@#{port.name} sent #{info[:payload]} at #{host.time}"
+      puts "#{host.name}@#{port.name} sent #{info[:payload]}"
     end
   end
 end
@@ -127,7 +127,7 @@ root = DEVStone::DEVStone.new(2, ARGV[0].to_i, ARGV[1].to_i)
 simulation = Quartz::Simulation.new(
   root,
   maintain_hierarchy: false,
-  scheduler: :calendar_queue
+  scheduler: :binary_heap
 )
 
 simulation.simulate
