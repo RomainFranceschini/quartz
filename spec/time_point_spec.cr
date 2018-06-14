@@ -314,4 +314,119 @@ describe "TimePoint" do
       (TimePoint.new(2) < TimePoint.new(3000, Scale::MILLI)).should be_true
     end
   end
+
+  describe "conversion" do
+    describe "from duration to phase" do
+      it "returns the same duration when current time matches a new epoch" do
+        # first epoch
+        a = TimePoint.new
+        planned_duration = Duration.new(500)
+        planned_phase = a.phase_from_duration(planned_duration)
+        planned_phase.should eq(planned_duration)
+
+        # second epoch
+        a = TimePoint.new(Duration::MULTIPLIER_LIMIT)
+        planned_phase = a.phase_from_duration(planned_duration)
+        planned_phase.should eq(planned_duration)
+      end
+
+      it "always returns a shorter duration for phases in the next epoch" do
+        tp = TimePoint.new(Duration::MULTIPLIER_LIMIT - 1500)
+        planned_duration = Duration.new(5000)
+        planned_phase = tp.phase_from_duration(planned_duration)
+        (planned_phase < planned_duration).should be_true
+        planned_phase.should eq(Duration.new(3500))
+
+        tp = TimePoint.new(Duration::MULTIPLIER_LIMIT - 2000)
+        planned_duration = Duration.new(6020)
+        planned_phase = tp.phase_from_duration(planned_duration)
+        (planned_phase < planned_duration).should be_true
+        planned_phase.should eq(Duration.new(4020))
+      end
+
+      pending "coarsens precision as long as no accuracy is lost" do
+        # current phase, coarsened result
+        tp = TimePoint.new(2000)
+        planned_duration = Duration.new(5_000_000, Scale::MILLI)
+        planned_phase = tp.phase_from_duration(planned_duration)
+        (planned_phase > planned_duration).should be_true
+        planned_phase.should eq(Duration.new(7, Scale::KILO))
+
+        # next phase, coarsened result
+        tp = TimePoint.new(Duration::MULTIPLIER_LIMIT - 2000)
+        planned_duration = Duration.new(5000)
+        planned_phase = tp.phase_from_duration(planned_duration)
+        planned_phase.should eq(Duration.new(3, Scale::KILO))
+        (planned_phase < planned_duration).should be_true
+      end
+
+      it "coarses phase to default precision (0) when current time is 0" do
+        tp = TimePoint.new(0, Scale::MILLI)
+        tp.phase_from_duration(Duration.new(134)).precision.should eq(Scale::BASE)
+      end
+
+      it "current time precision is used for durations of zero" do
+        tp = TimePoint.new(23457, Scale::MICRO)
+        tp.phase_from_duration(Duration.new(0, Scale::TERA)).precision.should eq(Scale::MICRO)
+      end
+    end
+
+    describe "from phase to duration" do
+      it "returns the same duration when the current time is a new epoch" do
+        tp = TimePoint.new
+        duration = tp.duration_from_phase(Duration.new(500))
+        duration.should eq(Duration.new(500))
+
+        tp = TimePoint.new(Duration::MULTIPLIER_LIMIT)
+        duration = tp.duration_from_phase(Duration.new(500))
+        duration.should eq(Duration.new(500))
+      end
+
+      it "returns a duration relative to the current time" do
+        planned_phase = Duration.new(69234)
+        tp = TimePoint.new(5)
+        tp.duration_from_phase(planned_phase).should eq(Duration.new(69234 - 5))
+
+        tp = TimePoint.new(898)
+        tp.duration_from_phase(planned_phase).should eq(Duration.new(69234 - 898))
+
+        planned_phase = Duration.new(1000)
+        tp = TimePoint.new(999)
+        tp.duration_from_phase(planned_phase).should eq(Duration.new(1000 - 999))
+      end
+    end
+
+    describe "to epoch phase" do
+      it "is always < MULTIPLIER_LIMIT" do
+        t = TimePoint.new(999, 999, 999, 999, 999, precision: Scale::BASE)
+        t.epoch_phase(Scale::BASE).should eq(Duration::MULTIPLIER_MAX)
+
+        t = TimePoint.new(999, 999, 999, 999, 999, 999, precision: Scale::BASE)
+        t.epoch_phase(Scale::BASE).should eq(Duration::MULTIPLIER_MAX)
+      end
+
+      it "is always > 0" do
+        t = TimePoint.new
+        t.epoch_phase(Scale::BASE).should eq(0)
+
+        t = TimePoint.new(999, 999, 999, 999, 999, 999, precision: Scale::BASE)
+        t.epoch_phase(Scale::FEMTO).should eq(0)
+      end
+    end
+  end
+
+  describe "#refined_duration" do
+    it "refines a duration using according to multiscale advancement rules" do
+      a = TimePoint.new
+      a.refined_duration(Duration.new(5, Scale::KILO), Scale::BASE).should eq(Duration.new(5000))
+
+      a.advance by: Duration.new(435_234_112_982_993)
+      duration = Duration.new(100_000_000_000_003)
+      a.refined_duration(duration, Scale::BASE).should eq(Duration.new(100_000_000_000_003))
+      a.refined_duration(duration.rescale(Scale::KILO), Scale::BASE).should eq(Duration.new(99_999_999_999_007))
+      a.refined_duration(duration.rescale(Scale::MEGA), Scale::BASE).should eq(Duration.new(99_999_999_017_007))
+      a.refined_duration(duration.rescale(Scale::GIGA), Scale::BASE).should eq(Duration.new(99_999_887_017_007))
+      a.refined_duration(duration.rescale(Scale::TERA), Scale::BASE).should eq(Duration.new(99_765_887_017_007))
+    end
+  end
 end

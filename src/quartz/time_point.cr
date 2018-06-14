@@ -184,6 +184,87 @@ module Quartz
       self
     end
 
+    # Converts a planned duration to a planned phase.
+    #
+    # The planned phase represents an offset from the current epoch relative to
+    # `self`.
+    def phase_from_duration(duration : Duration) : Duration
+      multiplier = duration.multiplier
+      precision = multiplier == 0 ? @precision : duration.precision
+
+      multiplier = epoch_phase(precision) + multiplier
+      maximized = false
+      unbounded = false
+
+      while !maximized && !unbounded
+        carry = 0
+        if multiplier >= Duration::MULTIPLIER_LIMIT
+          multiplier -= Duration::MULTIPLIER_LIMIT
+          carry = 1
+        end
+
+        if multiplier % Scale::FACTOR != 0
+          maximized = true
+        elsif multiplier == 0 && precision + Duration::EPOCH >= @precision + size
+          unbounded = true if carry == 0
+        end
+
+        if !maximized && !unbounded
+          multiplier /= Scale::FACTOR
+          multiplier += Scale::FACTOR ** (Duration::EPOCH - 1) * (self[precision + Duration::EPOCH] + carry)
+          precision += 1
+        end
+      end
+
+      precision = Scale::BASE if unbounded
+
+      Duration.new(multiplier, precision)
+    end
+
+    # Converts a planned phase (offset from the current epoch) to a planned
+    # duration relative to `self`.
+    def duration_from_phase(phase : Duration) : Duration
+      multiplier = phase.multiplier - epoch_phase(phase.precision)
+
+      if multiplier < 0
+        multiplier += Duration::MULTIPLIER_LIMIT
+      end
+
+      Duration.new(multiplier, phase.precision)
+    end
+
+    # Refines a planned `Duration` to match another planned duration precision,
+    # relative to `self`.
+    #
+    # Note: The implementation diverge from the paper algoithm.
+    def refined_duration(duration : Duration, refined : Scale) : Duration
+      precision = duration.precision
+      multiplier = duration.multiplier
+
+      if multiplier > 0
+        while multiplier < Duration::MULTIPLIER_LIMIT && precision > refined
+          precision -= 1
+          multiplier = Scale::FACTOR * multiplier - self[precision]
+        end
+      end
+
+      if multiplier < Duration::MULTIPLIER_LIMIT
+        Duration.new(multiplier, refined)
+      else
+        Duration::INFINITY
+      end
+    end
+
+    # Returns the epoch phase, which represents the number of time quanta which
+    # separates `self` from the beginning of the current epoch.
+    protected def epoch_phase(precision : Scale) : Int64
+      multiplier = 0_i64
+      Duration::EPOCH.times do |i|
+        multiplier += (Scale::FACTOR ** i) * self[precision + i]
+      end
+      multiplier
+    end
+
     # Returns a new `TimePoint` to which the given `Duration` is added.
     #
     # Doesn't truncate result to the duration precision.

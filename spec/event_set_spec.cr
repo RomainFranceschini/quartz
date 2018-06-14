@@ -50,127 +50,6 @@ describe "EventSet" do
     end
   end
 
-  describe "#refined_duration" do
-    it "refines a duration using according to multiscale advancement rules" do
-      pes = EventSet(MySchedulable).new
-      pes.refined_duration(Duration.new(5, Scale::KILO), Scale::BASE).should eq(Duration.new(5000))
-
-      pes.advance by: Duration.new(435_234_112_982_993)
-      duration = Duration.new(100_000_000_000_003)
-      pes.refined_duration(duration, Scale::BASE).should eq(Duration.new(100_000_000_000_003))
-      pes.refined_duration(duration.rescale(Scale::KILO), Scale::BASE).should eq(Duration.new(99_999_999_999_007))
-      pes.refined_duration(duration.rescale(Scale::MEGA), Scale::BASE).should eq(Duration.new(99_999_999_017_007))
-      pes.refined_duration(duration.rescale(Scale::GIGA), Scale::BASE).should eq(Duration.new(99_999_887_017_007))
-      pes.refined_duration(duration.rescale(Scale::TERA), Scale::BASE).should eq(Duration.new(99_765_887_017_007))
-    end
-  end
-
-  describe "conversion" do
-    describe "from duration to phase" do
-      it "returns the same duration when current time matches a new epoch" do
-        # first epoch
-        pes = EventSet(MySchedulable).new
-        planned_duration = Duration.new(500)
-        planned_phase = pes.phase_from_duration(planned_duration)
-        planned_phase.should eq(planned_duration)
-
-        # second epoch
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT))
-        planned_phase = pes.phase_from_duration(planned_duration)
-        planned_phase.should eq(planned_duration)
-      end
-
-      it "always returns a shorter duration for phases in the next epoch" do
-        tp = TimePoint.new(Duration::MULTIPLIER_LIMIT - 1500)
-        pes = EventSet(MySchedulable).new(tp)
-        planned_duration = Duration.new(5000)
-        planned_phase = pes.phase_from_duration(planned_duration)
-        (planned_phase < planned_duration).should be_true
-        planned_phase.should eq(Duration.new(3500))
-
-        tp = TimePoint.new(Duration::MULTIPLIER_LIMIT - 2000)
-        pes = EventSet(MySchedulable).new(tp)
-        planned_duration = Duration.new(6020)
-        planned_phase = pes.phase_from_duration(planned_duration)
-        (planned_phase < planned_duration).should be_true
-        planned_phase.should eq(Duration.new(4020))
-      end
-
-      it "coarsens precision as long as no accuracy is lost" do
-        # current phase, coarsened result
-        pes = EventSet(MySchedulable).new(TimePoint.new(2000))
-        planned_duration = Duration.new(5_000_000, Scale::MILLI)
-        planned_phase = pes.phase_from_duration(planned_duration)
-        (planned_phase > planned_duration).should be_true
-        planned_phase.should eq(Duration.new(7, Scale::KILO))
-
-        # next phase, coarsened result
-        tp = TimePoint.new(Duration::MULTIPLIER_LIMIT - 2000)
-        pes = EventSet(MySchedulable).new(tp)
-        planned_duration = Duration.new(5000)
-        planned_phase = pes.phase_from_duration(planned_duration)
-        planned_phase.should eq(Duration.new(3, Scale::KILO))
-        (planned_phase < planned_duration).should be_true
-      end
-
-      it "coarses phase to default precision (0) when current time is 0" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(0, Scale::MILLI))
-        pes.phase_from_duration(Duration.new(134)).precision.should eq(Scale::BASE)
-      end
-
-      it "current time precision is used for durations of zero" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(23457, Scale::MICRO))
-        pes.phase_from_duration(Duration.new(0, Scale::TERA)).precision.should eq(Scale::MICRO)
-      end
-    end
-
-    describe "from phase to duration" do
-      it "returns the same duration when the current time is a new epoch" do
-        pes = EventSet(MySchedulable).new
-        duration = pes.duration_from_phase(Duration.new(500))
-        duration.should eq(Duration.new(500))
-
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT))
-        duration = pes.duration_from_phase(Duration.new(500))
-        duration.should eq(Duration.new(500))
-      end
-
-      it "returns a duration relative to the current time" do
-        planned_phase = Duration.new(69234)
-        pes = EventSet(MySchedulable).new(TimePoint.new(5))
-        pes.duration_from_phase(planned_phase).should eq(Duration.new(69234 - 5))
-
-        pes = EventSet(MySchedulable).new(TimePoint.new(898))
-        pes.duration_from_phase(planned_phase).should eq(Duration.new(69234 - 898))
-
-        planned_phase = Duration.new(1000)
-        pes = EventSet(MySchedulable).new(TimePoint.new(999))
-        pes.duration_from_phase(planned_phase).should eq(Duration.new(1000 - 999))
-      end
-    end
-
-    describe "to epoch phase" do
-      it "is always < MULTIPLIER_LIMIT" do
-        t = TimePoint.new(999, 999, 999, 999, 999, precision: Scale::BASE)
-        pes = EventSet(MySchedulable).new(t)
-        pes.epoch_phase(Scale::BASE).should eq(Duration::MULTIPLIER_MAX)
-
-        t = TimePoint.new(999, 999, 999, 999, 999, 999, precision: Scale::BASE)
-        pes = EventSet(MySchedulable).new(t)
-        pes.epoch_phase(Scale::BASE).should eq(Duration::MULTIPLIER_MAX)
-      end
-
-      it "is always > 0" do
-        pes = EventSet(MySchedulable).new
-        pes.epoch_phase(Scale::BASE).should eq(0)
-
-        t = TimePoint.new(999, 999, 999, 999, 999, 999, precision: Scale::BASE)
-        pes = EventSet(MySchedulable).new(t)
-        pes.epoch_phase(Scale::FEMTO).should eq(0)
-      end
-    end
-  end
-
   describe "#duration_of" do
     it "returns the duration after which the specified event will occur relative to the current time" do
       pes = EventSet(MySchedulable).new
@@ -300,7 +179,7 @@ describe "EventSet" do
         pes.imminent_duration.should eq(Duration.new(0, Scale::MICRO))
       end
 
-      it "handles passage from an epoch to another" do
+      pending "handles passage from an epoch to another" do
         pes = EventSet(MySchedulable).new
         pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
 
