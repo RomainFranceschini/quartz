@@ -195,7 +195,6 @@ module Quartz
         if remaining_duration.zero?
           elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
         elsif !remaining_duration.infinite?
-          @time_cache.release_event(receiver)
           @event_set.cancel_event(receiver)
         end
 
