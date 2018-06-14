@@ -342,7 +342,9 @@ module Quartz
       if zero?
         io << '0'
       else
-        @magnitude.reverse_each.join("_", io)
+        @magnitude.reverse_each
+                  .map { |d| "%03d" % d }
+                  .join("_", io)
       end
       if @precision.level != 0
         io << 'e'

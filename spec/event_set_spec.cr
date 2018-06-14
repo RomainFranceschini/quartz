@@ -137,12 +137,15 @@ describe "EventSet" do
 
       it "returns a duration relative to the current time" do
         planned_phase = Duration.new(69234)
-
         pes = EventSet(MySchedulable).new(TimePoint.new(5))
         pes.duration_from_phase(planned_phase).should eq(Duration.new(69234 - 5))
 
         pes = EventSet(MySchedulable).new(TimePoint.new(898))
         pes.duration_from_phase(planned_phase).should eq(Duration.new(69234 - 898))
+
+        planned_phase = Duration.new(1000)
+        pes = EventSet(MySchedulable).new(TimePoint.new(999))
+        pes.duration_from_phase(planned_phase).should eq(Duration.new(1000 - 999))
       end
     end
 
@@ -181,6 +184,27 @@ describe "EventSet" do
 
       pes.advance
       pes.duration_of(ev).should eq(Duration.new(0))
+    end
+
+    it "returns a planned duration matching the original precision" do
+      pes = EventSet(MySchedulable).new
+      ev = MySchedulable.new(1)
+      pes.plan_event(ev, Duration.new(1000))
+
+      pes.duration_of(ev).should eq(Duration.new(1000))
+      pes.duration_of(ev).precision.should eq(Scale.new(0))
+
+      pes.advance by: Duration.new(999)
+    end
+
+    it "avoid rounding errors" do
+      pes = EventSet(MySchedulable).new
+      ev = MySchedulable.new(1)
+      pes.plan_event(ev, Duration.new(1000))
+      pes.advance by: Duration.new(999)
+
+      pes.duration_of(ev).should eq(Duration.new(1))
+      pes.duration_of(ev).precision.should eq(Scale.new(0))
     end
 
     it "handles events scheduled for the next epoch" do
@@ -298,6 +322,17 @@ describe "EventSet" do
         pes.pop_imminent_event.should eq(2)
 
         pes.imminent_duration.should eq(Duration.new(1134))
+      end
+
+      it "returns a planned duration matching current time precision" do
+        pes = EventSet(MySchedulable).new
+        pes.plan_event(MySchedulable.new(1), Duration.new(1000))
+        pes.imminent_duration.should eq(Duration.new(1000))
+        pes.imminent_duration.precision.should eq(Scale.new(0))
+
+        pes.advance by: Duration.new(999)
+        pes.imminent_duration.should eq(Duration.new(1))
+        pes.imminent_duration.precision.should eq(Scale.new(0))
       end
     end
 

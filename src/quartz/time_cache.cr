@@ -2,6 +2,28 @@ module Quartz
   # The `TimeCache` data structure is used to store and retrieve elapsed
   # durations since a particular event.
   class TimeCache(T)
+    # A `PhaseDelegate` to use with `TimeCache`, which re-purpose the `EventSet`.
+    # Store phases with `Schedulable#imaginary_phase` property.
+    private module TimeCachePhaseDelegate
+      extend PhaseDelegate
+
+      def self.get_phase(of event : Schedulable) : Duration
+        event.imaginary_phase
+      end
+
+      def self.set_phase(phase : Duration, for event : Schedulable)
+        event.imaginary_phase = phase
+      end
+
+      def self.get_precision(of event : Schedulable) : Scale
+        event.imaginary_precision
+      end
+
+      def self.set_precision(precision : Scale, for event : Schedulable)
+        event.imaginary_precision = precision
+      end
+    end
+
     def self.new(time : TimePoint = TimePoint.new(0)) : self
       new(:calendar_queue, time)
     end

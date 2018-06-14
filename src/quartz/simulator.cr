@@ -98,7 +98,7 @@ module Quartz
         info = OBS_INFO_EXT_TRANSITION
         kind = :external
       else
-        raise BadSynchronisationError.new
+        raise BadSynchronisationError.new("#{model.name} is unsynced (elapsed:#{elapsed}, bag size:#{bag.size}, time:#{time}).")
       end
 
       bag.clear

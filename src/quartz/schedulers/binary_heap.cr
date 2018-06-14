@@ -84,7 +84,7 @@ module Quartz
     end
 
     def to_a : Array(Tuple(Duration, T))
-      Array(T).build(@size) do |pointer|
+      Array(Tuple(Duration, T)).build(@size) do |pointer|
         pointer.copy_from(@heap + 1, @size)
         @size
       end

@@ -2,50 +2,33 @@ module Quartz
   # The `Schedulable` module is used as an interface for data types that may
   # be scheduled within an `EventSet`.
   module Schedulable
-    # Represents the planned phase, or the offset from the current epoch of the
+    # The planned phase, or the offset from the current epoch of the
     # event set, associated with the event.
     property planned_phase : Duration = Duration::INFINITY.fixed
-    # Represents the imaginary planned phase.
+    # The original precision level at which the event was originally planned.
+    property planned_precision : Scale = Scale::BASE
+    # The imaginary planned phase used to track elapsed times.
     property imaginary_phase : Duration = Duration::INFINITY.fixed
+    # The original precision level at which the imaginary event was originally
+    # planned.
+    property imaginary_precision : Scale = Scale::BASE
   end
 
   # The `PhaseDelegate` mixin is used as an interface to represent an `EventSet`
-  # delegate object, which must adopt the `#get_phase` and `#set_phase` methods.
+  # delegate object, which must adopt the abstract methods.
   #
   # The delegate manage the storage and the retrieval of a phase (offset from
-  # event set current epoch) associated with a given event.
+  # event set current epoch) associated with a given event. It manage the
+  # storage and retrieval of the original precision associated with the phase as
+  # well.
   module PhaseDelegate
     abstract def get_phase(of event : Schedulable) : Duration
     abstract def set_phase(phase : Duration, for event : Schedulable)
+    abstract def get_precision(of event : Schedulable) : Scale
+    abstract def set_precision(precision : Scale, for event : Schedulable)
   end
 
-  # A `PhaseDelegate` to use as a default with an `EventSet`.
-  # Store phases with `Schedulable#planned_phase` property.
-  module EventSetPhaseDelegate
-    extend PhaseDelegate
 
-    def self.get_phase(of event : Schedulable) : Duration
-      event.planned_phase
-    end
-
-    def self.set_phase(phase : Duration, for event : Schedulable)
-      event.planned_phase = phase
-    end
-  end
-
-  # A `PhaseDelegate` to use with `TimeCache`, which re-purpose the `EventSet`.
-  # Store phases with `Schedulable#imaginary_phase` property.
-  module TimeCachePhaseDelegate
-    extend PhaseDelegate
-
-    def self.get_phase(of event : Schedulable) : Duration
-      event.imaginary_phase
-    end
-
-    def self.set_phase(phase : Duration, for event : Schedulable)
-      event.imaginary_phase = phase
-    end
-  end
   # A `PriorityQueue` is the base class to implement a planning strategy for all
   # future events to be evaluated. Events should be dequeued in a strict order
   # of precedence, according to their associated priority.
@@ -85,6 +68,28 @@ module Quartz
   # `EventSet` represents the pending event set and encompasses all future
   # events scheduled to occur.
   class EventSet(T)
+    # A `PhaseDelegate` to use as a default with an `EventSet`.
+    # Store phases with `Schedulable#planned_phase` property.
+    private module EventSetPhaseDelegate
+      extend PhaseDelegate
+
+      def self.get_phase(of event : Schedulable) : Duration
+        event.planned_phase
+      end
+
+      def self.set_phase(phase : Duration, for event : Schedulable)
+        event.planned_phase = phase
+      end
+
+      def self.get_precision(of event : Schedulable) : Scale
+        event.planned_precision
+      end
+
+      def self.set_precision(precision : Scale, for event : Schedulable)
+        event.planned_precision = precision
+      end
+    end
+
     # Returns the current time associated with the event set.
     getter current_time : TimePoint
 
@@ -166,14 +171,18 @@ module Quartz
 
     # Returns the planned duration after which the specified event will occur.
     def duration_of(event : T) : Duration
-      duration_from_phase(@delegate.get_phase(event))
+      precision = @delegate.get_precision(event)
+      duration = duration_from_phase(@delegate.get_phase(event))
+      rescaled_duration(duration, precision)
     end
 
     # Schedules a future event at a given planned *duration*.
     def plan_event(event : T, duration : Duration)
       planned_phase = phase_from_duration(duration)
 
+      @delegate.set_precision(duration.precision, event)
       @delegate.set_phase(planned_phase, event)
+
       if planned_phase < duration
         # The event is in the next epoch
         @future_events.add(event)
@@ -195,7 +204,7 @@ module Quartz
         end
       end
 
-      duration_from_phase(@priority_queue.next_priority)
+      duration_of(@priority_queue.peek)
     end
 
     # Deletes and returns the next imminent event to occur.
@@ -239,18 +248,16 @@ module Quartz
     # Converts a planned duration to a planned phase (offset from epoch).
     protected def phase_from_duration(duration : Duration) : Duration
       t = @current_time
-      if duration.zero?
-        duration = duration.rescale(t.precision)
-      end
+      multiplier = duration.multiplier
+      precision = multiplier == 0 ? t.precision : duration.precision
 
-      precision = duration.precision
-      multiplier = duration.multiplier + epoch_phase(precision)
+      multiplier = epoch_phase(precision) + multiplier
       maximized = false
       unbounded = false
 
       while !maximized && !unbounded
         carry = 0
-        if multiplier > Duration::MULTIPLIER_MAX
+        if multiplier >= Duration::MULTIPLIER_LIMIT
           multiplier -= Duration::MULTIPLIER_LIMIT
           carry = 1
         end
@@ -291,8 +298,8 @@ module Quartz
     protected def epoch_phase(precision : Scale) : Int64
       t = @current_time
       multiplier = 0_i64
-      (0...Duration::EPOCH).each do |i|
-        multiplier += Scale::FACTOR ** i * t[precision + i]
+      Duration::EPOCH.times do |i|
+        multiplier += (Scale::FACTOR ** i) * t[precision + i]
       end
       multiplier
     end
@@ -320,10 +327,10 @@ module Quartz
     end
 
     protected def rescaled_duration(duration : Duration, precision : Scale) : Duration
-      if duration.precision <= precision
+      if duration.precision > precision
         refined_duration(duration, precision)
       else
-        Duration.new(m, precision)
+        Duration.new(duration.multiplier, precision)
       end
     end
 

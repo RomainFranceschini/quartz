@@ -201,7 +201,9 @@ module Quartz
 
         planned_duration = receiver.perform_transitions(time, elapsed_duration)
 
-        unless planned_duration.infinite?
+        if planned_duration.infinite?
+          receiver.planned_phase = Duration::INFINITY.fixed
+        else
           @event_set.plan_event(receiver, planned_duration)
         end
 
