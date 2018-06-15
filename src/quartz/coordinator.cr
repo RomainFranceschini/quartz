@@ -14,7 +14,7 @@ module Quartz
       @children = Array(Processor).new
       priority_queue = model.class.preferred_event_set? || simulation.default_scheduler
       @event_set = EventSet(Processor).new(priority_queue)
-      @time_cache = TimeCache(Processor).new(priority_queue)
+      @time_cache = TimeCache(Processor).new(priority_queue, @event_set.current_time)
       @synchronize = Array(Processor).new
       @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
@@ -49,7 +49,6 @@ module Quartz
 
     def initialize_processor(time : TimePoint) : {Duration, Duration}
       @event_set.advance until: time
-      @time_cache.advance until: time
 
       min_planned_duration = Duration::INFINITY
       max_elapsed = Duration.new(0)
@@ -80,7 +79,6 @@ module Quartz
 
     def collect_outputs(time : TimePoint)
       @event_set.advance until: time
-      @time_cache.advance until: time
 
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
@@ -135,7 +133,6 @@ module Quartz
 
       if @event_set.current_time < time && !bag.empty?
         @event_set.advance until: time
-        @time_cache.advance until: time
       end
 
       bag.each do |port, sub_bag|
