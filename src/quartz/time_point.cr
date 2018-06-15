@@ -258,9 +258,17 @@ module Quartz
     # Returns the epoch phase, which represents the number of time quanta which
     # separates `self` from the beginning of the current epoch.
     protected def epoch_phase(precision : Scale) : Int64
+      base = @precision.level
+      upper_limit = base + @magnitude.size
+
       multiplier = 0_i64
       Duration::EPOCH.times do |i|
-        multiplier += (Scale::FACTOR ** i) * self[precision + i]
+        level = precision.level + i
+        multiplier += (Scale::FACTOR ** i) * if base <= level < upper_limit
+          @magnitude[level - base]
+        else
+          0_i16
+        end
       end
       multiplier
     end
