@@ -3,7 +3,7 @@ module Quartz
   # durations since a particular event.
   class TimeCache(T)
     # Returns the current time associated with the time cache.
-    getter current_time : TimePoint
+    property current_time : TimePoint
 
     def initialize(@current_time : TimePoint = TimePoint.new(0))
     end

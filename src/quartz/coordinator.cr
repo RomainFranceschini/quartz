@@ -48,13 +48,14 @@ module Quartz
     end
 
     def initialize_processor(time : TimePoint) : {Duration, Duration}
+      @event_set.clear
+      @time_cache.current_time = @event_set.current_time
+
       @event_set.advance until: time
 
       min_planned_duration = Duration::INFINITY
       max_elapsed = Duration.new(0)
       selected = Array(Processor).new
-
-      @event_set.clear
 
       @children.each do |child|
         elapsed, planned_duration = child.initialize_processor(time)
@@ -77,14 +78,14 @@ module Quartz
       {max_elapsed.fixed, min_planned_duration.fixed}
     end
 
-    def collect_outputs(time : TimePoint)
-      @event_set.advance until: time
+    def collect_outputs(elapsed : Duration)
+      @event_set.advance by: elapsed
 
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
 
       @event_set.each_imminent_event do |child|
-        output = child.collect_outputs(time)
+        output = child.collect_outputs(elapsed)
 
         output.each do |port, payload|
           if child.is_a?(Simulator) && port.count_observers > 0

@@ -88,6 +88,7 @@ module Quartz
 
     # Clears `self`.
     def clear
+      @current_time = TimePoint.new
       @priority_queue.clear
       @future_events.clear
     end

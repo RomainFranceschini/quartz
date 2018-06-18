@@ -68,7 +68,7 @@ module Quartz
       raise err
     end
 
-    def collect_outputs(time : TimePoint)
+    def collect_outputs(elapsed : Duration)
       @model.as(AtomicModel).fetch_output!
     end
 
