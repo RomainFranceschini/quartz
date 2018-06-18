@@ -5,11 +5,7 @@ module Quartz
     # Returns the current time associated with the time cache.
     getter current_time : TimePoint
 
-    def self.new(time : TimePoint = TimePoint.new(0)) : self
-      new(:calendar_queue, time)
-    end
-
-    def initialize(priority_queue : Symbol, @current_time : TimePoint = TimePoint.new(0))
+    def initialize(@current_time : TimePoint = TimePoint.new(0))
     end
 
     # Retain the given *event* in order to track the elapsed duration since the

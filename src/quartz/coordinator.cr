@@ -14,7 +14,7 @@ module Quartz
       @children = Array(Processor).new
       priority_queue = model.class.preferred_event_set? || simulation.default_scheduler
       @event_set = EventSet(Processor).new(priority_queue)
-      @time_cache = TimeCache(Processor).new(priority_queue, @event_set.current_time)
+      @time_cache = TimeCache(Processor).new(@event_set.current_time)
       @synchronize = Array(Processor).new
       @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
