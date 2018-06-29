@@ -102,7 +102,7 @@ module Quartz
       end
 
       bag.clear
-      planned_duration = atomic.time_advance
+      planned_duration = atomic.time_advance.fixed
 
       if (logger = Quartz.logger?) && logger.debug?
         logger.debug(String.build { |str|
@@ -123,7 +123,7 @@ module Quartz
 
       atomic.notify_observers(info)
 
-      planned_duration.fixed
+      planned_duration
     rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?

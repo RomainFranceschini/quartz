@@ -32,21 +32,48 @@ describe "EventSet" do
   end
 
   describe "#cmp_planned_phases" do
-    it "compares two planned phases" do
-      pes = EventSet(MySchedulable).new
-      pes.cmp_planned_phases(Duration.new(1), Duration.new(2)).should eq(-1)
-      pes.cmp_planned_phases(Duration.new(2), Duration.new(1)).should eq(1)
-      pes.cmp_planned_phases(Duration.new(2), Duration.new(2)).should eq(0)
-      pes.cmp_planned_phases(Duration.new(15434, Scale::MILLI), Duration.new(17)).should eq(-1)
-      pes.cmp_planned_phases(Duration.new(5), Duration.new(5000, Scale::MILLI)).should eq(0)
+    context "at the start of new epoch" do
+      it "compares two planned phases of same precision" do
+        pes = EventSet(MySchedulable).new
+        pes.cmp_planned_phases(Duration.new(1), Duration.new(2)).should eq(-1)
+        pes.cmp_planned_phases(Duration.new(2), Duration.new(1)).should eq(1)
+        pes.cmp_planned_phases(Duration.new(2), Duration.new(2)).should eq(0)
+      end
 
-      ct = 87_234
-      pes = EventSet(MySchedulable).new(TimePoint.new(ct))
-      pes.cmp_planned_phases(Duration.new(ct + 1), Duration.new(ct + 2)).should eq(-1)
-      pes.cmp_planned_phases(Duration.new(ct + 2), Duration.new(ct + 1)).should eq(1)
-      pes.cmp_planned_phases(Duration.new(ct + 2), Duration.new(ct + 2)).should eq(0)
-      pes.cmp_planned_phases(Duration.new(ct*1000 + 15434, Scale::MILLI), Duration.new(ct + 17)).should eq(-1)
-      pes.cmp_planned_phases(Duration.new(ct + 5), Duration.new(ct*1000 + 5000, Scale::MILLI)).should eq(0)
+      it "compares two planned phases of different precisions" do
+        pes = EventSet(MySchedulable).new
+
+        pes.cmp_planned_phases(Duration.new(15434, Scale::MILLI), Duration.new(17)).should eq(-1)
+        pes.cmp_planned_phases(Duration.new(5), Duration.new(5000, Scale::MILLI)).should eq(0)
+      end
+    end
+
+    context "within an epoch" do
+      it "compares two planned phases of same precision" do
+        ct = 87_234
+        pes = EventSet(MySchedulable).new(TimePoint.new(ct))
+
+        pes.cmp_planned_phases(Duration.new(ct + 1), Duration.new(ct + 2)).should eq(-1)
+        pes.cmp_planned_phases(Duration.new(ct + 2), Duration.new(ct + 1)).should eq(1)
+        pes.cmp_planned_phases(Duration.new(ct + 2), Duration.new(ct + 2)).should eq(0)
+      end
+
+      it "compares two planned phases of different precisions" do
+        ct = 87_234
+        pes = EventSet(MySchedulable).new(TimePoint.new(ct))
+
+        pes.cmp_planned_phases(Duration.new(ct*1000 + 15434, Scale::MILLI), Duration.new(ct + 17)).should eq(-1)
+        pes.cmp_planned_phases(Duration.new(ct + 5), Duration.new(ct*1000 + 5000, Scale::MILLI)).should eq(0)
+      end
+
+      it "compares two planned phases from different epochs" do
+        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_MAX))
+        pes.advance by: Duration.new(501)
+
+        tp = pes.current_time
+        pes.cmp_planned_phases(Duration.new(500), Duration.new(499)).should eq(-1) # 0 <=> Duration::MULTIPLIER_MAX
+        pes.cmp_planned_phases(Duration.new(501), Duration.new(499)).should eq(-1) # 1 <=> Duration::MULTIPLIER_MAX
+      end
     end
   end
 
@@ -179,7 +206,7 @@ describe "EventSet" do
         pes.imminent_duration.should eq(Duration.new(0, Scale::MICRO))
       end
 
-      pending "handles passage from an epoch to another" do
+      it "handles passage from an epoch to another" do
         pes = EventSet(MySchedulable).new
         pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
 

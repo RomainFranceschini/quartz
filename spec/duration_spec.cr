@@ -9,6 +9,18 @@ describe "Duration" do
   end
 
   describe "with unfixed precision" do
+    it "has wrapping arithmetic semantics, with higher digit carrying up to coarser scale" do
+      a = Duration.new(Duration::MULTIPLIER_MAX)
+      res = a + Duration.new(1)
+      res.infinite?.should be_false
+      res.equals?(Duration.new(Duration::MULTIPLIER_MAX - Scale::FACTOR, a.precision + 1))
+
+      b = Duration.new(-Duration::MULTIPLIER_MAX)
+      res = b - Duration.new(1)
+      res.infinite?.should be_false
+      res.equals?(Duration.new(-(Duration::MULTIPLIER_MAX - Scale::FACTOR), a.precision + 1))
+    end
+
     describe "may refine scale" do
       it "for addition" do
         (Duration.new(4) + Duration.new(10, Scale::MILLI)).equals?(Duration.new(4010, Scale::MILLI)).should be_true
@@ -70,6 +82,14 @@ describe "Duration" do
   end
 
   describe "with fixed precision" do
+    it "has saturating arithmetic semantics" do
+      a = Duration.new(Duration::MULTIPLIER_MAX, Scale::BASE, true)
+      (a + Duration.new(1)).infinite?.should be_true
+
+      b = Duration.new(-Duration::MULTIPLIER_MAX, Scale::BASE, true)
+      (b - Duration.new(1)).infinite?.should be_true
+    end
+
     it "operations fails on different scales" do
       expect_raises(Exception, "Duration addition operation requires same precision level between operands.") do
         Duration.new(2, fixed: true) + Duration.new(3, Scale::MILLI, fixed: true)

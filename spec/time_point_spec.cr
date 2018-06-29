@@ -8,6 +8,13 @@ describe "TimePoint" do
       tp.precision.should eq(Scale.new(3))
       tp.@magnitude.should eq([388, 0, 5])
     end
+
+    it "may coarsen precision" do
+      tp = TimePoint.new(5000, Scale::BASE)
+      tp.size.should eq(1)
+      tp.precision.should eq(Scale.new(1))
+      tp.@magnitude.should eq([5])
+    end
   end
 
   describe "#to_i64" do
@@ -276,14 +283,14 @@ describe "TimePoint" do
       (a.gap(b)).should eq(Duration.new(3005006002009, Scale.new(-5)))
     end
 
-    pending "should return a result within a single time quantum" do
+    it "should return a result within a single time quantum" do
       a = TimePoint.new(1)
       b = TimePoint.new(2800, Scale.new(-6))
       a.gap(b).should eq(Duration.new(999_999_999_999_997, Scale.new(-5)))
 
       a = TimePoint.new(1)
       b = TimePoint.new(2800, Scale.new(-6))
-      a.gap(b).fixed_at(Scale.new(4)).should eq(Duration.new(100_000_000_000, Scale.new(-4)))
+      a.gap(b).rescale(Scale.new(-4)).should eq(Duration.new(1_000_000_000_000, Scale.new(-4)))
 
       a = TimePoint.new(1)
       b = TimePoint.new(2800, Scale.new(-6))
@@ -344,20 +351,25 @@ describe "TimePoint" do
         planned_phase.should eq(Duration.new(4020))
       end
 
-      pending "coarsens precision as long as no accuracy is lost" do
+      it "coarsens precision as long as no accuracy is lost for current phase" do
         # current phase, coarsened result
         tp = TimePoint.new(2000)
         planned_duration = Duration.new(5_000_000, Scale::MILLI)
         planned_phase = tp.phase_from_duration(planned_duration)
         (planned_phase > planned_duration).should be_true
         planned_phase.should eq(Duration.new(7, Scale::KILO))
+      end
 
+      it "coarsens precision as long as no accuracy is lost for next phase" do
         # next phase, coarsened result
         tp = TimePoint.new(Duration::MULTIPLIER_LIMIT - 2000)
         planned_duration = Duration.new(5000)
+        tp.precision.should eq(Scale::KILO) # because it removes trailing zeros
+
         planned_phase = tp.phase_from_duration(planned_duration)
-        planned_phase.should eq(Duration.new(3, Scale::KILO))
-        (planned_phase < planned_duration).should be_true
+        # returned planned phase is based on epoch at KILO scale since time point
+        # is based on KILO.
+        planned_phase.should eq(Duration.new(1_000_000_000_003, Scale::KILO))
       end
 
       it "coarses phase to default precision (0) when current time is 0" do

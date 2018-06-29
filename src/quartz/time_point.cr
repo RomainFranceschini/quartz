@@ -217,7 +217,6 @@ module Quartz
       end
 
       precision = Scale::BASE if unbounded
-
       Duration.new(multiplier, precision)
     end
 
@@ -319,17 +318,15 @@ module Quartz
         return Duration::INFINITY
       end
 
-      precision = little.precision + Math.max(0, count - Duration::EPOCH - 1)
-
-      truncated = precision - little.precision
+      precision = little.precision
       result_precision = precision
 
       multiplier = 0_i64
       carry = 0_i64
       exponent = 0
 
-      (count - truncated).times do |i|
-        carry += if i < little.size - truncated
+      count.times do |i|
+        carry += if i < little.size
                    self[precision + i] - other[precision + i]
                  else
                    big[precision + i]
@@ -431,9 +428,12 @@ module Quartz
       if zero?
         io << '0'
       else
-        @magnitude.reverse_each
-                  .map { |d| "%03d" % d }
-                  .join("_", io)
+        iterator = @magnitude.reverse_each
+        io << iterator.next
+        if @magnitude.size > 1
+          io << '_'
+          iterator.map { |d| "%03d" % d }.join("_", io)
+        end
       end
       if @precision.level != 0
         io << 'e'

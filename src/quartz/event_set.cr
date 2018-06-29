@@ -99,7 +99,7 @@ module Quartz
       if duration.infinite?
         @current_time
       else
-        @current_time = @current_time.advance(duration)
+        @current_time.advance(duration)
       end
     end
 
@@ -111,7 +111,7 @@ module Quartz
       if duration > imminent_duration
         raise BadSynchronisationError.new("Current time cannot advance beyond imminent events.")
       end
-      @current_time = @current_time.advance by: duration
+      @current_time.advance by: duration
     end
 
     # Advance the current time until it reaches the given time point.
@@ -146,7 +146,7 @@ module Quartz
       event.planned_precision = duration.precision
       event.planned_phase = planned_phase
 
-      if planned_phase < duration
+      if planned_phase < duration || planned_phase > Duration.new(Duration::MULTIPLIER_MAX, duration.precision)
         # The event is in the next epoch
         @future_events.add(event)
       else
