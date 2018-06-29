@@ -16,12 +16,12 @@ class Ev
 end
 
 private struct EventSetTester
-  # @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new
+  @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new { |a, b| a <=> b }
   # @lq : LadderQueue(Ev) = LadderQueue(Ev).new
   @bh : BinaryHeap(Ev) = BinaryHeap(Ev).new { |a, b| a <=> b }
 
   def test(&block : PriorityQueue(Ev) ->)
-    # it "(CalendarQueue)" { block.call(@cq) }
+    it "(CalendarQueue)" { block.call(@cq) }
     # it "(LadderQueue)" { block.call(@lq) }
     it "(BinaryHeap)" { block.call(@bh) }
   end

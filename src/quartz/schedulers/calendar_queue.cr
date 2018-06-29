@@ -1,20 +1,20 @@
 module Quartz
-
   # A fast O(1) priority queue implementation
-  class CalendarQueue(T) < EventSet(T)
+  class CalendarQueue(T) < PriorityQueue(T)
     include Comparable(CalendarQueue)
 
     getter size
 
-    @buckets : Slice(Array(T))
+    @buckets : Slice(Array(Tuple(Duration, T)))
 
-    @shrink_threshold : Priority
-    @expand_threshold : Priority
-    @last_priority : Priority
-    @bucket_top : Priority
-    @width : Priority
+    @shrink_threshold : Int64
+    @expand_threshold : Int64
+    @last_priority : Duration
+    @bucket_top : Duration
+    @width : Duration
 
-    def initialize(start_priority=0.0, bucket_count=2, bucket_width=1.0)
+    def initialize(start_priority = Duration.new(0), bucket_count = 2, bucket_width = Duration.new(2), &comparator : Duration, Duration -> Int32)
+      @comparator = comparator
       @size = 0
       @resize_enabled = true
 
@@ -22,22 +22,19 @@ module Quartz
       @last_bucket = 0
       # the priority at the top of that bucket (highest priority that could go
       # into the bucket)
-      @bucket_top = 0.0
+      @bucket_top = Duration.new(0)
       # the priority of the last event dequeued
-      @last_priority = 0
+      @last_priority = Duration.new(0)
 
-      # setting manually instead of calling #local_init because crystal complains instance var are nilable event so they're not
       @width = bucket_width
-      @buckets = Slice.new(bucket_count) { Array(T).new }
+      @buckets = Slice.new(bucket_count) { Array(Tuple(Duration, T)).new }
       @last_priority = start_priority
       i = start_priority / bucket_width # virtual bucket
       @last_bucket = (i % bucket_count).to_i
-      @bucket_top = (i+1) * bucket_width + 0.5 * bucket_width
+      @bucket_top = (i + 1) * bucket_width + 0.5 * bucket_width
       # set up queue size change thresholds
-      @shrink_threshold = bucket_count / 2.0 - 2
-      @expand_threshold = 2.0 * bucket_count
-
-      #local_init(bucket_count, bucket_width, start_priority)
+      @shrink_threshold = (bucket_count / 2.0 - 2).to_i64
+      @expand_threshold = (2.0 * bucket_count).to_i64
     end
 
     def inspect(io)
@@ -52,7 +49,7 @@ module Quartz
       nil
     end
 
-    def empty?
+    def empty? : Bool
       @size == 0
     end
 
@@ -60,26 +57,25 @@ module Quartz
       @size = 0
       @resize_enabled = true
       @last_bucket = 0
-      @bucket_top = 0
-      @last_priority = 0
-      local_init(2, 1.0, 0.0)
+      @bucket_top = Duration.new(0)
+      @last_priority = Duration.new(0)
+      local_init(2, Duration.new(2), Duration.new(0))
+      self
     end
 
-    def push(obj)
-      tn = obj.time_next
-
-      vbucket = (tn / @width).to_i      # virtual bucket
-      i = vbucket % @buckets.size       # actual bucket
+    def push(priority : Duration, value : T)
+      vbucket = (priority / @width).to_i # virtual bucket
+      i = vbucket % @buckets.size        # actual bucket
 
       bucket = @buckets[i]
-      if bucket.empty? || bucket.last.time_next > tn
-        bucket << obj
+      if bucket.empty? || bucket.last[0] > priority
+        bucket << {priority, value}
       else
         j = bucket.size - 1
-        while tn > bucket[j].time_next && j >= 0
+        while priority > bucket[j][0] && j >= 0
           j -= 1
         end
-        bucket.insert(j + 1, obj)
+        bucket.insert(j + 1, {priority, value}) # TODO: optimize! lots of memmoves
       end
 
       @size += 1
@@ -92,49 +88,67 @@ module Quartz
       self
     end
 
-    def delete(obj)
-      tn = obj.time_next
-      vbucket = (tn / @width).to_i      # virtual bucket
-      i = vbucket % @buckets.size       # actual bucket
+    def delete(priority : Duration, event : T)
+      vbucket = (priority / @width).to_i # virtual bucket
+      i = vbucket % @buckets.size        # actual bucket
 
       bucket = @buckets[i]
       item = nil
-      index = bucket.index(obj)
+      index = bucket.index({priority, event})
       if index
         item = bucket.delete_at(index)
         @size -= 1
-      end
 
-      # halve calendar size if needed
-      if @size < @shrink_threshold
-        resize(@buckets.size / 2)
-      end
+        # halve calendar size if needed
+        if @size < @shrink_threshold
+          resize(@buckets.size / 2)
+        end
 
-      item
+        item[1]
+      else
+        nil
+      end
     end
 
-    def peek
-      raise Enumerable::EmptyError.new if @size == 0
-      peek?.not_nil!
+    def peek : T
+      if @size == 0
+        raise "calendar queue is empty."
+      else
+        unsafe_peek[1]
+      end
     end
 
-    def peek?
-      return nil if @size == 0
+    def peek? : T?
+      if @size == 0
+        nil
+      else
+        unsafe_peek[1]
+      end
+    end
 
+    def next_priority
+      if @size == 0
+        raise "calendar queue is empty."
+      else
+        unsafe_peek[0]
+      end
+    end
+
+    private def unsafe_peek : Tuple(Duration, T)
       last_bucket = @last_bucket
       last_priority = @last_priority
       bucket_top = @bucket_top
 
-      while true
+      loop do
         i = last_bucket
         while i < @buckets.size
           bucket = @buckets[i]
 
-          if bucket.size > 0 && bucket.last.time_next < bucket_top
+          if bucket.size > 0 && @comparator.call(bucket.last[0], bucket_top) < 0
             # found item to dequeue
             item = bucket.last
             last_bucket = i
-            last_priority = item.time_next
+            last_priority = item[0]
 
             return item
           else
@@ -148,83 +162,96 @@ module Quartz
         end
 
         # directly search for minimum priority event
-        lowest = Quartz::INFINITY
-        i = tmp = 0
-        while i < @buckets.size
-          bucket = @buckets[i]
-          if bucket.size > 0 && bucket.last.time_next < lowest
-            lowest = bucket.last.time_next
+        lowest = Duration::INFINITY
+        tmp = 0
+        @buckets.each_with_index do |bucket, i|
+          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest) < 0
+            lowest = bucket.last[0]
             tmp = i
           end
           i += 1
         end
         last_bucket = tmp
         last_priority = lowest
-        bucket_top = (((lowest / @width) + 1).to_i * @width + (0.5 * @width)).to_f
+        bucket_top = (((lowest / @width) + 1).to_i * @width + (0.5 * @width))
 
         # resume search at min bucket
       end
     end
 
-    def pop
-      raise Enumerable::EmptyError.new if @size == 0
-
-      i = @last_bucket
-      while i < @buckets.size
-        bucket = @buckets[i]
-
-        if bucket.size > 0 && bucket.last.time_next < @bucket_top
-          # found item to dequeue
-          item = bucket.pop
-          @last_bucket = i
-          @last_priority = item.time_next
-          @size -= 1
-
-          if @size < @shrink_threshold
-            resize(@buckets.size / 2)
-          end
-
-          return item
-        else
-          # prepare to check next bucket or else go to a direct search
-          i += 1
-          i = 0 if i == @buckets.size
-          @bucket_top += @width
-          break if i == @last_bucket # go to direct search
-        end
+    def pop : T
+      if @size == 0
+        raise "calendar queue is empty."
+      else
+        unsafe_pop[1]
       end
-
-      # directly search for minimum priority event
-      lowest = Quartz::INFINITY
-      i = tmp = 0
-      while i < @buckets.size
-        bucket = @buckets[i]
-        if bucket.size > 0 && bucket.last.time_next < lowest
-          lowest = bucket.last.time_next
-          tmp = i
-        end
-        i += 1
-      end
-      @last_bucket = tmp
-      @last_priority = lowest
-      @bucket_top = (((lowest / @width) + 1).to_i * @width + (0.5 * @width)).to_f
-
-      pop # resume search at min bucket
     end
 
-    private def local_init(bucket_count : Int, bucket_width : Priority, start_priority : Priority)
+    def pop? : T?
+      if @size == 0
+        nil
+      else
+        unsafe_pop[1]
+      end
+    end
+
+    private def unsafe_pop : Tuple(Duration, T)
+      loop do
+        i = @last_bucket
+        while i < @buckets.size
+          bucket = @buckets[i]
+
+          if bucket.size > 0 && @comparator.call(bucket.last[0], @bucket_top) < 0
+            # found item to dequeue
+            item = bucket.pop
+            @last_bucket = i
+            @last_priority = item[0]
+            @size -= 1
+
+            if @size < @shrink_threshold
+              resize(@buckets.size / 2)
+            end
+
+            return item
+          else
+            # prepare to check next bucket or else go to a direct search
+            i += 1
+            i = 0 if i == @buckets.size
+            @bucket_top += @width
+            break if i == @last_bucket # go to direct search
+          end
+        end
+
+        # directly search for minimum priority event
+        lowest = Duration::INFINITY
+        tmp = 0
+        @buckets.each_with_index do |bucket, i|
+          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest) < 0
+            lowest = bucket.last[0]
+            tmp = i
+          end
+          i += 1
+        end
+        @last_bucket = tmp
+        @last_priority = lowest
+        @bucket_top = (((lowest / @width) + 1) * @width + (0.5 * @width))
+        # resume search at min bucket
+      end
+    end
+
+    private def local_init(bucket_count : Int, bucket_width : Duration, start_priority : Duration)
       @width = bucket_width
 
-      @buckets = Slice(Array(T)).new(bucket_count) { Array(T).new }
+      @buckets = Slice(Array(Tuple(Duration, T))).new(bucket_count) { Array(Tuple(Duration, T)).new }
 
       @last_priority = start_priority
       i = (start_priority / bucket_width).to_i # virtual bucket
       @last_bucket = (i % bucket_count).to_i
-      @bucket_top = (i+1) * bucket_width + 0.5 * bucket_width
+      @bucket_top = (i + 1) * bucket_width + 0.5 * bucket_width
 
       # set up queue size change thresholds
-      @shrink_threshold = bucket_count / 2.0 - 2
-      @expand_threshold = 2.0 * bucket_count
+      @shrink_threshold = (bucket_count / 2.0 - 2).to_i64
+      @expand_threshold = (2.0 * bucket_count).to_i64
     end
 
     # Resize buckets to *new_size*.
@@ -239,20 +266,22 @@ module Quartz
       tmp_buckets.each do |bucket|
         @size -= bucket.size
         while !bucket.empty?
-          self << bucket.pop
+          duration, event = bucket.pop
+          push(duration, event)
         end
       end
     end
 
     # Calculates the width to use for buckets
-    def new_width : Float
+    private def new_width : Duration
       # decides how many queue elements to sample
-      return 1.0 if @size < 2
+      return Duration.new(2) if @size < 2
+
       n = if @size <= 5
-        @size
-      else
-        5 + (@size / 10).to_i
-      end
+            @size
+          else
+            5 + (@size / 10).to_i
+          end
       n = 25 if n > 25
 
       # record variables
@@ -263,44 +292,47 @@ module Quartz
       # dequeue n events from the queue and record their priorities with
       # resize_enabled set to false.
       @resize_enabled = false
-      average = 0.0
+      average = Duration.new(0)
 
-      prev_elmt : T? = nil
-      tmp = StaticArray(T?, 25).new do |i|
-        if i < n    # dequeue events to get a test sample
-          elmt = self.pop
-          if i > 0  # sum up the differences in time
-            average += elmt.time_next - prev_elmt.not_nil!.time_next
+      prev_duration = Duration.new(0)
+      tmp = StaticArray(Tuple(Duration, T)?, 25).new do |i|
+        if i < n # dequeue events to get a test sample
+          duration, event = unsafe_pop
+          if i > 0 # sum up the differences in time
+            average += duration - prev_duration
           end
-          prev_elmt = elmt
-          elmt
+          prev_duration = duration
+          {duration, event}
         else
           nil
         end
       end
 
       # calculate average separation of sampled events
-      average = average / (n-1).to_f
+      average = average / (n - 1)
 
       # put the first sample back onto the queue
-      self << tmp[0].not_nil!
+      duration, event = tmp[0].not_nil!
+      push(duration, event)
 
       # recalculate average using only separations smaller than twice the
       # original average
-      new_average = 0.0
+      new_average = Duration.new(0)
       j = 0
       i = 1
       while i < n
-        sub = tmp[i].not_nil!.time_next - tmp[i-1].not_nil!.time_next
-        if sub < average * 2.0
+        # duration, event = tmp[i].not_nil!
+        sub = tmp[i].not_nil![0] - tmp[i - 1].not_nil![0]
+        if sub < average * 2
           new_average += sub
           j += 1
         end
         # put the remaining samples back onto the queue
-        self << tmp[i].not_nil!
+        duration, event = tmp[i].not_nil!
+        push(duration, event)
         i += 1
       end
-      new_average = new_average / j.to_f
+      new_average = new_average / j
 
       # restore variables
       @resize_enabled = true
@@ -309,12 +341,12 @@ module Quartz
       @bucket_top = tmp_bucket_top
 
       # this is the new width
-      if new_average > 0.0
+      if new_average > Duration.new(0)
         new_average * 3.0
-      elsif average > 0.0
+      elsif average > Duration.new(0)
         average * 2.0
       else
-        1.0
+        Duration.new(2)
       end
     end
   end

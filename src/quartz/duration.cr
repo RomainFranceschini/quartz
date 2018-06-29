@@ -320,7 +320,7 @@ module Quartz
 end
 
 struct ::Number
-  def *(other : Duration)
+  def *(other : Quartz::Duration)
     other * self
   end
 end
