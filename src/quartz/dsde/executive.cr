@@ -62,11 +62,11 @@ module Quartz
           remove_model_from_network(req[:model].raw.as(Name))
         end
 
-        @sigma = 0
+        @sigma = Duration.new(0)
       end
 
       def internal_transition
-        @sigma = INFINITY
+        @sigma = Duration::INFINITY
       end
 
       def output

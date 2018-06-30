@@ -23,17 +23,17 @@ module Quartz
       @stack.push parent_processor
     end
 
-    # def visit(model : DSDE::CoupledModel)
-    #   processor = if model == @root_model
-    #                 @root_coordinator = DSDE::RootCoordinator.new(model, @simulation)
-    #               else
-    #                 DSDE::DynamicCoordinator.new(model, @simulation)
-    #               end
-    #   if parent = @stack.last?
-    #     parent << processor
-    #   end
-    #   @stack.push processor
-    # end
+    def visit(model : DSDE::CoupledModel)
+      processor = if model == @root_model
+                    @root_coordinator = DSDE::RootCoordinator.new(model, @simulation)
+                  else
+                    DSDE::DynamicCoordinator.new(model, @simulation)
+                  end
+      if parent = @stack.last?
+        parent << processor
+      end
+      @stack.push processor
+    end
 
     def visit(model : CoupledModel)
       processor = if model == @root_model
