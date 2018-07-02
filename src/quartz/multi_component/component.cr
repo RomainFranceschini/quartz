@@ -2,12 +2,10 @@ module Quartz
   module MultiComponent
     abstract class Component < Model
       include Transitions
+      include Schedulable
       include Observable
       include Verifiable
       include AutoState
-
-      property time_last : SimulationTime = 0
-      property time_next : SimulationTime = 0
 
       getter influencers = Array(Component).new
       getter influencees = Array(Component).new

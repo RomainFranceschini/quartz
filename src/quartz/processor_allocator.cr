@@ -55,9 +55,9 @@ module Quartz
       @stack.last << Simulator.new(model, @simulation)
     end
 
-    # def visit(model : MultiComponent::Model)
-    #   @stack.last << MultiComponent::Simulator.new(model, @simulation)
-    # end
+    def visit(model : MultiComponent::Model)
+      @stack.last << MultiComponent::Simulator.new(model, @simulation)
+    end
 
     def visit(model)
       raise ProcessorAllocationError.new("No processor able to simulate \"#{model.name}\" model.")

@@ -2,14 +2,14 @@ module Quartz
   module MultiComponent
     # This class defines a multiPDEVS simulator.
     class Simulator < Quartz::Simulator
-
       # :nodoc:
-      OBS_INFO_REAC_TRANSITION = { :transition => Any.new(:reaction) }
+      OBS_INFO_REAC_TRANSITION = {:transition => Any.new(:reaction)}
 
       @components : Hash(Name, Component)
       @event_set : EventSet(Component)
+      @time_cache : TimeCache(Component)
       @imm : Array(Quartz::MultiComponent::Component)
-      @state_bags : Hash(Quartz::MultiComponent::Component,Array(Tuple(Name,Any)))
+      @state_bags : Hash(Quartz::MultiComponent::Component, Array(Tuple(Name, Any)))
       @parent_bag : Hash(OutputPort, Array(Any))
       @reac_count : UInt32 = 0u32
 
@@ -17,8 +17,9 @@ module Quartz
         super(model, simulation)
         sched_type = model.class.preferred_event_set? || simulation.default_scheduler
         @event_set = EventSet(Component).new(sched_type)
-        @state_bags = Hash(Quartz::MultiComponent::Component,Array(Tuple(Name,Any))).new { |h,k|
-          h[k] = Array(Tuple(Name,Any)).new
+        @time_cache = TimeCache(Component).new(@event_set.current_time)
+        @state_bags = Hash(Quartz::MultiComponent::Component, Array(Tuple(Name, Any))).new { |h, k|
+          h[k] = Array(Tuple(Name, Any)).new
         }
         @imm = Array(Quartz::MultiComponent::Component).new
         @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
@@ -30,69 +31,60 @@ module Quartz
 
       def transition_stats
         {
-          external: @ext_count,
-          internal: @int_count,
+          external:  @ext_count,
+          internal:  @int_count,
           confluent: @con_count,
-          reaction: @reac_count
+          reaction:  @reac_count,
         }
       end
 
-      # Returns the maximum time last in all components
-      protected def max_time_last
-        @components.each_value.reduce(-INFINITY) { |memo, child| Math.max(memo, child.time_last) }
-      end
-
-      def initialize_processor(time)
+      def initialize_processor(time : TimePoint) : {Duration, Duration}
         @reac_count = @int_count = @ext_count = @con_count = 0u32
         @event_set.clear
+        @time_cache.current_time = @event_set.current_time
+        @event_set.advance until: time
+
+        max_elapsed = Duration.new(0)
 
         @components.each_value do |component|
-          component.time_last = component.time = time - component.elapsed
           component.__initialize_state__(self)
-          component.time_next = component.time_last + component.time_advance
-          component.notify_observers(OBS_INFO_INIT_TRANSITION)
-
-          case @event_set
-          when RescheduleEventSet
-            @event_set << component
-          else
-            if component.time_next < Quartz::INFINITY
-              @event_set << component
-            end
-          end
+          elapsed = component.elapsed
+          planned_duration = component.time_advance
 
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug(String.build { |str|
               str << '\'' << component.name << "' initialized ("
-              str << "tl: " << component.time_last << ", tn: "
-              str << component.time_next << ')'
+              str << "elapsed: " << elapsed << ", time_next: "
+              str << planned_duration << ')'
             })
           end
-        end
 
-        @time_last = max_time_last
-        @time_next = min_time_next
+          component.notify_observers(OBS_INFO_INIT_TRANSITION)
+
+          @time_cache.retain_event(component, elapsed)
+          if !planned_duration.infinite?
+            @event_set.plan_event(component, planned_duration)
+          else
+            component.planned_phase = planned_duration
+          end
+
+          max_elapsed = elapsed if elapsed > max_elapsed
+        end
 
         @model.as(MultiComponent::Model).notify_observers(OBS_INFO_INIT_PHASE)
 
-        @time_next
+        {max_elapsed.fixed, @event_set.imminent_duration.fixed}
       end
 
-      # Returns the minimum time next in all components
-      def min_time_next
-        @event_set.next_priority
-      end
-
-      def collect_outputs(time)
-        raise BadSynchronisationError.new("time: #{time} should match time_next: #{@time_next}") if time != @time_next
+      def collect_outputs(elapsed : Duration)
+        @event_set.advance by: elapsed
 
         @parent_bag.clear unless @parent_bag.empty?
 
-        @event_set.each_imminent(time) do |component|
+        @event_set.each_imminent_event do |component|
           @imm << component
-          component.time = time
           if sub_bag = component.output
-            sub_bag.each do |k,v|
+            sub_bag.each do |k, v|
               @parent_bag[k] << v
             end
           end
@@ -103,20 +95,36 @@ module Quartz
         @parent_bag
       end
 
-      def perform_transitions(time)
-        if !(@time_last <= time && time <= @time_next)
-          raise BadSynchronisationError.new("time: #{time} should be between time_last: #{@time_last} and time_next: #{@time_next}")
-        end
+      def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
         bag = @bag || EMPTY_BAG
 
-        if time == @time_next && bag.empty?
+        if @event_set.current_time < time && !bag.empty?
+          @event_set.advance until: time
+        end
+
+        if elapsed.zero? && bag.empty? # if time == @time_next && bag.empty?
           @int_count += @imm.size
           @imm.each do |component|
-            component.time = time
-            component.elapsed = time - component.time_last
-            component.influencers.each { |i| i.elapsed = time - i.time_last }
+            elapsed_duration = @time_cache.elapsed_duration_of(component)
+            remaining_duration = @event_set.duration_of(component)
+            component.elapsed = if remaining_duration.zero?
+                                  Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+                                else
+                                  elapsed_duration
+                                end
+
+            # update elapsed values for each influencers
+            component.influencers.each do |influencer|
+              elapsed_influencer = @time_cache.elapsed_duration_of(component)
+              influencer.elapsed = if elapsed_influencer == elapsed_duration
+                                     Duration.zero(elapsed_influencer.precision, elapsed_influencer.fixed?)
+                                   else
+                                     elapsed_influencer
+                                   end
+            end
+
             component.internal_transition.try do |ps|
-              ps.each do |k,v|
+              ps.each do |k, v|
                 @state_bags[@components[k]] << {component.name, v}
               end
             end
@@ -132,22 +140,37 @@ module Quartz
             # TODO test if component defined delta_ext
             info = nil
             kind = nil
-            component.time = time
-            component.elapsed = time - component.time_last
-            component.influencers.each { |i| i.elapsed = time - i.time_last }
-            o = if time == @time_next && component.time_next == @time_next
-              info = OBS_INFO_CON_TRANSITION
-              kind = :confluent
-              @con_count += 1u32
-              component.confluent_transition(bag)
-            else
-              info = OBS_INFO_EXT_TRANSITION
-              kind = :external
-              @ext_count += 1u32
-              component.external_transition(bag)
+            elapsed_duration = @time_cache.elapsed_duration_of(component)
+            remaining_duration = @event_set.duration_of(component)
+            component.elapsed = if remaining_duration.zero?
+                                  Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+                                else
+                                  elapsed_duration
+                                end
+
+            # update elapsed values for each influencers
+            component.influencers.each do |influencer|
+              elapsed_influencer = @time_cache.elapsed_duration_of(component)
+              influencer.elapsed = if elapsed_influencer == elapsed_duration
+                                     Duration.zero(elapsed_influencer.precision, elapsed_influencer.fixed?)
+                                   else
+                                     elapsed_influencer
+                                   end
             end
 
-            o.try &.each do |k,v|
+            o = if elapsed.zero? # if time == @time_next && component.time_next == @time_next
+                  info = OBS_INFO_CON_TRANSITION
+                  kind = :confluent
+                  @con_count += 1u32
+                  component.confluent_transition(bag)
+                else
+                  info = OBS_INFO_EXT_TRANSITION
+                  kind = :external
+                  @ext_count += 1u32
+                  component.external_transition(bag)
+                end
+
+            o.try &.each do |k, v|
               @state_bags[@components[k]] << {component_name, v}
             end
 
@@ -165,42 +188,30 @@ module Quartz
         @imm.clear
 
         @state_bags.each do |component, states|
-          component.time = time
-          if @event_set.is_a?(RescheduleEventSet)
-            component.reaction_transition(states)
-            component.elapsed = 0
-            component.time_last = time
-            component.time_next = component.time_last + component.time_advance
-          elsif @event_set.is_a?(LadderQueue)
-            tn = component.time_next
-            is_in_scheduler = tn < Quartz::INFINITY && time != tn
-            if is_in_scheduler
-              if @event_set.delete(component)
-                is_in_scheduler = false
-              end
-            end
-            component.reaction_transition(states)
-            component.elapsed = 0
-            component.time_last = time
-            new_tn = component.time_next = component.time_last + component.time_advance
-            if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
-              @event_set.push(component)
-            end
-          else
-            tn = component.time_next
-            @event_set.delete(component) if tn < Quartz::INFINITY && time != tn
-            component.reaction_transition(states)
-            component.elapsed = 0
-            component.time_last = time
-            tn = component.time_next = component.time_last + component.time_advance
-            @event_set.push(component) if tn < Quartz::INFINITY
+          remaining_duration = @event_set.duration_of(component)
+          elapsed_duration = @time_cache.elapsed_duration_of(component)
+
+          if remaining_duration.zero?
+            elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+          elsif !remaining_duration.infinite?
+            @event_set.cancel_event(component)
           end
+
+          component.elapsed = elapsed_duration
+          component.reaction_transition(states)
+
+          planned_duration = component.time_advance.fixed
+          if planned_duration.infinite?
+            component.planned_phase = Duration::INFINITY.fixed
+          else
+            @event_set.plan_event(component, planned_duration)
+          end
+          @time_cache.retain_event(component, planned_duration.precision)
 
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug(String.build { |str|
-              str << '\'' << component.name << "': reaction transition "
-              str << "(tl: " << component.time_last << ", tn: "
-              str << component.time_next << ')'
+              str << '\'' << component.name << "': reaction transition ("
+              str << "elapsed: " << elapsed_duration << ", time_next: " << planned_duration << ')'
             })
           end
 
@@ -210,14 +221,10 @@ module Quartz
         @reac_count += @state_bags.size
         @state_bags.clear
 
-        @event_set.reschedule! if @event_set.is_a?(RescheduleEventSet)
-
         @model.as(MultiComponent::Model).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
 
-        @time_last = time
-        @time_next = min_time_next
+        @event_set.imminent_duration.fixed
       end
-
     end
   end
 end

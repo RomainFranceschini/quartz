@@ -55,8 +55,6 @@ module Quartz
             @event_set.plan_event(receiver, planned_duration)
           end
           @time_cache.retain_event(receiver, planned_duration.precision)
-
-          # end
         end
 
         receiver = coupled.executive.processor
