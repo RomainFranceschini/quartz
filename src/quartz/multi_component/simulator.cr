@@ -102,7 +102,7 @@ module Quartz
           @event_set.advance until: time
         end
 
-        if elapsed.zero? && bag.empty? # if time == @time_next && bag.empty?
+        if elapsed.zero? && bag.empty?
           @int_count += @imm.size
           @imm.each do |component|
             elapsed_duration = @time_cache.elapsed_duration_of(component)
@@ -158,7 +158,7 @@ module Quartz
                                    end
             end
 
-            o = if elapsed.zero? # if time == @time_next && component.time_next == @time_next
+            o = if elapsed.zero? && remaining_duration.zero?
                   info = OBS_INFO_CON_TRANSITION
                   kind = :confluent
                   @con_count += 1u32
