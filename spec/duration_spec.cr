@@ -1,6 +1,20 @@
 require "./spec_helper"
 
 describe "Duration" do
+  it "can be constructed from the duration macro" do
+    duration(2, :kilo).should eq(Duration.new(2, Scale::KILO))
+    duration(2, "kilo").should eq(Duration.new(2, Scale::KILO))
+    duration(2, kilo).should eq(Duration.new(2, Scale::KILO))
+    duration(2).should eq(Duration.new(2, Scale::BASE))
+    duration(2, Scale::KILO).should eq(Duration.new(2, Scale::KILO))
+    duration(2, Scale.new(76)).should eq(Duration.new(2, Scale.new(76)))
+  end
+
+  it "can be constructed from a integer" do
+    2.duration_units.should eq(Duration.new(2, Scale::BASE))
+    2.kilo_duration_units.should eq(Duration.new(2, Scale::KILO))
+  end
+
   it "defines epoch and multiplier constants" do
     Duration::EPOCH.should eq(5)
     Duration::MULTIPLIER_LIMIT.should eq(1000i64 ** 5)

@@ -317,10 +317,116 @@ module Quartz
       packer.write(@precision.level)
     end
   end
+
+  private ALLOWED_UNITS = [
+    "yocto", "zepto", "atto", "femto", "pico", "nano", "micro", "milli", "base",
+    "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta",
+  ]
+
+  # The `duration` macro is syntax sugar to construct a new `Duration` struct.
+  #
+  # ### Usage
+  #
+  # `duration` must receive a number literal along with an optional scale unit.
+  # The scale unit can be specified with a constant expression (e.g. 'kilo'), or
+  # with a `Scale` struct.
+  #
+  # ```
+  # duration(2)                # => Duration.new(2, Scale::BASE)
+  # duration(2, Scale.new(76)) # => Duration.new(2, Scale.new(76))
+  # duration(2, Scale::KILO)   # => Duration.new(2, Scale::KILO)
+  # duration(2, kilo)          # => Duration.new(2, Scale::KILO)
+  # ```
+  #
+  # If specified with a constant expression, the unit argument can be a string
+  # literal, a symbol literal or a plain name.
+  #
+  # ```
+  # duration(2, kilo)
+  # duration(2, 'kilo')
+  # duration(2, :kilo)
+  # ```
+  macro duration(length, unit = "base")
+    {% if ALLOWED_UNITS.includes?(unit.id.stringify) %}
+      Duration.new({{length}}, Scale::{{ unit.id.upcase }})
+    {% else %}
+      Duration.new({{length}}, {{unit}})
+    {% end %}
+  end
 end
 
 struct ::Number
   def *(other : Quartz::Duration)
     other * self
+  end
+end
+
+struct ::Int
+  def duration_units
+    Quartz::Duration.new(self, Quartz::Scale::BASE)
+  end
+
+  def yocto_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::YOCTO)
+  end
+
+  def zepto_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::ZEPTO)
+  end
+
+  def atto_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::ATTO)
+  end
+
+  def femto_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::FEMTO)
+  end
+
+  def pico_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::PICO)
+  end
+
+  def nano_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::NANO)
+  end
+
+  def micro_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::MICRO)
+  end
+
+  def milli_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::MILLI)
+  end
+
+  def kilo_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::KILO)
+  end
+
+  def mega_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::MEGA)
+  end
+
+  def giga_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::GIGA)
+  end
+
+  def tera_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::TERA)
+  end
+
+  def peta_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::PETA)
+  end
+
+  def exa_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::EXA)
+  end
+
+  def zetta_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::ZETTA)
+  end
+
+  def yotta_duration_units
+    Quartz::Duration.new(self, Quartz::Scale::YOTTA)
   end
 end
