@@ -7,14 +7,34 @@ module Quartz
     include Verifiable
     include AutoState
 
+    # The precision associated with the model.
+    getter precision : Scale = Scale::BASE
+
+    def precision=(@precision : Scale)
+      @elapsed = @elapsed.rescale(@precision)
+      @sigma = @sigma.rescale(@precision)
+    end
+
+    # This attribute is updated automatically along simulation and represents
+    # the elapsed time since the last transition.
+    property elapsed : Duration = Duration.zero
+
+    # Sigma (σ) is a convenient variable introduced to simplify modeling phase
+    # and represent the next activation time (see `#time_advance`)
+    getter sigma : Duration = Duration::INFINITY
+
     def initialize(name)
       super(name)
       @bag = SimpleHash(OutputPort, Any).new
+      @elapsed = @elapsed.rescale(@precision)
+      @sigma = @sigma.rescale(@precision)
     end
 
     def initialize(name, state)
       super(name)
       @bag = SimpleHash(OutputPort, Any).new
+      @elapsed = @elapsed.rescale(@precision)
+      @sigma = @sigma.rescale(@precision)
       self.initial_state = state
       self.state = state
     end
@@ -33,6 +53,7 @@ module Quartz
 
     def initialize(pull : ::JSON::PullParser)
       @bag = SimpleHash(OutputPort, Any).new
+      @elapsed = Duration.new(0, @precision)
       _sigma = Duration::INFINITY
 
       pull.read_object do |key|

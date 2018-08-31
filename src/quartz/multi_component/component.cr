@@ -10,6 +10,22 @@ module Quartz
       getter influencers = Array(Component).new
       getter influencees = Array(Component).new
 
+      # The precision associated with the model.
+      getter precision : Scale = Scale::BASE
+
+      def precision=(@precision : Scale)
+        @elapsed = @elapsed.rescale(@precision)
+        @sigma = @sigma.rescale(@precision)
+      end
+
+      # This attribute is updated automatically along simulation and represents
+      # the elapsed time since the last transition.
+      property elapsed : Duration = Duration.zero
+
+      # Sigma (σ) is a convenient variable introduced to simplify modeling phase
+      # and represent the next activation time (see `#time_advance`)
+      getter sigma : Duration = Duration::INFINITY
+
       @__parent__ : MultiComponent::Model?
 
       def __parent__=(parent : MultiComponent::Model)
@@ -26,10 +42,14 @@ module Quartz
 
       def initialize(name)
         super(name)
+        @elapsed = @elapsed.rescale(@precision)
+        @sigma = @sigma.rescale(@precision)
       end
 
       def initialize(name, state)
         super(name)
+        @elapsed = @elapsed.rescale(@precision)
+        @sigma = @sigma.rescale(@precision)
         self.initial_state = state
         self.state = state
       end

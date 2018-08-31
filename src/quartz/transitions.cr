@@ -1,25 +1,7 @@
 module Quartz
   # This mixin provides models with several transition methods
-  # in line to the PDEVS functions definition (δext, δint, δcon, λ and ta) and
-  # the PDEVS variables (σ, e).
+  # in line to the PDEVS functions definition (δext, δint, δcon, λ and ta).
   module Transitions
-    @elapsed : Duration
-    @sigma : Duration
-    @precision : Scale
-
-    # The precision associated with the model.
-    property precision = Scale::BASE
-
-    # This attribute is updated automatically along simulation and represents
-    # the elapsed time since the last transition.
-    property elapsed = Duration.new(0, @precision)
-
-    # Sigma (σ) is a convenient variable introduced to simplify modeling phase
-    # and represent the next activation time (see `#time_advance`)
-    getter sigma = Duration.new(Duration::MULTIPLIER_INFINITE, @precision)
-
-    # PDEVS functions
-
     # The external transition function (δext)
     #
     # Override this method to implement the appropriate behavior of
