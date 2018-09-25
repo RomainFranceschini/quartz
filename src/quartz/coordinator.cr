@@ -22,10 +22,11 @@ module Quartz
     end
 
     def inspect(io)
-      io << "<" << self.class.name << "tn=" << @event_set.imminent_duration.to_s(io)
-      io << ", components=" << @children.size.to_s(io)
+      io << "<" << self.class.name << "tn="
+      @event_set.imminent_duration.to_s(io)
+      io << ", components="
+      @children.size.to_s(io)
       io << ">"
-      nil
     end
 
     # Append given *child* to `#children` list, ensuring that the child now has

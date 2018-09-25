@@ -5,7 +5,7 @@ module Quartz
 
     getter size
 
-    @buckets : Slice(Array(Tuple(Duration, T)))
+    @buckets : Slice(Deque(Tuple(Duration, T)))
 
     @shrink_threshold : Int64
     @expand_threshold : Int64
@@ -13,7 +13,7 @@ module Quartz
     @bucket_top : Duration
     @width : Duration
 
-    def initialize(start_priority = Duration.new(0), bucket_count = 2, bucket_width = Duration.new(2), &comparator : Duration, Duration -> Int32)
+    def initialize(start_priority = Duration.new(0), bucket_count = 2, bucket_width = Duration.new(2), &comparator : Duration, Duration, Bool -> Int32)
       @comparator = comparator
       @size = 0
       @resize_enabled = true
@@ -27,7 +27,7 @@ module Quartz
       @last_priority = Duration.new(0)
 
       @width = bucket_width
-      @buckets = Slice.new(bucket_count) { Array(Tuple(Duration, T)).new }
+      @buckets = Slice.new(bucket_count) { Deque(Tuple(Duration, T)).new }
       @last_priority = start_priority
       i = start_priority / bucket_width # virtual bucket
       @last_bucket = (i % bucket_count).to_i
@@ -38,13 +38,20 @@ module Quartz
     end
 
     def inspect(io)
-      io << "<" << self.class.name << ": size=" << @size.to_s(io)
-      io << ", bucket_width=" << @width.to_s(io)
-      io << ", last_priority=" << @last_priority.to_s(io)
-      io << ", last_bucket=" << @last_bucket.to_s(io)
-      io << ", bucket_top=" << @bucket_top.to_s(io)
-      io << ", shrink_threshold=" << @shrink_threshold.to_s(io)
-      io << ", expand_threshold" << @expand_threshold.to_s(io)
+      io << "<" << self.class.name << ": size="
+      @size.to_s(io)
+      io << ", bucket_width="
+      @width.to_s(io)
+      io << ", last_priority="
+      @last_priority.to_s(io)
+      io << ", last_bucket="
+      @last_bucket.to_s(io)
+      io << ", bucket_top="
+      @bucket_top.to_s(io)
+      io << ", shrink_threshold="
+      @shrink_threshold.to_s(io)
+      io << ", expand_threshold="
+      @expand_threshold.to_s(io)
       io << ">"
       nil
     end
@@ -68,11 +75,12 @@ module Quartz
       i = vbucket % @buckets.size        # actual bucket
 
       bucket = @buckets[i]
-      if bucket.empty? || bucket.last[0] > priority
+
+      if bucket.empty? || @comparator.call(bucket.last[0], priority, false) > 0
         bucket << {priority, value}
       else
         j = bucket.size - 1
-        while priority > bucket[j][0] && j >= 0
+        while @comparator.call(priority, bucket[j][0], false) > 0 && j >= 0
           j -= 1
         end
         bucket.insert(j + 1, {priority, value}) # TODO: optimize! lots of memmoves
@@ -106,7 +114,7 @@ module Quartz
 
         item[1]
       else
-        nil
+        raise "#{event} scheduled at #{priority} not found"
       end
     end
 
@@ -144,7 +152,7 @@ module Quartz
         while i < @buckets.size
           bucket = @buckets[i]
 
-          if bucket.size > 0 && @comparator.call(bucket.last[0], bucket_top) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], bucket_top, true) < 0
             # found item to dequeue
             item = bucket.last
             last_bucket = i
@@ -165,11 +173,10 @@ module Quartz
         lowest = Duration::INFINITY
         tmp = 0
         @buckets.each_with_index do |bucket, i|
-          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest, true) < 0
             lowest = bucket.last[0]
             tmp = i
           end
-          i += 1
         end
         last_bucket = tmp
         last_priority = lowest
@@ -196,17 +203,25 @@ module Quartz
     end
 
     private def unsafe_pop : Tuple(Duration, T)
+      last_bucket = @last_bucket
+      last_priority = @last_priority
+      bucket_top = @bucket_top
+
       loop do
-        i = @last_bucket
+        i = last_bucket
         while i < @buckets.size
           bucket = @buckets[i]
 
-          if bucket.size > 0 && @comparator.call(bucket.last[0], @bucket_top) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], bucket_top, true) < 0
             # found item to dequeue
             item = bucket.pop
-            @last_bucket = i
-            @last_priority = item[0]
+            last_bucket = i
+            last_priority = item[0]
             @size -= 1
+
+            @last_bucket = last_bucket
+            @last_priority = last_priority
+            @bucket_top = bucket_top
 
             if @size < @shrink_threshold
               resize(@buckets.size / 2)
@@ -217,8 +232,8 @@ module Quartz
             # prepare to check next bucket or else go to a direct search
             i += 1
             i = 0 if i == @buckets.size
-            @bucket_top += @width
-            break if i == @last_bucket # go to direct search
+            bucket_top += @width
+            break if i == last_bucket # go to direct search
           end
         end
 
@@ -226,15 +241,14 @@ module Quartz
         lowest = Duration::INFINITY
         tmp = 0
         @buckets.each_with_index do |bucket, i|
-          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest, true) < 0
             lowest = bucket.last[0]
             tmp = i
           end
-          i += 1
         end
-        @last_bucket = tmp
-        @last_priority = lowest
-        @bucket_top = (((lowest / @width) + 1) * @width + (0.5 * @width))
+        last_bucket = tmp
+        last_priority = lowest
+        bucket_top = (((lowest / @width) + 1) * @width + (0.5 * @width))
         # resume search at min bucket
       end
     end
@@ -242,7 +256,7 @@ module Quartz
     private def local_init(bucket_count : Int, bucket_width : Duration, start_priority : Duration)
       @width = bucket_width
 
-      @buckets = Slice(Array(Tuple(Duration, T))).new(bucket_count) { Array(Tuple(Duration, T)).new }
+      @buckets = Slice(Deque(Tuple(Duration, T))).new(bucket_count) { Deque(Tuple(Duration, T)).new }
 
       @last_priority = start_priority
       i = (start_priority / bucket_width).to_i # virtual bucket
@@ -321,7 +335,6 @@ module Quartz
       j = 0
       i = 1
       while i < n
-        # duration, event = tmp[i].not_nil!
         sub = tmp[i].not_nil![0] - tmp[i - 1].not_nil![0]
         if sub < average * 2
           new_average += sub

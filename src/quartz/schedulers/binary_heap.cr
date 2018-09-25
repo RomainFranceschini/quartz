@@ -16,7 +16,7 @@ module Quartz
     @capacity : Int32
 
     # Creates a new empty BinaryHeap.
-    def initialize(&comparator : Duration, Duration -> Int32)
+    def initialize(&comparator : Duration, Duration, Bool -> Int32)
       @comparator = comparator
       @size = 0
       @capacity = DEFAULT_CAPACITY
@@ -24,7 +24,7 @@ module Quartz
       @cache = Hash(T, Int32).new
     end
 
-    def initialize(initial_capacity : Int, &comparator : Duration, Duration -> Int32)
+    def initialize(initial_capacity : Int, &comparator : Duration, Duration, Bool -> Int32)
       if initial_capacity < 0
         raise ArgumentError.new "Negative array size: #{initial_capacity}"
       end
@@ -119,7 +119,7 @@ module Quartz
         @heap[index] = @heap[@size + 1]
         @cache[@heap[index][1]] = index
 
-        if index > 1 && @comparator.call(@heap[index][0], @heap[index >> 1][0]) < 0
+        if index > 1 && @comparator.call(@heap[index][0], @heap[index >> 1][0], false) < 0
           sift_up!(index)
         else
           sift_down!(index)
@@ -146,11 +146,11 @@ module Quartz
         right = left + 1
         min = left
 
-        if right <= @size && @comparator.call(@heap[right][0], @heap[left][0]) < 0
+        if right <= @size && @comparator.call(@heap[right][0], @heap[left][0], false) < 0
           min = right
         end
 
-        if @comparator.call(@heap[min][0], @heap[index][0]) < 0
+        if @comparator.call(@heap[min][0], @heap[index][0], false) < 0
           @heap[index], @heap[min] = @heap[min], @heap[index]
           @cache[@heap[index][1]] = index
           @cache[@heap[min][1]] = min
@@ -163,7 +163,7 @@ module Quartz
 
     private def sift_up!(index)
       p = index >> 1
-      while p > 0 && @comparator.call(@heap[index][0], @heap[p][0]) < 0
+      while p > 0 && @comparator.call(@heap[index][0], @heap[p][0], false) < 0
         @heap[p], @heap[index] = @heap[index], @heap[p]
         @cache[@heap[p][1]] = p
         @cache[@heap[index][1]] = index

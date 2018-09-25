@@ -25,21 +25,20 @@ module Quartz
   #
   # It is internally used by the pending event set `EventSet`.
   abstract class PriorityQueue(T)
-    def self.new(priority_queue : Symbol, &comparator : Duration, Duration -> Int32) : self
+    def self.new(priority_queue : Symbol, &comparator : Duration, Duration, Bool -> Int32) : self
       case priority_queue
       # when :ladder_queue   then LadderQueue(T).new(&comparator)
-      # when :calendar_queue then CalendarQueue(T).new(&comparator)
-      when :binary_heap then BinaryHeap(T).new(&comparator)
+      when :calendar_queue then CalendarQueue(T).new(&comparator)
+      when :binary_heap    then BinaryHeap(T).new(&comparator)
       else
         if (logger = Quartz.logger?) && logger.warn?
-          logger.warn("Unknown priority queue '#{priority_queue}', defaults to binary heap")
+          logger.warn("Unknown priority queue '#{priority_queue}', defaults to calendar queue")
         end
-        # CalendarQueue(T).new(&comparator)
-        BinaryHeap(T).new(&comparator)
+        CalendarQueue(T).new(&comparator)
       end
     end
 
-    abstract def initialize(&comparator : Duration, Duration -> Int32)
+    abstract def initialize(&comparator : Duration, Duration, Bool -> Int32)
     abstract def size : Int
     abstract def empty? : Bool
     abstract def clear
@@ -70,8 +69,8 @@ module Quartz
         {{ raise "Can only create EventSet with types that implements Schedulable, not #{T}" }}
       {% end %}
 
-      @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b|
-        cmp_planned_phases(a, b)
+      @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b, b_in_previous_epoch|
+        cmp_planned_phases(a, b, b_in_previous_epoch)
       }
       @future_events = Set(T).new
     end
@@ -217,7 +216,11 @@ module Quartz
     end
 
     # Compares two planned phases that may have different precision levels.
-    protected def cmp_planned_phases(a : Duration, b : Duration) : Int32
+    #
+    # If *b_in_previous_epoch* is `true`, when *b* overflows, it is considered
+    # to be in the previous epoch (relative to `#current_time`) instead of the
+    # next epoch.
+    protected def cmp_planned_phases(a : Duration, b : Duration, b_in_previous_epoch : Bool = false) : Int32
       duration_a = @current_time.duration_from_phase(a)
       duration_b = @current_time.duration_from_phase(b)
 
@@ -227,7 +230,11 @@ module Quartz
         duration_a = @current_time.refined_duration(duration_a, duration_b.precision)
       end
 
-      duration_a <=> duration_b
+      if b_in_previous_epoch && duration_b > b
+        -(duration_a <=> duration_b)
+      else
+        duration_a <=> duration_b
+      end
     end
   end
 end
