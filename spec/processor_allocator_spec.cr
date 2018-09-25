@@ -11,7 +11,7 @@ class MyCoupled < CoupledModel
 end
 
 describe "ProcessorAllocator" do
-  pending "allocates appropriate processors across whole hierarchy" do
+  it "allocates appropriate processors across whole hierarchy" do
     coupled = MyCoupled.new("root")
     coupled << DSDE::CoupledModel.new("dynamic")
     nested = MyCoupled.new("nested")
@@ -37,7 +37,7 @@ describe "ProcessorAllocator" do
     coupled["multipdevs"].processor.should be_a(MultiComponent::Simulator)
   end
 
-  pending "visit all children except multipdevs ones and atomics" do
+  it "visit all children except multipdevs ones and atomics" do
     coupled = MyCoupled.new("root")
     dsde = DSDE::CoupledModel.new("dynamic")
     coupled << dsde
