@@ -10,6 +10,20 @@ describe "Duration" do
     duration(2, Scale.new(76)).should eq(Duration.new(2, Scale.new(76)))
   end
 
+  it "rounds multipliers having a fractional part" do
+    Duration.new(4.1).should eq(Duration.new(4))
+    Duration.new(4.9).should eq(Duration.new(5))
+    Duration.new(-7.1).should eq(Duration.new(-7))
+    Duration.new(-7.8).should eq(Duration.new(-8))
+  end
+
+  it "ceils instead of rounding off multipliers having a fractional part to avoid infinity" do
+    Duration.new(999999999999999.4).should eq(Duration.new(999999999999999))
+    Duration.new(999999999999999.7).should eq(Duration.new(999999999999999))
+    Duration.new(-999999999999999.1).should eq(Duration.new(-999999999999999))
+    Duration.new(-999999999999999.9).should eq(Duration.new(-999999999999999))
+  end
+
   it "can be constructed from a integer" do
     2.duration_units.should eq(Duration.new(2, Scale::BASE))
     2.kilo_duration_units.should eq(Duration.new(2, Scale::KILO))

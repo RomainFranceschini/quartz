@@ -39,12 +39,23 @@ module Quartz
     end
 
     def initialize(m : Number = 0i64, @precision : Scale = Scale::BASE, @fixed : Bool = false)
-      @multiplier = if m > MULTIPLIER_MAX
+      @multiplier = if m >= MULTIPLIER_LIMIT
                       Float64::INFINITY
-                    elsif m < -MULTIPLIER_MAX
+                    elsif m <= -MULTIPLIER_LIMIT
                       -Float64::INFINITY
                     elsif m.is_a?(Float)
-                      m.round
+                      if (m % 1 > 0) # if m has a fractional part
+                        rounded = m.round
+                        if rounded < -MULTIPLIER_MAX
+                          m.ceil
+                        elsif rounded > MULTIPLIER_MAX
+                          m.floor
+                        else
+                          rounded
+                        end
+                      else
+                        m
+                      end
                     else
                       m.to_f64
                     end
