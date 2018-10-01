@@ -1,29 +1,37 @@
 require "./spec_helper"
 
 class Ev
+  include Schedulable
+
   getter num : Int32
   property time_point : TimePoint
-  property planned_duration : Duration
+  getter planned_duration : Duration
 
   def initialize(@num)
     @time_point = TimePoint.new
     @planned_duration = Duration.new(0)
+    @planned_phase = @planned_duration # planned_phase is used internally by the ladder queue
   end
 
   def initialize(@num, @planned_duration)
     @time_point = TimePoint.new
+    @planned_phase = @planned_duration # planned_phase is used internally by the ladder queue
+  end
+
+  def planned_duration=(duration : Duration)
+    @planned_duration = @planned_phase = duration
   end
 end
 
 private struct EventSetTester
   @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new { |a, b| a <=> b }
-  # @lq : LadderQueue(Ev) = LadderQueue(Ev).new
+  @lq : LadderQueue(Ev) = LadderQueue(Ev).new { |a, b| a <=> b }
   @bh : BinaryHeap(Ev) = BinaryHeap(Ev).new { |a, b| a <=> b }
 
   def test(&block : PriorityQueue(Ev) ->)
     it "(CalendarQueue)" { block.call(@cq) }
-    # it "(LadderQueue)" { block.call(@lq) }
     it "(BinaryHeap)" { block.call(@bh) }
+    it "(LadderQueue)" { block.call(@lq) }
   end
 end
 
@@ -47,11 +55,11 @@ describe "Priority queues" do
 
   describe "prioritizes elements" do
     EventSetTester.new.test do |pes|
-      events = { {2, Ev.new(1)}, {12, Ev.new(2)}, {257, Ev.new(3)} }
-      events.each { |e| pes.push(Duration.new(e[0]), e[1]) }
+      events = {Ev.new(1, Duration.new(2)), Ev.new(2, Duration.new(12)), Ev.new(3, Duration.new(257))}
+      events.each { |e| pes.push(e.planned_duration, e) }
 
       pes.next_priority.should eq(Duration.new(2))
-      pes.pop.should eq(events[0][1])
+      pes.pop.should eq(events[0])
 
       new_ev = Ev.new(0)
       pes.push(new_ev.planned_duration, new_ev)
@@ -60,10 +68,10 @@ describe "Priority queues" do
       pes.pop.should eq(new_ev)
 
       pes.next_priority.should eq(Duration.new(12))
-      pes.pop.should eq(events[1][1])
+      pes.pop.should eq(events[1])
 
       pes.next_priority.should eq(Duration.new(257))
-      pes.pop.should eq(events[2][1])
+      pes.pop.should eq(events[2])
     end
   end
 
@@ -77,13 +85,13 @@ describe "Priority queues" do
 
   describe "deletes" do
     EventSetTester.new.test do |c|
-      # ladder queue is allowed to return nil
-      # next if c.is_a?(LadderQueue)
-
       events = {Ev.new(1, Duration.new(2)), Ev.new(2, Duration.new(12)), Ev.new(3, Duration.new(257))}
       events.each { |e| c.push(e.planned_duration, e) }
 
       ev = c.delete(events[1].planned_duration, events[1])
+
+      # ladder queue is allowed to return nil for performance reasons (invalidation strategy)
+      next if ev.nil? && c.is_a?(LadderQueue)
 
       ev.should_not be_nil
       ev.not_nil!.num.should eq(2)
@@ -97,9 +105,9 @@ describe "Priority queues" do
 
       ev = c.delete(events[1].planned_duration, events[1])
 
-      # if c.is_a?(LadderQueue) && ev.nil?
-      #   ev = events[1]
-      # end
+      if c.is_a?(LadderQueue) && ev.nil?
+        ev = events[1]
+      end
 
       ev.should_not be_nil
       ev.not_nil!.num.should eq(2)
@@ -124,19 +132,21 @@ describe "Priority queues" do
     max_tn = 100
 
     EventSetTester.new.test do |pes|
+      rand = Random.new
+
       events = [] of Ev
       n.times do |i|
         ev = Ev.new(i, Duration.new(rand(0..max_tn)))
         events << ev
         pes.push(ev.planned_duration, ev)
       end
-      is_ladder = false # pes.is_a?(LadderQueue)
+      is_ladder = pes.is_a?(LadderQueue)
 
       pes.size.should eq(n)
 
       prev_duration = Duration.new(0)
 
-      steps.times do
+      steps.times do |i|
         if is_ladder
           (pes.size < n).should be_false
         else
@@ -156,14 +166,16 @@ describe "Priority queues" do
         imm.each do |ev|
           ev.planned_duration.should eq(prio)
           ev.planned_duration += Duration.new(rand(0..max_tn))
+          raise "ohno" if ev.planned_duration.infinite?
           pes.push(ev.planned_duration, ev)
         end
 
-        rand(max_reschedules).times do
+        reschedules = rand(max_reschedules)
+        reschedules.times do
           ev = events[rand(events.size)]
           c = pes.delete(ev.planned_duration, ev)
 
-          if !is_ladder
+          unless is_ladder && c.nil?
             c.should_not be_nil
             ev.should eq(c)
             ev.planned_duration.should eq(c.not_nil!.planned_duration)
@@ -171,6 +183,8 @@ describe "Priority queues" do
 
           ta = rand(0..max_tn)
           ev.planned_duration += Duration.new(ta)
+          raise "ohno" if ev.planned_duration.infinite?
+
           ev_in_ladder = c == nil
           if !is_ladder || (is_ladder && (!ev_in_ladder || (ev_in_ladder && ta > 0)))
             pes.push(ev.planned_duration, ev)

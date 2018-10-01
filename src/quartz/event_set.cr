@@ -27,7 +27,7 @@ module Quartz
   abstract class PriorityQueue(T)
     def self.new(priority_queue : Symbol, &comparator : Duration, Duration, Bool -> Int32) : self
       case priority_queue
-      # when :ladder_queue   then LadderQueue(T).new(&comparator)
+      when :ladder_queue   then LadderQueue(T).new(&comparator)
       when :calendar_queue then CalendarQueue(T).new(&comparator)
       when :binary_heap    then BinaryHeap(T).new(&comparator)
       else

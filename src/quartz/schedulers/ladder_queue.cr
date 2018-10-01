@@ -14,7 +14,7 @@ module Quartz
   # “Ladder Queue: an O(1) Priority Queue Structure for Large-Scale Discrete
   # Event Simulation.” ACM Transactions on Modeling and Computer Simulation
   # 15 (3): 175–204. doi:10.1145/1103323.1103324.
-  class LadderQueue(T) < EventSet(T)
+  class LadderQueue(T) < PriorityQueue(T)
     # This class represent a general error for the `LadderQueue`.
     class LadderQueueError < Exception; end
 
@@ -39,14 +39,14 @@ module Quartz
 
     # Maximum timestamp of all events in top. Its value is updated as events
     # are enqueued into top
-    @top_max : Priority
+    @top_max : Duration
 
     # Minimum timestamp of all events in top. Its value is updated as events
     # are enqueued into top
-    @top_min : Priority
+    @top_min : Duration
 
     # Minimum timestamp threshold of events which must be enqueued in top
-    @top_start : Priority
+    @top_start : Duration
 
     # The number of spawned rungs
     @active_rungs : Int32
@@ -56,20 +56,22 @@ module Quartz
 
     getter epoch : Int32 = 0
 
-    def initialize
+    def initialize(&comparator : Duration, Duration, Bool -> Int32)
+      @comparator = comparator
+
       # A simple unsorted list which represents the *Top* tier.
-      @top = Array({Priority, T}).new
+      @top = Array({Duration, T}).new
 
       # The middle layer (ladder) consisting of several rungs of buckets where
       # each bucket may contain an unsorted list
-      @rungs = StaticArray(Rung(Priority, T), MAX_RUNGS).new { |i| Rung(Priority, T).new(i) }
+      @rungs = StaticArray(Rung(T), MAX_RUNGS).new { |i| Rung(T).new(i) }
 
       # Sorted list
-      @bottom = Array({Priority, T}).new
+      @bottom = Array({Duration, T}).new
 
-      @top_max = -1
-      @top_min = -1
-      @top_start = 0
+      @top_max = duration(-1)
+      @top_min = duration(-1)
+      @top_start = duration(0)
       @active_rungs = 0
     end
 
@@ -93,34 +95,38 @@ module Quartz
       @size == 0
     end
 
-    def push(obj : T)
-      ts = obj.time_next
+    # Comparison operator. Returns 0 if the two objects are equal, a negative
+    # number if this object is considered less than other,
+    # or a positive number otherwise.
+
+    # priority : Duration, value : T)
+    def push(ts : Duration, value : T)
       @size += 1
 
       # check wether event should be in top
-      if ts >= @top_start
-        @top << {ts, obj}
-        @top_min = ts if @top_min == -1 || ts < @top_min
-        @top_max = ts if ts > @top_max
+      if @comparator.call(ts, @top_start, true) >= 0
+        @top << {ts, value}
+        @top_min = ts if @top_min == duration(-1) || @comparator.call(ts, @top_min, true) < 0 # ts < @top_min
+        @top_max = ts if @comparator.call(ts, @top_max, true) > 0                             # ts > @top_max
         return self
       end
 
       # if priority is lower than the maximum priority from bottom, this
       # event should be in bottom.
-      should_be_in_bottom = @bottom.size > 0 && ts < @bottom.first[0]
+      should_be_in_bottom = @bottom.size > 0 && @comparator.call(ts, @bottom.first[0], false) < 0 # ts < @bottom.first[0]
 
       # determine whether event should be in ladder or bottom
       rung_index = 0
-      while rung_index < @active_rungs && ts < @rungs[rung_index].current_priority
+      while rung_index < @active_rungs && @comparator.call(ts, @rungs[rung_index].current_priority, false) < 0 # ts < @rungs[rung_index].current_priority
         rung_index += 1
       end
 
       if rung_index < @active_rungs && !should_be_in_bottom
         rung = @rungs[rung_index]
-        raise LadderQueueError.new unless ts >= rung.start_priority
+        raise LadderQueueError.new unless @comparator.call(ts, rung.start_priority, true) >= 0 # ts >= rung.start_priority
 
         # insert event to appropriate rung
-        rung.push(ts, obj)
+        rung.push(ts, value)
 
         return self
       end
@@ -129,36 +135,38 @@ module Quartz
       if @bottom.size >= THRESHOLD
         # let bottom overflow threshold when MAX_RUNGS is reached.
         if @active_rungs == MAX_RUNGS
-          push_bottom({ts, obj})
+          push_bottom({ts, value})
           return self
         end
 
         max = @bottom.first[0]
         min = @bottom.last[0]
+        diff = max - min
 
         # spawn bottom rung and transfer bottom into it only if timestamps
         # are not identical.
-        if max - min > 0
+        if diff > Duration.zero(diff.precision)
           rung = spawn_rung_for_bottom(Math.min(ts, min))
           rung.concat(@bottom)
-          rung.push(ts, obj)
+          rung.push(ts, value)
           @bottom.clear
         else
-          push_bottom({ts, obj})
+          push_bottom({ts, value})
         end
       else # bottom size is < to THRESHOLD
-        push_bottom({ts, obj})
+        push_bottom({ts, value})
       end
 
       self
     end
 
-    private def push_bottom(tuple : {Priority, T})
+    private def push_bottom(tuple : {Duration, T})
       if @bottom.empty?
         @bottom << tuple
       else
         index = @bottom.size - 1
-        while tuple[0] > @bottom[index][0] && index >= 0
+        # while tuple[0] > @bottom[index][0] && index >= 0
+        while @comparator.call(tuple[0], @bottom[index][0], false) > 0 && index >= 0
           index -= 1
         end
         @bottom.insert(index + 1, tuple)
@@ -167,24 +175,43 @@ module Quartz
 
     # Returns the element having the highest priority.
     #
-    # Raises an `Enumerable::EmptyError` if *self* is empty.
+    # Raises if *self* is empty.
     def peek : T
-      raise Enumerable::EmptyError.new if @size == 0
-      peek?.not_nil!
+      if @size == 0
+        raise "ladder queue is empty."
+      else
+        unsafe_peek.not_nil![1]
+      end
     end
 
     # Returns the element having the highest priority, or *nil* if *self* is
     # empty.
     def peek? : T?
+      if @size == 0
+        nil
+      else
+        unsafe_peek.not_nil![1]
+      end
+    end
+
+    def next_priority
+      if @size == 0
+        raise "ladder queue is empty."
+      else
+        unsafe_peek.not_nil![0]
+      end
+    end
+
+    private def unsafe_peek : Tuple(Duration, T)?
       loop do
         prepare! if @bottom.empty?
 
         if tuple = @bottom.last?
-          if tuple[0] == tuple[1].time_next
-            return tuple[1]
-          else
+          if @comparator.call(tuple[0], tuple[1].planned_phase, false) == 0 # tuple[0] == tuple[1].time_next
+            return tuple
+          else # garbage event
             @size -= 1
-            @bottom.pop
+            _, ev = @bottom.pop
           end
         else
           break
@@ -196,30 +223,30 @@ module Quartz
     # Remove from *self* and returns the element having the highest priority.
     def pop : T
       loop do
-        raise Enumerable::EmptyError.new if @size == 0
+        raise "ladder queue is empty." if @size == 0
+
         prepare! if @bottom.empty?
 
         tuple = @bottom.pop
         @size -= 1
-        if tuple[0] == tuple[1].time_next
+        if @comparator.call(tuple[0], tuple[1].planned_phase, false) == 0 # tuple[0] == tuple[1].time_next
           return tuple[1]
         end
       end
     end
 
-    def delete(obj) : T?
-      timestamp = obj.time_next
+    def delete(priority : Duration, event : T)
       item = nil
 
       prepare! if @bottom.empty?
 
-      if timestamp < @top_start
+      if @comparator.call(priority, @top_start, true) < 0 # priority < @top_start
         x = 0
-        while x < @active_rungs && timestamp < @rungs[x].current_priority
+        while x < @active_rungs && @comparator.call(priority, @rungs[x].current_priority, true) < 0 # priority < @rungs[x].current_priority
           x += 1
         end
 
-        item = @rungs[x].delete(obj) if x < @active_rungs
+        item = @rungs[x].delete(priority, event) if x < @active_rungs
       end
 
       @size -= 1 if item
@@ -261,7 +288,7 @@ module Quartz
 
           # all timestamps are identical, no sort required
           # transfer directly events from top into bottom
-          if @top_max - @top_min == 0
+          if @top_max - @top_min == Duration.zero
             tmp = @bottom
             @bottom = @top
             @top = tmp
@@ -273,7 +300,7 @@ module Quartz
 
           @epoch += 1
           @top_start = @top_max
-          @top_max = @top_min = -1
+          @top_max = @top_min = duration(-1)
         end
       end
     end
@@ -324,7 +351,7 @@ module Quartz
         current_rung = @rungs[@active_rungs - 1]
         rung = @rungs[@active_rungs]
         # set bucket width to current rung's bucket width / thres
-        width = current_rung.bucket_width.to_f / THRESHOLD
+        width = current_rung.bucket_width / THRESHOLD
         # set start and current of the new rung to current marking of the
         # current rung
         rung.set(width, Rung::MAX_RUNG_SIZE, current_rung.current_priority)
@@ -336,17 +363,17 @@ module Quartz
     private def spawn_rung_for_bottom(start) : Rung
       max = @bottom.first[0]
       if @active_rungs == 0
-        raise LadderQueueError.new unless @top_start >= start
+        raise LadderQueueError.new unless @comparator.call(start, @top_start, true) < 0 # @top_start >= start
         rung = @rungs.first
-        width = (max - start.to_f) / @bottom.size
+        width = (max - start) / @bottom.size
         rung.set(width, @bottom.size, start)
         @active_rungs = 1
         rung
       else
         current_rung = @rungs[@active_rungs - 1]
         rung = @rungs[@active_rungs]
-        raise LadderQueueError.new unless current_rung.current_priority >= start
-        width = (max - start.to_f) / THRESHOLD
+        raise LadderQueueError.new unless @comparator.call(start, current_rung.current_priority, true) < 0 # current_rung.current_priority >= start
+        width = (max - start) / THRESHOLD
         rung.set(width, Rung::MAX_RUNG_SIZE, start)
         @active_rungs += 1
         rung
@@ -357,8 +384,8 @@ module Quartz
     # `LadderQueue`.
     #
     # Consist of buckets where each bucket may contain an unsorted list.
-    private class Rung(K, V)
-      include Indexable(Array({K, V}))
+    private class Rung(T)
+      include Indexable(Array({Duration, T}))
 
       # The maximum number of buckets in a rung *i*, where *i > 1* is equal to
       # the `LadderQueue::THRESHOLD` value.
@@ -370,9 +397,9 @@ module Quartz
 
       # Buckets capacity
       @capa : Int32 = 0
-      @buckets : Pointer(Array({K, V}))
-      @start : Priority = 0
-      @width : Priority = 0
+      @buckets : Pointer(Array({Duration, T}))
+      @start : Duration = Duration.new(0)
+      @width : Duration = Duration.new(0)
       @index : Int32 = 0
       @id : Int32 = 0
 
@@ -382,29 +409,29 @@ module Quartz
       def initialize(@id)
         if @id == 0 || @id > 5
           @capa = 0
-          @buckets = Pointer(Array({K, V})).null
+          @buckets = Pointer(Array({Duration, T})).null
         else
           @capa = MAX_RUNG_SIZE
-          @buckets = Pointer(Array({K, V})).malloc(@capa) {
-            Array({K, V}).new
+          @buckets = Pointer(Array({Duration, T})).malloc(@capa) {
+            Array({Duration, T}).new
           }
         end
       end
 
       @[AlwaysInline]
-      def empty?
+      def empty? : Bool
         @count == 0
       end
 
       # Returns the bucket width.
       @[AlwaysInline]
-      def bucket_width
+      def bucket_width : Duration
         @width
       end
 
       # Returns the start priority.
       @[AlwaysInline]
-      def start_priority
+      def start_priority : Duration
         @start
       end
 
@@ -417,25 +444,26 @@ module Quartz
       # Returns the beginning of the priority interval managed by the current
       # bucket.
       @[AlwaysInline]
-      def current_priority
-        @start + @index*@width
+      def current_priority : Duration
+        res = @start + @index*@width
+        res
       end
 
       # Returns the priority interval managed by the current bucket.
       @[AlwaysInline]
-      def current_interval
+      def current_interval : Range(Duration, Duration)
         (current_priority...(current_priority + @width))
       end
 
       # Returns the priority interval managed by *self*.
       @[AlwaysInline]
-      def interval
+      def interval : Range(Duration, Duration)
         (@start...max_priority)
       end
 
       # Returns the maximum priority that *self* might contain.
       @[AlwaysInline]
-      def max_priority
+      def max_priority : Duration
         @start + @size*@width
       end
 
@@ -461,9 +489,9 @@ module Quartz
       # Raises a `RungInUseError` if *self* contains any element.
       def clear
         raise RungInUseError.new if @count > 0
-        @start = 0
+        @start = Duration.new(0)
         @index = 0
-        @width = 0
+        @width = Duration.new(0)
         @size = 0
         @count = 0
       end
@@ -471,15 +499,15 @@ module Quartz
       # Reset *self* so that it can be (re-)used.
       #
       # Raises a `RungInUseError` if *self* contains any element.
-      def set(width, buckets, start)
+      def set(width : Duration, buckets : Int, start : Duration)
         raise RungInUseError.new if @count > 0
 
         if @id == 0
           if @buckets.null?
             # double the number of required buckets. see paper sec 2.4.
             @capa = buckets * 2
-            @buckets = Pointer(Array({K, V})).malloc(@capa) {
-              Array({K, V}).new
+            @buckets = Pointer(Array({Duration, T})).malloc(@capa) {
+              Array({Duration, T}).new
             }
           else
             # double the number of required buckets if needed.
@@ -488,7 +516,7 @@ module Quartz
               new_capa = buckets * 2
               @buckets = @buckets.realloc(new_capa)
               (@capa...new_capa).each { |i|
-                @buckets[i] = Array({K, V}).new
+                @buckets[i] = Array({Duration, T}).new
               }
               @capa = new_capa
             end
@@ -496,8 +524,8 @@ module Quartz
         else # static rung
           if @buckets.null?
             @capa = MAX_RUNG_SIZE
-            @buckets = Pointer(Array({K, V})).malloc(@capa) {
-              Array({K, V}).new
+            @buckets = Pointer(Array({Duration, T})).malloc(@capa) {
+              Array({Duration, T}).new
             }
           end
 
@@ -514,7 +542,7 @@ module Quartz
       end
 
       @[AlwaysInline]
-      def push(prio, obj)
+      def push(prio : Duration, obj : T)
         @buckets[index_for(prio)] << {prio, obj}
         @count += 1
       end
@@ -538,9 +566,9 @@ module Quartz
         @index
       end
 
-      def delete(obj : V) : V?
+      def delete(priority : Duration, obj : T) : T?
         item = nil
-        bucket = @buckets[index_for(obj.time_next)]
+        bucket = @buckets[index_for(priority)]
         i = bucket.index(obj)
         if i
           item = bucket.delete_at(i)[1]
@@ -558,22 +586,40 @@ module Quartz
 
       # Returns the current bucket
       @[AlwaysInline]
-      def current_bucket
+      def current_bucket : Array({Duration, T})
         @buckets[@index]
       end
 
       @[AlwaysInline]
-      def unsafe_at(index)
+      def unsafe_at(index : Int) : Array({Duration, T})
         @buckets[index]
       end
 
       # Returns the index maching the given priority
       @[AlwaysInline]
-      def index_for(priority)
+      def index_for(priority : Duration) : Int
         Math.min(
-          ((priority - @start) / @width.to_f).to_i,
+          ((priority - @start) / @width).to_f.to_i,
           @size - 1
         )
+      end
+
+      def inspect(io : IO)
+        io.print("[#{start_priority},#{start_priority + ((size - 1) * bucket_width)}[ • ")
+        io.puts("Rung##{@id}: cur=#{current_priority} (#{count} elements)")
+        (0...size).each do |j|
+          next if @buckets[j].empty? && j != pos
+
+          io.print("    ")
+          io.print("[#{start_priority + (j * bucket_width)},#{start_priority + ((j + 1) * bucket_width)}[ • ")
+          if j == pos
+            io.print("--> ")
+          else
+            io.print("    ")
+          end
+          io.puts("Bucket #{j}: #{@buckets[j].size} elements")
+        end
+        nil
       end
     end
 
