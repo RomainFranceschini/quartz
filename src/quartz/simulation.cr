@@ -21,8 +21,8 @@ module Quartz
     @final_vtime : TimePoint?
     @scheduler : Symbol
     @processor : Simulable?
-    @start_time : Time?
-    @final_time : Time?
+    @start_time : Time::Span?
+    @final_time : Time::Span?
     @run_validations : Bool
     @model : CoupledModel
     @time_next : Duration
@@ -121,7 +121,7 @@ module Quartz
       when Status::Done, Status::Aborted
         @final_time.not_nil! - @start_time.not_nil!
       when Status::Running
-        Time.now - @start_time.not_nil!
+        Time.monotonic - @start_time.not_nil!
       end
     end
 
@@ -150,7 +150,7 @@ module Quartz
       if running? || initialized?
         Hooks.notifier.notify(Hooks::PRE_ABORT)
         info "Aborting simulation."
-        @final_time = Time.now
+        @final_time = Time.monotonic
         @status = Status::Aborted
         Hooks.notifier.notify(Hooks::POST_ABORT)
       end
@@ -172,14 +172,14 @@ module Quartz
     end
 
     private def begin_simulation
-      @start_time = Time.now
+      @start_time = Time.monotonic
       @status = Status::Running
       info "Beginning simulation until time point: #{@final_vtime ? @final_vtime : "INFINITY"}"
       Hooks.notifier.notify(Hooks::PRE_SIMULATION)
     end
 
     private def end_simulation
-      @final_time = Time.now
+      @final_time = Time.monotonic
       @status = Status::Done
 
       if logger = Quartz.logger?
@@ -220,7 +220,7 @@ module Quartz
         @time_next
       when Status::Initialized, Status::Running
         if (logger = Quartz.logger?) && logger.debug?
-          logger.debug("Tick at #{virtual_time} + #{@time_next}, #{Time.now - @start_time.not_nil!} secs elapsed.")
+          logger.debug("Tick at #{virtual_time} + #{@time_next}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
         end
         @time_next = processor.step(@time_next)
         if @time_next.infinite?
@@ -243,7 +243,7 @@ module Quartz
         begin_simulation
         loop do
           if (logger = Quartz.logger?) && logger.debug?
-            logger.debug("Tick at: #{virtual_time} + #{@time_next}, #{Time.now - @start_time.not_nil!} secs elapsed.")
+            logger.debug("Tick at: #{virtual_time} + #{@time_next}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
           end
           @time_next = processor.step(@time_next)
           if @time_next.infinite?
@@ -273,7 +273,7 @@ module Quartz
         begin_simulation
         loop do
           if (logger = Quartz.logger?) && logger.debug?
-            logger.debug("Tick at: #{virtual_time} + #{@time_next}, #{Time.now - @start_time.not_nil!} secs elapsed.")
+            logger.debug("Tick at: #{virtual_time} + #{@time_next}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
           end
           @time_next = processor.step(@time_next)
           if @time_next.infinite?

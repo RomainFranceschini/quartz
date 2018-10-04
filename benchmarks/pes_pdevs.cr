@@ -22,7 +22,7 @@ MAX_TIME_NEXT  = 500_000
 puts "# size  scheduler  distribution  time"
 
 iterations.times do |iteration|
-  t0 = Time.now
+  t0 = Time.monotonic
   # pes = Quartz::CalendarQueue(Ev).new
   pes = Quartz::LadderQueue(Ev).new
   # pes = Quartz::BinaryHeap(Ev).new
@@ -34,7 +34,7 @@ iterations.times do |iteration|
     events << ev
     pes << ev
   end
-  t1 = Time.now
+  t1 = Time.monotonic
   puts "init time: #{t1 - t0} seconds."
   # puts pes.inspect
   i = 0
@@ -88,7 +88,7 @@ iterations.times do |iteration|
     end
     i += 1
   end
-  t2 = Time.now
+  t2 = Time.monotonic
 
   pes = nil
   events = nil
