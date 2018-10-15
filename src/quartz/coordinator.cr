@@ -70,10 +70,6 @@ module Quartz
         max_elapsed = elapsed if elapsed > max_elapsed
       end
 
-      # list = @event_set.priority_queue.is_a?(ReschedulePriorityQueue) ? @children : selected
-      # list = @children
-      # list.each { |duration, child| @event_set.plan_event(child, duration) }
-
       @model.as(CoupledModel).notify_observers(OBS_INFO_INIT_PHASE)
 
       {max_elapsed.fixed, min_planned_duration.fixed}
@@ -131,6 +127,21 @@ module Quartz
     end
 
     def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
+      self.handle_external_inputs(time)
+
+      @synchronize.each do |receiver|
+        perform_transition_for(receiver, time)
+      end
+
+      bag.clear
+      @synchronize.clear
+
+      @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
+
+      @event_set.imminent_duration.fixed
+    end
+
+    protected def handle_external_inputs(time : TimePoint)
       bag = @bag || EMPTY_BAG
 
       if @event_set.current_time < time && !bag.empty?
@@ -150,71 +161,44 @@ module Quartz
           receiver.bag[dst].concat(sub_bag)
         end
       end
+    end
 
-      @synchronize.each do |receiver|
-        receiver.sync = false
-        elapsed_duration = @time_cache.elapsed_duration_of(receiver)
+    protected def perform_transition_for(receiver : Processor, time : TimePoint)
+      receiver.sync = false
+      elapsed_duration = @time_cache.elapsed_duration_of(receiver)
 
-        # if @event_set.priority_queue.is_a?(ReschedulePriorityQueue)
-        #   new_planned_duration = receiver.perform_transitions(time, elapsed_duration)
-        #   receiver.planned_phase = @event_set.phase_from_duration(new_planned_duration)
-        # elsif @event_set.priority_queue.is_a?(LadderQueue)
-        #   # Special case for the ladder queue
+      remaining_duration = @event_set.duration_of(receiver)
 
-        #   planned_duration = @event_set.duration_from_phase(receiver.planned_duration)
-        #   # Before trying to cancel a receiver, test if time is not strictly
-        #   # equal to its tn. If true, it means that its model will
-        #   # receiver either an internal transition or a confluent transition,
-        #   # and that the receiver is no longer in the scheduler.
-        #   is_in_scheduler = !planned_duration.infinite? && duration != planned_duration
-        #   if is_in_scheduler
-        #     # The ladder queue might successfully delete the event if it is
-        #     # stored in the *ladder* tier, but is allowed to return nil since
-        #     # deletion strategy is based on event invalidation.
-        #     if @event_set.delete(receiver)
-        #       is_in_scheduler = false
-        #     end
-        #   end
-        #   new_planned_duration = receiver.perform_transitions(elapsed_duration, duration)
+      # before trying to cancel a receiver, test if time is not strictly
+      # equal to its time_next. If true, it means that its model will
+      # receiver either an internal transition or a confluent transition,
+      # and that the receiver is no longer in the scheduler.
+      ev_deleted = if remaining_duration.zero?
+                     elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+                     true
+                   elsif !remaining_duration.infinite?
+                     # Priority queues with an event invalidation strategy may return
+                     # nil when trying to cancel a specific event.
+                     # For example, the ladder queue might successfully delete an event if
+                     # it is stored in the ladder tier, but not always.
+                     @event_set.cancel_event(receiver) != nil
+                   end
 
-        #   # No need to reschedule the event if its tn is equal to INFINITY.
-        #   # If a ta(s)=0 occured and that the old event is still present in
-        #   # the ladder queue, we don't need to reschedule it either.
-        #   if new_planned_duration < Duration::INFINITY && (!is_in_scheduler || (new_planned_duration > tn && is_in_scheduler))
-        #     @event_set.plan_duration(receiver, new_planned_duration)
-        #   end
-        # else
+      planned_duration = receiver.perform_transitions(time, elapsed_duration)
 
-        remaining_duration = @event_set.duration_of(receiver)
-
-        # before trying to cancel a receiver, test if time is not strictly
-        # equal to its time_next. If true, it means that its model will
-        # receiver either an internal transition or a confluent transition,
-        # and that the receiver is no longer in the scheduler.
-        if remaining_duration.zero?
-          elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
-        elsif !remaining_duration.infinite?
-          @event_set.cancel_event(receiver)
-        end
-
-        planned_duration = receiver.perform_transitions(time, elapsed_duration)
-
-        if planned_duration.infinite?
-          receiver.planned_phase = Duration::INFINITY.fixed
-        else
+      # No need to reschedule the event if its planned duration is infinite.
+      if planned_duration.infinite?
+        receiver.planned_phase = Duration::INFINITY.fixed
+      else
+        # If a ta(s)=0 occured and the event was not properly deleted,
+        # we don't need to reschedule it. This check is done for priority
+        # queues with invalidation strategy.
+        if ev_deleted || (!ev_deleted && !planned_duration.zero?)
           @event_set.plan_event(receiver, planned_duration)
         end
-
-        @time_cache.retain_event(receiver, planned_duration.precision)
       end
 
-      # @event_set.reschedule! if @event_set.is_a?(ReschedulePriorityQueue)
-      bag.clear
-      @synchronize.clear
-
-      @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
-
-      @event_set.imminent_duration.fixed
+      @time_cache.retain_event(receiver, planned_duration.precision)
     end
   end
 end

@@ -191,11 +191,12 @@ module Quartz
           remaining_duration = @event_set.duration_of(component)
           elapsed_duration = @time_cache.elapsed_duration_of(component)
 
-          if remaining_duration.zero?
-            elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
-          elsif !remaining_duration.infinite?
-            @event_set.cancel_event(component)
-          end
+          ev_deleted = if remaining_duration.zero?
+                         elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+                         true
+                       elsif !remaining_duration.infinite?
+                         @event_set.cancel_event(component) != nil
+                       end
 
           component.elapsed = elapsed_duration
           component.reaction_transition(states)
@@ -204,7 +205,9 @@ module Quartz
           if planned_duration.infinite?
             component.planned_phase = Duration::INFINITY.fixed
           else
-            @event_set.plan_event(component, planned_duration)
+            if ev_deleted || (!ev_deleted && !planned_duration.zero?)
+              @event_set.plan_event(component, planned_duration)
+            end
           end
           @time_cache.retain_event(component, planned_duration.precision)
 
