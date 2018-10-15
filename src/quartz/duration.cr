@@ -286,7 +286,7 @@ module Quartz
       multiplier == other.multiplier && @precision == other.precision
     end
 
-    def to_s(io)
+    def inspect(io)
       if infinite?
         io << @multiplier
       else
@@ -297,6 +297,7 @@ module Quartz
           io << (@precision.level * 3).abs
         end
       end
+      io << (@fixed ? "_fd" : "_ud")
       io
     end
 
