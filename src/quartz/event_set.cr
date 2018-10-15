@@ -46,7 +46,7 @@ module Quartz
     abstract def peek : T
     abstract def peek? : T?
     abstract def pop : T
-    abstract def delete(priority : Duration, value : T)
+    abstract def delete(priority : Duration, value : T) : T?
     abstract def next_priority : Duration
   end
 
@@ -122,7 +122,7 @@ module Quartz
     end
 
     # Cancel the specified event.
-    def cancel_event(event : T)
+    def cancel_event(event : T) : T?
       if @future_events.includes?(event)
         @future_events.delete(event)
         event

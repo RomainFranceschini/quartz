@@ -104,7 +104,7 @@ module Quartz
       nil
     end
 
-    def delete(priority : Duration, event : T) : T
+    def delete(priority : Duration, event : T) : T?
       raise "heap is empty" if @size == 0
       index = @cache[event]
       @cache[event] = -1

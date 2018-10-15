@@ -96,12 +96,11 @@ module Quartz
       self
     end
 
-    def delete(priority : Duration, event : T)
+    def delete(priority : Duration, event : T) : T?
       vbucket = (priority / @width).to_i # virtual bucket
       i = vbucket % @buckets.size        # actual bucket
 
       bucket = @buckets[i]
-      item = nil
       index = bucket.index({priority, event})
       if index
         item = bucket.delete_at(index)
@@ -112,10 +111,11 @@ module Quartz
           resize(@buckets.size / 2)
         end
 
-        item[1]
+        return item[1]
       else
         raise "#{event} scheduled at #{priority} not found"
       end
+      nil
     end
 
     def peek : T
