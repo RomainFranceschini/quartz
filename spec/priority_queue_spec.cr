@@ -35,7 +35,7 @@ private struct EventSetTester
   end
 end
 
-describe "Priority queues" do
+describe "Priority queue" do
   describe "empty" do
     describe "size should be zero" do
       EventSetTester.new.test do |pes|
@@ -125,18 +125,50 @@ describe "Priority queues" do
     end
   end
 
+  describe "passes up/down model" do
+    n = 200000
+    max_tn = Duration::MULTIPLIER_MAX.to_i64
+    prng = Random.new
+
+    events = [] of Ev
+    n.times do |i|
+      events << Ev.new(i, Duration.new(prng.rand(0i64..max_tn)))
+    end
+
+    ev_by_durations = events.group_by &.planned_duration
+    sorted_durations = events.map(&.planned_duration).uniq!.sort!
+
+    EventSetTester.new.test do |pes|
+      # enqueue
+      events.each { |ev| pes.push(ev.planned_duration, ev) }
+
+      # dequeue
+      sorted_durations.each do |duration|
+        pes.next_priority.should eq(duration)
+
+        imm = ev_by_durations[duration]
+        imm.size.times do
+          imm.should contain(pes.pop)
+        end
+      end
+    end
+  end
+
   describe "passes pdevs test" do
     n = 20_000
     steps = 2_000
     max_reschedules = 50
     max_tn = 100
+    seed = rand(Int64::MIN..Int64::MAX)
+    sequence = Hash(String, Array(Duration)).new { |h, k| h[k] = Array(Duration).new }
 
     EventSetTester.new.test do |pes|
-      rand = Random.new
+      prng = Random.new(seed)
+      seq_key = pes.class.name
 
       events = [] of Ev
       n.times do |i|
-        ev = Ev.new(i, Duration.new(rand(0..max_tn)))
+        ev = Ev.new(i, Duration.new(prng.rand(0..max_tn)))
         events << ev
         pes.push(ev.planned_duration, ev)
       end
@@ -154,6 +186,7 @@ describe "Priority queues" do
         end
 
         prio = pes.next_priority
+        sequence[seq_key] << prio
 
         (prio >= prev_duration).should be_true
         prev_duration = prio
@@ -165,14 +198,14 @@ describe "Priority queues" do
 
         imm.each do |ev|
           ev.planned_duration.should eq(prio)
-          ev.planned_duration += Duration.new(rand(0..max_tn))
+          ev.planned_duration += Duration.new(prng.rand(0..max_tn))
           raise "ohno" if ev.planned_duration.infinite?
           pes.push(ev.planned_duration, ev)
         end
 
-        reschedules = rand(max_reschedules)
+        reschedules = prng.rand(max_reschedules)
         reschedules.times do
-          ev = events[rand(events.size)]
+          ev = events[prng.rand(events.size)]
           c = pes.delete(ev.planned_duration, ev)
 
           unless is_ladder && c.nil?
@@ -181,7 +214,7 @@ describe "Priority queues" do
             ev.planned_duration.should eq(c.not_nil!.planned_duration)
           end
 
-          ta = rand(0..max_tn)
+          ta = prng.rand(0..max_tn)
           ev.planned_duration += Duration.new(ta)
           raise "ohno" if ev.planned_duration.infinite?
 
@@ -190,6 +223,14 @@ describe "Priority queues" do
             pes.push(ev.planned_duration, ev)
           end
         end
+      end
+    end
+
+    ref_key = sequence.keys.first
+    sequence.each_key do |key|
+      next if key == ref_key
+      it "event sequence of #{key} should be same as #{ref_key}" do
+        sequence[key].should eq(sequence[ref_key])
       end
     end
   end
