@@ -126,7 +126,8 @@ describe "Priority queue" do
   end
 
   describe "passes up/down model" do
-    n = 200000
+    n = 100_000
+
     max_tn = Duration::MULTIPLIER_MAX.to_i64
     prng = Random.new
 
@@ -154,11 +155,11 @@ describe "Priority queue" do
     end
   end
 
-  describe "passes pdevs test" do
-    n = 20_000
-    steps = 2_000
+  describe "passes pdevs model" do
+    n = 50_000
+    steps = 5_000
     max_reschedules = 50
-    max_tn = 100
+    max_tn = Duration::MULTIPLIER_MAX.to_i64 / steps
     seed = rand(Int64::MIN..Int64::MAX)
     sequence = Hash(String, Array(Duration)).new { |h, k| h[k] = Array(Duration).new }
 
@@ -168,7 +169,7 @@ describe "Priority queue" do
 
       events = [] of Ev
       n.times do |i|
-        ev = Ev.new(i, Duration.new(prng.rand(0..max_tn)))
+        ev = Ev.new(i, Duration.new(prng.rand(0i64..max_tn)))
         events << ev
         pes.push(ev.planned_duration, ev)
       end
@@ -177,6 +178,8 @@ describe "Priority queue" do
       pes.size.should eq(n)
 
       prev_duration = Duration.new(0)
+
+      imm = Set(Ev).new
 
       steps.times do |i|
         if is_ladder
@@ -191,36 +194,47 @@ describe "Priority queue" do
         (prio >= prev_duration).should be_true
         prev_duration = prio
 
-        imm = [] of Ev
+        imm.clear
         while !pes.empty? && pes.next_priority == prio
           imm << pes.pop
         end
 
         imm.each do |ev|
           ev.planned_duration.should eq(prio)
-          ev.planned_duration += Duration.new(prng.rand(0..max_tn))
-          raise "ohno" if ev.planned_duration.infinite?
-          pes.push(ev.planned_duration, ev)
+          ev.planned_duration += Duration.new(prng.rand(0i64..max_tn))
+
+          unless ev.planned_duration.infinite?
+            pes.push(ev.planned_duration, ev)
+          end
         end
 
         reschedules = prng.rand(max_reschedules)
         reschedules.times do
           ev = events[prng.rand(events.size)]
-          c = pes.delete(ev.planned_duration, ev)
+          unless imm.includes?(ev)
+            remaining = (ev.planned_duration - prio)
 
-          unless is_ladder && c.nil?
-            c.should_not be_nil
-            ev.should eq(c)
-            ev.planned_duration.should eq(c.not_nil!.planned_duration)
-          end
+            ev_deleted = true
+            if !ev.planned_duration.infinite? && !remaining.zero?
+              c = pes.delete(ev.planned_duration, ev)
 
-          ta = prng.rand(0..max_tn)
-          ev.planned_duration += Duration.new(ta)
-          raise "ohno" if ev.planned_duration.infinite?
+              if is_ladder && c.nil?
+                ev_deleted = false
+              else
+                c.should_not be_nil
+                ev.should eq(c)
+                ev.planned_duration.should eq(c.not_nil!.planned_duration)
+              end
+            end
 
-          ev_in_ladder = c == nil
-          if !is_ladder || (is_ladder && (!ev_in_ladder || (ev_in_ladder && ta > 0)))
-            pes.push(ev.planned_duration, ev)
+            ta = prng.rand(0i64..max_tn)
+            ev.planned_duration += Duration.new(ta)
+
+            unless ev.planned_duration.infinite?
+              if ev_deleted || (!ev_deleted && !ev.planned_duration.zero?)
+                pes.push(ev.planned_duration, ev)
+              end
+            end
           end
         end
       end
