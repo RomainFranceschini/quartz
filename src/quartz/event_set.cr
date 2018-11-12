@@ -30,6 +30,7 @@ module Quartz
       when :ladder_queue   then LadderQueue(T).new(&comparator)
       when :calendar_queue then CalendarQueue(T).new(&comparator)
       when :binary_heap    then BinaryHeap(T).new(&comparator)
+      when :fibonacci_heap then FibonacciHeap(T).new(&comparator)
       else
         if (logger = Quartz.logger?) && logger.warn?
           logger.warn("Unknown priority queue '#{priority_queue}', defaults to calendar queue")

@@ -21,24 +21,34 @@ class Ev
   def planned_duration=(duration : Duration)
     @planned_duration = @planned_phase = duration
   end
+
+  def inspect(io)
+    io << "<Ev#"
+    @num.inspect(io)
+    io << ", "
+    @planned_duration.inspect(io)
+    io << '>'
+  end
 end
 
-private struct EventSetTester
+private struct PriorityQueueTester
   @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new { |a, b| a <=> b }
   @lq : LadderQueue(Ev) = LadderQueue(Ev).new { |a, b| a <=> b }
   @bh : BinaryHeap(Ev) = BinaryHeap(Ev).new { |a, b| a <=> b }
+  @fh : FibonacciHeap(Ev) = FibonacciHeap(Ev).new { |a, b| a <=> b }
 
   def test(&block : PriorityQueue(Ev) ->)
-    it "(CalendarQueue)" { block.call(@cq) }
     it "(BinaryHeap)" { block.call(@bh) }
+    it "(CalendarQueue)" { block.call(@cq) }
     it "(LadderQueue)" { block.call(@lq) }
+    it "(FibonacciHeap)" { block.call(@fh) }
   end
 end
 
 describe "Priority queue" do
   describe "empty" do
     describe "size should be zero" do
-      EventSetTester.new.test do |pes|
+      PriorityQueueTester.new.test do |pes|
         pes.size.should eq(0)
         pes.empty?.should be_true
       end
@@ -46,7 +56,7 @@ describe "Priority queue" do
   end
 
   describe "does clear" do
-    EventSetTester.new.test do |pes|
+    PriorityQueueTester.new.test do |pes|
       3.times { |i| pes.push(Duration.new(i), Ev.new(i + 1)) }
       pes.clear
       pes.size.should eq(0)
@@ -54,7 +64,7 @@ describe "Priority queue" do
   end
 
   describe "prioritizes elements" do
-    EventSetTester.new.test do |pes|
+    PriorityQueueTester.new.test do |pes|
       events = {Ev.new(1, Duration.new(2)), Ev.new(2, Duration.new(12)), Ev.new(3, Duration.new(257))}
       events.each { |e| pes.push(e.planned_duration, e) }
 
@@ -76,7 +86,7 @@ describe "Priority queue" do
   end
 
   describe "peek lowest priority" do
-    EventSetTester.new.test do |c|
+    PriorityQueueTester.new.test do |c|
       n = 30
       (0...n).map { |i| Ev.new(i + 1, Duration.new(i)) }.shuffle.each { |e| c.push(e.planned_duration, e) }
       c.peek.num.should eq(1)
@@ -84,7 +94,7 @@ describe "Priority queue" do
   end
 
   describe "deletes" do
-    EventSetTester.new.test do |c|
+    PriorityQueueTester.new.test do |c|
       events = {Ev.new(1, Duration.new(2)), Ev.new(2, Duration.new(12)), Ev.new(3, Duration.new(257))}
       events.each { |e| c.push(e.planned_duration, e) }
 
@@ -99,7 +109,7 @@ describe "Priority queue" do
   end
 
   describe "adjust" do
-    EventSetTester.new.test do |c|
+    PriorityQueueTester.new.test do |c|
       events = {Ev.new(1, Duration.new(2)), Ev.new(2, Duration.new(12)), Ev.new(3, Duration.new(257))}
       events.each { |e| c.push(e.planned_duration, e) }
 
@@ -139,7 +149,7 @@ describe "Priority queue" do
     ev_by_durations = events.group_by &.planned_duration
     sorted_durations = events.map(&.planned_duration).uniq!.sort!
 
-    EventSetTester.new.test do |pes|
+    PriorityQueueTester.new.test do |pes|
       # enqueue
       events.each { |ev| pes.push(ev.planned_duration, ev) }
 
@@ -163,7 +173,7 @@ describe "Priority queue" do
     seed = rand(Int64::MIN..Int64::MAX)
     sequence = Hash(String, Array(Duration)).new { |h, k| h[k] = Array(Duration).new }
 
-    EventSetTester.new.test do |pes|
+    PriorityQueueTester.new.test do |pes|
       prng = Random.new(seed)
       seq_key = pes.class.name
 
@@ -181,7 +191,7 @@ describe "Priority queue" do
 
       imm = Set(Ev).new
 
-      steps.times do |i|
+      steps.times do
         if is_ladder
           (pes.size < n).should be_false
         else
