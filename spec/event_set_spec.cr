@@ -214,8 +214,6 @@ describe "EventSet" do
         pes.plan_event(MySchedulable.new(2), Duration.new(6500))
         pes.plan_event(MySchedulable.new(3), Duration.new(7634))
 
-        pes.@priority_queue.size.should eq(1)
-        pes.@future_events.size.should eq(2)
 
         pes.imminent_duration.should eq(Duration.new(4358))
         pes.advance by: Duration.new(1500)
@@ -305,20 +303,10 @@ describe "EventSet" do
         pes.plan_event(MySchedulable.new(1), Duration.new(500_234_848))
         pes.size.should eq(1)
 
-        pes.@priority_queue.size.should eq(1)
-        pes.@future_events.size.should eq(0)
       end
 
-      it "delays storage in the priority queue of all events occuring in the next epoch" do
-        pes = EventSet(MySchedulable).new
-        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
 
-        pes.size.should eq(0)
-        pes.plan_event(MySchedulable.new(1), Duration.new(Duration::MULTIPLIER_MAX))
-        pes.size.should eq(1)
 
-        pes.@priority_queue.size.should eq(0)
-        pes.@future_events.size.should eq(1)
       end
     end
   end

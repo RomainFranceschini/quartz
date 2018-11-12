@@ -72,24 +72,22 @@ module Quartz
       @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b, b_in_previous_epoch|
         cmp_planned_phases(a, b, b_in_previous_epoch)
       }
-      @future_events = Set(T).new
     end
 
     # Returns the number of scheduled events.
     def size
-      @priority_queue.size + @future_events.size
+      @priority_queue.size
     end
 
     # Whether the event set is empty.
     def empty? : Bool
-      @priority_queue.empty? && @future_events.empty?
+      @priority_queue.empty?
     end
 
     # Clears `self`.
     def clear
       @current_time = TimePoint.new
       @priority_queue.clear
-      @future_events.clear
     end
 
     # Advance the current time up to the next planned event.
@@ -123,12 +121,7 @@ module Quartz
 
     # Cancel the specified event.
     def cancel_event(event : T) : T?
-      if @future_events.includes?(event)
-        @future_events.delete(event)
-        event
-      else
-        @priority_queue.delete(event.planned_phase, event)
-      end
+      @priority_queue.delete(event.planned_phase, event)
     end
 
     # Returns the planned duration after which the specified event will occur.
@@ -145,12 +138,7 @@ module Quartz
       event.planned_precision = duration.precision
       event.planned_phase = planned_phase
 
-      if planned_phase < duration || planned_phase > Duration.new(Duration::MULTIPLIER_MAX, duration.precision)
-        # The event is in the next epoch
-        @future_events.add(event)
-      else
-        @priority_queue.push(planned_phase, event)
-      end
+      @priority_queue.push(planned_phase, event)
 
       planned_phase
     end
@@ -159,14 +147,10 @@ module Quartz
     # to occur, or `Duration::INFINIY` if `self` is empty.
     def imminent_duration : Duration
       if @priority_queue.empty?
-        if @future_events.empty?
-          return Duration::INFINITY
-        else
-          plan_next_epoch_events
-        end
+        Duration::INFINITY
+      else
+        duration_of(@priority_queue.peek)
       end
-
-      duration_of(@priority_queue.peek)
     end
 
     # Deletes and returns the next imminent event to occur.
@@ -198,13 +182,6 @@ module Quartz
 
     def reschedule!
       raise Exception.new("Not implemented.")
-    end
-
-    private def plan_next_epoch_events
-      @future_events.each do |event|
-        @priority_queue.push(event.planned_phase, event)
-      end
-      @future_events.clear
     end
 
     protected def rescaled_duration(duration : Duration, precision : Scale) : Duration
