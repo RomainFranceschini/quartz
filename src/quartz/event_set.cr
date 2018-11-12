@@ -69,8 +69,8 @@ module Quartz
         {{ raise "Can only create EventSet with types that implements Schedulable, not #{T}" }}
       {% end %}
 
-      @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b, b_in_previous_epoch|
-        cmp_planned_phases(a, b, b_in_previous_epoch)
+      @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b, b_in_current_epoch|
+        cmp_planned_phases(a, b, b_in_current_epoch)
       }
     end
 
@@ -106,7 +106,7 @@ module Quartz
     # Raises if the current time advances beyond the imminent events.
     def advance(by duration : Duration) : TimePoint
       if duration > imminent_duration
-        raise BadSynchronisationError.new("Current time cannot advance beyond imminent events.")
+        raise BadSynchronisationError.new("Current time (#{@current_time}) cannot advance beyond imminent events (#{duration} > #{imminent_duration})")
       end
       @current_time.advance by: duration
     end
@@ -194,10 +194,10 @@ module Quartz
 
     # Compares two planned phases that may have different precision levels.
     #
-    # If *b_in_previous_epoch* is `true`, when *b* overflows, it is considered
-    # to be in the previous epoch (relative to `#current_time`) instead of the
-    # next epoch.
-    protected def cmp_planned_phases(a : Duration, b : Duration, b_in_previous_epoch : Bool = false) : Int32
+    # If *rhs_in_current_epoch* is `true`, when *b* overflows, it is considered
+    # to be in the current epoch, or in the previous epoch relative to
+    # `#current_time` instead of the next epoch.
+    protected def cmp_planned_phases(a : Duration, b : Duration, rhs_in_current_epoch : Bool = false) : Int32
       duration_a = @current_time.duration_from_phase(a)
       duration_b = @current_time.duration_from_phase(b)
 
@@ -207,8 +207,16 @@ module Quartz
         duration_a = @current_time.refined_duration(duration_a, duration_b.precision)
       end
 
-      if b_in_previous_epoch && duration_b > b
-        -(duration_a <=> duration_b)
+      # if *b* overflowed and the flag is true, *b* is considered to be in the
+      # current epoch.
+      if rhs_in_current_epoch && duration_b > b
+        # if *a* belongs to the next epoch, it is necessarily greater than *b*,
+        # otherwise, operands should be swapped.
+        if duration_a > a
+          1
+        else
+          (duration_b <=> duration_a)
+        end
       else
         duration_a <=> duration_b
       end
