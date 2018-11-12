@@ -9,40 +9,41 @@ private struct EventSetTester
 
   def test(&block : EventSet(MySchedulable) ->)
     it "(BinaryHeap)" { block.call(@bh) }
-    # it "(CalendarQueue)" { block.call(@cq) }
-    # it "(LadderQueue)" { block.call(@lq) }
+    it "(CalendarQueue)" { block.call(@cq) }
+    it "(LadderQueue)" { block.call(@lq) }
     it "(FibonacciHeap)" { block.call(@fh) }
-    # it "(MinList)" { block.call(@ml) }
   end
 end
 
 describe "EventSet" do
   describe "#size" do
     it "returns the number of planned events" do
-      pes = EventSet(MySchedulable).new
-      pes.plan_event(MySchedulable.new(1), Duration.new(1))
-      pes.plan_event(MySchedulable.new(2), Duration.new(1))
-      pes.plan_event(MySchedulable.new(3), Duration.new(3))
-      pes.plan_event(MySchedulable.new(4), Duration.new(8))
-      pes.size.should eq 4
+      EventSetTester.new.test do |pes|
+        pes.plan_event(MySchedulable.new(1), Duration.new(1))
+        pes.plan_event(MySchedulable.new(2), Duration.new(1))
+        pes.plan_event(MySchedulable.new(3), Duration.new(3))
+        pes.plan_event(MySchedulable.new(4), Duration.new(8))
+        pes.size.should eq 4
+      end
     end
   end
 
   describe "#empty?" do
     it "indicates whether the event set is empty" do
-      pes = EventSet(MySchedulable).new
-      pes.empty?.should be_true
+      EventSetTester.new.test do |pes|
+        pes.empty?.should be_true
 
-      pes.plan_event(MySchedulable.new(1), Duration.new(1))
-      pes.plan_event(MySchedulable.new(2), Duration.new(1))
-      pes.plan_event(MySchedulable.new(3), Duration.new(3))
-      pes.plan_event(MySchedulable.new(4), Duration.new(8))
-      pes.empty?.should be_false
+        pes.plan_event(MySchedulable.new(1), Duration.new(1))
+        pes.plan_event(MySchedulable.new(2), Duration.new(1))
+        pes.plan_event(MySchedulable.new(3), Duration.new(3))
+        pes.plan_event(MySchedulable.new(4), Duration.new(8))
+        pes.empty?.should be_false
 
-      pes.pop_imminent_events
-      pes.pop_imminent_events
-      pes.pop_imminent_events
-      pes.empty?.should be_true
+        pes.pop_imminent_events
+        pes.pop_imminent_events
+        pes.pop_imminent_events
+        pes.empty?.should be_true
+      end
     end
   end
 
@@ -118,88 +119,94 @@ describe "EventSet" do
 
   describe "#duration_of" do
     it "returns the duration after which the specified event will occur relative to the current time" do
-      pes = EventSet(MySchedulable).new
-      ev = MySchedulable.new(1)
-      pes.plan_event(ev, Duration.new(6889))
+      EventSetTester.new.test do |pes|
+        ev = MySchedulable.new(1)
+        pes.plan_event(ev, Duration.new(6889))
 
-      pes.duration_of(ev).should eq(Duration.new(6889))
+        pes.duration_of(ev).should eq(Duration.new(6889))
 
-      pes.advance by: Duration.new(1234)
-      pes.duration_of(ev).should eq(Duration.new(6889 - 1234))
+        pes.advance by: Duration.new(1234)
+        pes.duration_of(ev).should eq(Duration.new(6889 - 1234))
 
-      pes.advance
-      pes.duration_of(ev).should eq(Duration.new(0))
+        pes.advance
+        pes.duration_of(ev).should eq(Duration.new(0))
+      end
     end
 
     it "returns a planned duration matching the original precision" do
-      pes = EventSet(MySchedulable).new
-      ev = MySchedulable.new(1)
-      pes.plan_event(ev, Duration.new(1000))
+      EventSetTester.new.test do |pes|
+        ev = MySchedulable.new(1)
+        pes.plan_event(ev, Duration.new(1000))
 
-      pes.duration_of(ev).should eq(Duration.new(1000))
-      pes.duration_of(ev).precision.should eq(Scale.new(0))
+        pes.duration_of(ev).should eq(Duration.new(1000))
+        pes.duration_of(ev).precision.should eq(Scale.new(0))
 
-      pes.advance by: Duration.new(999)
+        pes.advance by: Duration.new(999)
+      end
     end
 
     it "avoid rounding errors" do
-      pes = EventSet(MySchedulable).new
-      ev = MySchedulable.new(1)
-      pes.plan_event(ev, Duration.new(1000))
-      pes.advance by: Duration.new(999)
+      EventSetTester.new.test do |pes|
+        ev = MySchedulable.new(1)
+        pes.plan_event(ev, Duration.new(1000))
+        pes.advance by: Duration.new(999)
 
-      pes.duration_of(ev).should eq(Duration.new(1))
-      pes.duration_of(ev).precision.should eq(Scale.new(0))
+        pes.duration_of(ev).should eq(Duration.new(1))
+        pes.duration_of(ev).precision.should eq(Scale.new(0))
+      end
     end
 
     it "handles events scheduled for the next epoch" do
-      pes = EventSet(MySchedulable).new(:binary_heap)
-      pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
-      ev = MySchedulable.new(1)
-      pes.plan_event(ev, Duration.new(10_234))
+      EventSetTester.new.test do |pes|
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
+        ev = MySchedulable.new(1)
+        pes.plan_event(ev, Duration.new(10_234))
 
-      pes.duration_of(ev).should eq(Duration.new(10_234))
+        pes.duration_of(ev).should eq(Duration.new(10_234))
 
-      pes.advance by: Duration.new(1234)
-      pes.duration_of(ev).should eq(Duration.new(10_234 - 1234))
+        pes.advance by: Duration.new(1234)
+        pes.duration_of(ev).should eq(Duration.new(10_234 - 1234))
 
-      pes.advance
-      pes.duration_of(ev).should eq(Duration.new(0))
+        pes.advance
+        pes.duration_of(ev).should eq(Duration.new(0))
+      end
     end
   end
 
   describe "#advance" do
     describe "with no arguments" do
       it "increase current time up to the imminent events" do
-        pes = EventSet(MySchedulable).new
-        pes.plan_event(MySchedulable.new(1), Duration.new(1))
-        pes.plan_event(MySchedulable.new(2), Duration.new(5))
+        EventSetTester.new.test do |pes|
+          pes.plan_event(MySchedulable.new(1), Duration.new(1))
+          pes.plan_event(MySchedulable.new(2), Duration.new(5))
 
-        pes.current_time.should eq(TimePoint.new(0))
-        pes.imminent_duration.should eq(Duration.new(1))
+          pes.current_time.should eq(TimePoint.new(0))
+          pes.imminent_duration.should eq(Duration.new(1))
 
-        pes.advance
-        pes.current_time.should eq(TimePoint.new(1))
-        pes.imminent_duration.should eq(Duration.new(0))
-        pes.pop_imminent_events
-        pes.imminent_duration.should eq(Duration.new(4))
+          pes.advance
+          pes.current_time.should eq(TimePoint.new(1))
+          pes.imminent_duration.should eq(Duration.new(0))
+          pes.pop_imminent_events
+          pes.imminent_duration.should eq(Duration.new(4))
 
-        pes.advance
-        pes.current_time.should eq(TimePoint.new(5))
-        pes.imminent_duration.should eq(Duration.new(0))
-        pes.pop_imminent_events
+          pes.advance
+          pes.current_time.should eq(TimePoint.new(5))
+          pes.imminent_duration.should eq(Duration.new(0))
+          pes.pop_imminent_events
+        end
       end
     end
 
     describe "given a duration" do
       it "raises if it exceed imminent duration" do
-        pes = EventSet(MySchedulable).new
-        pes.plan_event(MySchedulable.new(1), Duration.new(3))
+        EventSetTester.new.test do |pes|
+          pes.plan_event(MySchedulable.new(1), Duration.new(3))
 
-        pes.current_time.should eq(TimePoint.new(0))
-        pes.imminent_duration.should eq(Duration.new(3))
-        expect_raises(BadSynchronisationError) do
-          pes.advance by: Duration.new(3001, precision: Scale.new(-1))
+          pes.current_time.should eq(TimePoint.new(0))
+          pes.imminent_duration.should eq(Duration.new(3))
+          expect_raises(BadSynchronisationError) do
+            pes.advance by: Duration.new(3001, precision: Scale.new(-1))
+          end
         end
       end
 
@@ -218,14 +225,15 @@ describe "EventSet" do
       end
 
       it "raises if it exceed imminent duration" do
-        pes = EventSet(MySchedulable).new
-        pes.plan_event(MySchedulable.new(1), Duration.new(3))
+        EventSetTester.new.test do |pes|
+          pes.plan_event(MySchedulable.new(1), Duration.new(3))
 
-        pes.current_time.should eq(TimePoint.new(0))
-        pes.imminent_duration.should eq(Duration.new(3))
+          pes.current_time.should eq(TimePoint.new(0))
+          pes.imminent_duration.should eq(Duration.new(3))
 
-        expect_raises(BadSynchronisationError) do
-          pes.advance until: TimePoint.new(3001, precision: Scale.new(-1))
+          expect_raises(BadSynchronisationError) do
+            pes.advance until: TimePoint.new(3001, precision: Scale.new(-1))
+          end
         end
       end
     end
@@ -233,127 +241,161 @@ describe "EventSet" do
 
   describe "#imminent_duration" do
     it "returns due duration before the next planned event(s) occur" do
-      pes = EventSet(MySchedulable).new
-      pes.imminent_duration.should eq(Duration::INFINITY)
+      EventSetTester.new.test do |pes|
+        pes.imminent_duration.should eq(Duration::INFINITY)
 
-      pes.plan_event(MySchedulable.new(1), Duration.new(1234, Scale::MICRO))
-      pes.imminent_duration.should eq(Duration.new(1234, Scale::MICRO))
+        pes.plan_event(MySchedulable.new(1), Duration.new(1234, Scale::MICRO))
+        pes.imminent_duration.should eq(Duration.new(1234, Scale::MICRO))
 
-      pes.advance by: Duration.new(1, Scale::MILLI)
-      pes.imminent_duration.should eq(Duration.new(234, Scale::MICRO))
+        pes.advance by: Duration.new(1, Scale::MILLI)
+        pes.imminent_duration.should eq(Duration.new(234, Scale::MICRO))
 
-      pes.advance by: Duration.new(234, Scale::MICRO)
-      pes.imminent_duration.should eq(Duration.new(0, Scale::MICRO))
+        pes.advance by: Duration.new(234, Scale::MICRO)
+        pes.imminent_duration.should eq(Duration.new(0, Scale::MICRO))
+      end
     end
 
     it "handles passage from an epoch to another" do
-      pes = EventSet(MySchedulable).new
-      pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
+      EventSetTester.new.test do |pes|
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
 
-      pes.plan_event(MySchedulable.new(1), Duration.new(4358))
-      pes.plan_event(MySchedulable.new(2), Duration.new(6500))
-      pes.plan_event(MySchedulable.new(3), Duration.new(7634))
+        pes.plan_event(MySchedulable.new(1), Duration.new(4358))
+        pes.plan_event(MySchedulable.new(2), Duration.new(6500))
+        pes.plan_event(MySchedulable.new(3), Duration.new(7634))
 
-      pes.size.should eq(3)
+        pes.size.should eq(3)
 
-      pes.imminent_duration.should eq(Duration.new(4358))
-      pes.advance by: Duration.new(1500)
-      pes.imminent_duration.should eq(Duration.new(4358 - 1500))
-      pes.pop_imminent_event.should eq(1)
+        pes.imminent_duration.should eq(Duration.new(4358))
+        pes.advance by: Duration.new(1500)
+        pes.imminent_duration.should eq(Duration.new(4358 - 1500))
+        pes.pop_imminent_event.should eq(1)
 
-      pes.imminent_duration.should eq(Duration.new(6500 - 1500))
-      pes.advance
-      pes.imminent_duration.should eq(Duration.new(0))
-      pes.pop_imminent_event.should eq(2)
+        pes.imminent_duration.should eq(Duration.new(6500 - 1500))
+        pes.advance
+        pes.imminent_duration.should eq(Duration.new(0))
+        pes.pop_imminent_event.should eq(2)
 
-      pes.imminent_duration.should eq(Duration.new(1134))
+        pes.imminent_duration.should eq(Duration.new(1134))
+      end
     end
 
     it "returns a planned duration matching current time precision" do
-      pes = EventSet(MySchedulable).new
-      pes.plan_event(MySchedulable.new(1), Duration.new(1000))
-      pes.imminent_duration.should eq(Duration.new(1000))
-      pes.imminent_duration.precision.should eq(Scale.new(0))
+      EventSetTester.new.test do |pes|
+        pes.plan_event(MySchedulable.new(1), Duration.new(1000))
+        pes.imminent_duration.should eq(Duration.new(1000))
+        pes.imminent_duration.precision.should eq(Scale.new(0))
 
-      pes.advance by: Duration.new(999)
-      pes.imminent_duration.should eq(Duration.new(1))
-      pes.imminent_duration.precision.should eq(Scale.new(0))
+        pes.advance by: Duration.new(999)
+        pes.imminent_duration.should eq(Duration.new(1))
+        pes.imminent_duration.precision.should eq(Scale.new(0))
+      end
     end
   end
 
   describe "#cancel_event" do
     it "removes and returns the specified event" do
-      pes = EventSet(MySchedulable).new
-      ev1 = MySchedulable.new(1)
-      ev2 = MySchedulable.new(2)
-      pes.plan_event(ev1, Duration.new(5))
-      pes.plan_event(ev2, Duration.new(7))
+      EventSetTester.new.test do |pes|
+        ev1 = MySchedulable.new(1)
+        ev2 = MySchedulable.new(2)
+        pes.plan_event(ev1, Duration.new(5))
+        pes.plan_event(ev2, Duration.new(7))
 
-      pes.imminent_duration.should eq(Duration.new(5))
-      pes.size.should eq(2)
-      pes.cancel_event(ev1).should eq(1)
-      pes.size.should eq(1)
-      pes.imminent_duration.should eq(Duration.new(7))
+        pes.imminent_duration.should eq(Duration.new(5))
+        pes.size.should eq(2)
 
-      pes.cancel_event(ev2).should eq(2)
-      pes.empty?.should be_true
+        cev = pes.cancel_event(ev1)
+
+        if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
+          cev.should eq(ev1)
+          pes.size.should eq(1)
+        else
+          ev1.planned_phase = Duration::INFINITY
+        end
+
+        pes.imminent_duration.should eq(Duration.new(7))
+        pes.size.should eq(1)
+
+        cev = pes.cancel_event(ev2)
+        if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
+          cev.should eq(ev2)
+          pes.empty?.should be_true
+        else
+          ev2.planned_phase = Duration::INFINITY
+        end
+
+        pes.imminent_duration.should eq(Duration::INFINITY)
+        pes.empty?.should be_true
+      end
     end
 
     it "removes and returns events occuring in the next epoch" do
-      pes = EventSet(MySchedulable).new
-      pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
-      ev = MySchedulable.new(1)
-      pes.plan_event(ev, Duration.new(Duration::MULTIPLIER_MAX))
+      EventSetTester.new.test do |pes|
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
+        ev = MySchedulable.new(1)
+        pes.plan_event(ev, Duration.new(Duration::MULTIPLIER_MAX))
 
-      pes.size.should eq(1)
-      pes.cancel_event(ev).should eq(1)
-      pes.size.should eq(0)
+        pes.size.should eq(1)
+        cev = pes.cancel_event(ev)
+        if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
+          cev.should eq(ev)
+          pes.size.should eq(0)
+        else
+          ev.planned_phase = Duration::INFINITY
+        end
+
+        pes.imminent_duration.should eq(Duration::INFINITY)
+        pes.empty?.should be_true
+      end
     end
   end
 
   describe "#pop_imminent_event" do
     it "deletes and returns the next imminent event" do
-      pes = EventSet(MySchedulable).new
-      pes.plan_event(MySchedulable.new(1), Duration.new(5))
-      pes.plan_event(MySchedulable.new(2), Duration.new(7))
-      pes.pop_imminent_event.should eq(1)
-      pes.pop_imminent_event.should eq(2)
+      EventSetTester.new.test do |pes|
+        pes.plan_event(MySchedulable.new(1), Duration.new(5))
+        pes.plan_event(MySchedulable.new(2), Duration.new(7))
+        pes.pop_imminent_event.should eq(1)
+        pes.pop_imminent_event.should eq(2)
+      end
     end
   end
 
   describe "#pop_imminent_events" do
     it "deletes and returns the all imminent events" do
-      pes = EventSet(MySchedulable).new
-      pes.plan_event(MySchedulable.new(1), Duration.new(5))
-      pes.plan_event(MySchedulable.new(2), Duration.new(7))
-      pes.plan_event(MySchedulable.new(3), Duration.new(7))
+      EventSetTester.new.test do |pes|
+        pes.plan_event(MySchedulable.new(1), Duration.new(5))
+        pes.plan_event(MySchedulable.new(2), Duration.new(7))
+        pes.plan_event(MySchedulable.new(3), Duration.new(7))
 
-      pes.pop_imminent_events.should eq([1])
-      imm = pes.pop_imminent_events
-      imm.should contain(2)
-      imm.should contain(3)
+        pes.pop_imminent_events.should eq([1])
+        imm = pes.pop_imminent_events
+        imm.should contain(2)
+        imm.should contain(3)
+      end
     end
   end
 
   describe "#plan_event" do
     it "stores in the priority queue events occuring in the current epoch" do
-      pes = EventSet(MySchedulable).new
-      pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
+      EventSetTester.new.test do |pes|
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
 
-      pes.size.should eq(0)
-      pes.plan_event(MySchedulable.new(1), Duration.new(500_234_848))
-      pes.size.should eq(1)
-      pes.@priority_queue.size.should eq(1)
+        pes.size.should eq(0)
+        pes.plan_event(MySchedulable.new(1), Duration.new(500_234_848))
+        pes.size.should eq(1)
+        pes.@priority_queue.size.should eq(1)
+      end
     end
 
     it "stores in the priority queue events occuring in the next epoch" do
-      pes = EventSet(MySchedulable).new
-      pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
+      EventSetTester.new.test do |pes|
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
 
-      pes.size.should eq(0)
-      pes.plan_event(MySchedulable.new(1), Duration.new(Duration::MULTIPLIER_MAX))
-      pes.size.should eq(1)
-      pes.@priority_queue.size.should eq(1)
+        pes.size.should eq(0)
+        pes.plan_event(MySchedulable.new(1), Duration.new(Duration::MULTIPLIER_MAX))
+        pes.size.should eq(1)
+        pes.@priority_queue.size.should eq(1)
+      end
     end
   end
 
