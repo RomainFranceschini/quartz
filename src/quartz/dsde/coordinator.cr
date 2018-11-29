@@ -57,7 +57,13 @@ module Quartz
 
         bag.clear
         @synchronize.clear
-        @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
+
+        if coupled.count_observers > 0
+          coupled.notify_observers(OBS_INFO_TRANSITIONS_PHASE.merge({
+            :time    => time,
+            :elapsed => elapsed,
+          }))
+        end
 
         @event_set.imminent_duration.fixed
       end

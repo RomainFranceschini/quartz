@@ -53,7 +53,9 @@ module Quartz
         })
       end
 
-      atomic.notify_observers(OBS_INFO_INIT_TRANSITION)
+      if atomic.count_observers > 0
+        atomic.notify_observers(OBS_INFO_INIT_TRANSITION.merge({:time => time}))
+      end
 
       {elapsed.fixed, planned_duration.fixed}
     rescue err : StrictVerificationFailed
@@ -121,7 +123,9 @@ module Quartz
         end
       end
 
-      atomic.notify_observers(info)
+      if atomic.count_observers > 0
+        atomic.notify_observers(info.merge({:time => time, :elapsed => elapsed}))
+      end
 
       planned_duration
     rescue err : StrictVerificationFailed

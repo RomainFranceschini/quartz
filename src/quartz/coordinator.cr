@@ -56,7 +56,6 @@ module Quartz
 
       min_planned_duration = Duration::INFINITY
       max_elapsed = Duration.new(0)
-      selected = Array(Processor).new
 
       @children.each do |child|
         elapsed, planned_duration = child.initialize_processor(time)
@@ -70,7 +69,10 @@ module Quartz
         max_elapsed = elapsed if elapsed > max_elapsed
       end
 
-      @model.as(CoupledModel).notify_observers(OBS_INFO_INIT_PHASE)
+      coupled = @model.as(CoupledModel)
+      if coupled.count_observers > 0
+        coupled.notify_observers(OBS_INFO_INIT_PHASE.merge({:time => time}))
+      end
 
       {max_elapsed.fixed, min_planned_duration.fixed}
     end
@@ -86,11 +88,15 @@ module Quartz
 
         output.each do |port, payload|
           if child.is_a?(Simulator) && port.count_observers > 0
-            port.notify_observers({:payload => payload.as(Any)})
+            port.notify_observers({
+              :payload => payload.as(Any),
+              :time    => @event_set.current_time,
+              :elapsed => elapsed,
+            })
           end
 
           # check internal coupling to get children who receive sub-bag of y
-          coupled.each_internal_coupling(port) do |src, dst|
+          coupled.each_internal_coupling(port) do |_, dst|
             receiver = dst.host.processor
 
             if !receiver.sync
@@ -106,7 +112,7 @@ module Quartz
           end
 
           # check external coupling to form sub-bag of parent output
-          coupled.each_output_coupling(port) do |src, dst|
+          coupled.each_output_coupling(port) do |_, dst|
             if child.is_a?(Coordinator)
               @parent_bag[dst].concat(payload.as(Array(Any)))
             else
@@ -121,7 +127,12 @@ module Quartz
         end
       end
 
-      coupled.notify_observers(OBS_INFO_COLLECT_PHASE)
+      if coupled.count_observers > 0
+        coupled.notify_observers(OBS_INFO_COLLECT_PHASE.merge({
+          :time    => @event_set.current_time,
+          :elapsed => elapsed,
+        }))
+      end
 
       @parent_bag
     end
@@ -136,7 +147,13 @@ module Quartz
       bag.clear
       @synchronize.clear
 
-      @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
+      coupled = @model.as(CoupledModel)
+      if coupled.count_observers > 0
+        coupled.notify_observers(OBS_INFO_TRANSITIONS_PHASE.merge({
+          :time    => time,
+          :elapsed => elapsed,
+        }))
+      end
 
       @event_set.imminent_duration.fixed
     end
@@ -150,7 +167,7 @@ module Quartz
 
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y
-        @model.as(CoupledModel).each_input_coupling(port) do |src, dst|
+        @model.as(CoupledModel).each_input_coupling(port) do |_, dst|
           receiver = dst.host.processor
 
           if !receiver.sync

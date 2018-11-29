@@ -59,7 +59,12 @@ module Quartz
             })
           end
 
-          component.notify_observers(OBS_INFO_INIT_TRANSITION)
+          if component.count_observers > 0
+            component.notify_observers(OBS_INFO_INIT_TRANSITION.merge({
+              :time    => time,
+              :elapsed => elapsed,
+            }))
+          end
 
           @time_cache.retain_event(component, elapsed)
           if !planned_duration.infinite?
@@ -71,7 +76,10 @@ module Quartz
           max_elapsed = elapsed if elapsed > max_elapsed
         end
 
-        @model.as(MultiComponent::Model).notify_observers(OBS_INFO_INIT_PHASE)
+        multipdevs = @model.as(MultiComponent::Model)
+        if multipdevs.count_observers > 0
+          multipdevs.notify_observers(OBS_INFO_INIT_PHASE.merge({:time => time}))
+        end
 
         {max_elapsed.fixed, @event_set.imminent_duration.fixed}
       end
@@ -90,7 +98,13 @@ module Quartz
           end
         end
 
-        @model.as(MultiComponent::Model).notify_observers(OBS_INFO_COLLECT_PHASE)
+        multipdevs = @model.as(MultiComponent::Model)
+        if multipdevs.count_observers > 0
+          multipdevs.notify_observers(OBS_INFO_COLLECT_PHASE.merge({
+            :time    => @event_set.current_time,
+            :elapsed => elapsed,
+          }))
+        end
 
         @parent_bag
       end
@@ -133,7 +147,12 @@ module Quartz
                 str << '\'' << component.name << "': internal transition"
               })
             end
-            component.notify_observers(OBS_INFO_INT_TRANSITION)
+            if component.count_observers > 0
+              component.notify_observers(OBS_INFO_INT_TRANSITION.merge({
+                :time    => time,
+                :elapsed => component.elapsed,
+              }))
+            end
           end
         elsif !bag.empty?
           @components.each do |component_name, component|
@@ -180,7 +199,12 @@ module Quartz
               })
             end
 
-            component.notify_observers(info)
+            if component.count_observers > 0
+              component.notify_observers(info.merge({
+                :time    => time,
+                :elapsed => component.elapsed,
+              }))
+            end
           end
         end
 
@@ -218,13 +242,24 @@ module Quartz
             })
           end
 
-          component.notify_observers(OBS_INFO_REAC_TRANSITION)
+          if component.count_observers > 0
+            component.notify_observers(OBS_INFO_REAC_TRANSITION.merge({
+              :time    => time,
+              :elapsed => elapsed_duration,
+            }))
+          end
         end
 
         @reac_count += @state_bags.size
         @state_bags.clear
 
-        @model.as(MultiComponent::Model).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
+        multipdevs = @model.as(MultiComponent::Model)
+        if multipdevs.count_observers > 0
+          multipdevs.notify_observers(OBS_INFO_TRANSITIONS_PHASE.merge({
+            :time    => time,
+            :elapsed => elapsed,
+          }))
+        end
 
         @event_set.imminent_duration.fixed
       end
