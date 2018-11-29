@@ -185,6 +185,15 @@ module Quartz
       raise Exception.new("Not implemented.")
     end
 
+    def inspect(io)
+      io << '<' << self.class.name
+      io << ": current_time="
+      @current_time.to_s(io)
+      io << ", priority_queue="
+      @priority_queue.inspect(io)
+      io << '>'
+    end
+
     protected def rescaled_duration(duration : Duration, precision : Scale) : Duration
       if duration.precision > precision
         @current_time.refined_duration(duration, precision)

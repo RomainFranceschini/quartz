@@ -24,20 +24,30 @@ module Quartz
       @model.processor = self
     end
 
-    def bag
+    def bag : Hash(InputPort, Array(Any))
       @bag ||= Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
     end
 
-    def bag?
+    def bag? : Hash(InputPort, Array(Any))?
       @bag
     end
 
-    # def inspect(io)
-    #   io << "<" << self.class.name << ": "
-    #   io << "planned_duration=" << @event_set.duration_from_phase(@planned_phase).to_s(io)
-    #   io << ", elapsed=" << @time_cache.elapsed_duration_of(self).to_s(io) << ">"
-    #   nil
-    # end
+    def to_s(io)
+      io << self.class.name << "("
+      @model.to_s(io)
+      io << ")"
+    end
+
+    def inspect(io)
+      io << "<" << self.class.name << ": model="
+      @model.to_s(io)
+
+      io << " planned_phase="
+      self.planned_phase.to_s(io)
+      io << " imag_phase="
+      self.imaginary_phase.to_s(io)
+      io << ">"
+    end
 
     abstract def initialize_processor(time : TimePoint) : {Duration, Duration}
     abstract def collect_outputs(elapsed : Duration) : Hash(OutputPort, Any)

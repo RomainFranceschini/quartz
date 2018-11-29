@@ -9,7 +9,9 @@ module Quartz
     end
 
     def inspect(io)
-      io << self.class << "(" << @name << ")"
+      io << self.class << "("
+      @name.to_s(io)
+      io << ")"
     end
 
     def to_s(io)
