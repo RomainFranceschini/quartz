@@ -491,7 +491,7 @@ describe "EventSet" do
     end
   end
 
-  describe "passes pdevs test with overlapping epochs" do
+  describe "passes pdevs test with overlapping epochs and different scales" do
     n = 20_000
     steps = 20_000
     max_reschedules = 50
@@ -507,11 +507,11 @@ describe "EventSet" do
       events = [] of Tuple(Duration, MySchedulable)
       n.times do |i|
         ev = MySchedulable.new(i)
-        duration = Duration.new(prng.rand(0i64..max_tn))
+        duration = Duration.new(prng.rand(0i64..max_tn), Scale.new(prng.rand(-8..8)))
         events << {duration, ev}
         pes.plan_event(ev, duration)
       end
-      is_ladder = pes.is_a?(LadderQueue)
+      is_ladder = pes.@priority_queue.is_a?(LadderQueue)
 
       pes.size.should eq(n)
 
@@ -535,7 +535,7 @@ describe "EventSet" do
 
         imm.each do |ev|
           pes.duration_of(ev).zero?.should be_true
-          planned_duration = Duration.new(prng.rand(prio.multiplier..max_tn))
+          planned_duration = Duration.new(prng.rand(prio.multiplier..max_tn), Scale.new(prng.rand(-8..8)))
 
           _, ev = events[ev.int]
           events[ev.int] = {planned_duration, ev}
@@ -566,7 +566,7 @@ describe "EventSet" do
               end
             end
 
-            planned_duration = Duration.new(prng.rand(prio.multiplier..max_tn))
+            planned_duration = Duration.new(prng.rand(prio.multiplier..max_tn), Scale.new(prng.rand(-8..8)))
             events[index] = {planned_duration, ev}
 
             unless planned_duration.infinite?
@@ -579,11 +579,112 @@ describe "EventSet" do
       end
     end
 
-    ref_key = sequence.keys.first
-    sequence.each_key do |key|
-      next if key == ref_key
-      it "event sequence of #{key} should be same as #{ref_key}" do
-        sequence[key].should eq(sequence[ref_key])
+    unless sequence.empty?
+      ref_key = sequence.keys.first
+      sequence.each_key do |key|
+        next if key == ref_key
+        it "event sequence of #{key} should be same as #{ref_key}" do
+          sequence[key].should eq(sequence[ref_key])
+        end
+      end
+    end
+  end
+
+  describe "passes pdevs test with overlapping epochs and lots of event collisions" do
+    n = 20_000
+    steps = 5_000
+    max_reschedules = 50
+    max_tn = 500_i64
+    seed = rand(Int64::MIN..Int64::MAX)
+    sequence = Hash(String, Array(Duration)).new { |h, k| h[k] = Array(Duration).new }
+
+    EventSetTester.new.test do |pes|
+      prng = Random.new(seed)
+      seq_key = pes.@priority_queue.class.name
+      pes.advance by: Duration.new(Duration::MULTIPLIER_MAX - max_tn)
+
+      events = [] of Tuple(Duration, MySchedulable)
+      n.times do |i|
+        ev = MySchedulable.new(i)
+        duration = Duration.new(prng.rand(0i64..max_tn))
+        events << {duration, ev}
+        pes.plan_event(ev, duration)
+      end
+      is_ladder = pes.@priority_queue.is_a?(LadderQueue)
+
+      pes.size.should eq(n)
+
+      imm = Set(MySchedulable).new
+
+      steps.times do
+        if is_ladder
+          (pes.size < n).should be_false
+        else
+          pes.size.should eq(n)
+        end
+
+        prio = pes.imminent_duration
+        sequence[seq_key] << prio
+        pes.advance by: prio
+        pes.imminent_duration.zero?.should be_true
+
+        imm.clear
+        imm.concat(pes.pop_imminent_events)
+        pes.imminent_duration.zero?.should be_false
+
+        imm.each do |ev|
+          pes.duration_of(ev).zero?.should be_true
+          planned_duration = Duration.new(prng.rand(0i64..max_tn))
+
+          _, ev = events[ev.int]
+          events[ev.int] = {planned_duration, ev}
+
+          unless planned_duration.infinite?
+            pes.plan_event(ev, planned_duration)
+          end
+        end
+
+        reschedules = prng.rand(max_reschedules)
+        reschedules.times do
+          index = prng.rand(events.size)
+          d, ev = events[index]
+
+          unless imm.includes?(ev)
+            remaining = pes.duration_of(ev)
+            remaining.zero?.should be_false
+
+            ev_deleted = true
+            if !d.infinite?
+              c = pes.cancel_event(ev)
+
+              if is_ladder && c.nil?
+                ev_deleted = false
+              else
+                c.should_not be_nil
+                ev.should eq(c)
+              end
+            end
+
+            planned_duration = Duration.new(prng.rand(0i64..max_tn))
+            events[index] = {planned_duration, ev}
+
+            unless planned_duration.infinite?
+              if ev_deleted || (!ev_deleted && !planned_duration.zero?)
+                pes.plan_event(ev, planned_duration)
+              end
+            end
+          end
+        end
+      end
+    end
+
+    unless sequence.empty?
+      ref_key = sequence.keys.first
+      sequence.each_key do |key|
+        next if key == ref_key
+        it "event sequence of #{key} should be same as #{ref_key}" do
+          sequence[key].should eq(sequence[ref_key])
+        end
       end
     end
   end
