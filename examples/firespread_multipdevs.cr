@@ -177,7 +177,7 @@ class Consolify
     model.add_observer(self)
   end
 
-  def update(model)
+  def update(model, info)
     if model.is_a?(HeatMultiPDEVS)
       model = model.as(HeatMultiPDEVS)
       puts CLR

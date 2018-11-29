@@ -69,7 +69,7 @@ class Policeman < Quartz::AtomicModel
 end
 
 class PortObserver
-  include Quartz::ObserverWithInfo
+  include Quartz::Observer
 
   def initialize(port : Quartz::OutputPort)
     port.add_observer(self)

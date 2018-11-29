@@ -152,7 +152,7 @@ class Consolify
     model.add_observer(self)
   end
 
-  def update(model)
+  def update(model, info)
     if model.is_a?(GOLMultiPDEVS)
       model = model.as(GOLMultiPDEVS)
       puts CLR

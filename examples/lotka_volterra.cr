@@ -46,7 +46,7 @@ class Plotter
     end
   end
 
-  def update(model)
+  def update(model, info)
     if model.is_a?(LotkaVolterra)
       lotka = model.as(LotkaVolterra)
       @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", lotka.time, lotka.x, lotka.y)

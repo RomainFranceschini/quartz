@@ -14,7 +14,6 @@ class OneTimeModel < Quartz::AtomicModel
 end
 
 class BirthController < Quartz::DSDE::Executive
-
   output :birth, :death, :add_coupling, :remove_coupling
 
   def initialize(name)
@@ -44,7 +43,7 @@ class BirthController < Quartz::DSDE::Executive
 end
 
 class Grapher
-  include Quartz::ObserverWithInfo
+  include Quartz::Observer
 
   def initialize(model, @simulation : Quartz::Simulation)
     model.add_observer(self)

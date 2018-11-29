@@ -21,7 +21,7 @@ private module ObservedSimulationScenario
   end
 
   class PortObserver
-    include Quartz::ObserverWithInfo
+    include Quartz::Observer
 
     getter calls : Int32 = 0
     getter port : Quartz::Port?
@@ -49,7 +49,7 @@ private module ObservedSimulationScenario
       @model.add_observer(self)
     end
 
-    def update(model)
+    def update(model, info)
       @calls += 1
     end
   end

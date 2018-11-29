@@ -110,7 +110,7 @@ class Policeman < Quartz::AtomicModel
 end
 
 class Grapher
-  include Quartz::ObserverWithInfo
+  include Quartz::Observer
 
   def initialize(model, @simulation : Quartz::Simulation)
     model.add_observer(self)
@@ -127,7 +127,7 @@ class Grapher
 end
 
 class PortObserver
-  include Quartz::ObserverWithInfo
+  include Quartz::Observer
 
   def initialize(port)
     port.add_observer(self)
