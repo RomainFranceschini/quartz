@@ -256,7 +256,7 @@ module Quartz
 
     # Returns the epoch phase, which represents the number of time quanta which
     # separates `self` from the beginning of the current epoch.
-    protected def epoch_phase(precision : Scale) : Int64
+    def epoch_phase(precision : Scale) : Int64
       base = @precision.level
       upper_limit = base + @magnitude.size
 
@@ -380,18 +380,18 @@ module Quartz
 
     # Convert this `TimePoint` to a `BigInt`.
     def to_big_i
-      str = String.build do |io|
-        a.reverse_each { |digit| io.printf("%03d", digit) }
-      end
+      str = if zero?
+              '0'
+            else
+              String.build do |io|
+                a.reverse_each { |digit| io.printf("%03d", digit) }
+              end
+            end
       BigInt.new(str, BASE.to_i)
     end
 
     # Comparison operator
     def <=>(other : TimePoint)
-      compare_magnitudes(other)
-    end
-
-    private def compare_magnitudes(other : TimePoint)
       diff = (@precision - other.precision)
       precision = @precision
       lhs_size, rhs_size = if @precision < other.precision
@@ -431,8 +431,7 @@ module Quartz
         iterator = @magnitude.reverse_each
         io << iterator.next
         if @magnitude.size > 1
-          io << '_'
-          iterator.map { |d| "%03d" % d }.join("_", io)
+          iterator.map { |d| "%03d" % d }.join("", io)
         end
       end
       if @precision.level != 0

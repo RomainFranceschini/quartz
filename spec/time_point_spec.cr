@@ -17,6 +17,22 @@ describe "TimePoint" do
     end
   end
 
+  describe "#to_s" do
+    it "outputs 0 for a zero value" do
+      TimePoint.new(0).to_s.should eq("0")
+    end
+
+    it "outputs the corresponding value in base 10" do
+      TimePoint.new(123).to_s.should eq("123")
+      TimePoint.new(45001).to_s.should eq("45001")
+    end
+
+    it "specifies the exponent corresponding to the precision level" do
+      TimePoint.new(845249, Scale::MICRO).to_s.should eq("845249e-6")
+      TimePoint.new(845249, Scale::MEGA).to_s.should eq("845249e+6")
+    end
+  end
+
   describe "#to_i64" do
     it "restores the time point as an integer" do
       tp = TimePoint.new(5000388)
