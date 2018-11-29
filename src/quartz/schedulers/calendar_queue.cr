@@ -1,40 +1,54 @@
 module Quartz
-  # A fast O(1) priority queue implementation
+  # A fast O(1) priority queue implementation.
+  #
+  # See paper: Brown, Randy. 1988. “Calendar Queues: a Fast 0(1) Priority Queue
+  # Implementation for the Simulation Event Set Problem.” Communications of the
+  # ACM 31 (10): 1220–27. doi:10.1145/63039.63045.
   class CalendarQueue(T) < PriorityQueue(T)
     include Comparable(CalendarQueue)
 
+    # Returns the number of events.
     getter size
 
     @buckets : Slice(Deque(Tuple(Duration, T)))
 
-    @shrink_threshold : Int64
-    @expand_threshold : Int64
+    # Lower queue size change threshold
+    @shrink_threshold : Int32
+
+    # Upper queue size change threshold
+    @expand_threshold : Int32
+
+    # Priority of the last dequeued event
     @last_priority : Duration
-    @bucket_top : Duration
+
+    # Extent of a bucket
     @width : Duration
 
-    def initialize(start_priority = Duration.new(0), bucket_count = 2, bucket_width = Duration.new(2), &comparator : Duration, Duration, Bool -> Int32)
+    # Bucket index from which the last event was dequeued
+    @last_bucket : Int32
+
+    # Top priority at the top of the last bucket (highest priority that could go
+    # into the bucket).
+    # The paper advocates to set this variable to one-half than the actual
+    # top priority of the bucket for the current year to guard against rounding
+    # error. However, as we only use fixed-point data types, we always set it to
+    # its real value.
+    @bucket_top : Duration
+
+    def initialize(@last_priority = Duration.new(0), bucket_count = 8, @width = Duration.new(Scale::FACTOR), &comparator : Duration, Duration, Bool -> Int32)
       @comparator = comparator
       @size = 0
       @resize_enabled = true
-
-      # the bucket index from which the last event was dequeued
-      @last_bucket = 0
-      # the priority at the top of that bucket (highest priority that could go
-      # into the bucket)
-      @bucket_top = Duration.new(0)
-      # the priority of the last event dequeued
-      @last_priority = Duration.new(0)
-
-      @width = bucket_width
       @buckets = Slice.new(bucket_count) { Deque(Tuple(Duration, T)).new }
-      @last_priority = start_priority
-      i = start_priority / bucket_width # virtual bucket
-      @last_bucket = (i % bucket_count).to_i
-      @bucket_top = (i + 1) * bucket_width + 0.5 * bucket_width
+
+      i = @last_priority / @width # virtual bucket
+      @last_bucket = (i % bucket_count).to_i32
+
+      @bucket_top = (i + 1) * @width
+
       # set up queue size change thresholds
-      @shrink_threshold = (bucket_count / 2.0 - 2).to_i64
-      @expand_threshold = (2.0 * bucket_count).to_i64
+      @shrink_threshold = (bucket_count / 2.0 - 2).to_i
+      @expand_threshold = (2.0 * bucket_count).to_i
     end
 
     def inspect(io)
@@ -56,6 +70,57 @@ module Quartz
       nil
     end
 
+    def to_s(io)
+      io.print("\n================================================\n")
+      io.puts "calendar queue: #{@size} events, last:#{@last_priority}, buckets:#{@buckets.size}"
+      @buckets.each_with_index do |bucket, i|
+        next if bucket.empty?
+
+        io.print("[#{(i * @width)},#{((i + 1) * @width)}[ • ")
+        if i == @last_bucket
+          io.print("--> ")
+        else
+          io.print("    ")
+        end
+        # io.puts("Bucket #{i}: #{@buckets[i].size} elements")
+        io.print("Bucket #{i}: {")
+        bucket.each do |ev|
+          io.print(ev[0])
+          io << ", "
+        end
+        io << '}'
+        io.puts
+      end
+      io.print("================================================\n")
+    end
+
+    def print_buckets(le_than : Duration)
+      print("\n================================================\n")
+      puts "calendar queue: #{@size} events, last:#{@last_priority}, buckets:#{@buckets.size}"
+      @buckets.each_with_index do |bucket, i|
+        next if bucket.empty?
+
+        # if @comparator.call(le_than, bucket.last[0], true) >= 0
+        if i >= @last_bucket - 50 && i <= @last_bucket + 50
+          print("[#{(i * @width)},#{((i + 1) * @width)}[ • ")
+          if i == @last_bucket
+            print("--> ")
+          else
+            print("    ")
+          end
+
+          print("Bucket #{i}: {")
+          bucket.each do |ev|
+            print(ev[0])
+            print ", "
+          end
+          print '}'
+          puts
+        end
+      end
+      print("================================================\n")
+    end
+
     def empty? : Bool
       @size == 0
     end
@@ -64,15 +129,13 @@ module Quartz
       @size = 0
       @resize_enabled = true
       @last_bucket = 0
-      @bucket_top = Duration.new(0)
-      @last_priority = Duration.new(0)
-      local_init(2, Duration.new(2), Duration.new(0))
+      local_init(8, Duration.new(Scale::FACTOR), Duration.new(0))
       self
     end
 
     def push(priority : Duration, value : T)
-      vbucket = (priority / @width).to_i # virtual bucket
-      i = vbucket % @buckets.size        # actual bucket
+      vbucket = (priority / @width).to_i64 # virtual bucket
+      i = (vbucket % @buckets.size).to_i   # actual bucket
 
       bucket = @buckets[i]
 
@@ -97,8 +160,8 @@ module Quartz
     end
 
     def delete(priority : Duration, event : T) : T?
-      vbucket = (priority / @width).to_i # virtual bucket
-      i = vbucket % @buckets.size        # actual bucket
+      vbucket = (priority / @width).to_i64 # virtual bucket
+      i = (vbucket % @buckets.size).to_i   # actual bucket
 
       bucket = @buckets[i]
       index = bucket.index({priority, event})
@@ -143,21 +206,28 @@ module Quartz
     end
 
     private def unsafe_peek : Tuple(Duration, T)
-      last_bucket = @last_bucket
-      last_priority = @last_priority
       bucket_top = @bucket_top
+      count = 0
+      ignore_next_epoch = true
 
       loop do
-        i = last_bucket
+        if count > 2
+          if ignore_next_epoch
+            ignore_next_epoch = false
+          else
+            raise "ohno"
+          end
+        end
+
+        i = @last_bucket
         while i < @buckets.size
           bucket = @buckets[i]
 
-          if bucket.size > 0 && @comparator.call(bucket.last[0], bucket_top, true) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], bucket_top, ignore_next_epoch) < 0
             # found item to dequeue
+            @last_bucket = i
+            @bucket_top = bucket_top
             item = bucket.last
-            last_bucket = i
-            last_priority = item[0]
-
             return item
           else
             # prepare to check next bucket or else go to a direct search
@@ -165,7 +235,7 @@ module Quartz
             i = 0 if i == @buckets.size
             bucket_top += @width
 
-            break if i == last_bucket # go to direct search
+            break if i == @last_bucket # go to direct search
           end
         end
 
@@ -173,16 +243,16 @@ module Quartz
         lowest = Duration::INFINITY
         tmp = 0
         @buckets.each_with_index do |bucket, i|
-          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest, true) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest, ignore_next_epoch) < 0
             lowest = bucket.last[0]
             tmp = i
           end
         end
-        last_bucket = tmp
-        last_priority = lowest
-        bucket_top = (((lowest / @width) + 1).to_i * @width + (0.5 * @width))
+        @last_bucket = tmp
+        bucket_top = (lowest / @width + 1).to_i64 * @width
 
         # resume search at min bucket
+        count += 1
       end
     end
 
@@ -203,25 +273,28 @@ module Quartz
     end
 
     private def unsafe_pop : Tuple(Duration, T)
-      last_bucket = @last_bucket
-      last_priority = @last_priority
-      bucket_top = @bucket_top
+      count = 0
+      ignore_next_epoch = true
 
       loop do
-        i = last_bucket
+        if count > 2
+          if ignore_next_epoch
+            ignore_next_epoch = false
+          else
+            raise "ohno"
+          end
+        end
+
+        i = @last_bucket
         while i < @buckets.size
           bucket = @buckets[i]
 
-          if bucket.size > 0 && @comparator.call(bucket.last[0], bucket_top, true) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], @bucket_top, ignore_next_epoch) < 0
             # found item to dequeue
             item = bucket.pop
-            last_bucket = i
-            last_priority = item[0]
+            @last_bucket = i
+            @last_priority = item[0]
             @size -= 1
-
-            @last_bucket = last_bucket
-            @last_priority = last_priority
-            @bucket_top = bucket_top
 
             if @size < @shrink_threshold
               resize(@buckets.size / 2)
@@ -232,8 +305,8 @@ module Quartz
             # prepare to check next bucket or else go to a direct search
             i += 1
             i = 0 if i == @buckets.size
-            bucket_top += @width
-            break if i == last_bucket # go to direct search
+            @bucket_top += @width
+            break if i == @last_bucket # go to direct search
           end
         end
 
@@ -241,31 +314,29 @@ module Quartz
         lowest = Duration::INFINITY
         tmp = 0
         @buckets.each_with_index do |bucket, i|
-          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest, true) < 0
+          if bucket.size > 0 && @comparator.call(bucket.last[0], lowest, false) < 0
             lowest = bucket.last[0]
             tmp = i
           end
         end
-        last_bucket = tmp
-        last_priority = lowest
-        bucket_top = (((lowest / @width) + 1) * @width + (0.5 * @width))
+        @last_bucket = tmp
+        @last_priority = lowest
+        @bucket_top = (((lowest / @width) + 1).to_i64 * @width + (0.5 * @width))
         # resume search at min bucket
+        count += 1
       end
     end
 
-    private def local_init(bucket_count : Int, bucket_width : Duration, start_priority : Duration)
-      @width = bucket_width
-
+    private def local_init(bucket_count : Int, @width : Duration, @last_priority : Duration)
       @buckets = Slice(Deque(Tuple(Duration, T))).new(bucket_count) { Deque(Tuple(Duration, T)).new }
 
-      @last_priority = start_priority
-      i = (start_priority / bucket_width).to_i # virtual bucket
-      @last_bucket = (i % bucket_count).to_i
-      @bucket_top = (i + 1) * bucket_width + 0.5 * bucket_width
+      i = (@last_priority / @width).to_i64 # virtual bucket
+      @last_bucket = (i % bucket_count).to_i32
+      @bucket_top = (i + 1) * @width
 
       # set up queue size change thresholds
-      @shrink_threshold = (bucket_count / 2.0 - 2).to_i64
-      @expand_threshold = (2.0 * bucket_count).to_i64
+      @shrink_threshold = (bucket_count / 2.0 - 2).to_i
+      @expand_threshold = (2.0 * bucket_count).to_i
     end
 
     # Resize buckets to *new_size*.
@@ -291,12 +362,14 @@ module Quartz
       # decides how many queue elements to sample
       return Duration.new(2) if @size < 2
 
-      n = if @size <= 5
-            @size
-          else
-            5 + (@size / 10).to_i
-          end
-      n = 25 if n > 25
+      n = Math.min(
+        if @size <= 5
+          @size
+        else
+          5 + (@size / 10).to_i
+        end,
+        25
+      )
 
       # record variables
       tmp_last_bucket = @last_bucket

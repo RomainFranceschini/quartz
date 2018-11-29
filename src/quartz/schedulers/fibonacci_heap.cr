@@ -137,7 +137,7 @@ module Quartz
     # re-used to build the get a slice of nodes to track trees of each degree. An entry at given
     # index returned slice.
     private def degrees_slice : Slice(Node(T)?)
-      max_degree = (Math.log(@size) / Math.log(2)).ceil.to_i + 1
+      max_degree = Math.log2(@size).ceil.to_i + 1
 
       if @degrees.null?
         @degrees = Pointer(Node(T)?).malloc(max_degree) { nil }
