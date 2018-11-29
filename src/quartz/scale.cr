@@ -87,7 +87,7 @@ module Quartz
 end
 
 struct ::Number
-  def +(other : Scale)
-    Scale.new(self.to_i + other.level)
+  def +(other : Quartz::Scale)
+    Quartz::Scale.new(self.to_i + other.level)
   end
 end

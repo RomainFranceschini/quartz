@@ -360,9 +360,9 @@ module Quartz
   # ```
   macro duration(length, unit = "base")
     {% if ALLOWED_UNITS.includes?(unit.id.stringify) %}
-      Duration.new({{length}}, Scale::{{ unit.id.upcase }})
+      Quartz::Duration.new({{length}}, Quartz::Scale::{{ unit.id.upcase }})
     {% else %}
-      Duration.new({{length}}, {{unit}})
+      Quartz::Duration.new({{length}}, {{unit}})
     {% end %}
   end
 end
