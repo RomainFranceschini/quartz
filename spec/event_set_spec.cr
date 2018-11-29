@@ -100,6 +100,30 @@ describe "EventSet" do
         pes.cmp_planned_phases(Duration.new(505), Duration.new(505)).should eq(0)
         # MAX+100 <==> MAX+100 (both in next epoch)
         pes.cmp_planned_phases(Duration.new(100), Duration.new(100)).should eq(0)
+
+        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+        next_epoch = pes.current_time.phase_from_duration(Duration.new(1000))
+        pes.cmp_planned_phases(next_epoch, Duration.new(1)).should eq(-1)
+        pes.cmp_planned_phases(next_epoch, Duration.new(0)).should eq(0)
+        pes.cmp_planned_phases(Duration.new(1), next_epoch).should eq(1)
+        pes.cmp_planned_phases(next_epoch, Duration.new(Duration::MULTIPLIER_MAX)).should eq(1)
+      end
+
+      it "compares two planned phases from different scales and epochs" do
+        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+
+        a = Duration.new(Duration::MULTIPLIER_MAX)
+        b = Duration.new(Scale::FACTOR ** (Duration::EPOCH - 1), Scale::KILO)
+        c = Duration.new(Scale::FACTOR ** (Duration::EPOCH - 1) + 124, Scale::KILO)
+
+        pes.cmp_planned_phases(a, b, false).should eq(-1)
+        pes.cmp_planned_phases(b, a, false).should eq(1)
+        pes.cmp_planned_phases(a, b, true).should eq(1)
+
+        pes.cmp_planned_phases(a, c, false).should eq(-1)
+        pes.cmp_planned_phases(a, Duration.new(124000), false).should eq(-1)
+        pes.cmp_planned_phases(a, Duration.new(124000), true).should eq(1)
+        pes.cmp_planned_phases(a, c, true).should eq(1)
       end
 
       it "with flag, considers overflowed RHS in previous epoch instead of next epoch" do
@@ -113,6 +137,40 @@ describe "EventSet" do
 
         # MAX+499 <=> -1
         pes.cmp_planned_phases(Duration.new(499), Duration.new(499), rhs_in_current_epoch: true).should eq(1)
+      end
+
+      it "with flag, overflowed LHS is always greater than RHS" do
+        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+        pes.cmp_planned_phases(Duration.new(1000), Duration.new(2000), true).should eq(1)
+
+        planned_phase = pes.current_time.phase_from_duration(Duration.new(1000))
+        pes.cmp_planned_phases(planned_phase, Duration.new(0), false).should eq(0)
+        pes.cmp_planned_phases(planned_phase, Duration.new(0), true).should eq(1)
+        pes.cmp_planned_phases(Duration.new(0), planned_phase, true).should eq(1)
+        pes.cmp_planned_phases(planned_phase, Duration.new(1), true).should eq(1)
+
+        pes.cmp_planned_phases(Duration.new(750), Duration.new(Duration::MULTIPLIER_LIMIT - 500), true).should eq(1)
+        pes.cmp_planned_phases(Duration.new(750), Duration.new(5), true).should eq(1)
+      end
+
+      it "epoch and/or flag has no effect on infinite durations" do
+        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+
+        pes.cmp_planned_phases(Duration::INFINITY, Duration::INFINITY, false).should eq(0)
+        pes.cmp_planned_phases(Duration::INFINITY, Duration::INFINITY, true).should eq(0)
+
+        # same epoch
+        pes.cmp_planned_phases(Duration::INFINITY, Duration.new(Duration::MULTIPLIER_MAX), false).should eq(1)
+        pes.cmp_planned_phases(Duration.new(Duration::MULTIPLIER_MAX), Duration::INFINITY, false).should eq(-1)
+        pes.cmp_planned_phases(Duration::INFINITY, Duration.new(Duration::MULTIPLIER_MAX), true).should eq(1)
+        pes.cmp_planned_phases(Duration.new(Duration::MULTIPLIER_MAX), Duration::INFINITY, true).should eq(-1)
+
+        # next epoch
+        next_epoch = pes.current_time.phase_from_duration(Duration.new(1000))
+        pes.cmp_planned_phases(Duration::INFINITY, next_epoch, false).should eq(1)
+        pes.cmp_planned_phases(Duration::INFINITY, next_epoch, true).should eq(1)
+        pes.cmp_planned_phases(next_epoch, Duration::INFINITY, false).should eq(-1)
+        pes.cmp_planned_phases(next_epoch, Duration::INFINITY, true).should eq(-1)
       end
     end
   end

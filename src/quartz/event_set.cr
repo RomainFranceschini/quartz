@@ -210,13 +210,24 @@ module Quartz
 
       # if *b* overflowed and the flag is true, *b* is considered to be in the
       # current epoch.
-      if rhs_in_current_epoch && duration_b > b
+      if rhs_in_current_epoch && (duration_b > b || b >= Duration.new(1, Scale.new(5)))
         # if *a* belongs to the next epoch, it is necessarily greater than *b*,
         # otherwise, operands should be swapped.
-        if duration_a > a
-          1
+        if (duration_a > a || a >= Duration.new(1, Scale.new(5)))
+          # special case for infinite values
+          if duration_a.infinite? && duration_b.infinite?
+            0
+          elsif duration_b.infinite?
+            -1
+          else
+            1
+          end
         else
-          (duration_b <=> duration_a)
+          if duration_b.infinite?
+            -1
+          else
+            duration_b <=> duration_a
+          end
         end
       else
         duration_a <=> duration_b
