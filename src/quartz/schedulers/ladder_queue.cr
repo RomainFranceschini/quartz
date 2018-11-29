@@ -54,6 +54,10 @@ module Quartz
     # Returns the number of elements in the queue.
     getter size : Int32 = 0
 
+    # Returns the number of garbage events remaining in the queue. Those could
+    # not be deleted in a reasonable time.
+    getter garbage : Int32 = 0
+
     getter epoch : Int32 = 0
 
     def initialize(&comparator : Duration, Duration, Bool -> Int32)
@@ -69,9 +73,9 @@ module Quartz
       # Sorted list
       @bottom = Array({Duration, T}).new
 
-      @top_max = duration(-1)
-      @top_min = duration(-1)
-      @top_start = duration(0)
+      @top_max = Quartz.duration(0)
+      @top_min = Duration::INFINITY
+      @top_start = Quartz.duration(0)
       @active_rungs = 0
     end
 
@@ -95,35 +99,33 @@ module Quartz
       @size == 0
     end
 
-    # Comparison operator. Returns 0 if the two objects are equal, a negative
-    # number if this object is considered less than other,
-    # or a positive number otherwise.
-
-    # priority : Duration, value : T)
     def push(ts : Duration, value : T)
       @size += 1
 
       # check wether event should be in top
-      if @comparator.call(ts, @top_start, true) >= 0
+      if @comparator.call(ts, @top_start, false) >= 0
         @top << {ts, value}
-        @top_min = ts if @top_min == duration(-1) || @comparator.call(ts, @top_min, true) < 0 # ts < @top_min
-        @top_max = ts if @comparator.call(ts, @top_max, true) > 0                             # ts > @top_max
+        @top_min = ts if @comparator.call(ts, @top_min, false) < 0
+        @top_max = ts if @comparator.call(ts, @top_max, false) > 0
         return self
       end
 
       # if priority is lower than the maximum priority from bottom, this
       # event should be in bottom.
-      should_be_in_bottom = @bottom.size > 0 && @comparator.call(ts, @bottom.first[0], false) < 0 # ts < @bottom.first[0]
+      should_be_in_bottom = @bottom.size > 0 && @comparator.call(ts, @bottom.first[0], false) < 0
 
       # determine whether event should be in ladder or bottom
       rung_index = 0
-      while rung_index < @active_rungs && @comparator.call(ts, @rungs[rung_index].current_priority, false) < 0 # ts < @rungs[rung_index].current_priority
+      while rung_index < @active_rungs && @comparator.call(ts, @rungs[rung_index].current_priority, false) < 0
         rung_index += 1
       end
 
       if rung_index < @active_rungs && !should_be_in_bottom
         rung = @rungs[rung_index]
-        raise LadderQueueError.new unless @comparator.call(ts, rung.start_priority, true) >= 0 # ts >= rung.start_priority
+
+        unless @comparator.call(ts, rung.start_priority, false) >= 0
+          raise LadderQueueError.new("#{ts} should be >= #{rung.start_priority}")
+        end
 
         # insert event to appropriate rung
         rung.push(ts, value)
@@ -165,7 +167,6 @@ module Quartz
         @bottom << tuple
       else
         index = @bottom.size - 1
-        # while tuple[0] > @bottom[index][0] && index >= 0
         while @comparator.call(tuple[0], @bottom[index][0], false) > 0 && index >= 0
           index -= 1
         end
@@ -177,20 +178,20 @@ module Quartz
     #
     # Raises if *self* is empty.
     def peek : T
-      if @size == 0
-        raise "ladder queue is empty."
+      if @size > 0 && (tuple = unsafe_peek)
+        tuple[1]
       else
-        unsafe_peek.not_nil![1]
+        raise "ladder queue is empty."
       end
     end
 
     # Returns the element having the highest priority, or *nil* if *self* is
     # empty.
     def peek? : T?
-      if @size == 0
-        nil
+      if @size > 0 && (tuple = unsafe_peek)
+        tuple[1]
       else
-        unsafe_peek.not_nil![1]
+        nil
       end
     end
 
@@ -198,7 +199,11 @@ module Quartz
       if @size == 0
         raise "ladder queue is empty."
       else
-        unsafe_peek.not_nil![0]
+        if tuple = unsafe_peek
+          tuple[0]
+        else
+          Duration::INFINITY
+        end
       end
     end
 
@@ -207,11 +212,11 @@ module Quartz
         prepare! if @bottom.empty?
 
         if tuple = @bottom.last?
-          if @comparator.call(tuple[0], tuple[1].planned_phase, false) == 0 # tuple[0] == tuple[1].time_next
+          if @comparator.call(tuple[0], tuple[1].planned_phase, false) == 0
             return tuple
           else # garbage event
-            @size -= 1
-            _, ev = @bottom.pop
+            @garbage -= 1
+            @bottom.pop
           end
         else
           break
@@ -228,9 +233,11 @@ module Quartz
         prepare! if @bottom.empty?
 
         tuple = @bottom.pop
-        @size -= 1
-        if @comparator.call(tuple[0], tuple[1].planned_phase, false) == 0 # tuple[0] == tuple[1].time_next
+        if @comparator.call(tuple[0], tuple[1].planned_phase, false) == 0
+          @size -= 1
           return tuple[1]
+        else
+          @garbage -= 1
         end
       end
     end
@@ -240,16 +247,20 @@ module Quartz
 
       prepare! if @bottom.empty?
 
-      if @comparator.call(priority, @top_start, true) < 0 # priority < @top_start
+      if @comparator.call(priority, @top_start, false) < 0
         x = 0
-        while x < @active_rungs && @comparator.call(priority, @rungs[x].current_priority, true) < 0 # priority < @rungs[x].current_priority
+        while x < @active_rungs && @comparator.call(priority, @rungs[x].current_priority, false) < 0
           x += 1
         end
 
         item = @rungs[x].delete(priority, event) if x < @active_rungs
       end
 
-      @size -= 1 if item
+      @size -= 1
+
+      unless item
+        @garbage += 1
+      end
       item
     end
 
@@ -261,6 +272,7 @@ module Quartz
 
       @active_rungs = 0
       @size = 0
+      @garbage = 0
     end
 
     private def prepare!
@@ -300,7 +312,8 @@ module Quartz
 
           @epoch += 1
           @top_start = @top_max
-          @top_max = @top_min = duration(-1)
+          @top_max = @top_start
+          @top_min = @top_start
         end
       end
     end
@@ -343,7 +356,7 @@ module Quartz
 
       if @active_rungs == 0
         rung = @rungs.first
-        width = (@top_max - @top_min) / n_events.to_f
+        width = (@top_max - @top_min) / n_events
         rung.set(width, n_events, @top_min)
         @active_rungs = 1
         rung
@@ -363,7 +376,7 @@ module Quartz
     private def spawn_rung_for_bottom(start) : Rung
       max = @bottom.first[0]
       if @active_rungs == 0
-        raise LadderQueueError.new unless @comparator.call(start, @top_start, true) < 0 # @top_start >= start
+        raise LadderQueueError.new unless @comparator.call(start, @top_start, false) < 0
         rung = @rungs.first
         width = (max - start) / @bottom.size
         rung.set(width, @bottom.size, start)
@@ -372,7 +385,7 @@ module Quartz
       else
         current_rung = @rungs[@active_rungs - 1]
         rung = @rungs[@active_rungs]
-        raise LadderQueueError.new unless @comparator.call(start, current_rung.current_priority, true) < 0 # current_rung.current_priority >= start
+        raise LadderQueueError.new unless @comparator.call(start, current_rung.current_priority, false) < 0
         width = (max - start) / THRESHOLD
         rung.set(width, Rung::MAX_RUNG_SIZE, start)
         @active_rungs += 1
@@ -591,7 +604,7 @@ module Quartz
       end
 
       @[AlwaysInline]
-      def unsafe_at(index : Int) : Array({Duration, T})
+      def unsafe_fetch(index : Int) : Array({Duration, T})
         @buckets[index]
       end
 
@@ -599,7 +612,7 @@ module Quartz
       @[AlwaysInline]
       def index_for(priority : Duration) : Int
         Math.min(
-          ((priority - @start) / @width).to_f.to_i,
+          ((priority - @start) / @width).to_f.to_i64,
           @size - 1
         )
       end
