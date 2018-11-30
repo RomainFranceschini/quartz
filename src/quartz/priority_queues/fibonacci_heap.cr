@@ -249,10 +249,35 @@ module Quartz
 
     def delete(priority : Duration, value : T) : T
       node = @cache[value]
-      decrease_key(node, -Duration::INFINITY)
+      decrease_key(node, Duration.new(-1)) # Duration.new(-1))
       if @min_node != node
-        puts self.inspect
-        raise "Invalid state: min node (#{@min_node}) should eq #{node}"
+        # puts self.inspect
+
+        # if start = node
+        #   loop do
+        #     ary << node
+        #     node = node.next
+        #     break if node == start
+        #   end
+        # end
+
+        # search for min node in list
+        if cur = @min_node
+          loop do
+            cur = cur.next
+            if cur == @min_node
+              raise "Invalid state: min node (#{@min_node}) should eq #{node}"
+            elsif cur == node
+              @min_node = cur
+            end
+          end
+          @min_node = cur
+        else
+          raise "unreachable"
+          # @min_node = node
+        end
+
+        # raise "Invalid state: min node (#{@min_node}) should eq #{node}"
       end
       pop
     end
