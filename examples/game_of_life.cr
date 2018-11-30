@@ -27,9 +27,9 @@ class GOLCell < Quartz::MultiComponent::Component
     alives = @nalive
 
     if death?(alives) || birth?(alives)
-      1
+      Quartz::Duration.new(1)
     else
-      Quartz::INFINITY
+      Quartz::Duration::INFINITY
     end
   end
 
@@ -172,7 +172,7 @@ class Consolify
         print "\n"
         i += 1
       end
-      print "\n\nt=#{@sim.time}\n"
+      print "\n\nt=#{@sim.virtual_time}\n"
       STDOUT.flush
 
       sleep 0.1

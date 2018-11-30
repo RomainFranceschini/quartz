@@ -42,11 +42,11 @@ class TrafficLight < Quartz::AtomicModel
 
   def time_advance
     case @phase
-    when :red    then 60
-    when :green  then 50
-    when :orange then 10
+    when :red    then Quartz.duration(60)
+    when :green  then Quartz.duration(50)
+    when :orange then Quartz.duration(10)
     else # manual
-      Quartz::INFINITY
+      Quartz::Duration::INFINITY
     end
   end
 end
@@ -98,13 +98,13 @@ class Policeman < Quartz::AtomicModel
   def time_advance
     case @phase
     when :idle1, :idle2
-      50
+      Quartz.duration(50)
     when :working1, :working2
-      100
+      Quartz.duration(100)
     when :move2_1, :move1_2
-      150
+      Quartz.duration(150)
     else
-      Quartz::INFINITY
+      Quartz::Duration::INFINITY
     end
   end
 end
@@ -120,7 +120,7 @@ class Grapher
     if model.is_a?(Quartz::DSDE::Executive) && info
       kind = info[:transition]
       if kind == :internal || kind == :confluent
-        @simulation.generate_graph("dyntrafficlight_#{@simulation.time.to_i}")
+        @simulation.generate_graph("dyntrafficlight_#{@simulation.virtual_time.to_s}")
       end
     end
   end
@@ -136,7 +136,8 @@ class PortObserver
   def update(observable, info)
     if observable.is_a?(Quartz::Port) && info
       payload = info[:payload]
-      puts "#{observable.host}@#{observable} sends '#{payload}' at #{observable.host.as(Quartz::AtomicModel).time}"
+      time = info[:time].as(Quartz::TimePoint)
+      puts "#{observable.host}@#{observable} sends '#{payload}' at #{time.to_s}"
     end
   end
 end
@@ -154,7 +155,7 @@ model.attach :add_coupling, to: :add_coupling, between: :policeman, and: :execut
 model.attach :remove_coupling, to: :remove_coupling, between: :policeman, and: :executive
 model.attach :alternate, to: :interrupt, between: :policeman, and: :traffic_light1
 
-simulation = Quartz::Simulation.new(model, duration: 1000)
+simulation = Quartz::Simulation.new(model, duration: Quartz.duration(1000), scheduler: :binary_heap)
 simulation.generate_graph("dyntrafficlight_0")
 
 Grapher.new(model.executive, simulation)
