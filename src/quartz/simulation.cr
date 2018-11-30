@@ -226,7 +226,7 @@ module Quartz
         if @time_next.infinite?
           end_simulation
         elsif final = @final_vtime
-          end_simulation if (final - virtual_time) == @time_next
+          end_simulation if @time_next >= (final - virtual_time)
         end
         @time_next
       else
@@ -249,7 +249,7 @@ module Quartz
           if @time_next.infinite?
             break
           elsif final = @final_vtime
-            break if (final - virtual_time) == @time_next
+            break if @time_next >= (final - virtual_time)
           end
         end
         end_simulation
@@ -279,7 +279,7 @@ module Quartz
           if @time_next.infinite?
             break
           elsif final = @final_vtime
-            break if (final - virtual_time) == @time_next
+            break if @time_next >= (final - virtual_time)
           end
           yield(@time_next)
         end
