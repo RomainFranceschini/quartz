@@ -104,12 +104,18 @@ module Quartz
       end
 
       bag.clear
-      planned_duration = atomic.time_advance.fixed
+      planned_duration = atomic.time_advance
+      fixed_planned_duration = planned_duration.fixed_at(atomic.precision)
+      if !planned_duration.infinite? && fixed_planned_duration.infinite?
+        raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, atomic.precision)} given its precision level.")
+      elsif planned_duration.precision < atomic.precision
+        raise InvalidDurationError.new("'#{atomic.name}': planned duration #{planned_duration} is rounded to #{fixed_planned_duration} due to the model precision level.")
+      end
 
       if (logger = Quartz.logger?) && logger.debug?
         logger.debug(String.build { |str|
           str << '\'' << atomic.name << "': " << kind << " transition "
-          str << "(elapsed: " << elapsed << ", time_next: " << planned_duration << ')'
+          str << "(elapsed: " << elapsed << ", time_next: " << fixed_planned_duration << ')'
         })
       end
 
@@ -127,7 +133,7 @@ module Quartz
         atomic.notify_observers(info.merge({:time => time, :elapsed => elapsed}))
       end
 
-      planned_duration
+      fixed_planned_duration
     rescue err : StrictVerificationFailed
       atomic = @model.as(AtomicModel)
       if (logger = Quartz.logger?) && logger.fatal?

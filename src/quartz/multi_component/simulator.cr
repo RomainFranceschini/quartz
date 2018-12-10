@@ -50,6 +50,12 @@ module Quartz
           component.__initialize_state__(self)
           elapsed = component.elapsed
           planned_duration = component.time_advance
+          fixed_planned_duration = planned_duration.fixed_at(component.precision)
+          if !planned_duration.infinite? && fixed_planned_duration.infinite?
+            raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, component.precision)} given its precision level.")
+          elsif planned_duration.precision < component.precision
+            raise InvalidDurationError.new("'#{component.name}': planned duration #{planned_duration} is rounded to #{fixed_planned_duration} due to the model precision level.")
+          end
 
           if (logger = Quartz.logger?) && logger.debug?
             logger.debug(String.build { |str|
