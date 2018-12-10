@@ -35,7 +35,15 @@ private struct PriorityQueueTester
   @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new { |a, b| a <=> b }
   @lq : LadderQueue(Ev) = LadderQueue(Ev).new { |a, b| a <=> b }
   @bh : BinaryHeap(Ev) = BinaryHeap(Ev).new { |a, b| a <=> b }
-  @fh : FibonacciHeap(Ev) = FibonacciHeap(Ev).new { |a, b| a <=> b }
+  @fh : FibonacciHeap(Ev) = FibonacciHeap(Ev).new do |a, b|
+    # Special case to special decrease key.
+    if b == Duration.new(Duration::MULTIPLIER_MAX, Scale.new(-128_i8))
+      1
+    else
+      a <=> b
+    end
+  end
+  @st : SplayTree(Ev) = SplayTree(Ev).new { |a, b| a <=> b }
 
   def test(&block : PriorityQueue(Ev) ->)
     it "(BinaryHeap)" { block.call(@bh) }
