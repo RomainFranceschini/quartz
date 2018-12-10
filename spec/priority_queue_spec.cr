@@ -43,7 +43,6 @@ private struct PriorityQueueTester
       a <=> b
     end
   end
-  @st : SplayTree(Ev) = SplayTree(Ev).new { |a, b| a <=> b }
 
   def test(&block : PriorityQueue(Ev) ->)
     it "(BinaryHeap)" { block.call(@bh) }
