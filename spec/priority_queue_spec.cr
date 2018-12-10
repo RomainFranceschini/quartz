@@ -46,7 +46,7 @@ private struct PriorityQueueTester
 
   def test(&block : PriorityQueue(Ev) ->)
     it "(BinaryHeap)" { block.call(@bh) }
-    it "(CalendarQueue)" { block.call(@cq) }
+    pending "(CalendarQueue)" { block.call(@cq) }
     it "(LadderQueue)" { block.call(@lq) }
     it "(FibonacciHeap)" { block.call(@fh) }
   end
