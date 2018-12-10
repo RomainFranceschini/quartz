@@ -199,6 +199,8 @@ module Quartz
                      # For example, the ladder queue might successfully delete an event if
                      # it is stored in the ladder tier, but not always.
                      @event_set.cancel_event(receiver) != nil
+                   else
+                     true
                    end
 
       planned_duration = receiver.perform_transitions(time, elapsed_duration)

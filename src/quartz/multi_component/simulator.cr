@@ -220,6 +220,8 @@ module Quartz
                          true
                        elsif !remaining_duration.infinite?
                          @event_set.cancel_event(component) != nil
+                       else
+                         true
                        end
 
           component.elapsed = elapsed_duration
