@@ -4,7 +4,7 @@ private module ObservedSimulationScenario
   class ObserverTestError < Exception; end
 
   class Foo < Quartz::AtomicModel
-    @sigma = 0
+    @sigma = Duration.new(0)
 
     def initialize(name)
       super(name)
@@ -12,7 +12,7 @@ private module ObservedSimulationScenario
     end
 
     def internal_transition
-      @sigma = Quartz::INFINITY
+      @sigma = Duration::INFINITY
     end
 
     def output
@@ -21,7 +21,7 @@ private module ObservedSimulationScenario
   end
 
   class PortObserver
-    include Quartz::ObserverWithInfo
+    include Quartz::Observer
 
     getter calls : Int32 = 0
     getter port : Quartz::Port?
@@ -49,7 +49,7 @@ private module ObservedSimulationScenario
       @model.add_observer(self)
     end
 
-    def update(model)
+    def update(model, info)
       @calls += 1
     end
   end

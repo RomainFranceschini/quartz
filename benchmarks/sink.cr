@@ -2,11 +2,11 @@ require "../src/quartz"
 
 class Sink < Quartz::AtomicModel
   def external_transition(messages)
-    @sigma = rand
+    @sigma = Quartz::Duration.new(RND.rand(0i64..Quartz::Duration::MULTIPLIER_MAX))
   end
 
   def internal_transition
-    @sigma = Quartz::INFINITY
+    @sigma = Quartz::Duration::INFINITY
   end
 
   def output
@@ -16,7 +16,7 @@ end
 
 class Generator < Quartz::AtomicModel
   output :out
-  @sigma = 1
+  @sigma = Quartz.duration(1)
 
   def initialize(name, @events : Int32)
     super(name)
@@ -28,7 +28,7 @@ class Generator < Quartz::AtomicModel
 
   def internal_transition
     @events -= 1
-    @sigma = (@events == 0) ? Quartz::INFINITY : 1
+    @sigma = (@events == 0) ? Quartz::Duration::INFINITY : Quartz.duration(1)
   end
 end
 
@@ -60,16 +60,17 @@ class CoupledSink < Quartz::CoupledModel
   end
 end
 
+RND = Random.new(65489)
 Quartz.logger = nil
 
 root = CoupledSink.new(ARGV[0].to_i, ARGV[1].to_i, ARGV[2].to_i)
 simulation = Quartz::Simulation.new(
   root,
   maintain_hierarchy: true,
-  scheduler: :calendar_queue
+  scheduler: :binary_heap
 )
 
 simulation.simulate
 
-#puts simulation.transition_stats[:TOTAL]
+puts simulation.transition_stats[:TOTAL]
 puts simulation.elapsed_secs

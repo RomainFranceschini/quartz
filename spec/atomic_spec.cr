@@ -18,7 +18,7 @@ class ModelSample < AtomicModel
   state_var x : Int32 = 0
   state_var y : Int32 = 0
 
-  @sigma = 25
+  @sigma = Duration.new(25)
 
   def evolve
     @x = 100
@@ -28,15 +28,15 @@ end
 
 private class MockProcessor < Processor
   def initialize_processor(time)
-    0
+    {Duration.new(0), Duration.new(0)}
   end
 
   def collect_outputs(time)
     Hash(OutputPort, Any).new
   end
 
-  def perform_transitions(time)
-    0
+  def perform_transitions(planned, elapsed)
+    Duration.new(0, Scale::BASE)
   end
 end
 
@@ -122,55 +122,32 @@ describe "AtomicModel" do
   describe "serialization" do
     it "can be converted to JSON" do
       m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"sigma\":25}"
-      m.time = 42
-      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"time\":42,\"sigma\":25}"
+      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"sigma\":{\"multiplier\":25.0,\"precision\":0}}"
     end
 
     it "can be converted to msgpack" do
       m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-      m.to_msgpack.should eq Bytes[132, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 164, 116, 105, 109, 101, 202, 255, 128, 0, 0, 165, 115, 105, 103, 109, 97, 25]
-      m.time = 42
-      m.to_msgpack.should eq Bytes[132, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 164, 116, 105, 109, 101, 42, 165, 115, 105, 103, 109, 97, 25]
+      m.to_msgpack.should eq Bytes[132, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 165, 115, 105, 103, 109, 97, 130, 170, 109, 117, 108, 116, 105, 112, 108, 105, 101, 114, 25, 169, 112, 114, 101, 99, 105, 115, 105, 111, 110, 0]
     end
   end
 
   describe "deserialization" do
     it "can be initialized from JSON" do
-      io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"sigma\":0}")
+      io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"sigma\":{\"multiplier\":1.0,\"precision\":0}}")
       m = ModelSample.new(JSON::PullParser.new(io))
       m.name.should eq("foo")
-      m.sigma.should eq 0
-      m.time.should eq -INFINITY
-      m.x.should eq 5
-      m.y.should eq 10
-
-      io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"sigma\":0,\"time\":100}")
-      m = ModelSample.new(JSON::PullParser.new(io))
-      m.name.should eq("foo")
-      m.sigma.should eq 0
-      m.time.should eq 100
+      m.sigma.should eq Duration.new(1)
       m.x.should eq 5
       m.y.should eq 10
     end
 
     it "can be initialized from msgpack" do
-      io = IO::Memory.new(Bytes[132, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 164, 116, 105, 109, 101, 202, 255, 128, 0, 0, 165, 115, 105, 103, 109, 97, 25])
+      io = IO::Memory.new(Bytes[131, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 165, 115, 105, 103, 109, 97, 130, 170, 109, 117, 108, 116, 105, 112, 108, 105, 101, 114, 1, 169, 112, 114, 101, 99, 105, 115, 105, 111, 110, 0])
       m = ModelSample.new(MessagePack::Unpacker.new(io))
       m.name.should eq "foo"
-      m.sigma.should eq 25
-      m.time.should eq -INFINITY
-      m.x.should eq 5
-      m.y.should eq 10
-
-      io = IO::Memory.new(Bytes[132, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 164, 116, 105, 109, 101, 42, 165, 115, 105, 103, 109, 97, 25])
-      m = ModelSample.new(MessagePack::Unpacker.new(io))
-      m.name.should eq "foo"
-      m.sigma.should eq 25
-      m.time.should eq 42
+      m.sigma.should eq Duration.new(1)
       m.x.should eq 5
       m.y.should eq 10
     end
   end
-
 end

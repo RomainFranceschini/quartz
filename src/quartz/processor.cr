@@ -1,5 +1,7 @@
 module Quartz
   abstract class Processor
+    include Schedulable
+
     # :nodoc:
     OBS_INFO_INIT_PHASE = {:phase => Any.new(:init)}
     # :nodoc:
@@ -12,35 +14,43 @@ module Quartz
     include Logging
 
     getter model : Model
-    getter time_next : SimulationTime
-    getter time_last : SimulationTime
     property sync : Bool
     property parent : Coordinator?
 
     @bag : Hash(InputPort, Array(Any))?
 
     def initialize(@model : Model)
-      @time_next = 0
-      @time_last = 0
       @sync = false
       @model.processor = self
     end
 
-    def bag
+    def bag : Hash(InputPort, Array(Any))
       @bag ||= Hash(InputPort, Array(Any)).new { |h, k| h[k] = Array(Any).new }
     end
 
-    def bag?
+    def bag? : Hash(InputPort, Array(Any))?
       @bag
     end
 
-    def inspect(io)
-      io << "<" << self.class.name << ": tn=" << @time_next.to_s(io)
-      io << ", tl=" << @time_last.to_s(io) << ">"
-      nil
+    def to_s(io)
+      io << self.class.name << "("
+      @model.to_s(io)
+      io << ")"
     end
 
-    abstract def collect_outputs(time) : Hash(OutputPort, Any)
-    abstract def perform_transitions(time) : SimulationTime
+    def inspect(io)
+      io << "<" << self.class.name << ": model="
+      @model.to_s(io)
+
+      io << " planned_phase="
+      self.planned_phase.to_s(io)
+      io << " imag_phase="
+      self.imaginary_phase.to_s(io)
+      io << ">"
+    end
+
+    abstract def initialize_processor(time : TimePoint) : {Duration, Duration}
+    abstract def collect_outputs(elapsed : Duration) : Hash(OutputPort, Any)
+    abstract def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
   end
 end

@@ -1,27 +1,28 @@
 require "../src/quartz"
 
 class LotkaVolterra < Quartz::AtomicModel
-
   state_var x : Float64 = 1.0
   state_var y : Float64 = 1.0
 
-  state_var alpha : Float64 = 5.2     # prey reproduction rate
-  state_var beta : Float64 = 3.4      # predator per prey mortality rate
-  state_var gamma : Float64 = 2.1     # predator mortality rate
-  state_var delta : Float64 = 1.4     # predator per prey reproduction rate
+  @precision = Quartz::Scale::NANO
 
-  @sigma = 0.0001                     # euler integration
+  state_var alpha : Float64 = 5.2 # prey reproduction rate
+  state_var beta : Float64 = 3.4  # predator per prey mortality rate
+  state_var gamma : Float64 = 2.1 # predator mortality rate
+  state_var delta : Float64 = 1.4 # predator per prey reproduction rate
+
+  @sigma = Quartz::Duration.new(100, Quartz::Scale::MICRO) # euler integration
 
   def internal_transition
     dxdt = ((@x * @alpha) - (@beta * @x * @y))
     dydt = (-(@gamma * @y) + (@delta * @x * @y))
 
-    @x += @sigma * dxdt
-    @y += @sigma * dydt
+    @x += @sigma.to_f * dxdt
+    @y += @sigma.to_f * dydt
   end
 end
 
-class Plotter
+class Tracer
   include Quartz::Hooks::Notifiable
   include Quartz::Observer
 
@@ -46,17 +47,18 @@ class Plotter
     end
   end
 
-  def update(model)
+  def update(model, info)
     if model.is_a?(LotkaVolterra)
       lotka = model.as(LotkaVolterra)
-      @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", lotka.time, lotka.x, lotka.y)
+      time = info[:time].as(Quartz::TimePoint)
+      @file.not_nil!.printf("%-#{SPACES}s %-#{SPACES}s %-#{SPACES}s\n", time.to_s, lotka.x, lotka.y)
     end
   end
 end
 
 model = LotkaVolterra.new(:LotkaVolterra)
-Plotter.new(model)
-sim = Quartz::Simulation.new(model, duration: 20)
+Tracer.new(model)
+sim = Quartz::Simulation.new(model, scheduler: :binary_heap, duration: Quartz.duration(20))
 
 sim.simulate
 

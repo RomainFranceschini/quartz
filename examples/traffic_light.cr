@@ -35,10 +35,10 @@ class TrafficLight < Quartz::AtomicModel
 
   def time_advance
     case @phase
-    when :red    then 60
-    when :green  then 50
-    when :orange then 10
-    else              Quartz::INFINITY
+    when :red    then Quartz.duration(60)
+    when :green  then Quartz.duration(50)
+    when :orange then Quartz.duration(10)
+    else              Quartz::Duration::INFINITY
     end
   end
 end
@@ -64,12 +64,12 @@ class Policeman < Quartz::AtomicModel
   end
 
   def time_advance
-    @phase == :idle ? 200 : 100
+    @phase == :idle ? Quartz.duration(200) : Quartz.duration(100)
   end
 end
 
 class PortObserver
-  include Quartz::ObserverWithInfo
+  include Quartz::Observer
 
   def initialize(port : Quartz::OutputPort)
     port.add_observer(self)
@@ -78,7 +78,8 @@ class PortObserver
   def update(observable, info)
     if observable.is_a?(Quartz::OutputPort) && info
       payload = info[:payload]
-      puts "#{observable.host}@#{observable} sends '#{payload}' at #{observable.host.as(Quartz::AtomicModel).time}"
+      time = info[:time].as(Quartz::TimePoint)
+      puts "#{observable.host}@#{observable} sends '#{payload}' at #{time.to_s}"
     end
   end
 end
@@ -89,5 +90,5 @@ coupled << Policeman.new(:policeman)
 coupled.attach :traffic_light, to: :interrupt, between: :policeman, and: :traffic_light
 PortObserver.new(coupled[:traffic_light].output_port(:observed))
 
-simulation = Quartz::Simulation.new(coupled, duration: 1000)
+simulation = Quartz::Simulation.new(coupled, duration: Quartz.duration(1000), scheduler: :binary_heap)
 simulation.simulate

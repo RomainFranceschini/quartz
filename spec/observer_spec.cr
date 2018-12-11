@@ -8,7 +8,7 @@ private class Bar
   include Observer
   getter calls : Int32 = 0
 
-  def update(observer)
+  def update(observer, info)
     @calls += 1
   end
 end

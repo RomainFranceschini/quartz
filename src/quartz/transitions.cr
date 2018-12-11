@@ -1,27 +1,7 @@
 module Quartz
   # This mixin provides models with several transition methods
-  # in line to the PDEVS functions definition (δext, δint, δcon, λ and ta) and
-  # the PDEVS variables (σ, e, t).
+  # in line to the PDEVS functions definition (δext, δint, δcon, λ and ta).
   module Transitions
-    @elapsed : SimulationTime
-    @sigma : SimulationTime
-    @time : SimulationTime
-
-    # This attribute is updated automatically along simulation and represents
-    # the elapsed time since the last transition.
-    property elapsed = 0.0
-
-    # This attribute is updated along with simulation clock and
-    # represent the last simulation time at which this model
-    # was activated. Its default assigned value is -INFINITY.
-    property time = -INFINITY
-
-    # Sigma (σ) is a convenient variable introduced to simplify modeling phase
-    # and represent the next activation time (see `#time_advance`)
-    getter sigma = INFINITY
-
-    # PDEVS functions
-
     # The external transition function (δext)
     #
     # Override this method to implement the appropriate behavior of
@@ -78,7 +58,7 @@ module Quartz
     #   self.sigma
     # end
     # ```
-    def time_advance : SimulationTime
+    def time_advance : Duration
       @sigma
     end
 

@@ -15,6 +15,8 @@ module Quartz
 
   class InvalidProcessorError < Exception; end
 
+  class InvalidDurationError < Exception; end
+
   class StrictVerificationFailed < Exception
     getter verification_errors : VerificationErrors
 

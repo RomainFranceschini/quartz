@@ -1,6 +1,6 @@
 module Quartz
   module Simulable
-    abstract def initialize_state(time : SimulationTime) : SimulationTime
-    abstract def step(time : SimulationTime) : SimulationTime
+    abstract def initialize_state(time : TimePoint) : Duration
+    abstract def step(elapsed : Duration) : Duration
   end
 end

@@ -7,7 +7,7 @@ module Quartz
   #
   # To avoid O(n) complexity when deleting an arbitrary element, a map is
   # used to store indices for each element in the event set.
-  class BinaryHeap(T) < EventSet(T)
+  class BinaryHeap(T) < PriorityQueue(T)
     private DEFAULT_CAPACITY = 32
 
     # Returns the number of elements in the heap.
@@ -16,29 +16,31 @@ module Quartz
     @capacity : Int32
 
     # Creates a new empty BinaryHeap.
-    def initialize
+    def initialize(&comparator : Duration, Duration, Bool -> Int32)
+      @comparator = comparator
       @size = 0
       @capacity = DEFAULT_CAPACITY
-      @heap = Pointer(T).malloc(@capacity)
+      @heap = Pointer(Tuple(Duration, T)).malloc(@capacity)
       @cache = Hash(T, Int32).new
     end
 
-    def initialize(initial_capacity : Int)
+    def initialize(initial_capacity : Int, &comparator : Duration, Duration, Bool -> Int32)
       if initial_capacity < 0
         raise ArgumentError.new "Negative array size: #{initial_capacity}"
       end
 
+      @comparator = comparator
       @size = 0
       @capacity = initial_capacity.to_i
       if initial_capacity == 0
-        @heap = Pointer(T).null
+        @heap = Pointer(Tuple(Duration, T)).null
       else
-        @heap = Pointer(T).malloc(initial_capacity)
+        @heap = Pointer(Tuple(Duration, T)).malloc(initial_capacity)
       end
       @cache = Hash(T, Int32).new
     end
 
-    def empty?
+    def empty? : Bool
       @size == 0
     end
 
@@ -49,42 +51,50 @@ module Quartz
       self
     end
 
-    def peek?
+    def peek? : T?
       peek { nil }
     end
 
-    def peek
+    def peek : T
       peek { raise "heap is empty." }
     end
 
     def peek
-      @size == 0 ? yield : @heap[1]
+      @size == 0 ? yield : @heap[1][1]
     end
 
-    def pop
+    def next_priority : Duration
+      next_priority { raise "heap is empty." }
+    end
+
+    def next_priority
+      @size == 0 ? yield : @heap[1][0]
+    end
+
+    def pop : T
       if @size == 0
         raise "heap is empty."
       else
-        delete_at(1)
+        delete_at(1)[1]
       end
     end
 
-    def to_slice
+    def to_slice : Slice(Tuple(Duration, T))
       (@heap + 1).to_slice(@size)
     end
 
-    def to_a
-      Array(T).build(@size) do |pointer|
+    def to_a : Array(Tuple(Duration, T))
+      Array(Tuple(Duration, T)).build(@size) do |pointer|
         pointer.copy_from(@heap + 1, @size)
         @size
       end
     end
 
-    def ==(other : BinaryHeap)
+    def ==(other : BinaryHeap) : Bool
       size == other.size && to_slice == other.to_slice
     end
 
-    def ==(other)
+    def ==(other) : Bool
       false
     end
 
@@ -94,22 +104,22 @@ module Quartz
       nil
     end
 
-    def delete(e)
+    def delete(priority : Duration, event : T) : T?
       raise "heap is empty" if @size == 0
-      index = @cache[e]
-      @cache[e] = 0
-      deleted = delete_at(index)
+      index = @cache[event]
+      @cache[event] = -1
+      delete_at(index)[1]
     end
 
-    private def delete_at(index)
+    private def delete_at(index) : {Duration, T}
       value = @heap[index]
       @size -= 1
 
       if index <= @size
         @heap[index] = @heap[@size + 1]
-        @cache[@heap[index]] = index
+        @cache[@heap[index][1]] = index
 
-        if index > 1 && @heap[index].time_next < @heap[index >> 1].time_next
+        if index > 1 && @comparator.call(@heap[index][0], @heap[index >> 1][0], false) < 0
           sift_up!(index)
         else
           sift_down!(index)
@@ -119,11 +129,11 @@ module Quartz
       value
     end
 
-    def push(e)
+    def push(priority : Duration, value : T) : self
       @size += 1
       check_needs_resize
-      @heap[@size] = e
-      @cache[e] = @size
+      @heap[@size] = {priority, value}
+      @cache[value] = @size
       sift_up!(@size)
       self
     end
@@ -136,14 +146,14 @@ module Quartz
         right = left + 1
         min = left
 
-        if right <= @size && @heap[right].time_next < @heap[left].time_next
+        if right <= @size && @comparator.call(@heap[right][0], @heap[left][0], false) < 0
           min = right
         end
 
-        if @heap[min].time_next < @heap[index].time_next
+        if @comparator.call(@heap[min][0], @heap[index][0], false) < 0
           @heap[index], @heap[min] = @heap[min], @heap[index]
-          @cache[@heap[index]] = index
-          @cache[@heap[min]] = min
+          @cache[@heap[index][1]] = index
+          @cache[@heap[min][1]] = min
           index = min
         else
           break
@@ -153,10 +163,10 @@ module Quartz
 
     private def sift_up!(index)
       p = index >> 1
-      while p > 0 && @heap[index].time_next < @heap[p].time_next
+      while p > 0 && @comparator.call(@heap[index][0], @heap[p][0], false) < 0
         @heap[p], @heap[index] = @heap[index], @heap[p]
-        @cache[@heap[p]] = p
-        @cache[@heap[index]] = index
+        @cache[@heap[p][1]] = p
+        @cache[@heap[index][1]] = index
         index = p
         p = index >> 1
       end
@@ -183,7 +193,7 @@ module Quartz
       if @heap
         @heap = @heap.realloc(@capacity)
       else
-        @heap = Pointer(T).malloc(@capacity)
+        @heap = Pointer({Duration, T}).malloc(@capacity)
       end
     end
   end

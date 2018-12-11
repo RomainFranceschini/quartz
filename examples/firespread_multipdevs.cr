@@ -10,10 +10,11 @@ class HeatCell < Quartz::MultiComponent::Component
   TMP_DIFF   = T_AMBIENT
 
   state_var temperature : Float32 = T_AMBIENT
-  state_var ignite_time : Quartz::SimulationTime = Quartz::INFINITY
+  state_var ignite_time : Float64 = Float64::INFINITY
   state_var phase : Symbol = :inactive
   state_var old_temp : Float32 = T_AMBIENT
   state_var surrounding_temps : Hash(Quartz::Name, Float32) = Hash(Quartz::Name, Float32).new(default_value: T_AMBIENT.to_f32)
+  state_var time : Float64 = 0.0
 
   getter x : Int32 = 0
   getter y : Int32 = 0
@@ -39,9 +40,9 @@ class HeatCell < Quartz::MultiComponent::Component
   def time_advance
     case @phase
     when :inactive, :burned
-      Quartz::INFINITY
+      Quartz::Duration::INFINITY
     else # when :unburned, :burning
-      1
+      Quartz.duration(1)
     end
   end
 
@@ -59,7 +60,7 @@ class HeatCell < Quartz::MultiComponent::Component
       new_old_temp = @temperature
     end
 
-    ct = @time + self.time_advance
+    ct = @time + self.time_advance.to_f
 
     new_temp = case @phase
                when :burning
@@ -78,7 +79,8 @@ class HeatCell < Quartz::MultiComponent::Component
       temperature: new_temp.to_f32,
       phase: n_phase,
       ignite_time: new_ignite_time || @ignite_time,
-      surrounding_temps: @surrounding_temps
+      surrounding_temps: @surrounding_temps,
+      time: time
     )
 
     proposed_states.unsafe_assoc(self.name, Quartz::Any.new(nstate))
@@ -177,7 +179,7 @@ class Consolify
     model.add_observer(self)
   end
 
-  def update(model)
+  def update(model, info)
     if model.is_a?(HeatMultiPDEVS)
       model = model.as(HeatMultiPDEVS)
       puts CLR
@@ -199,7 +201,7 @@ class Consolify
         print "\n"
         i += 1
       end
-      print "\n\nt=#{@sim.time}\n"
+      print "\n\nt=#{info[:time]}\n"
       STDOUT.flush
 
       sleep 0.01
@@ -213,7 +215,7 @@ CLI = true
 if ARGV.size == 1
   filepath = ARGV.first
   model = HeatMultiPDEVS.new(:heat, filepath)
-  simulation = Quartz::Simulation.new(model, duration: 600)
+  simulation = Quartz::Simulation.new(model, duration: Quartz::Duration.new(600))
   c = Consolify.new(model, simulation) if CLI
   simulation.simulate
 else

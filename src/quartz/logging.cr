@@ -42,9 +42,9 @@ module Quartz
       io = IO::Memory.new
 
       io.print "%-*s" % {padding_size, "#{label}:"} unless delay
-      time = Time.now
+      start = Time.monotonic
       value = yield
-      elapsed_time = Time.now - time
+      elapsed_time = Time.monotonic - start
       io.print "%-*s" % {padding_size, "#{label}:"} if delay
       if display_memory
         heap_size = GC.stats.heap_size

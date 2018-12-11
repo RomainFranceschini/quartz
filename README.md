@@ -4,8 +4,7 @@
 
 Quartz is a Crystal library for defining models and constructing discrete
 event simulations based on the PDEVS (Parallel Discrete EVent System Specification) and
-some of its extensions (DSDE, multiPDEVS). Its a Crystal port of
-[DEVS-Ruby](https://github.com/devs-ruby)
+some of its extensions (DSDE, multiPDEVS).
 
 This project is developed by a research group at University of Corsica, which
 also maintains another M&S environment :
@@ -17,7 +16,7 @@ This project is a **work in progress** and is in alpha stage.
 
 ## Installation
 
-### Requirements 
+### Requirements
 
 * Crystal. Please refer to <http://crystal-lang.org/docs/installation> for
   instructions for your operating system.
@@ -39,7 +38,7 @@ Replace the version *0.1.0* with the actual version of Quartz you wish to use.
 Then, resolve dependencies with shards (Crystal dependency manager) to install Quartz and its requirements as a dependency of your project:
 
 ```
-$ crystal deps
+$ shards install
 ```
 
 ### Usage
@@ -55,7 +54,7 @@ class LotkaVolterra < Quartz::AtomicModel
   state_var gamma : Float64 = 2.1     # predator mortality rate
   state_var delta : Float64 = 1.4     # predator per prey reproduction rate
 
-  @sigma = 0.0001                     # euler integration
+  @sigma = Duration.new(10, Scale::MICRO) # euler integration
 
   def internal_transition
     dxdt = ((@x * @alpha) - (@beta * @x * @y))
@@ -67,7 +66,7 @@ class LotkaVolterra < Quartz::AtomicModel
 end
 
 model = LotkaVolterra.new(:lotka)
-sim = Quartz::Simulation.new(model, duration: 20)
+sim = Quartz::Simulation.new(model, duration: Quartz.duration(20))
 sim.simulate
 ```
 
@@ -87,47 +86,6 @@ See the [examples](examples) folder.
 - Resolves dependencies (`cd quartz; crystal deps`).
 - Run specs (`crystal spec`).
 - Build examples (`crystal build examples/*.cr`)/
-
-## Development
-
-TODO List:
-- Supported formalisms
-  - [x] Parallel DEVS
-  - [x] DSDE
-  - [x] MultiPDEVS
-  - [ ] CellDEVS
-  - [ ] QSS
-- Features
-  - [x] Port observers
-  - [x] Transition observers
-  - [x] Simulation hooks
-  - [x] Hierarchy flattening
-  - [x] Graphviz output of coupled structure
-  - [x] Class-level definition of ports (through macros)
-  - [x] Model serialization
-  - [x] Model runtime validation (WIP)
-  - [x] Logging
-  - [ ] Internal DSL
-  - [x] Scheduler hint
-- Distributed simulations
-  - [x] MPI bindings (WIP, see [mpi.cr](https://github.com/rumenzu/mpi.cr) repository)
-  - [ ] Optimistic simulators
-  - [ ] Conservative simulators
-- Schedulers
-  - [x] Calendar queue
-  - [x] Ladder queue
-  - [ ] Binary heap
-  - [ ] Splay tree
-- Documentation
-  - Better documentation
-- Tests
-  - Better test coverage
-- Debug schedulers and introduce better meta-model
-- Better virtual time representation
-
-## Differences with [DEVS-Ruby](https://github.com/devs-ruby)
-
-Classic DEVS is not supported.
 
 ## Alternatives
 

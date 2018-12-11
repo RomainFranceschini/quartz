@@ -1,26 +1,14 @@
 module Quartz
   # The `Observer` module is intended to be included in a class as a mixin.
   # It provides a protocol so that objects can register to `Observable` objects
-  # and receives their updates.
+  # and receives their updates, along with additional optional information.
   #
   # Observers must define an `#update` method.
   module Observer
     # This method is called whenever the observed object (*observable*) is
-    # changed.
-    abstract def update(observable : Observable)
-  end
-
-  # The `ObserverWithInfo` module is intended to be included in a class as a
-  # mixin.
-  # It provides a protocol so that objects can register to `Observable` objects
-  # and receives their updates, along with additional information.
-  #
-  # Observers must define an `#update` method.
-  module ObserverWithInfo
-    # This method is called whenever the observed object (*observable*) is
     # changed. A dictionary representing additional information, *info*,
-    # may be available.
-    abstract def update(observable : Observable, info : Hash(Symbol, Any))
+    # may be available, or `nil` otherwise.
+    abstract def update(observable : Observable, info)
   end
 
   # The Observer pattern (publish/subscribe) provides a simple mechanism for
@@ -31,8 +19,8 @@ module Quartz
   # methods for managing the associated observer objects.
   # The observable object must call `#notify_observers` to notify its observers.
   #
-  # An observer object must conforms to the `Observer` or the `ObserverWithInfo`
-  # protocol. It subscribes to updates using `#add_observer`.
+  # An observer object must conforms to the `Observer` protocol. It subscribes
+  # to updates using `#add_observer`.
   #
   # Example 1: Observing model state changes
   #
@@ -40,7 +28,7 @@ module Quartz
   # class MyObserver
   #   include Quartz::Observer
   #
-  #   def update(observable)
+  #   def update(observable, info)
   #     if observable.is_a?(MyModel)
   #       model = observable.as(MyModel)
   #       puts "#{model.name} changed its state to #{model.phase}"
@@ -57,7 +45,7 @@ module Quartz
   #
   # ```
   # class MyObserver
-  #   include Quartz::ObserverWithInfo
+  #   include Quartz::Observer
   #
   #   def update(observable, info)
   #     if observable.is_a?(Port) && info
@@ -71,18 +59,18 @@ module Quartz
   # Quartz::Simulation.new(model).simulate
   # ```
   module Observable
-    @observers : Array(Observer | ObserverWithInfo)?
+    @observers : Array(Observer)?
 
     # Adds *observer* to the list of observers so that it will receive future
     # updates.
-    def add_observer(observer : Observer | ObserverWithInfo)
-      @observers ||= [] of (Observer | ObserverWithInfo)
+    def add_observer(observer : Observer)
+      @observers ||= [] of (Observer)
       @observers.not_nil! << observer
     end
 
     # Removes *observer* from the list of observers so that it will no longer
     # receive updates.
-    def delete_observer(observer : Observer | ObserverWithInfo) : Bool
+    def delete_observer(observer : Observer) : Bool
       @observers.try(&.delete(observer)) != nil
     end
 
@@ -96,14 +84,10 @@ module Quartz
     end
 
     # Notifies observers of a change in state. A dictionary, *info*, can be
-    # passed to observers that conforms to the `ObserverWithInfo` protocol.
-    def notify_observers(info : Hash(Symbol, Any)? = nil)
+    # passed to observers that conforms to the `Observer` protocol.
+    def notify_observers(info = nil)
       @observers.try &.each do |observer|
-        if observer.is_a?(Observer)
-          observer.update(self)
-        else
-          observer.update(self, info)
-        end
+        observer.update(self, info)
       end
     end
   end

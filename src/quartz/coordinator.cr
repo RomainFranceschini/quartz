@@ -4,15 +4,17 @@ module Quartz
   class Coordinator < Processor
     getter children
 
-    @scheduler : EventSet(Processor)
+    @event_set : EventSet(Processor)
+    @time_cache : TimeCache(Processor)
 
     # Returns a new instance of Coordinator
     def initialize(model : Model, simulation : Simulation)
       super(model)
 
       @children = Array(Processor).new
-      scheduler_type = model.class.preferred_event_set? || simulation.default_scheduler
-      @scheduler = EventSet(Processor).new(scheduler_type)
+      priority_queue = model.class.preferred_event_set? || simulation.default_scheduler
+      @event_set = EventSet(Processor).new(priority_queue)
+      @time_cache = TimeCache(Processor).new(@event_set.current_time)
       @synchronize = Array(Processor).new
       @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
@@ -20,11 +22,11 @@ module Quartz
     end
 
     def inspect(io)
-      io << "<" << self.class.name << "tn=" << @time_next.to_s(io)
-      io << ", tl=" << @time_last.to_s(io)
-      io << ", components=" << @children.size.to_s(io)
+      io << "<" << self.class.name << "tn="
+      @event_set.imminent_duration.to_s(io)
+      io << ", components="
+      @children.size.to_s(io)
       io << ">"
-      nil
     end
 
     # Append given *child* to `#children` list, ensuring that the child now has
@@ -41,60 +43,60 @@ module Quartz
 
     # Deletes the specified child from `#children` list
     def remove_child(child)
-      @scheduler.delete(child)
+      @event_set.delete(child)
       idx = @children.index { |x| child.equal?(x) }
       @children.delete_at(idx).parent = nil if idx
     end
 
-    # Returns the minimum time next in all children
-    protected def min_time_next
-      @scheduler.next_priority
-    end
+    def initialize_processor(time : TimePoint) : {Duration, Duration}
+      @event_set.clear
+      @time_cache.current_time = @event_set.current_time
 
-    # Returns the maximum time last in all children
-    protected def max_time_last
-      @children.reduce(-INFINITY) { |memo, child| Math.max(memo, child.time_last) }
-    end
+      @event_set.advance until: time
 
-    def initialize_processor(time)
-      min = Quartz::INFINITY
-      selected = Array(Processor).new
+      min_planned_duration = Duration::INFINITY
+      max_elapsed = Duration.new(0)
 
       @children.each do |child|
-        tn = child.initialize_processor(time)
-        selected.push(child) if tn < Quartz::INFINITY
-        min = tn if tn < min
+        elapsed, planned_duration = child.initialize_processor(time)
+        @time_cache.retain_event(child, elapsed)
+        if !planned_duration.infinite?
+          @event_set.plan_event(child, planned_duration)
+        else
+          child.planned_phase = planned_duration
+        end
+        min_planned_duration = planned_duration if planned_duration < min_planned_duration
+        max_elapsed = elapsed if elapsed > max_elapsed
       end
 
-      @scheduler.clear
-      list = @scheduler.is_a?(RescheduleEventSet) ? @children : selected
-      list.each { |c| @scheduler << c }
+      coupled = @model.as(CoupledModel)
+      if coupled.count_observers > 0
+        coupled.notify_observers(OBS_INFO_INIT_PHASE.merge({:time => time}))
+      end
 
-      @model.as(CoupledModel).notify_observers(OBS_INFO_INIT_PHASE)
-
-      @time_last = max_time_last
-      @time_next = min
+      {max_elapsed.fixed, min_planned_duration.fixed}
     end
 
-    def collect_outputs(time)
-      if time != @time_next
-        raise BadSynchronisationError.new("\ttime: #{time} should match time_next: #{@time_next}")
-      end
-      @time_last = time
+    def collect_outputs(elapsed : Duration)
+      @event_set.advance by: elapsed
 
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
 
-      @scheduler.each_imminent(time) do |child|
-        output = child.collect_outputs(time)
+      @event_set.each_imminent_event do |child|
+        output = child.collect_outputs(elapsed)
 
         output.each do |port, payload|
           if child.is_a?(Simulator) && port.count_observers > 0
-            port.notify_observers({:payload => payload.as(Any)})
+            port.notify_observers({
+              :payload => payload.as(Any),
+              :time    => @event_set.current_time,
+              :elapsed => elapsed,
+            })
           end
 
           # check internal coupling to get children who receive sub-bag of y
-          coupled.each_internal_coupling(port) do |src, dst|
+          coupled.each_internal_coupling(port) do |_, dst|
             receiver = dst.host.processor
 
             if !receiver.sync
@@ -110,7 +112,7 @@ module Quartz
           end
 
           # check external coupling to form sub-bag of parent output
-          coupled.each_output_coupling(port) do |src, dst|
+          coupled.each_output_coupling(port) do |_, dst|
             if child.is_a?(Coordinator)
               @parent_bag[dst].concat(payload.as(Array(Any)))
             else
@@ -125,17 +127,47 @@ module Quartz
         end
       end
 
-      coupled.notify_observers(OBS_INFO_COLLECT_PHASE)
+      if coupled.count_observers > 0
+        coupled.notify_observers(OBS_INFO_COLLECT_PHASE.merge({
+          :time    => @event_set.current_time,
+          :elapsed => elapsed,
+        }))
+      end
 
       @parent_bag
     end
 
-    def perform_transitions(time)
+    def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
+      self.handle_external_inputs(time)
+
+      @synchronize.each do |receiver|
+        perform_transition_for(receiver, time)
+      end
+
+      bag.clear
+      @synchronize.clear
+
+      coupled = @model.as(CoupledModel)
+      if coupled.count_observers > 0
+        coupled.notify_observers(OBS_INFO_TRANSITIONS_PHASE.merge({
+          :time    => time,
+          :elapsed => elapsed,
+        }))
+      end
+
+      @event_set.imminent_duration.fixed
+    end
+
+    protected def handle_external_inputs(time : TimePoint)
       bag = @bag || EMPTY_BAG
+
+      if @event_set.current_time < time && !bag.empty?
+        @event_set.advance until: time
+      end
 
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y
-        @model.as(CoupledModel).each_input_coupling(port) do |src, dst|
+        @model.as(CoupledModel).each_input_coupling(port) do |_, dst|
           receiver = dst.host.processor
 
           if !receiver.sync
@@ -146,57 +178,46 @@ module Quartz
           receiver.bag[dst].concat(sub_bag)
         end
       end
+    end
 
-      @synchronize.each do |receiver|
-        receiver.sync = false
+    protected def perform_transition_for(receiver : Processor, time : TimePoint)
+      receiver.sync = false
+      elapsed_duration = @time_cache.elapsed_duration_of(receiver)
 
-        if @scheduler.is_a?(RescheduleEventSet)
-          receiver.perform_transitions(time)
-        elsif @scheduler.is_a?(LadderQueue)
-          # Special case for the ladder queue
+      remaining_duration = @event_set.duration_of(receiver)
 
-          tn = receiver.time_next
-          # Before trying to cancel a receiver, test if time is not strictly
-          # equal to its tn. If true, it means that its model will
-          # receiver either an internal transition or a confluent transition,
-          # and that the receiver is no longer in the scheduler.
-          is_in_scheduler = tn < Quartz::INFINITY && time != tn
-          if is_in_scheduler
-            # The ladder queue might successfully delete the event if it is
-            # stored in the *ladder* tier, but is allowed to return nil since
-            # deletion strategy is based on event invalidation.
-            if @scheduler.delete(receiver)
-              is_in_scheduler = false
-            end
-          end
-          new_tn = receiver.perform_transitions(time)
+      # before trying to cancel a receiver, test if time is not strictly
+      # equal to its time_next. If true, it means that its model will
+      # receiver either an internal transition or a confluent transition,
+      # and that the receiver is no longer in the scheduler.
+      ev_deleted = if remaining_duration.zero?
+                     elapsed_duration = Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+                     true
+                   elsif !remaining_duration.infinite?
+                     # Priority queues with an event invalidation strategy may return
+                     # nil when trying to cancel a specific event.
+                     # For example, the ladder queue might successfully delete an event if
+                     # it is stored in the ladder tier, but not always.
+                     @event_set.cancel_event(receiver) != nil
+                   else
+                     true
+                   end
 
-          # No need to reschedule the event if its tn is equal to INFINITY.
-          # If a ta(s)=0 occured and that the old event is still present in
-          # the ladder queue, we don't need to reschedule it either.
-          if new_tn < Quartz::INFINITY && (!is_in_scheduler || (new_tn > tn && is_in_scheduler))
-            @scheduler.push(receiver)
-          end
-        else
-          tn = receiver.time_next
-          # before trying to cancel a receiver, test if time is not strictly
-          # equal to its time_next. If true, it means that its model will
-          # receiver either an internal transition or a confluent transition,
-          # and that the receiver is no longer in the scheduler.
-          @scheduler.delete(receiver) if tn < Quartz::INFINITY && time != tn
-          tn = receiver.perform_transitions(time)
-          @scheduler.push(receiver) if tn < Quartz::INFINITY
+      planned_duration = receiver.perform_transitions(time, elapsed_duration)
+
+      # No need to reschedule the event if its planned duration is infinite.
+      if planned_duration.infinite?
+        receiver.planned_phase = Duration::INFINITY.fixed
+      else
+        # If a ta(s)=0 occured and the event was not properly deleted,
+        # we don't need to reschedule it. This check is done for priority
+        # queues with invalidation strategy.
+        if ev_deleted || (!ev_deleted && !planned_duration.zero?)
+          @event_set.plan_event(receiver, planned_duration)
         end
       end
 
-      @scheduler.reschedule! if @scheduler.is_a?(RescheduleEventSet)
-      bag.clear
-      @synchronize.clear
-
-      @model.as(CoupledModel).notify_observers(OBS_INFO_TRANSITIONS_PHASE)
-
-      @time_last = time
-      @time_next = min_time_next
+      @time_cache.retain_event(receiver, planned_duration.precision)
     end
   end
 end
