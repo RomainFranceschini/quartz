@@ -4,7 +4,7 @@ private module PrecisionScenario
   class InvalidGenerator1 < Quartz::AtomicModel
     output :out
 
-    @precision = Quartz::Scale::MICRO
+    precision micro
     @sigma = Quartz::Duration.new(0)
 
     def internal_transition
@@ -19,7 +19,7 @@ private module PrecisionScenario
   class InvalidGenerator2 < Quartz::AtomicModel
     output :out
 
-    @precision = Quartz::Scale::MICRO
+    precision micro
     @sigma = Quartz::Duration.new(0)
 
     def internal_transition
@@ -34,7 +34,7 @@ private module PrecisionScenario
   class Generator < Quartz::AtomicModel
     output :out
 
-    @precision = Quartz::Scale::MICRO
+    precision micro
     @sigma = Quartz::Duration.new(100, Quartz::Scale::MILLI)
 
     def output
@@ -43,12 +43,12 @@ private module PrecisionScenario
   end
 
   class FineCollector < Quartz::AtomicModel
-    @precision = Quartz::Scale::NANO
+    precision nano
     input :in
   end
 
   class RoughCollector < Quartz::AtomicModel
-    @precision = Quartz::Scale::TERA
+    precision tera
     input :in
   end
 
@@ -85,7 +85,7 @@ private module PrecisionScenario
 
       sim.step # generator sends value collector receives value
 
-      col.elapsed.precision.should eq(col.precision)
+      col.elapsed.precision.should eq(col.model_precision)
       col.elapsed.should eq(Duration.new(100_000_000, Scale::NANO))
     end
 
@@ -101,7 +101,7 @@ private module PrecisionScenario
 
       sim.step # generator sends value collector receives value
 
-      col.elapsed.precision.should eq(col.precision)
+      col.elapsed.precision.should eq(col.model_precision)
       col.elapsed.should eq(Duration.new(0, Scale::TERA))
     end
   end

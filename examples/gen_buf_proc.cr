@@ -6,20 +6,20 @@ alias Duration = Quartz::Duration
 class Generator < Quartz::AtomicModel
   output :out
 
-  @precision = Quartz::Scale::MICRO
+  precision micro
 
   def initialize(name, @max : Int32)
     super(name)
 
-    @sigma = Duration.new(RND.rand(1i64..1000i64), @precision)
+    @sigma = Duration.new(RND.rand(1i64..1000i64), model_precision)
     @n = 0
   end
 
   def internal_transition
     @sigma = if @n < @max
-               Duration.new(RND.rand(1i64..1000i64), @precision).tap { @n += 1 }
+               Duration.new(RND.rand(1i64..1000i64), model_precision).tap { @n += 1 }
              else
-               Duration.infinity(@precision)
+               Duration.infinity(model_precision)
              end
   end
 
@@ -32,7 +32,7 @@ class Buffer < Quartz::AtomicModel
   input :in, :ready
   output :out
 
-  @precision = Quartz::Scale::MICRO
+  precision micro
 
   state_var nb_job : Int32 = 0
   state_var waiting : Bool = false
@@ -47,7 +47,7 @@ class Buffer < Quartz::AtomicModel
     end
 
     if !@waiting && @nb_job > 0
-      @sigma = Duration.new(5, @precision)
+      @sigma = Duration.new(5, model_precision)
     end
   end
 
@@ -71,10 +71,10 @@ class CPU < Quartz::AtomicModel
   input :task
   output :done
 
-  @precision = Quartz::Scale::NANO
+  precision nano
 
   def external_transition(bag)
-    @sigma = Duration.new(RND.rand(3i64..1000i64**4), @precision)
+    @sigma = Duration.new(RND.rand(3i64..1000i64**4), model_precision)
   end
 
   def output
@@ -82,7 +82,7 @@ class CPU < Quartz::AtomicModel
   end
 
   def internal_transition
-    @sigma = Duration.infinity(@precision)
+    @sigma = Duration.infinity(model_precision)
   end
 end
 

@@ -105,10 +105,10 @@ module Quartz
 
       bag.clear
       planned_duration = atomic.time_advance
-      fixed_planned_duration = planned_duration.fixed_at(atomic.precision)
+      fixed_planned_duration = planned_duration.fixed_at(atomic.class.precision)
       if !planned_duration.infinite? && fixed_planned_duration.infinite?
-        raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, atomic.precision)} given its precision level.")
-      elsif planned_duration.precision < atomic.precision
+        raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, atomic.class.precision)} given its precision level.")
+      elsif planned_duration.precision < atomic.class.precision
         raise InvalidDurationError.new("'#{atomic.name}': planned duration #{planned_duration} is rounded to #{fixed_planned_duration} due to the model precision level.")
       end
 

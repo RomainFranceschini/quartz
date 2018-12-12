@@ -4,7 +4,7 @@ class LotkaVolterra < Quartz::AtomicModel
   state_var x : Float64 = 1.0
   state_var y : Float64 = 1.0
 
-  @precision = Quartz::Scale::NANO
+  precision nano
 
   state_var alpha : Float64 = 5.2 # prey reproduction rate
   state_var beta : Float64 = 3.4  # predator per prey mortality rate

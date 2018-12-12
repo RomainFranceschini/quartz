@@ -330,7 +330,7 @@ module Quartz
     end
   end
 
-  private ALLOWED_UNITS = [
+  ALLOWED_SCALE_UNITS = [
     "yocto", "zepto", "atto", "femto", "pico", "nano", "micro", "milli", "base",
     "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta",
   ]
@@ -359,7 +359,7 @@ module Quartz
   # duration(2, :kilo)
   # ```
   macro duration(length, unit = "base")
-    {% if ALLOWED_UNITS.includes?(unit.id.stringify) %}
+    {% if ALLOWED_SCALE_UNITS.includes?(unit.id.stringify) %}
       Quartz::Duration.new({{length}}, Quartz::Scale::{{ unit.id.upcase }})
     {% else %}
       Quartz::Duration.new({{length}}, {{unit}})
