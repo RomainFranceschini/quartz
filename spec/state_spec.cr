@@ -21,7 +21,7 @@ end
 private struct UnionStateVar
   include AutoState
 
-  state_var str_or_int : String|Int32 = 0
+  state_var str_or_int : String | Int32 = 0
 end
 
 private struct AfterInitialize
@@ -75,7 +75,7 @@ private class Point3d < Point2d
   state_var z : Int32 = 0
 
   def xyz
-    { @x, @y, @z }
+    {@x, @y, @z}
   end
 end
 
@@ -85,7 +85,26 @@ private struct DependentStateVars
   state_var x : Int32 = 0
   state_var y : Int32 = 0
 
-  state_var pos : Tuple(Int32,Int32) { Tuple.new(x, y) }
+  state_var pos : Tuple(Int32, Int32) { Tuple.new(x, y) }
+end
+
+private struct OverwritePreviousStateVarDef
+  include AutoState
+
+  state_var x : Int16, visibility: :private
+  state_var x : Int32 = 42, visibility: :public
+
+  state_var y : Int16
+  state_var y = 32
+end
+
+private abstract struct BaseSigmaModel
+  include AutoState
+  state_var sigma : Duration = Duration::INFINITY
+end
+
+private struct MySigmaModel < BaseSigmaModel
+  state_var sigma = Duration.new(85, Scale::MILLI)
 end
 
 private struct RedefineConstructor
@@ -168,17 +187,17 @@ describe "AutoState" do
 
     it "to_tuple" do
       s = SomeModel::State.new
-      s.to_tuple.should eq({ 42, "foo", false })
+      s.to_tuple.should eq({42, "foo", false})
     end
 
     it "to_named_tuple" do
       s = SomeModel::State.new
-      s.to_named_tuple.should eq({ a: 42, b: "foo", c: false })
+      s.to_named_tuple.should eq({a: 42, b: "foo", c: false})
     end
 
     it "to_hash" do
       s = SomeModel::State.new
-      s.to_hash.should eq({ :a => 42, :b => "foo", :c => false })
+      s.to_hash.should eq({:a => 42, :b => "foo", :c => false})
     end
 
     describe "serialization" do
@@ -214,6 +233,22 @@ describe "AutoState" do
     end
   end
 
+  context "with multiple state_var expressions" do
+    it "last call overwrites properties" do
+      s = OverwritePreviousStateVarDef.new
+      s.responds_to?(:x).should be_true
+      s.x.should eq 42
+      s.x.class.should eq(Int32)
+    end
+
+    it "inherits previous definitions" do
+      s = OverwritePreviousStateVarDef.new
+      s.responds_to?(:y).should be_true
+      s.y.class.should eq(Int16)
+      s.y.should eq(32)
+    end
+  end
+
   context "inheritance" do
     it do
       m = Point2d.new
@@ -230,7 +265,7 @@ describe "AutoState" do
       m.x.should eq 0
       m.y.should eq 0
       m.z.should eq 0
-      m.xyz.should eq({ 0, 0 ,0 })
+      m.xyz.should eq({0, 0, 0})
 
       s = Point3d::State.new(x: 1, y: 1, z: 1)
       s.x.should eq 1
@@ -248,6 +283,14 @@ describe "AutoState" do
       m = NoAfterInitializeChild.new("foo")
       m.@name.should eq "foo"
       m.@test.should eq 42
+    end
+
+    context "with multiple state_var expressions" do
+      it "state_var overwrites existing variables" do
+        s = MySigmaModel.new
+        s.responds_to?(:sigma).should be_true
+        s.sigma.should eq(Duration.new(85, Scale::MILLI))
+      end
     end
   end
 

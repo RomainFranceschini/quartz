@@ -1,5 +1,4 @@
 module Quartz
-
   # A base struct that wraps the state of a model. Automatically extended by
   # models through use of the `state_var` macro.
   abstract struct State
@@ -44,7 +43,6 @@ module Quartz
   end
 
   module AutoState
-
     macro included
       {% if !@type.constant :STATE_VARIABLES %}
         private STATE_VARIABLES = [] of Nil
@@ -102,6 +100,33 @@ module Quartz
       #   end
       # end
       # ```
+      #
+      # Multiple calls to `state_var` for the same variable is allowed. Previous
+      # properties are inherited and overlapping propertings are overwritten.
+      # The following example :
+      #
+      # ```
+      # class MyModel < AtomicModel
+      #   state_var sigma : Duration = Duration::INFINITY
+      #   state_var sigma { Duration.infinity(self.class.precision) }
+      # end
+      # ```
+      #
+      # Defines the *sigma* state variable as a `Duration` type with a default
+      # value determined by the initialization block.
+      #
+      # This is particularly useful in case a model inherits another model :
+      #
+      # ```
+      # class BaseModel < AtomicModel
+      #   state_var sigma : Duration = Duration::INFINITY
+      # end
+      #
+      # class MyModel < BaseModel
+      #   state_var sigma = Quartz.duration(85, milli)
+      # end
+      # ```
+      #
       #
       # All `initialize` methods defined in the included type and its subclasses
       # will be redefined to include the body of the given block.
@@ -161,11 +186,25 @@ module Quartz
       #
       # When the type definition is complete, a struct wrapping all state
       # variables is defined for convenience.
-      macro state_var(prop, **opts, &block)
+      macro state_var(prop, **nopts, &block)
+        \{% index = STATE_VARIABLES.size %}
+        \{% opts = nopts %}
+        \{% for var, i in STATE_VARIABLES %}
+            \{% if (prop.is_a?(TypeDeclaration) && var[:name].id == prop.var.id) || (prop.is_a?(Assign) && var[:name].id == prop.target.id) %}
+              \{% index = i
+                opts = var
+                opts[:visibility] = nopts[:visibility]
+                opts[:converter] = nopts[:converter] %}
+            \{% end %}
+        \{% end %}
         \{%
-          opts[:name] = prop.var
           if prop.is_a?(TypeDeclaration)
+            opts[:name] = prop.var
             opts[:type] = prop.type
+          end
+        %}
+        \{%
+          if prop.is_a?(TypeDeclaration) || (prop.is_a?(Assign) && opts[:type] != nil)
             if block
               opts[:value] = block
             elsif prop.value.is_a?(Nop)
@@ -176,10 +215,18 @@ module Quartz
           else
             raise "a type declaration must be specified to declare a `state_var`"
           end
-          if opts[:visibility] == nil
+        %}
+        \{%
+          if opts[:visibility] == nil || opts[:visibility].id.stringify == "public"
             opts[:visibility] = ""
           end
-          STATE_VARIABLES << opts
+        %}
+        \{%
+          if index == STATE_VARIABLES.size
+            STATE_VARIABLES << opts
+          else
+            STATE_VARIABLES[index] = opts
+          end
         %}
       end
 
@@ -613,7 +660,7 @@ module Quartz
           include Quartz::AutoState
           \{% for x in STATE_VARIABLES %}
             \{% if x[:value].is_a?(Block) %}
-              state_var(\{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || ""}} \{{ x[:value] }})
+              state_var(\{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || ""}}) \{{ x[:value] }}
             \{% elsif x[:value] == nil %}
               state_var(\{{x[:name]}} : \{{x[:type]}}, visibility: \{{x[:visibility] || "" }})
             \{% else %}
@@ -622,8 +669,6 @@ module Quartz
           \{% end %}
         \{% end %}
       end
-
     end
   end
 end
-
