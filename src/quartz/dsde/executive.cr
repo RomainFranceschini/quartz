@@ -2,7 +2,6 @@ module Quartz
   module DSDE
     # FIXME
     class Executive < Quartz::AtomicModel
-      getter idle
       property network
 
       output :ack
@@ -10,13 +9,10 @@ module Quartz
         :add_input_port, :add_output_port, :remove_input_port,
         :remove_output_port
 
+      state_var phase : Symbol = :idle
+
       def initialize(name, @network : CoupledModel? = nil)
         super(name)
-      end
-
-      def confluent_transition(bag)
-        internal_transition
-        external_transition(bag)
       end
 
       def external_transition(bag)
@@ -62,11 +58,20 @@ module Quartz
           remove_model_from_network(req[:model].raw.as(Name))
         end
 
-        @sigma = Duration.new(0)
+        @phase = :answer
+      end
+
+      def time_advance
+        case phase
+        when :answer
+          Duration.zero(model_precision)
+        else
+          Duration.infinity(model_precision)
+        end
       end
 
       def internal_transition
-        @sigma = Duration::INFINITY
+        @phase = :idle
       end
 
       def output
@@ -80,35 +85,35 @@ module Quartz
       # TODO ports and couplings checks
       private def remove_model_from_network(model : Name)
         # TODO save transition stats ?
-        @network.not_nil!.remove_child(@network.not_nil![model])
+        @network.try { |n| n.remove_child(n[model]) }
       end
 
       protected def add_model_to_network(model : Coupleable)
-        @network.not_nil! << model
+        @network.try &.add_child(model)
       end
 
       protected def add_input_port_to_network(model : Name, port : Name)
-        @network.not_nil![model].as(Coupleable).add_input_port(port)
+        @network.try &.[model].as(Coupleable).add_input_port(port)
       end
 
       protected def add_output_port_to_network(model : Name, port : Name)
-        @network.not_nil![model].as(Coupleable).add_output_port(port)
+        @network.try &.[model].as(Coupleable).add_output_port(port)
       end
 
       protected def remove_input_port_from_network(model : Name, port : Name)
-        @network.not_nil![model].as(Coupleable).remove_input_port(port)
+        @network.try &.[model].as(Coupleable).remove_input_port(port)
       end
 
       protected def remove_output_port_from_network(model : Name, port : Name)
-        @network.not_nil![model].as(Coupleable).remove_output_port(port)
+        @network.try &.[model].as(Coupleable).remove_output_port(port)
       end
 
       protected def add_coupling_to_network(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name)
-        @network.not_nil!.attach(p1, to: p2, between: sender, and: receiver)
+        @network.try &.attach(p1, to: p2, between: sender, and: receiver)
       end
 
       protected def remove_coupling_from_network(p1 : Name, *, from p2 : Name, between sender : Name, and receiver : Name)
-        @network.not_nil!.detach(p1, from: p2, between: sender, and: receiver)
+        @network.try &.detach(p1, from: p2, between: sender, and: receiver)
       end
     end
   end

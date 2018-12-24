@@ -1,7 +1,6 @@
 require "../spec_helper"
 
 private module NegativeInitialTimeScenario
-
   class TestInitialElapsed < Quartz::AtomicModel
     getter output_calls : Int32 = 0
     getter internal_calls : Int32 = 0
@@ -10,6 +9,9 @@ private module NegativeInitialTimeScenario
 
     # Set the initial elapsed time to 4 so that initial time may be negative
     @elapsed = Duration.new(4)
+
+    def external_transition(bag)
+    end
 
     def time_advance
       @generated ? Duration::INFINITY : Duration.new(2)

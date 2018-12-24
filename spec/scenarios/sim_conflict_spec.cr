@@ -4,6 +4,8 @@ private module ConflictScenario
   class ConflictTestError < Exception; end
 
   class G < Quartz::AtomicModel
+    include PassiveBehavior
+
     def initialize(name)
       super(name)
       @sigma = Duration.new(1)
@@ -21,6 +23,10 @@ private module ConflictScenario
     def internal_transition
       @int_calls += 1
       @sigma = Duration::INFINITY
+    end
+
+    def time_advance
+      @sigma
     end
   end
 
@@ -55,6 +61,10 @@ private module ConflictScenario
 
     def output
       @output_calls += 1
+    end
+
+    def time_advance
+      @sigma
     end
   end
 

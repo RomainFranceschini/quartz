@@ -1,12 +1,16 @@
 require "./spec_helper"
 
-class MyCoupled < CoupledModel
+private class PassiveModel < AtomicModel
+  include PassiveBehavior
+end
+
+private class MyCoupled < CoupledModel
   def initialize(name)
     super(name)
 
-    self << AtomicModel.new("a")
-    self << AtomicModel.new("b")
-    self << AtomicModel.new("c")
+    self << PassiveModel.new("a")
+    self << PassiveModel.new("b")
+    self << PassiveModel.new("c")
   end
 end
 
@@ -59,7 +63,7 @@ describe "ProcessorAllocator" do
     root_coordinator = RootCoordinator.new(coupled, sim)
 
     visitor = ProcessorAllocator.new(sim, root_coordinator)
-    newcomer = AtomicModel.new("new")
+    newcomer = PassiveModel.new("new")
     coupled << newcomer
 
     visitor.accept(newcomer)

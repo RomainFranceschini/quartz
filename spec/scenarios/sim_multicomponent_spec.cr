@@ -2,6 +2,8 @@ require "../spec_helper"
 
 private module MultiPDEVSSimulation
   class Generator < Quartz::AtomicModel
+    include PassiveBehavior
+
     output :out
 
     @sigma = Duration.new(0)
@@ -12,6 +14,10 @@ private module MultiPDEVSSimulation
 
     def internal_transition
       @sigma = Duration.new(1)
+    end
+
+    def time_advance
+      @sigma
     end
   end
 
@@ -26,6 +32,10 @@ private module MultiPDEVSSimulation
       @time = @time.advance(by: Duration.new(1))
       @elapsed_values << @elapsed
       @internal_calls += 1
+      Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
+    end
+
+    def external_transition(bag)
       Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
     end
 

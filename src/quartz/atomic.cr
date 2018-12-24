@@ -1,14 +1,13 @@
 module Quartz
   # This class represent a PDEVS atomic model.
-  class AtomicModel < Model
+  abstract class AtomicModel < Model
     include Coupleable
-    include Transitions
     include Observable
     include Verifiable
     include AutoState
 
     # The precision associated with the model.
-    class_property precision : Scale = Scale::BASE
+    class_property precision_level : Scale = Scale::BASE
 
     # Defines the precision level associated to this class of models.
     #
@@ -56,44 +55,106 @@ module Quartz
     #
     # MyModel.precision = Scale::FEMTO
     # ```
-    macro precision(scale = "base")
+    private macro precision(scale = "base")
       {% if Quartz::ALLOWED_SCALE_UNITS.includes?(scale.id.stringify) %}
-        self.precision = Quartz::Scale::{{ scale.id.upcase }}
+        self.precision_level = Quartz::Scale::{{ scale.id.upcase }}
       {% elsif scale.is_a?(NumberLiteral) %}
-        self.precision = Quartz::Scale.new({{scale}})
+        self.precision_level = Quartz::Scale.new({{scale}})
       {% else %}
-        self.precision = {{scale}}
+        self.precision_level = {{scale}}
       {% end %}
     end
 
     # Returns the precision associated with the class.
     def model_precision : Scale
-      @@precision
+      @@precision_level
     end
 
     # This attribute is updated automatically along simulation and represents
     # the elapsed time since the last transition.
-    property elapsed : Duration = Duration.zero(@@precision)
-
-    # Sigma (σ) is a convenient variable introduced to simplify modeling phase
-    # and represent the next activation time (see `#time_advance`)
-    getter sigma : Duration = Duration.infinity(@@precision)
+    property elapsed : Duration = Duration.zero(@@precision_level)
 
     def initialize(name)
       super(name)
       @bag = SimpleHash(OutputPort, Any).new
-      @elapsed = @elapsed.rescale(@@precision)
-      @sigma = @sigma.rescale(@@precision)
+      @elapsed = @elapsed.rescale(@@precision_level)
     end
 
     def initialize(name, state)
       super(name)
       @bag = SimpleHash(OutputPort, Any).new
-      @elapsed = @elapsed.rescale(@@precision)
-      @sigma = @sigma.rescale(@@precision)
+      @elapsed = @elapsed.rescale(@@precision_level)
       self.initial_state = state
       self.state = state
     end
+
+    # The external transition function (δext)
+    #
+    # Override this method to implement the appropriate behavior of
+    # your model.
+    #
+    # Example:
+    # ```
+    # def external_transition(messages)
+    #   messages.each { |port, value|
+    #     puts "#{port} => #{value}"
+    #   }
+    # end
+    # ```
+    abstract def external_transition(messages : Hash(InputPort, Array(Any)))
+
+    # Internal transition function (δint), called when the model should be
+    # activated, e.g when `#elapsed` reaches `#time_advance`
+    #
+    # Override this method to implement the appropriate behavior of
+    # your model.
+    #
+    # Example:
+    # ```
+    # def internal_transition
+    #   self.phase = :steady
+    # end
+    # ```
+    abstract def internal_transition
+
+    # This is the default definition of the confluent transition. Here the
+    # internal transition is allowed to occur and this is followed by the
+    # effect of the external transition on the resulting state.
+    #
+    # Override this method to obtain a different behavior. For example, the
+    # opposite order of effects (external transition before internal
+    # transition). Of course you can override without reference to the other
+    # transitions.
+    def confluent_transition(messages : Hash(InputPort, Array(Any)))
+      internal_transition
+      external_transition(messages)
+    end
+
+    # Time advance function (ta), called after each transition to give a
+    # chance to *self* to be active.
+    #
+    # Override this method to implement the appropriate behavior of
+    # your model.
+    #
+    # Example:
+    # ```
+    # def time_advance
+    #   Quartz.infinity
+    # end
+    # ```
+    abstract def time_advance : Duration
+
+    # The output function (λ)
+    #
+    # Override this method to implement the appropriate behavior of
+    # your model. See `#post` to send values to output ports.
+    #
+    # Example:
+    # ```
+    # def output
+    #   post(42, :output)
+    # end
+    abstract def output
 
     # :nodoc:
     # Used internally by the simulator
@@ -109,15 +170,12 @@ module Quartz
 
     def initialize(pull : ::JSON::PullParser)
       @bag = SimpleHash(OutputPort, Any).new
-      @elapsed = Duration.new(0, @@precision)
-      _sigma = Duration::INFINITY
+      @elapsed = Duration.new(0, @@precision_level)
 
       pull.read_object do |key|
         case key
         when "name"
           super(String.new(pull))
-        when "sigma"
-          _sigma = Duration.new(pull)
         when "state"
           self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
           self.state = initial_state
@@ -125,20 +183,15 @@ module Quartz
           raise ::JSON::ParseException.new("Unknown json attribute: #{key}", 0, 0)
         end
       end
-
-      @sigma = _sigma
     end
 
     def initialize(pull : ::MessagePack::Unpacker)
       @bag = SimpleHash(OutputPort, Any).new
-      _sigma = Duration::INFINITY
 
       pull.read_hash(false) do
         case key = Bytes.new(pull)
         when "name".to_slice
           super(String.new(pull))
-        when "sigma".to_slice
-          _sigma = Duration.new(pull)
         when "state".to_slice
           self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
           self.state = initial_state
@@ -146,8 +199,6 @@ module Quartz
           raise MessagePack::UnpackException.new("unknown msgpack attribute: #{String.new(key)}")
         end
       end
-
-      @sigma = _sigma
     end
 
     def inspect(io)
@@ -201,19 +252,16 @@ module Quartz
       json.object do
         json.field("name") { @name.to_json(json) }
         json.field("state") { state.to_json(json) }
-        json.field("sigma") { @sigma.to_json(json) } unless @sigma.infinite?
       end
     end
 
     def to_msgpack(packer : ::MessagePack::Packer)
-      packer.write_hash_start(4)
+      packer.write_hash_start(2)
 
       packer.write("name")
       @name.to_msgpack(packer)
       packer.write("state")
       state.to_msgpack(packer)
-      packer.write("sigma")
-      @sigma.to_msgpack(packer)
     end
 
     def self.from_json(io : IO)

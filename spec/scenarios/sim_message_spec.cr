@@ -24,12 +24,20 @@ private module MsgScenario
       @elapsed_values << @elapsed
       @sigma = Duration::INFINITY
     end
+
+    def time_advance
+      @sigma
+    end
+
+    def external_transition(bag)
+    end
   end
 
   class R < Quartz::AtomicModel
+    include PassiveBehavior
+
     def initialize(name)
       super(name)
-      @sigma = Duration::INFINITY
       add_input_port :in
     end
 

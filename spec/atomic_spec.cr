@@ -1,6 +1,12 @@
 require "./spec_helper"
 
+private class PassiveModel < AtomicModel
+  include PassiveBehavior
+end
+
 private class FetchOutputTest < AtomicModel
+  include PassiveBehavior
+
   def initialize
     super("fetch_output")
     add_output_port "out"
@@ -15,10 +21,14 @@ private class FetchOutputTest < AtomicModel
 end
 
 class ModelSample < AtomicModel
+  include PassiveBehavior
+
   state_var x : Int32 = 0
   state_var y : Int32 = 0
 
-  @sigma = Duration.new(25)
+  def time_advance
+    Duration.new(25)
+  end
 
   def evolve
     @x = 100
@@ -40,11 +50,17 @@ private class MockProcessor < Processor
   end
 end
 
+private class PreciseModel < AtomicModel
+  include PassiveBehavior
+
+  precision femto
+end
+
 describe "AtomicModel" do
   describe "#post" do
     it "raises when dropping a value on a port of another model" do
-      foo = AtomicModel.new("foo")
-      bar = AtomicModel.new("bar")
+      foo = PassiveModel.new("foo")
+      bar = PassiveModel.new("bar")
       bop = bar.add_output_port("out")
 
       expect_raises InvalidPortHostError do
@@ -53,7 +69,7 @@ describe "AtomicModel" do
     end
 
     it "raises when port name doesn't exist" do
-      foo = AtomicModel.new("foo")
+      foo = PassiveModel.new("foo")
       expect_raises NoSuchPortError do
         foo.post("test", "out")
       end
@@ -65,6 +81,17 @@ describe "AtomicModel" do
       m = ModelSample.new("foo", ModelSample::State.new(x: 1, y: 2))
       m.x.should eq 1
       m.y.should eq 2
+    end
+  end
+
+  describe "precision" do
+    it "can be changed using a macro at class-level" do
+      PreciseModel.precision_level.should eq(Scale::FEMTO)
+    end
+
+    it "can be changed externally" do
+      PreciseModel.precision_level = Scale::TERA
+      PreciseModel.precision_level.should eq(Scale::TERA)
     end
   end
 
@@ -122,30 +149,30 @@ describe "AtomicModel" do
   describe "serialization" do
     it "can be converted to JSON" do
       m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"sigma\":{\"multiplier\":25.0,\"precision\":0}}"
+      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10}}"
     end
 
     it "can be converted to msgpack" do
       m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-      m.to_msgpack.should eq Bytes[132, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 165, 115, 105, 103, 109, 97, 130, 170, 109, 117, 108, 116, 105, 112, 108, 105, 101, 114, 25, 169, 112, 114, 101, 99, 105, 115, 105, 111, 110, 0]
+      m.to_msgpack.should eq Bytes[130, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10]
     end
   end
 
   describe "deserialization" do
     it "can be initialized from JSON" do
-      io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"sigma\":{\"multiplier\":1.0,\"precision\":0}}")
+      io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10}}")
       m = ModelSample.new(JSON::PullParser.new(io))
       m.name.should eq("foo")
-      m.sigma.should eq Duration.new(1)
+      m.time_advance.should eq Duration.new(25)
       m.x.should eq 5
       m.y.should eq 10
     end
 
     it "can be initialized from msgpack" do
-      io = IO::Memory.new(Bytes[131, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10, 165, 115, 105, 103, 109, 97, 130, 170, 109, 117, 108, 116, 105, 112, 108, 105, 101, 114, 1, 169, 112, 114, 101, 99, 105, 115, 105, 111, 110, 0])
+      io = IO::Memory.new(Bytes[130, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10])
       m = ModelSample.new(MessagePack::Unpacker.new(io))
       m.name.should eq "foo"
-      m.sigma.should eq Duration.new(1)
+      m.time_advance.should eq Duration.new(25)
       m.x.should eq 5
       m.y.should eq 10
     end

@@ -1,5 +1,9 @@
 require "./spec_helper"
 
+private class PassiveModel < AtomicModel
+  include PassiveBehavior
+end
+
 private class Foo
   include Observable
 end
@@ -63,7 +67,7 @@ end
 describe "Port" do
   describe "Observable" do
     it "adds an observer to attached atomic models when the host is a coupled" do
-      atom = AtomicModel.new("am")
+      atom = PassiveModel.new("am")
       coupled = CoupledModel.new("cm")
       coupled << atom
       aop = OutputPort.new(atom, "aop")

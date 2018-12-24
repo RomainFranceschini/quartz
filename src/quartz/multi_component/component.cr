@@ -1,7 +1,6 @@
 module Quartz
   module MultiComponent
     abstract class Component < Model
-      include Transitions
       include Schedulable
       include Observable
       include Verifiable
@@ -11,7 +10,7 @@ module Quartz
       getter influencees = Array(Component).new
 
       # The precision associated with the model.
-      class_property precision : Scale = Scale::BASE
+      class_property precision_level : Scale = Scale::BASE
 
       # Defines the precision level associated to this class of models.
       #
@@ -61,26 +60,22 @@ module Quartz
       # ```
       macro precision(scale = "base")
       {% if Quartz::ALLOWED_SCALE_UNITS.includes?(scale.id.stringify) %}
-        self.precision = Quartz::Scale::{{ scale.id.upcase }}
+        self.precision_level = Quartz::Scale::{{ scale.id.upcase }}
       {% elsif scale.is_a?(NumberLiteral) %}
-        self.precision = Quartz::Scale.new({{scale}})
+        self.precision_level = Quartz::Scale.new({{scale}})
       {% else %}
-        self.precision = {{scale}}
+        self.precision_level = {{scale}}
       {% end %}
     end
 
       # Returns the precision associated with the class.
       def model_precision : Scale
-        @@precision
+        @@precision_level
       end
 
       # This attribute is updated automatically along simulation and represents
       # the elapsed time since the last transition.
-      property elapsed : Duration = Duration.zero(@@precision)
-
-      # Sigma (σ) is a convenient variable introduced to simplify modeling phase
-      # and represent the next activation time (see `#time_advance`)
-      getter sigma : Duration = Duration.infinity(@@precision)
+      property elapsed : Duration = Duration.zero(@@precision_level)
 
       @__parent__ : MultiComponent::Model?
 
@@ -98,14 +93,12 @@ module Quartz
 
       def initialize(name)
         super(name)
-        @elapsed = @elapsed.rescale(@@precision)
-        @sigma = @sigma.rescale(@@precision)
+        @elapsed = @elapsed.rescale(@@precision_level)
       end
 
       def initialize(name, state)
         super(name)
-        @elapsed = @elapsed.rescale(@@precision)
-        @sigma = @sigma.rescale(@@precision)
+        @elapsed = @elapsed.rescale(@@precision_level)
         self.initial_state = state
         self.state = state
       end
@@ -122,16 +115,58 @@ module Quartz
         end
       end
 
+      # The external transition function (δext)
+      #
+      # Override this method to implement the appropriate behavior of
+      # your model.
+      abstract def external_transition(messages : Hash(InputPort, Array(Any))) : SimpleHash(Name, Any)?
+
+      # Internal transition function (δint), called when the model should be
+      # activated, e.g when `#elapsed` reaches `#time_advance`
+      #
+      # Override this method to implement the appropriate behavior of
+      # your model.
+      abstract def internal_transition : SimpleHash(Name, Any)?
+
+      # This is the default definition of the confluent transition. Here the
+      # internal transition is allowed to occur and this is followed by the
+      # effect of the external transition on the resulting state.
+      #
+      # Override this method to obtain a different behavior. For example, the
+      # opposite order of effects (external transition before internal
+      # transition). Of course you can override without reference to the other
+      # transitions.
+      def confluent_transition(messages : Hash(InputPort, Array(Any))) : SimpleHash(Name, Any)?
+        states = internal_transition
+        states2 = external_transition(messages)
+        states2.each do |key, val|
+          states[key] = val
+        end
+        states
+      end
+
+      # Time advance function (ta), called after each transition to give a
+      # chance to *self* to be active.
+      #
+      # Override this method to implement the appropriate behavior of
+      # your model.
+      #
+      # Example:
+      # ```
+      # def time_advance
+      #   Quartz.infinity
+      # end
+      # ```
+      abstract def time_advance : Duration
+
+      # The output function (λ)
+      #
+      # Override this method to implement the appropriate behavior of
+      # your model. See `#post` to send values to output ports.
+      abstract def output : SimpleHash(Port, Any)?
+
       # TODO: doc
       abstract def reaction_transition(states)
-
-      # TODO: doc
-      def output : SimpleHash(Port, Any)?
-      end
-
-      # TODO: doc
-      def internal_transition : SimpleHash(Name, Any)?
-      end
     end
   end
 end

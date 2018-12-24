@@ -34,7 +34,7 @@ module Quartz
 
       atomic.__initialize_state__(self)
       elapsed = atomic.elapsed
-      planned_duration = atomic.time_advance
+      planned_duration = atomic.time_advance.as(Duration)
 
       if @run_validations && atomic.invalid?(:initialization)
         if (logger = Quartz.logger?) && logger.error?
@@ -104,12 +104,12 @@ module Quartz
       end
 
       bag.clear
-      planned_duration = atomic.time_advance
-      fixed_planned_duration = planned_duration.fixed_at(atomic.class.precision)
+      planned_duration = atomic.time_advance.as(Duration)
+      fixed_planned_duration = planned_duration.fixed_at(atomic.class.precision_level)
       if !planned_duration.infinite? && fixed_planned_duration.infinite?
-        raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, atomic.class.precision)} given its precision level.")
-      elsif planned_duration.precision < atomic.class.precision
-        raise InvalidDurationError.new("'#{atomic.name}': planned duration #{planned_duration} is rounded to #{fixed_planned_duration} due to the model precision level.")
+        raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, atomic.class.precision_level)} given its precision level.")
+      elsif planned_duration.precision < atomic.class.precision_level
+        raise InvalidDurationError.new("'#{atomic.name}': planned duration #{planned_duration} was coarsed to #{atomic.class.precision_level} due to the model precision level.")
       end
 
       if (logger = Quartz.logger?) && logger.debug?

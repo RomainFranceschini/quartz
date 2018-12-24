@@ -2,8 +2,6 @@ require "../spec_helper"
 
 private module DSDESimulation
   class OneTimeModel < Quartz::AtomicModel
-    @sigma = Duration.new(20)
-
     getter output_calls : Int32 = 0
     getter int_calls : Int32 = 0
     getter ext_calls : Int32 = 0
@@ -18,63 +16,88 @@ private module DSDESimulation
 
     def internal_transition
       @int_calls += 1
-      @sigma = Duration::INFINITY
+    end
+
+    def time_advance
+      case @int_calls
+      when 0
+        Duration.new(20)
+      else
+        Duration::INFINITY
+      end
     end
   end
 
   class CreateExecutive < Quartz::DSDE::Executive
-    getter counter
+    getter counter : Int32 = 0
 
-    def initialize(name)
-      super(name)
-      @sigma = Duration.new(1)
-      @counter = 0
-    end
+    state_var phase = :create
 
     def internal_transition
       @counter += 1
       add_model_to_network(OneTimeModel.new("M#{@counter}"))
-      @sigma = Duration::INFINITY
+      super
+    end
+
+    def time_advance
+      if phase == :create
+        Duration.new(1, self.class.precision_level)
+      else
+        super
+      end
     end
   end
 
   class DeleteExecutive < Quartz::DSDE::Executive
-    getter counter
+    getter counter : Int32 = 0
 
-    def initialize(name)
-      super(name)
-      @sigma = Duration.new(5)
-      @counter = 0
-    end
+    state_var phase = :delete
 
     def internal_transition
       @counter += 1
       remove_model_from_network(:m1)
-      @sigma = Duration::INFINITY
+      super
+    end
+
+    def time_advance
+      if phase == :delete
+        Duration.new(5)
+      else
+        super
+      end
     end
   end
 
   class UpdateCouplingsExecutive < Quartz::DSDE::Executive
-    @sigma = Duration.new(2)
+    state_var phase = :update
 
     def internal_transition
       remove_coupling_from_network :out1, from: :in1, between: :m1, and: :m2
       add_coupling_to_network :out2, to: :in2, between: :m1, and: :m2
+      super
+    end
 
-      @sigma = Duration::INFINITY
+    def time_advance
+      if phase == :update
+        Duration.new(2)
+      else
+        super
+      end
     end
   end
 
   class UpdatePortsExecutive < Quartz::DSDE::Executive
-    @sigma = Duration.new(1)
+    state_var phase = :update
 
     def internal_transition
       add_input_port_to_network :m1, :in3
       add_output_port_to_network :m1, :out3
       remove_input_port_from_network :m1, :in2
       remove_output_port_from_network :m1, :out2
+    end
 
-      @sigma = Duration::INFINITY
+    def time_advance
+      phase == :update ? Duration.new(1) : super
     end
   end
 
@@ -99,6 +122,13 @@ private module DSDESimulation
 
     def output
       each_output_port { |op| post(nil, op) }
+    end
+
+    def time_advance
+      @sigma
+    end
+
+    def internal_transition
     end
   end
 
@@ -133,6 +163,8 @@ private module DSDESimulation
 
       dsde.children_size.should eq(2)
 
+      sim.initialize_simulation
+      executive.time_advance.should eq(Duration.new(5))
       sim.simulate
 
       sim.virtual_time.to_i.should eq(5)

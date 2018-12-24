@@ -49,11 +49,11 @@ module Quartz
         @components.each_value do |component|
           component.__initialize_state__(self)
           elapsed = component.elapsed
-          planned_duration = component.time_advance
-          fixed_planned_duration = planned_duration.fixed_at(component.class.precision)
+          planned_duration = component.time_advance.as(Duration)
+          fixed_planned_duration = planned_duration.fixed_at(component.class.precision_level)
           if !planned_duration.infinite? && fixed_planned_duration.infinite?
-            raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, component.class.precision)} given its precision level.")
-          elsif planned_duration.precision < component.class.precision
+            raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, component.class.precision_level)} given its precision level.")
+          elsif planned_duration.precision < component.class.precision_level
             raise InvalidDurationError.new("'#{component.name}': planned duration #{planned_duration} is rounded to #{fixed_planned_duration} due to the model precision level.")
           end
 
@@ -233,7 +233,7 @@ module Quartz
           component.elapsed = elapsed_duration
           component.reaction_transition(states)
 
-          planned_duration = component.time_advance.fixed
+          planned_duration = component.time_advance.as(Duration).fixed
           if planned_duration.infinite?
             component.planned_phase = Duration::INFINITY.fixed
           else

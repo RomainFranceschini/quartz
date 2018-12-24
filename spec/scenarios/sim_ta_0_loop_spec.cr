@@ -4,11 +4,13 @@ private module LoopScenario
   class M < Quartz::AtomicModel
     def initialize(name)
       super(name)
-      @sigma = Duration.new(1)
     end
 
     getter output_calls : Int32 = 0
     getter int_calls : Int32 = 0
+
+    def external_transition(bag)
+    end
 
     def output
       @output_calls += 1
@@ -16,11 +18,17 @@ private module LoopScenario
 
     def internal_transition
       @int_calls += 1
-      @sigma = if @int_calls == 1
-                 Duration.new(0)
-               else
-                 Duration::INFINITY
-               end
+    end
+
+    def time_advance
+      case @int_calls
+      when 0
+        Duration.new(1)
+      when 1
+        Duration.new(0)
+      else
+        Duration::INFINITY
+      end
     end
   end
 

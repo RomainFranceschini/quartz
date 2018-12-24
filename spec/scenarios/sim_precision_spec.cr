@@ -2,9 +2,11 @@ require "../spec_helper"
 
 private module PrecisionScenario
   class InvalidGenerator1 < Quartz::AtomicModel
+    include PassiveBehavior
     output :out
 
     precision micro
+
     @sigma = Quartz::Duration.new(0)
 
     def internal_transition
@@ -14,9 +16,14 @@ private module PrecisionScenario
     def output
       post nil, on: :out
     end
+
+    def time_advance
+      @sigma
+    end
   end
 
   class InvalidGenerator2 < Quartz::AtomicModel
+    include PassiveBehavior
     output :out
 
     precision micro
@@ -29,9 +36,14 @@ private module PrecisionScenario
     def output
       post nil, on: :out
     end
+
+    def time_advance
+      @sigma
+    end
   end
 
   class Generator < Quartz::AtomicModel
+    include PassiveBehavior
     output :out
 
     precision micro
@@ -40,14 +52,20 @@ private module PrecisionScenario
     def output
       post nil, on: :out
     end
+
+    def time_advance
+      @sigma
+    end
   end
 
   class FineCollector < Quartz::AtomicModel
+    include PassiveBehavior
     precision nano
     input :in
   end
 
   class RoughCollector < Quartz::AtomicModel
+    include PassiveBehavior
     precision tera
     input :in
   end

@@ -7,6 +7,9 @@ private module GeneratorScenario
     getter elapsed_values : Array(Duration) = Array(Duration).new
     getter time : TimePoint = TimePoint.new
 
+    def external_transition(bag)
+    end
+
     def output
       @output_calls += 1
     end

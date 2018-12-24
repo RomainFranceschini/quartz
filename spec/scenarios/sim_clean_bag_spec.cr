@@ -1,11 +1,12 @@
 require "../spec_helper"
 
 private module CleanBagScenario
-
   class G < Quartz::AtomicModel
-    def initialize(name, quantum)
+    @quantum : Int64
+
+    def initialize(name, quantum : Int)
       super(name)
-      @sigma = Duration.new(quantum)
+      @quantum = quantum.to_i64
       add_output_port :out
     end
 
@@ -22,12 +23,20 @@ private module CleanBagScenario
       @int_calls += 1
       @elapsed_values << @elapsed
     end
+
+    def external_transition(bag)
+    end
+
+    def time_advance
+      Duration.new(@quantum)
+    end
   end
 
   class R < Quartz::AtomicModel
+    include PassiveBehavior
+
     def initialize(name)
       super(name)
-      @sigma = Duration::INFINITY
       add_input_port :in1
       add_input_port :in2
     end

@@ -34,7 +34,7 @@ module Quartz
     delegate aborted?, to: @status
 
     def initialize(model : Model, *,
-                   scheduler : Symbol = :calendar_queue,
+                   scheduler : Symbol = :binary_heap,
                    maintain_hierarchy : Bool = true,
                    duration : Duration = Duration::INFINITY,
                    run_validations : Bool = false)
