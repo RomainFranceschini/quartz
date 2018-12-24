@@ -224,7 +224,7 @@ describe "AutoState" do
 
       it "can be initialized from msgpack" do
         io = IO::Memory.new(Bytes[131, 161, 97, 42, 161, 98, 163, 102, 111, 111, 161, 99, 195])
-        state = SomeModel::State.new(MessagePack::Unpacker.new(io))
+        state = SomeModel::State.new(MessagePack::IOUnpacker.new(io))
 
         state.a.should eq 42
         state.b.should eq "foo"

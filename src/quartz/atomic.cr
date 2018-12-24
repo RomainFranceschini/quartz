@@ -188,7 +188,8 @@ module Quartz
     def initialize(pull : ::MessagePack::Unpacker)
       @bag = SimpleHash(OutputPort, Any).new
 
-      pull.read_hash(false) do
+      pull.read_hash_size
+      pull.consume_hash do
         case key = Bytes.new(pull)
         when "name".to_slice
           super(String.new(pull))
@@ -196,7 +197,7 @@ module Quartz
           self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
           self.state = initial_state
         else
-          raise MessagePack::UnpackException.new("unknown msgpack attribute: #{String.new(key)}")
+          raise MessagePack::UnpackError.new("unknown msgpack attribute: #{String.new(key)}")
         end
       end
     end
@@ -273,7 +274,7 @@ module Quartz
     end
 
     def self.from_msgpack(io : IO)
-      self.new(::MessagePack::Unpacker.new(io))
+      self.new(::MessagePack::IOUnpacker.new(io))
     end
 
     def self.from_msgpack(bytes : Bytes)

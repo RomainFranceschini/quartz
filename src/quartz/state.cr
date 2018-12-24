@@ -34,7 +34,7 @@ module Quartz
     end
 
     def self.from_msgpack(io : IO)
-      self.new(::MessagePack::Unpacker.new(io))
+      self.new(::MessagePack::IOUnpacker.new(io))
     end
 
     def self.from_msgpack(bytes : Bytes)
@@ -507,7 +507,8 @@ module Quartz
                 \%mp{var[:name].id} = nil
               \{% end %}
 
-              %pull.read_hash(false) do
+              %pull.read_hash_size
+              %pull.consume_hash do
                 case %key = Bytes.new(%pull)
                 \{% for var in STATE_VARIABLES %}
                   when \{{ var[:name].stringify }}.to_slice
@@ -523,7 +524,7 @@ module Quartz
                         \{% end %}
                 \{% end %}
                 else
-                  raise MessagePack::UnpackException.new("unknown msgpack attribute: #{String.new(%key)}")
+                  raise MessagePack::UnpackError.new("unknown msgpack attribute: #{String.new(%key)}")
                 end
               end
 

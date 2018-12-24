@@ -170,7 +170,7 @@ describe "AtomicModel" do
 
     it "can be initialized from msgpack" do
       io = IO::Memory.new(Bytes[130, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10])
-      m = ModelSample.new(MessagePack::Unpacker.new(io))
+      m = ModelSample.new(MessagePack::IOUnpacker.new(io))
       m.name.should eq "foo"
       m.time_advance.should eq Duration.new(25)
       m.x.should eq 5
