@@ -115,12 +115,6 @@ module Quartz
         end
       end
 
-      # The external transition function (δext)
-      #
-      # Override this method to implement the appropriate behavior of
-      # your model.
-      abstract def external_transition(messages : Hash(InputPort, Array(Any))) : SimpleHash(Name, Any)?
-
       # Internal transition function (δint), called when the model should be
       # activated, e.g when `#elapsed` reaches `#time_advance`
       #
@@ -138,9 +132,11 @@ module Quartz
       # transitions.
       def confluent_transition(messages : Hash(InputPort, Array(Any))) : SimpleHash(Name, Any)?
         states = internal_transition
-        states2 = external_transition(messages)
-        states2.each do |key, val|
-          states[key] = val
+        if self.responds_to?(:external_transition)
+          states2 = external_transition(messages)
+          states2.each do |key, val|
+            states[key] = val
+          end
         end
         states
       end
@@ -158,12 +154,6 @@ module Quartz
       # end
       # ```
       abstract def time_advance : Duration
-
-      # The output function (λ)
-      #
-      # Override this method to implement the appropriate behavior of
-      # your model. See `#post` to send values to output ports.
-      abstract def output : SimpleHash(Port, Any)?
 
       # TODO: doc
       abstract def reaction_transition(states)

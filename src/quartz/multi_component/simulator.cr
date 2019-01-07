@@ -97,9 +97,11 @@ module Quartz
 
         @event_set.each_imminent_event do |component|
           @imm << component
-          if sub_bag = component.output
-            sub_bag.each do |k, v|
-              @parent_bag[k] << v
+          if component.responds_to?(:output)
+            if sub_bag = component.output
+              sub_bag.each do |k, v|
+                @parent_bag[k] << v
+              end
             end
           end
         end
@@ -184,32 +186,43 @@ module Quartz
             end
 
             o = if elapsed.zero? && remaining_duration.zero?
-                  info = OBS_INFO_CON_TRANSITION
-                  kind = :confluent
-                  @con_count += 1u32
-                  component.confluent_transition(bag)
+                  if component.responds_to?(:external_transition)
+                    info = OBS_INFO_CON_TRANSITION
+                    kind = :confluent
+                    @con_count += 1u32
+                    component.confluent_transition(bag)
+                  else
+                    info = OBS_INFO_INT_TRANSITION
+                    kind = :internal
+                    @int_count += 1u32
+                    component.internal_transition
+                  end
                 else
-                  info = OBS_INFO_EXT_TRANSITION
-                  kind = :external
-                  @ext_count += 1u32
-                  component.external_transition(bag)
+                  if component.responds_to?(:external_transition)
+                    info = OBS_INFO_EXT_TRANSITION
+                    kind = :external
+                    @ext_count += 1u32
+                    component.external_transition(bag)
+                  end
                 end
 
-            o.try &.each do |k, v|
-              @state_bags[@components[k]] << {component_name, v}
-            end
+            if info
+              o.try &.each do |k, v|
+                @state_bags[@components[k]] << {component_name, v}
+              end
 
-            if (logger = Quartz.logger?) && logger.debug?
-              logger.debug(String.build { |str|
-                str << '\'' << component.name << "': " << kind << " transition"
-              })
-            end
+              if (logger = Quartz.logger?) && logger.debug?
+                logger.debug(String.build { |str|
+                  str << '\'' << component.name << "': " << kind << " transition"
+                })
+              end
 
-            if component.count_observers > 0
-              component.notify_observers(info.merge({
-                :time    => time,
-                :elapsed => component.elapsed,
-              }))
+              if component.count_observers > 0
+                component.notify_observers(info.merge({
+                  :time    => time,
+                  :elapsed => component.elapsed,
+                }))
+              end
             end
           end
         end
