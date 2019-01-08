@@ -66,6 +66,9 @@ class Policeman < Quartz::AtomicModel
   def time_advance
     @phase == :idle ? Quartz.duration(200) : Quartz.duration(100)
   end
+
+  def external_transition(bag)
+  end
 end
 
 class PortObserver

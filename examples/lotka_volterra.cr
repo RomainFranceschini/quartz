@@ -1,6 +1,8 @@
 require "../src/quartz"
 
 class LotkaVolterra < Quartz::AtomicModel
+  EPSILON = Quartz::Duration.new(10, Quartz::Scale::MICRO).to_f # euler integration
+
   state_var x : Float64 = 1.0
   state_var y : Float64 = 1.0
 
@@ -11,14 +13,22 @@ class LotkaVolterra < Quartz::AtomicModel
   state_var gamma : Float64 = 2.1 # predator mortality rate
   state_var delta : Float64 = 1.4 # predator per prey reproduction rate
 
-  @sigma = Quartz::Duration.new(100, Quartz::Scale::MICRO) # euler integration
-
   def internal_transition
     dxdt = ((@x * @alpha) - (@beta * @x * @y))
     dydt = (-(@gamma * @y) + (@delta * @x * @y))
 
-    @x += @sigma.to_f * dxdt
-    @y += @sigma.to_f * dydt
+    @x += EPSILON * dxdt
+    @y += EPSILON * dydt
+  end
+
+  def time_advance
+    Quartz::Duration.new(10, Quartz::Scale::MICRO) # euler integration
+  end
+
+  def output
+  end
+
+  def external_transition(bag)
   end
 end
 
@@ -56,11 +66,15 @@ class Tracer
   end
 end
 
+# Quartz.logger.level = Logger::Severity::DEBUG
 model = LotkaVolterra.new(:LotkaVolterra)
 Tracer.new(model)
 sim = Quartz::Simulation.new(model, scheduler: :binary_heap, duration: Quartz.duration(20))
 
 sim.simulate
+
+puts sim.transition_stats[:TOTAL]
+puts sim.elapsed_secs
 
 puts "Dataset written to 'lotkavolterra.dat'."
 puts "Run 'gnuplot -e \"plot 'lotkavolterra.dat' u 1:2 w l t 'preys', '' u 1:3 w l t 'predators'; pause -1;\"' to graph output"

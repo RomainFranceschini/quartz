@@ -4,12 +4,22 @@ class Worker < Quartz::AtomicModel
   input :in
   output :out
 
-  def external_transition(messages)
-    @sigma = Quartz::Duration.new(RND.rand(0i64..Quartz::Duration::MULTIPLIER_MAX))
+  state_var phase : Symbol = :idle
+
+  def time_advance
+    if phase == :idle
+      Quartz::Duration::INFINITY
+    else
+      Quartz::Duration.new(RND.rand(0i64..Quartz::Duration::MULTIPLIER_MAX))
+    end
+  end
+
+  def external_transition(bag)
+    @phase = :active
   end
 
   def internal_transition
-    @sigma = Quartz::Duration::INFINITY
+    @phase = :idle
   end
 
   def output
@@ -19,7 +29,15 @@ end
 
 class Generator < Quartz::AtomicModel
   output :out
-  @sigma = Quartz.duration(1)
+
+  state_var phase : Symbol = :generate
+
+  def time_advance
+    case phase
+    when :generate then Quartz.duration(1)
+    else                Quartz::Duration::INFINITY
+    end
+  end
 
   def initialize(name, @events : Int32)
     super(name)
@@ -31,15 +49,16 @@ class Generator < Quartz::AtomicModel
 
   def internal_transition
     @events -= 1
-    @sigma = (@events == 0) ? Quartz::Duration::INFINITY : Quartz.duration(1)
+    @phase = :idle if @events == 0
+  end
+
+  def external_transition(bag)
   end
 end
 
 class Collector < Quartz::AtomicModel
+  include Quartz::PassiveBehavior
   input :in
-
-  def external_transition(messages)
-  end
 end
 
 class PushPull < Quartz::CoupledModel

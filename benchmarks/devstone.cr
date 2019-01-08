@@ -5,12 +5,22 @@ module DEVStone
     input :in1, :in2
     output :out1, :out2
 
+    state_var phase : Symbol = :active
+
+    def time_advance
+      if phase == :active
+        Quartz::Duration.new(RND.rand(5000))
+      else
+        Quartz::Duration::INFINITY
+      end
+    end
+
     def external_transition(messages)
-      @sigma = Quartz::Duration.new(RND.rand(5000))
+      @phase = :active
     end
 
     def internal_transition
-      @sigma = Quartz::Duration::INFINITY
+      @phase = :idle
     end
 
     def output
@@ -20,18 +30,31 @@ module DEVStone
 
   class Generator < Quartz::AtomicModel
     output :out
-    @sigma = Quartz::Duration.new(1)
+
+    state_var phase : Symbol = :generate
+
+    def time_advance
+      if phase == :generate
+        Quartz::Duration.new(1)
+      else
+        Quartz::Duration::INFINITY
+      end
+    end
 
     def output
       post(name, :out)
     end
 
     def internal_transition
-      @sigma = Quartz::Duration::INFINITY
+      @phase = :idle
+    end
+
+    def external_transition(bag)
     end
   end
 
   class Collector < Quartz::AtomicModel
+    include Quartz::PassiveBehavior
     input :in
   end
 

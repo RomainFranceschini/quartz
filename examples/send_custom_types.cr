@@ -12,19 +12,32 @@ end
 class Foo < Quartz::AtomicModel
   output foo1, foo2
 
-  @sigma = Quartz.duration(0)
+  state_var phase : Symbol = :generate
+
+  def time_advance
+    if phase == :generate
+      Quartz.duration(0)
+    else
+      Quartz::Duration::INFINITY
+    end
+  end
 
   def internal_transition
-    @sigma = Quartz::Duration::INFINITY
+    @phase = :idle
   end
 
   def output
     post MyType.new, :foo1
     post BigInt.new(1), :foo2
   end
+
+  def external_transition(bag)
+  end
 end
 
 class Bar < Quartz::AtomicModel
+  include Quartz::PassiveBehavior
+
   input foo1, foo2
 
   def external_transition(bag)

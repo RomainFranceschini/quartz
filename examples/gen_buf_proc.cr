@@ -8,11 +8,15 @@ class Generator < Quartz::AtomicModel
 
   precision micro
 
+  state_var sigma : Duration { Duration.new(RND.rand(1i64..1000i64), Quartz::Scale::MICRO) }
+
   def initialize(name, @max : Int32)
     super(name)
-
-    @sigma = Duration.new(RND.rand(1i64..1000i64), model_precision)
     @n = 0
+  end
+
+  def time_advance
+    self.sigma
   end
 
   def internal_transition
@@ -26,6 +30,9 @@ class Generator < Quartz::AtomicModel
   def output
     post nil, on: :out
   end
+
+  def external_transition(bag)
+  end
 end
 
 class Buffer < Quartz::AtomicModel
@@ -36,6 +43,7 @@ class Buffer < Quartz::AtomicModel
 
   state_var nb_job : Int32 = 0
   state_var waiting : Bool = false
+  state_var sigma : Duration = Duration::INFINITY
 
   def external_transition(bag)
     if bag.has_key?(input_port(:in))
@@ -53,6 +61,10 @@ class Buffer < Quartz::AtomicModel
 
   def output
     post nil, on: :out
+  end
+
+  def time_advance
+    self.sigma
   end
 
   def internal_transition
@@ -73,6 +85,8 @@ class CPU < Quartz::AtomicModel
 
   precision nano
 
+  state_var sigma : Duration = Duration::INFINITY
+
   def external_transition(bag)
     @sigma = Duration.new(RND.rand(3i64..1000i64**4), model_precision)
   end
@@ -83,6 +97,10 @@ class CPU < Quartz::AtomicModel
 
   def internal_transition
     @sigma = Duration.infinity(model_precision)
+  end
+
+  def time_advance
+    self.sigma
   end
 end
 

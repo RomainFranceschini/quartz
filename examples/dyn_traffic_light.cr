@@ -56,6 +56,9 @@ class Policeman < Quartz::AtomicModel
 
   output :alternate, :add_coupling, :remove_coupling
 
+  def external_transition(bag)
+  end
+
   def internal_transition
     @phase = case @phase
              when :idle1    then :working1

@@ -1,7 +1,14 @@
 require "../src/quartz"
 
 class OneTimeModel < Quartz::AtomicModel
-  @sigma = 20
+  state_var phase : Symbol = :active
+
+  def time_advance
+    case phase
+    when :active then Quartz.duration(20)
+    else              Quartz::Duration::INFINITY
+    end
+  end
 
   def external_transition(messages)
     puts "#{name} received #{messages}."
@@ -9,36 +16,46 @@ class OneTimeModel < Quartz::AtomicModel
 
   def internal_transition
     puts "#{name} does something."
-    @sigma = Quartz::INFINITY
+    @phase = :idle
+  end
+
+  def output
   end
 end
 
 class BirthController < Quartz::DSDE::Executive
   output :birth, :death, :add_coupling, :remove_coupling
 
-  def initialize(name)
-    super(name)
-    @sigma = 1
-    @counter = 0
-    @reverse = false
+  state_var phase : Symbol = :init
+  state_var counter : Int32 = 0
+
+  def time_advance
+    case phase
+    when :init  then Quartz.duration(1)
+    when :death then Quartz.duration(5)
+    else             Quartz::Duration::INFINITY
+    end
   end
 
   def internal_transition
-    if @reverse
+    if phase == :death
       remove_coupling_from_network(:out, from: :in, between: "model_0", and: "model_#{@counter}")
       remove_model_from_network("model_#{@counter}")
       @counter -= 1
-      @sigma = Quartz::INFINITY
     else
       add_model_to_network(OneTimeModel.new("model_#{@counter}"))
       add_coupling_to_network(:out, to: :in, between: "model_0", and: "model_#{@counter}") if @counter > 0
-      if @counter == 2
-        @reverse = true
-      else
+      if @counter != 2
         @counter += 1
       end
-      @sigma = 5
+      @phase = :death
     end
+  end
+
+  def output
+  end
+
+  def external_transition(bag)
   end
 end
 
@@ -51,14 +68,14 @@ class Grapher
 
   def update(model, info)
     if info && info[:transition] == :internal
-      @simulation.generate_graph("dsde_#{@simulation.time.to_i}")
+      @simulation.generate_graph("dsde_#{info[:time].to_s}")
     end
   end
 end
 
 model = Quartz::DSDE::CoupledModel.new(:dsde, BirthController.new(:executive))
 
-simulation = Quartz::Simulation.new(model, duration: 25)
+simulation = Quartz::Simulation.new(model, duration: Quartz.duration(25))
 simulation.generate_graph("dsde_0")
 Grapher.new(model.executive, simulation)
 simulation.simulate
