@@ -11,8 +11,7 @@ module Quartz
       def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
         coupled = @model.as(Quartz::DSDE::CoupledModel)
         handle_external_inputs(time)
-
-        old_children = coupled.each_child.to_a
+        executive = coupled.executive.processor
 
         @synchronize.each do |receiver|
           if receiver.model == coupled.executive
@@ -21,37 +20,40 @@ module Quartz
           perform_transition_for(receiver, time)
         end
 
-        receiver = coupled.executive.processor
-        if receiver.sync
-          perform_transition_for(receiver, time)
-        end
+        if executive.sync
+          current_children = coupled.each_child.to_set
 
-        current_children = coupled.each_child.to_a
+          perform_transition_for(executive, time)
 
-        # unschedule processors of deleted models
-        to_remove = old_children - current_children
-        to_remove.each do |old_model|
-          old_processor = old_model.processor
+          new_children = coupled.each_child.to_set
 
-          if !@event_set.duration_of(old_processor).infinite?
-            @event_set.cancel_event(old_processor)
+          # unschedule processors of deleted models
+          # to_remove: contains elements in current_children that are not present in the new_children set.
+          to_remove = current_children - new_children
+          to_remove.each do |old_model|
+            old_processor = old_model.processor
+
+            if !@event_set.duration_of(old_processor).infinite?
+              @event_set.cancel_event(old_processor)
+            end
+            @time_cache.release_event(old_processor)
           end
-          @time_cache.release_event(old_processor)
-        end
 
-        # initialize new models and their processors
-        new_children = current_children - old_children
-        new_children.each do |new_model|
-          visitor = ProcessorAllocator.new(@simulation, self)
-          new_model.accept(visitor)
-          processor = new_model.processor.not_nil!
+          # initialize new models and their processors
+          # to_initialize: contains elements in new_children that are not present in the current_children set.
+          to_initialize = new_children - current_children
+          to_initialize.each do |new_model|
+            visitor = ProcessorAllocator.new(@simulation, self)
+            new_model.accept(visitor)
+            processor = new_model.processor.not_nil!
 
-          elapsed, planned_duration = processor.initialize_processor(time)
-          @time_cache.retain_event(processor, elapsed)
-          if !planned_duration.infinite?
-            @event_set.plan_event(processor, planned_duration)
-          else
-            processor.planned_phase = planned_duration
+            elapsed, planned_duration = processor.initialize_processor(time)
+            @time_cache.retain_event(processor, elapsed)
+            if !planned_duration.infinite?
+              @event_set.plan_event(processor, planned_duration)
+            else
+              processor.planned_phase = planned_duration
+            end
           end
         end
 
