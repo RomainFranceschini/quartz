@@ -221,8 +221,8 @@ module Quartz
       b = p2.host
 
       if a == self && has_child?(b) # EIC
+        input_couplings << p1 if p1.downward_ports.empty?
         p1.downward_ports << p2
-        input_couplings << p1
       else
         raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
       end
@@ -242,8 +242,8 @@ module Quartz
 
       if has_child?(a) && has_child?(b) # IC
         raise FeedbackLoopError.new("#{a} must be different than #{b}") if a.object_id == b.object_id
+        internal_couplings << p1 if p1.siblings_ports.empty?
         p1.siblings_ports << p2
-        internal_couplings << p1
       else
         raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
       end
@@ -259,8 +259,8 @@ module Quartz
       b = p2.host
 
       if has_child?(a) && b == self # EOC
+        output_couplings << p1 if p1.upward_ports.empty?
         p1.upward_ports << p2
-        output_couplings << p1
       else
         raise InvalidPortHostError.new("Illegal coupling between #{p1} and #{p2}")
       end
