@@ -36,7 +36,15 @@ module Quartz
             if !@event_set.duration_of(old_processor).infinite?
               @event_set.cancel_event(old_processor)
             end
+            elapsed_duration = @time_cache.elapsed_duration_of(old_processor)
             @time_cache.release_event(old_processor)
+
+            if (logger = Quartz.logger?) && logger.debug?
+              logger.debug(String.build { |str|
+                str << '\'' << old_model.name << "' terminated ("
+                str << "elapsed: " << elapsed_duration << ')'
+              })
+            end
           end
 
           # initialize new models and their processors
