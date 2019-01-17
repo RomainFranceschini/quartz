@@ -208,6 +208,15 @@ module Quartz
     # to be in the current epoch, or in the previous epoch relative to
     # `#current_time` instead of the next epoch.
     protected def cmp_planned_phases(a : Duration, b : Duration, rhs_in_current_epoch : Bool = false) : Int32
+      # Avoid two conversions to planned durations if given planned phases
+      # have same precision levels and if they are in the current epoch.
+      if a.precision == b.precision
+        epoch_phase = @current_time.epoch_phase(a.precision)
+        if a.multiplier > epoch_phase && b.multiplier > epoch_phase
+          return a <=> b
+        end
+      end
+
       duration_a = @current_time.duration_from_phase(a)
       duration_b = @current_time.duration_from_phase(b)
 
