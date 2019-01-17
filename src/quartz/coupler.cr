@@ -476,7 +476,6 @@ module Quartz
           end
         elsif odst.host.is_a?(Coupler) # eoc
           route = [{osrc, odst}]
-          j = 0
           while !route.empty?
             _, rdst = route.pop
             rdst.host.as(Coupler).each_input_coupling(rdst.as(InputPort)) do |src, dst|
