@@ -221,7 +221,7 @@ module Quartz
         m = m.round
       elsif n.abs < 1
         # while multiplier has a fractional part and precision refining doesn't overflow
-        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT / Scale::FACTOR) && (m > -MULTIPLIER_LIMIT / Scale::FACTOR)
+        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
           precision -= 1
           m *= Scale::FACTOR
         end
@@ -243,7 +243,7 @@ module Quartz
         m = m.round
       elsif n.abs > 1
         # while multiplier has a fractional part and scale refining doesn't overflow
-        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT / Scale::FACTOR) && (m > -MULTIPLIER_LIMIT / Scale::FACTOR)
+        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
           precision -= 1
           m *= Scale::FACTOR
         end

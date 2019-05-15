@@ -388,7 +388,7 @@ describe "EventSet" do
 
     describe "removes and returns events occuring in the next epoch" do
       EventSetTester.new.test do |pes|
-        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT // 2)
         ev = MySchedulable.new(1)
         pes.plan_event(ev, Duration.new(Duration::MULTIPLIER_MAX))
 
@@ -436,7 +436,7 @@ describe "EventSet" do
   describe "#plan_event" do
     describe "stores in the priority queue events occuring in the current epoch" do
       EventSetTester.new.test do |pes|
-        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT // 2)
 
         pes.size.should eq(0)
         pes.plan_event(MySchedulable.new(1), Duration.new(500_234_848))
@@ -447,7 +447,7 @@ describe "EventSet" do
 
     describe "stores in the priority queue events occuring in the next epoch" do
       EventSetTester.new.test do |pes|
-        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
+        pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT // 2)
 
         pes.size.should eq(0)
         pes.plan_event(MySchedulable.new(1), Duration.new(Duration::MULTIPLIER_MAX))
@@ -474,7 +474,7 @@ describe "EventSet" do
     sorted_durations = ev_by_durations.keys.sort
 
     EventSetTester.new.test do |pes|
-      pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
+      pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT // 2)
 
       # enqueue
       events.each { |d, ev| pes.plan_event(ev, d) }

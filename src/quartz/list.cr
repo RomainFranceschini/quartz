@@ -384,7 +384,7 @@ module Quartz
     # For negative `n`, equivalent to `(-n).times { unshift(pop) }`.
     def rotate!(n : Int = 1)
       # Turn `n` into an equivalent index in range -size/2 .. size/2
-      half = @size / 2
+      half = @size // 2
       if n.abs >= half
         n = (n + half) % @size - half
       end

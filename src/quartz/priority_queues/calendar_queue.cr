@@ -171,7 +171,7 @@ module Quartz
 
         # halve calendar size if needed
         if @size < @shrink_threshold
-          resize(@buckets.size / 2)
+          resize(@buckets.size // 2)
         end
 
         return item[1]
@@ -297,7 +297,7 @@ module Quartz
             @size -= 1
 
             if @size < @shrink_threshold
-              resize(@buckets.size / 2)
+              resize(@buckets.size // 2)
             end
 
             return item
@@ -366,7 +366,7 @@ module Quartz
         if @size <= 5
           @size
         else
-          5 + (@size / 10).to_i
+          5 + (@size // 10)
         end,
         25
       )

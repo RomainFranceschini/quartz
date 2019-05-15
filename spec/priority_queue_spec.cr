@@ -176,7 +176,7 @@ describe "Priority queue" do
     n = 50_000
     steps = 5_000
     max_reschedules = 50
-    max_tn = Duration::MULTIPLIER_MAX.to_i64 / steps
+    max_tn = Duration::MULTIPLIER_MAX.to_i64 // steps
     seed = rand(Int64::MIN..Int64::MAX)
     sequence = Hash(String, Array(Duration)).new { |h, k| h[k] = Array(Duration).new }
 

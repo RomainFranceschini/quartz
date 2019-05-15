@@ -38,7 +38,7 @@ module Quartz
 
       while n != 0
         @magnitude << (n % BASE).to_i16
-        n /= BASE
+        n //= BASE
       end
 
       coarsen! if @magnitude.size > 1
@@ -159,8 +159,8 @@ module Quartz
           carry += @magnitude[i] + n
           @magnitude[i] = (carry % BASE).to_i16
 
-          carry = carry / BASE
-          multiplier = multiplier / BASE
+          carry = carry // BASE
+          multiplier = multiplier // BASE
           i += 1
         end
         coarsen! if @magnitude[0] == 0_i16
@@ -173,8 +173,8 @@ module Quartz
           carry = carry + @magnitude[i] - n
           @magnitude[i] = (carry % BASE).to_i16
 
-          carry = carry / BASE
-          multiplier = multiplier / BASE
+          carry = carry // BASE
+          multiplier = multiplier // BASE
           i += 1
         end
         coarsen! if @magnitude[0] == 0_i16
@@ -210,7 +210,7 @@ module Quartz
         end
 
         if !maximized && !unbounded
-          multiplier /= Scale::FACTOR
+          multiplier //= Scale::FACTOR
           multiplier += Scale::FACTOR ** (Duration::EPOCH - 1) * (self[precision + Duration::EPOCH] + carry)
           precision += 1
         end
@@ -339,15 +339,15 @@ module Quartz
           if approximate
             result_precision += 1
             exponent -= 1
-            n /= BASE
-            multiplier /= BASE
+            n //= BASE
+            multiplier //= BASE
           else
             return Duration.new(Duration::MULTIPLIER_INFINITE, precision)
           end
         end
 
         multiplier += n
-        carry = carry / BASE
+        carry = carry // BASE
         exponent += 1
       end
 

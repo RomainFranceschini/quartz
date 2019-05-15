@@ -12,7 +12,7 @@ end
 
 random = Random.new
 N             = 1_000_000
-MAX_TIME_NEXT = Quartz::Duration::MULTIPLIER_MAX / N
+MAX_TIME_NEXT = Quartz::Duration::MULTIPLIER_MAX // N
 N2            = N >> 1
 
 ladq = Quartz::LadderQueue(Ev).new { |a, b| a <=> b }

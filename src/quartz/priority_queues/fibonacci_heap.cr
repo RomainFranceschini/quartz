@@ -148,7 +148,7 @@ module Quartz
         (@degrees_capa...max_degree).each { |i| @degrees[i] = nil } # init new slots
         @degrees_capa = new_capa                                    # sets new capacity
       else                                                          # halve if needed
-        half = @degrees_capa / 2
+        half = @degrees_capa // 2
         if max_degree < half
           @degrees = @degrees.realloc(half)
           @degrees_capa = half
