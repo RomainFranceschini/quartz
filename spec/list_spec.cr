@@ -68,26 +68,26 @@ describe "List" do
         step { c.insert(10, i) }
         step { c.insert(10, i) }
       end
+    end
 
-      it "works the same as array when inserting at 1/8 size and deleting at 3/4 size" do
-        ListTester.new.test do
-          1000.times do
-            step { c.insert(c.size / 8, i) }
-          end
-          1000.times do
-            step { c.delete_at(c.size * 3 / 4) }
-          end
+    it "works the same as array when inserting at 1/8 size and deleting at 3/4 size" do
+      ListTester.new.test do
+        1000.times do
+          step { c.insert(c.size / 8, i) }
+        end
+        1000.times do
+          step { c.delete_at(c.size * 3 / 4) }
         end
       end
+    end
 
-      it "works the same as array when inserting at 3/4 size and deleting at 1/8 size" do
-        ListTester.new.test do
-          1000.times do
-            step { c.insert(c.size * 3 / 4, i) }
-          end
-          1000.times do
-            step { c.delete_at(c.size / 8) }
-          end
+    it "works the same as array when inserting at 3/4 size and deleting at 1/8 size" do
+      ListTester.new.test do
+        1000.times do
+          step { c.insert(c.size * 3 / 4, i) }
+        end
+        1000.times do
+          step { c.delete_at(c.size / 8) }
         end
       end
     end
@@ -526,7 +526,7 @@ describe "List" do
 
     describe "to_s" do
       it "does to_s" do
-        it { List{1, 2, 3}.to_s.should eq("List{1, 2, 3}") }
+        List{1, 2, 3}.to_s.should eq("List{1, 2, 3}")
       end
 
       it "does with recursive" do

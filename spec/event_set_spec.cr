@@ -17,7 +17,7 @@ end
 
 describe "EventSet" do
   describe "#size" do
-    it "returns the number of planned events" do
+    describe "returns the number of planned events" do
       EventSetTester.new.test do |pes|
         pes.plan_event(MySchedulable.new(1), Duration.new(1))
         pes.plan_event(MySchedulable.new(2), Duration.new(1))
@@ -29,7 +29,7 @@ describe "EventSet" do
   end
 
   describe "#empty?" do
-    it "indicates whether the event set is empty" do
+    describe "indicates whether the event set is empty" do
       EventSetTester.new.test do |pes|
         pes.empty?.should be_true
 
@@ -176,7 +176,7 @@ describe "EventSet" do
   end
 
   describe "#duration_of" do
-    it "returns the duration after which the specified event will occur relative to the current time" do
+    describe "returns the duration after which the specified event will occur relative to the current time" do
       EventSetTester.new.test do |pes|
         ev = MySchedulable.new(1)
         pes.plan_event(ev, Duration.new(6889))
@@ -191,7 +191,7 @@ describe "EventSet" do
       end
     end
 
-    it "returns a planned duration matching the original precision" do
+    describe "returns a planned duration matching the original precision" do
       EventSetTester.new.test do |pes|
         ev = MySchedulable.new(1)
         pes.plan_event(ev, Duration.new(1000))
@@ -203,7 +203,7 @@ describe "EventSet" do
       end
     end
 
-    it "avoid rounding errors" do
+    describe "avoid rounding errors" do
       EventSetTester.new.test do |pes|
         ev = MySchedulable.new(1)
         pes.plan_event(ev, Duration.new(1000))
@@ -214,7 +214,7 @@ describe "EventSet" do
       end
     end
 
-    it "handles events scheduled for the next epoch" do
+    describe "handles events scheduled for the next epoch" do
       EventSetTester.new.test do |pes|
         pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
         ev = MySchedulable.new(1)
@@ -233,7 +233,7 @@ describe "EventSet" do
 
   describe "#advance" do
     describe "with no arguments" do
-      it "increase current time up to the imminent events" do
+      describe "increase current time up to the imminent events" do
         EventSetTester.new.test do |pes|
           pes.plan_event(MySchedulable.new(1), Duration.new(1))
           pes.plan_event(MySchedulable.new(2), Duration.new(5))
@@ -256,7 +256,7 @@ describe "EventSet" do
     end
 
     describe "given a duration" do
-      it "raises if it exceed imminent duration" do
+      describe "raises if it exceed imminent duration" do
         EventSetTester.new.test do |pes|
           pes.plan_event(MySchedulable.new(1), Duration.new(3))
 
@@ -282,7 +282,7 @@ describe "EventSet" do
         pes.current_time.should eq(TimePoint.new(982734, Scale::MILLI))
       end
 
-      it "raises if it exceed imminent duration" do
+      describe "raises if it exceed imminent duration" do
         EventSetTester.new.test do |pes|
           pes.plan_event(MySchedulable.new(1), Duration.new(3))
 
@@ -298,7 +298,7 @@ describe "EventSet" do
   end
 
   describe "#imminent_duration" do
-    it "returns due duration before the next planned event(s) occur" do
+    describe "returns due duration before the next planned event(s) occur" do
       EventSetTester.new.test do |pes|
         pes.imminent_duration.should eq(Duration::INFINITY)
 
@@ -313,7 +313,7 @@ describe "EventSet" do
       end
     end
 
-    it "handles passage from an epoch to another" do
+    describe "handles passage from an epoch to another" do
       EventSetTester.new.test do |pes|
         pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT - 6500)
 
@@ -337,7 +337,7 @@ describe "EventSet" do
       end
     end
 
-    it "returns a planned duration matching current time precision" do
+    describe "returns a planned duration matching current time precision" do
       EventSetTester.new.test do |pes|
         pes.plan_event(MySchedulable.new(1), Duration.new(1000))
         pes.imminent_duration.should eq(Duration.new(1000))
@@ -351,7 +351,7 @@ describe "EventSet" do
   end
 
   describe "#cancel_event" do
-    it "removes and returns the specified event" do
+    describe "removes and returns the specified event" do
       EventSetTester.new.test do |pes|
         ev1 = MySchedulable.new(1)
         ev2 = MySchedulable.new(2)
@@ -386,7 +386,7 @@ describe "EventSet" do
       end
     end
 
-    it "removes and returns events occuring in the next epoch" do
+    describe "removes and returns events occuring in the next epoch" do
       EventSetTester.new.test do |pes|
         pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
         ev = MySchedulable.new(1)
@@ -408,7 +408,7 @@ describe "EventSet" do
   end
 
   describe "#pop_imminent_event" do
-    it "deletes and returns the next imminent event" do
+    describe "deletes and returns the next imminent event" do
       EventSetTester.new.test do |pes|
         pes.plan_event(MySchedulable.new(1), Duration.new(5))
         pes.plan_event(MySchedulable.new(2), Duration.new(7))
@@ -419,7 +419,7 @@ describe "EventSet" do
   end
 
   describe "#pop_imminent_events" do
-    it "deletes and returns the all imminent events" do
+    describe "deletes and returns the all imminent events" do
       EventSetTester.new.test do |pes|
         pes.plan_event(MySchedulable.new(1), Duration.new(5))
         pes.plan_event(MySchedulable.new(2), Duration.new(7))
@@ -434,7 +434,7 @@ describe "EventSet" do
   end
 
   describe "#plan_event" do
-    it "stores in the priority queue events occuring in the current epoch" do
+    describe "stores in the priority queue events occuring in the current epoch" do
       EventSetTester.new.test do |pes|
         pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
 
@@ -445,7 +445,7 @@ describe "EventSet" do
       end
     end
 
-    it "stores in the priority queue events occuring in the next epoch" do
+    describe "stores in the priority queue events occuring in the next epoch" do
       EventSetTester.new.test do |pes|
         pes.advance by: Duration.new(Duration::MULTIPLIER_LIMIT / 2)
 
