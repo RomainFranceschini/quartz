@@ -11,6 +11,15 @@ module Quartz
     # :nodoc:
     EMPTY_BAG = Hash(InputPort, Array(Any)).new
 
+    # :nodoc:
+    OBS_INFO_INIT_TRANSITION = {:transition => Any.new(:init)}
+    # :nodoc:
+    OBS_INFO_INT_TRANSITION = {:transition => Any.new(:internal)}
+    # :nodoc:
+    OBS_INFO_EXT_TRANSITION = {:transition => Any.new(:external)}
+    # :nodoc:
+    OBS_INFO_CON_TRANSITION = {:transition => Any.new(:confluent)}
+
     include Logging
 
     getter model : Model

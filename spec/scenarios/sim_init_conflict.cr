@@ -8,7 +8,7 @@ private module ConflictScenario
 
     def initialize(name)
       super(name)
-      @sigma = Duration.new(1)
+      @sigma = Duration.new(0)
       add_output_port :out
     end
 
@@ -37,7 +37,7 @@ private module ConflictScenario
   class R < Quartz::AtomicModel
     def initialize(name)
       super(name)
-      @sigma = Duration.new(1)
+      @sigma = Duration.new(0)
       add_input_port :in
     end
 
@@ -141,7 +141,7 @@ private module ConflictScenario
         m.r.bags.first.keys.size.should eq(1)
 
         m.r2.ext_calls.should eq(1)
-        m.r2.elapsed_values.first.should eq(Duration.new(1))
+        m.r2.elapsed_values.first.should eq(Duration.new(0))
         m.r2.bags.first.has_key?(m.r2.input_port(:in)).should be_true
         m.r2.bags.first[m.r2.input_port(:in)].should eq(["value"])
         m.r2.bags.first.keys.size.should eq(1)
@@ -162,7 +162,7 @@ private module ConflictScenario
         m.r.bags.first.keys.size.should eq(1)
 
         m.r2.ext_calls.should eq(1)
-        m.r2.elapsed_values.first.should eq(Duration.new(1))
+        m.r2.elapsed_values.first.should eq(Duration.new(0))
         m.r2.bags.first.has_key?(m.r2.input_port(:in)).should be_true
         m.r2.bags.first[m.r2.input_port(:in)].should eq(["value"])
         m.r2.bags.first.keys.size.should eq(1)

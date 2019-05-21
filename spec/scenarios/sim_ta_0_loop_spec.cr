@@ -12,6 +12,9 @@ private module LoopScenario
     def external_transition(bag)
     end
 
+    def confluent_transition(bag)
+    end
+
     def output
       @output_calls += 1
     end

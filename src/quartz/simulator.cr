@@ -1,15 +1,6 @@
 module Quartz
   # This class defines a PDEVS simulator.
   class Simulator < Processor
-    # :nodoc:
-    OBS_INFO_INIT_TRANSITION = {:transition => Any.new(:init)}
-    # :nodoc:
-    OBS_INFO_INT_TRANSITION = {:transition => Any.new(:internal)}
-    # :nodoc:
-    OBS_INFO_EXT_TRANSITION = {:transition => Any.new(:external)}
-    # :nodoc:
-    OBS_INFO_CON_TRANSITION = {:transition => Any.new(:confluent)}
-
     @int_count : UInt32 = 0u32
     @ext_count : UInt32 = 0u32
     @con_count : UInt32 = 0u32
@@ -74,7 +65,7 @@ module Quartz
       @model.as(AtomicModel).fetch_output!
     end
 
-    def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
+    def perform_transitions(time : TimePoint, elapsed : Duration, imminent : Bool = false) : Duration
       atomic = @model.as(AtomicModel)
       bag = @bag || EMPTY_BAG
 
@@ -82,7 +73,7 @@ module Quartz
       kind = nil
       atomic.elapsed = elapsed
 
-      if elapsed.zero?
+      if imminent
         if bag.empty?
           @int_count += 1u32
           atomic.internal_transition
@@ -94,7 +85,7 @@ module Quartz
           info = OBS_INFO_CON_TRANSITION
           kind = :confluent
         end
-      elsif elapsed > Duration.zero && !bag.empty?
+      elsif !imminent && !bag.empty?
         @ext_count += 1u32
         atomic.external_transition(bag)
         info = OBS_INFO_EXT_TRANSITION

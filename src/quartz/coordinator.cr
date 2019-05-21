@@ -203,7 +203,12 @@ module Quartz
                      true
                    end
 
-      planned_duration = receiver.perform_transitions(time, elapsed_duration)
+      planned_duration = case receiver
+                         when Simulator
+                           receiver.perform_transitions(time, elapsed_duration, remaining_duration.zero?)
+                         else
+                           receiver.perform_transitions(time, elapsed_duration)
+                         end
 
       # No need to reschedule the event if its planned duration is infinite.
       if planned_duration.infinite?

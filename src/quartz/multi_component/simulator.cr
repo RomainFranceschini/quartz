@@ -1,7 +1,7 @@
 module Quartz
   module MultiComponent
     # This class defines a multiPDEVS simulator.
-    class Simulator < Quartz::Simulator
+    class Simulator < Quartz::Processor
       # :nodoc:
       OBS_INFO_REAC_TRANSITION = {:transition => Any.new(:reaction)}
 
@@ -12,10 +12,15 @@ module Quartz
       @state_bags : Hash(Quartz::MultiComponent::Component, Array(Tuple(Name, Any)))
       @parent_bag : Hash(OutputPort, Array(Any))
       @reac_count : UInt32 = 0u32
+      @int_count : UInt32 = 0u32
+      @ext_count : UInt32 = 0u32
+      @con_count : UInt32 = 0u32
+      @run_validations : Bool
 
       def initialize(model, simulation)
-        super(model, simulation)
+        super(model)
         sched_type = model.class.preferred_event_set? || simulation.default_scheduler
+        @run_validations = simulation.run_validations?
         @event_set = EventSet(Component).new(sched_type)
         @time_cache = TimeCache(Component).new(@event_set.current_time)
         @state_bags = Hash(Quartz::MultiComponent::Component, Array(Tuple(Name, Any))).new { |h, k|
