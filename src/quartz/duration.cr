@@ -171,10 +171,12 @@ module Quartz
                   else
                     @multiplier + other.multiplier
                   end
-            # coarsen precision while multiplier overflows
-            until -MULTIPLIER_LIMIT < tmp < MULTIPLIER_LIMIT
-              precision += 1
-              tmp /= Scale::FACTOR
+            unless tmp.infinite?
+              # coarsen precision while multiplier overflows
+              until -MULTIPLIER_LIMIT < tmp < MULTIPLIER_LIMIT
+                precision += 1
+                tmp /= Scale::FACTOR
+              end
             end
             tmp
           end
@@ -203,10 +205,12 @@ module Quartz
                   else
                     @multiplier - other.multiplier
                   end
-            # coarsen precision while multiplier overflows
-            until -MULTIPLIER_LIMIT < tmp < MULTIPLIER_LIMIT
-              precision += 1
-              tmp /= Scale::FACTOR
+            unless tmp.infinite?
+              # coarsen precision while multiplier overflows
+              until -MULTIPLIER_LIMIT < tmp < MULTIPLIER_LIMIT
+                precision += 1
+                tmp /= Scale::FACTOR
+              end
             end
             tmp
           end
@@ -217,19 +221,22 @@ module Quartz
     def *(n : Number) : Duration
       m = @multiplier * n
       precision = @precision
-      if @fixed
-        m = m.round
-      elsif n.abs < 1
-        # while multiplier has a fractional part and precision refining doesn't overflow
-        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
-          precision -= 1
-          m *= Scale::FACTOR
-        end
-      else
-        # coarsen precisison while multiplier overflows
-        until -MULTIPLIER_LIMIT < m < MULTIPLIER_LIMIT
-          precision += 1
-          m /= Scale::FACTOR
+      raise "Not a duration" if m.nan?
+      unless m.infinite?
+        if @fixed
+          m = m.round
+        elsif n.abs < 1
+          # while multiplier has a fractional part and precision refining doesn't overflow
+          while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
+            precision -= 1
+            m *= Scale::FACTOR
+          end
+        else
+          # coarsen precisison while multiplier overflows
+          until -MULTIPLIER_LIMIT < m < MULTIPLIER_LIMIT
+            precision += 1
+            m /= Scale::FACTOR
+          end
         end
       end
       Duration.new(m, precision, @fixed)
@@ -239,13 +246,16 @@ module Quartz
     def /(n : Number) : Duration
       m = @multiplier / n
       precision = @precision
-      if @fixed
-        m = m.round
-      elsif n.abs > 1
-        # while multiplier has a fractional part and scale refining doesn't overflow
-        while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
-          precision -= 1
-          m *= Scale::FACTOR
+      raise "Not a duration" if m.nan?
+      unless m.infinite?
+        if @fixed
+          m = m.round
+        elsif n.abs > 1
+          # while multiplier has a fractional part and scale refining doesn't overflow
+          while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
+            precision -= 1
+            m *= Scale::FACTOR
+          end
         end
       end
       Duration.new(m, precision, @fixed)

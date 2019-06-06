@@ -228,4 +228,46 @@ describe "Duration" do
     (Duration.new(500, Scale::MILLI) + Duration.new(500, Scale::MILLI)).equals?(Duration.new(1)).should be_false
     (Duration.new(500, Scale::MILLI) + Duration.new(500, Scale::MILLI)).equals?(Duration.new(1000, Scale::MILLI)).should be_true
   end
+
+  describe "infinite durations propagates" do
+    it "for addition operation" do
+      (Duration::INFINITY + Duration.new(1)).should eq(Duration::INFINITY)
+      (Duration::INFINITY + (-Duration.new(1))).should eq(Duration::INFINITY)
+      (Duration::INFINITY + Duration::INFINITY).should eq(Duration::INFINITY)
+      # (Duration.new(1) + Duration::INFINITY).should eq(Duration::INFINITY)
+      # (-Duration.new(1) + Duration::INFINITY).should eq(Duration::INFINITY)
+
+      (-Duration::INFINITY + Duration.new(1)).should eq(-Duration::INFINITY)
+      (-Duration::INFINITY + (-Duration.new(1))).should eq(-Duration::INFINITY)
+      (-Duration::INFINITY + -Duration::INFINITY).should eq(-Duration::INFINITY)
+    end
+
+    it "for substraction operation" do
+      (Duration::INFINITY - Duration.new(1)).should eq(Duration::INFINITY)
+      (Duration::INFINITY - -Duration.new(1)).should eq(Duration::INFINITY)
+      (Duration::INFINITY - Duration::INFINITY).should eq(Duration::INFINITY)
+
+      (-Duration::INFINITY - Duration.new(1)).should eq(-Duration::INFINITY)
+      (-Duration::INFINITY - -Duration.new(1)).should eq(-Duration::INFINITY)
+    end
+
+    it "for multiplication operation" do
+      (Duration::INFINITY * 1).should eq(Duration::INFINITY)
+      (Duration::INFINITY * -1).should eq(-Duration::INFINITY)
+      (Duration::INFINITY * Float64::INFINITY).should eq(Duration::INFINITY)
+      (Duration::INFINITY * -Float64::INFINITY).should eq(-Duration::INFINITY)
+
+      (-Duration::INFINITY * 1).should eq(-Duration::INFINITY)
+      (-Duration::INFINITY * -1).should eq(Duration::INFINITY)
+      (-Duration::INFINITY * Float64::INFINITY).should eq(-Duration::INFINITY)
+      (-Duration::INFINITY * -Float64::INFINITY).should eq(Duration::INFINITY)
+    end
+
+    it "for division operation" do
+      (Duration::INFINITY / 1).should eq(Duration::INFINITY)
+      (Duration::INFINITY / -1).should eq(-Duration::INFINITY)
+      (-Duration::INFINITY / 1).should eq(-Duration::INFINITY)
+      (-Duration::INFINITY / -1).should eq(Duration::INFINITY)
+    end
+  end
 end
