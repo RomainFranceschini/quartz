@@ -55,7 +55,7 @@ module Quartz
   # events scheduled to occur.
   class EventSet(T)
     # Returns the current time associated with the event set.
-    getter current_time : TimePoint
+    property current_time : TimePoint
 
     getter priority_queue : PriorityQueue(T)
 

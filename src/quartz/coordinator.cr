@@ -13,8 +13,8 @@ module Quartz
 
       @children = Array(Processor).new
       priority_queue = model.class.preferred_event_set? || simulation.default_scheduler
-      @event_set = EventSet(Processor).new(priority_queue)
-      @time_cache = TimeCache(Processor).new(@event_set.current_time)
+      @event_set = EventSet(Processor).new(priority_queue, simulation.virtual_time)
+      @time_cache = TimeCache(Processor).new(simulation.virtual_time)
       @synchronize = Array(Processor).new
       @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
         h[k] = Array(Any).new
@@ -50,9 +50,7 @@ module Quartz
 
     def initialize_processor(time : TimePoint) : {Duration, Duration}
       @event_set.clear
-      @time_cache.current_time = @event_set.current_time
-
-      @event_set.advance until: time
+      @time_cache.current_time = @event_set.current_time = time
 
       min_planned_duration = Duration::INFINITY
       max_elapsed = Duration.new(0)
@@ -78,8 +76,6 @@ module Quartz
     end
 
     def collect_outputs(elapsed : Duration)
-      @event_set.advance by: elapsed
-
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
 
@@ -160,10 +156,6 @@ module Quartz
 
     protected def handle_external_inputs(time : TimePoint)
       bag = @bag || EMPTY_BAG
-
-      if @event_set.current_time < time && !bag.empty?
-        @event_set.advance until: time
-      end
 
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y

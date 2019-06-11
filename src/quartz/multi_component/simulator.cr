@@ -21,8 +21,8 @@ module Quartz
         super(model)
         sched_type = model.class.preferred_event_set? || simulation.default_scheduler
         @run_validations = simulation.run_validations?
-        @event_set = EventSet(Component).new(sched_type)
-        @time_cache = TimeCache(Component).new(@event_set.current_time)
+        @event_set = EventSet(Component).new(sched_type, simulation.virtual_time)
+        @time_cache = TimeCache(Component).new(simulation.virtual_time)
         @state_bags = Hash(Quartz::MultiComponent::Component, Array(Tuple(Name, Any))).new { |h, k|
           h[k] = Array(Tuple(Name, Any)).new
         }
@@ -46,8 +46,7 @@ module Quartz
       def initialize_processor(time : TimePoint) : {Duration, Duration}
         @reac_count = @int_count = @ext_count = @con_count = 0u32
         @event_set.clear
-        @time_cache.current_time = @event_set.current_time
-        @event_set.advance until: time
+        @time_cache.current_time = @event_set.current_time = time
 
         max_elapsed = Duration.new(0)
 
@@ -96,8 +95,6 @@ module Quartz
       end
 
       def collect_outputs(elapsed : Duration)
-        @event_set.advance by: elapsed
-
         @parent_bag.clear unless @parent_bag.empty?
 
         @event_set.each_imminent_event do |component|
@@ -124,10 +121,6 @@ module Quartz
 
       def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
         bag = @bag || EMPTY_BAG
-
-        if @event_set.current_time < time && !bag.empty?
-          @event_set.advance until: time
-        end
 
         if elapsed.zero? && bag.empty?
           @int_count += @imm.size

@@ -3,6 +3,7 @@ module Quartz
     include Simulable
 
     delegate current_time, to: @event_set
+    delegate advance, to: @event_set
 
     @[AlwaysInline]
     def initialize_state(time : TimePoint) : Duration
