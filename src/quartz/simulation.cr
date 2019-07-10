@@ -17,6 +17,7 @@ module Quartz
     getter processor, model, start_time, final_time
     getter status : Status
     getter virtual_time : TimePoint
+    getter notifier : Hooks::Notifier
 
     @status : Status
     @final_vtime : TimePoint?
@@ -46,6 +47,7 @@ module Quartz
                      end
 
       @virtual_time = TimePoint.new(0)
+      @notifier = Hooks::Notifier.new
 
       @model = case model
                when AtomicModel, MultiComponent::Model
@@ -147,11 +149,11 @@ module Quartz
     # aborted state.
     def abort
       if running? || initialized?
-        Hooks.notifier.notify(Hooks::PRE_ABORT)
+        @notifier.notify(Hooks::PRE_ABORT)
         info "Aborting simulation."
         @final_time = Time.monotonic
         @status = Status::Aborted
-        Hooks.notifier.notify(Hooks::POST_ABORT)
+        @notifier.notify(Hooks::POST_ABORT)
       end
     end
 
@@ -160,12 +162,12 @@ module Quartz
     def restart
       case @status
       when Status::Done, Status::Aborted
-        Hooks.notifier.notify(Hooks::PRE_RESTART)
+        @notifier.notify(Hooks::PRE_RESTART)
         @start_time = nil
         @final_time = nil
         @virtual_time = TimePoint.new
         @status = Status::Ready
-        Hooks.notifier.notify(Hooks::POST_RESTART)
+        @notifier.notify(Hooks::POST_RESTART)
       when Status::Running, Status::Initialized
         info "Cannot restart, the simulation is currently running."
       end
@@ -175,7 +177,7 @@ module Quartz
       @start_time = Time.monotonic
       @status = Status::Running
       info "Beginning simulation until time point: #{@final_vtime ? @final_vtime : "INFINITY"}"
-      Hooks.notifier.notify(Hooks::PRE_SIMULATION)
+      @notifier.notify(Hooks::PRE_SIMULATION)
     end
 
     private def end_simulation
@@ -196,18 +198,18 @@ module Quartz
           logger.debug "Running post simulation hook"
         end
       end
-      Hooks.notifier.notify(Hooks::POST_SIMULATION)
+      @notifier.notify(Hooks::POST_SIMULATION)
     end
 
     def initialize_simulation
       if ready?
         begin_simulation
-        Hooks.notifier.notify(Hooks::PRE_INIT)
+        @notifier.notify(Hooks::PRE_INIT)
         Quartz.timing("Simulation initialization") do
           @time_next = processor.initialize_state(@virtual_time)
         end
         @status = Status::Initialized
-        Hooks.notifier.notify(Hooks::POST_INIT)
+        @notifier.notify(Hooks::POST_INIT)
       else
         info "Cannot initialize simulation while it is running or terminated."
       end
