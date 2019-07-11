@@ -335,6 +335,9 @@ describe "TimePoint" do
 
       (TimePoint.new(2) > TimePoint.new(1000, Scale::MILLI)).should be_true
       (TimePoint.new(2) < TimePoint.new(3000, Scale::MILLI)).should be_true
+
+      (TimePoint.new(1, Scale::KILO) < TimePoint.new(1100, Scale::BASE)).should be_true
+      (TimePoint.new(1100, Scale::BASE) > TimePoint.new(1, Scale::KILO)).should be_true
     end
   end
 

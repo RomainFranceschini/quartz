@@ -406,11 +406,16 @@ module Quartz
       elsif lhs_size > rhs_size
         1
       else
-        # lengths are equal, compare the values
+        # lengths are equal, compare values from the most-significant to the
+        # least-significant integer of the magnitude
         cmp = 0
-        Math.max(lhs_size, rhs_size).times do
+        max = Math.max(lhs_size, rhs_size)
+        precision += max
+
+        max.downto(0) do |i|
           lhs = self[precision]
           rhs = other[precision]
+
           if lhs < rhs
             cmp = -1
             break
@@ -418,8 +423,9 @@ module Quartz
             cmp = 1
             break
           end
-          precision += 1
+          precision -= 1
         end
+
         cmp
       end
     end
