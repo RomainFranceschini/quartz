@@ -130,10 +130,10 @@ class Tracer
 
   property filename : String
 
-  def initialize(@filename = "trace.csv")
-    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::PRE_INIT, self)
-    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::POST_SIMULATION, self)
-    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::POST_ABORT, self)
+  def initialize(@filename = "trace.csv", notifier)
+    notifier.subscribe(Quartz::Hooks::PRE_INIT, self)
+    notifier.subscribe(Quartz::Hooks::POST_SIMULATION, self)
+    notifier.subscribe(Quartz::Hooks::POST_ABORT, self)
   end
 
   def close
@@ -173,7 +173,7 @@ sim = Quartz::Simulation.new(
   scheduler: :binary_heap
 )
 
-model[:buf].add_observer(Tracer.new("genbufproc_trace.csv"))
+model[:buf].add_observer(Tracer.new("genbufproc_trace.csv", sim.notifier))
 sim.simulate
 
 puts sim.transition_stats[:TOTAL]

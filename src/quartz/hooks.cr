@@ -9,11 +9,6 @@ module Quartz
     PRE_RESTART     = :pre_restart
     POST_RESTART    = :post_restart
 
-    # Returns the simulation default notifier.
-    def self.notifier
-      @@notifier ||= Notifier.new
-    end
-
     # The `Notifiable` module is intended to be included in a class as a mixin.
     # It provides an interface so that objects can register and receive hooks
     # during a simulation via the `#notify` method that are dispatched by
@@ -31,8 +26,8 @@ module Quartz
     # of this method registers the receiver to a given hook. Therefore,
     # objects may register to several hooks.
     #
-    # A default `Notifier` instance is provided (`Hooks#notifier`) so that
-    # objects can register to hooks sent during a simulation.
+    # A default `Notifier` instance is associated with `Simulation` instances so
+    # that objects can subscribe to simulation events.
     class Notifier
       @listeners : Hash(Symbol, Array((Symbol ->) | Notifiable))?
 

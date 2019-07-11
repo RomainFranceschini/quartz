@@ -40,9 +40,9 @@ class Tracer
 
   SPACES = 30
 
-  def initialize(model)
-    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::PRE_INIT, self)
-    Quartz::Hooks.notifier.subscribe(Quartz::Hooks::POST_SIMULATION, self)
+  def initialize(model, notifier)
+    notifier.subscribe(Quartz::Hooks::PRE_INIT, self)
+    notifier.subscribe(Quartz::Hooks::POST_SIMULATION, self)
     model.add_observer(self)
   end
 
@@ -68,8 +68,8 @@ end
 
 # Quartz.logger.level = Logger::Severity::DEBUG
 model = LotkaVolterra.new(:LotkaVolterra)
-Tracer.new(model)
 sim = Quartz::Simulation.new(model, scheduler: :binary_heap, duration: Quartz.duration(20))
+Tracer.new(model, sim.notifier)
 
 sim.simulate
 

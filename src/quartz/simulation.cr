@@ -36,10 +36,11 @@ module Quartz
     delegate aborted?, to: @status
 
     def initialize(model : Model, *,
-                   scheduler : Symbol = :binary_heap,
+                   @scheduler : Symbol = :binary_heap,
                    maintain_hierarchy : Bool = true,
                    duration : Duration = Duration::INFINITY,
-                   run_validations : Bool = false)
+                   @run_validations : Bool = false,
+                   @notifier : Hooks::Notifier = Hooks::Notifier.new)
       @final_vtime = if duration.infinite?
                        nil
                      else
@@ -47,7 +48,6 @@ module Quartz
                      end
 
       @virtual_time = TimePoint.new(0)
-      @notifier = Hooks::Notifier.new
 
       @model = case model
                when AtomicModel, MultiComponent::Model
@@ -57,8 +57,6 @@ module Quartz
                end
 
       @time_next = Duration.new(0)
-      @scheduler = scheduler
-      @run_validations = run_validations
       @status = Status::Ready
 
       unless maintain_hierarchy
