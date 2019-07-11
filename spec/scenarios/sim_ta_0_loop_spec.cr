@@ -38,7 +38,7 @@ private module LoopScenario
   describe "PDEVS simulation" do
     it "allows ta(s)=0 loops" do
       m = M.new :m
-      sim = Quartz::Simulation.new(m)
+      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false))
       sim.initialize_simulation
       sim.step
 

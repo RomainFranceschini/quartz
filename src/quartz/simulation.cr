@@ -27,6 +27,7 @@ module Quartz
     @run_validations : Bool
     @model : CoupledModel
     @time_next : Duration = Duration.new(0)
+    @termination_condition : Proc(TimePoint, CoupledModel, Bool)
 
     delegate ready?, to: @status
     delegate initialized?, to: @status
@@ -37,15 +38,22 @@ module Quartz
     def initialize(model : Model, *,
                    @scheduler : Symbol = :binary_heap,
                    maintain_hierarchy : Bool = true,
-                   duration : Duration = Duration::INFINITY,
+                   duration : (Duration | TimePoint) = Duration::INFINITY,
                    @run_validations : Bool = false,
                    @notifier : Hooks::Notifier = Hooks::Notifier.new,
                    @loggers : Loggers = Loggers.new(true))
-      @final_vtime = if duration.infinite?
-                       nil
-                     else
-                       TimePoint.new(duration.multiplier, duration.precision)
+      @final_vtime = case duration
+                     when Duration
+                       duration.infinite? ? nil : TimePoint.new(duration.multiplier, duration.precision)
+                     when TimePoint
+                       duration
                      end
+
+      @termination_condition = if ftime = @final_vtime
+                                 ->(vtime : TimePoint, model : CoupledModel) { vtime > ftime.not_nil! }
+                               else
+                                 ->(vtime : TimePoint, model : CoupledModel) { false }
+                               end
 
       @model = case model
                when AtomicModel, MultiComponent::Model
@@ -59,6 +67,11 @@ module Quartz
           @model.accept(DirectConnectionVisitor.new(@model))
         }
       end
+    end
+
+    # Set the termination condition
+    def termination_condition(&block : TimePoint, CoupledModel -> Bool)
+      @termination_condition = block
     end
 
     @[AlwaysInline]
@@ -75,7 +88,6 @@ module Quartz
     def inspect(io)
       io << "<" << self.class.name << ": status=" << status.to_s(io)
       io << ", time=" << virtual_time.to_s(io)
-      io << ", final_time=" << @final_vtime ? @final_vtime.to_s(io) : "INFINITY"
       nil
     end
 
@@ -169,7 +181,7 @@ module Quartz
     private def begin_simulation
       @start_time = Time.monotonic
       @status = Status::Running
-      @loggers.info "Beginning simulation until time point: #{@final_vtime ? @final_vtime : "INFINITY"}"
+      @loggers.info "Beginning simulation"
       @notifier.notify(Hooks::PRE_SIMULATION)
     end
 
@@ -215,15 +227,19 @@ module Quartz
         @time_next
       when Status::Initialized, Status::Running
         processor.advance by: @time_next
+        if @termination_condition.call(@virtual_time, @model)
+          end_simulation
+          return nil
+        end
+
         if @loggers.any_debug?
           @loggers.debug("Tick at #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
         end
+
         @time_next = processor.step(@time_next)
-        if @time_next.infinite?
-          end_simulation
-        elsif final = @final_vtime
-          end_simulation if @time_next >= (final - virtual_time)
-        end
+
+        end_simulation if @time_next.infinite?
+
         @time_next
       else
         nil
@@ -239,15 +255,13 @@ module Quartz
         begin_simulation
         loop do
           processor.advance by: @time_next
+          break if @termination_condition.call(@virtual_time, @model)
+
           if @loggers.any_debug?
             @loggers.debug("Tick at: #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
           end
           @time_next = processor.step(@time_next)
-          if @time_next.infinite?
-            break
-          elsif final = @final_vtime
-            break if @time_next >= (final - virtual_time)
-          end
+          break if @time_next.infinite?
         end
         end_simulation
       when Status::Running
@@ -270,15 +284,13 @@ module Quartz
         begin_simulation
         loop do
           processor.advance by: @time_next
+          break if @termination_condition.call(@virtual_time, @model)
+
           if @loggers.any_debug?
             @loggers.debug("Tick at: #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
           end
           @time_next = processor.step(@time_next)
-          if @time_next.infinite?
-            break
-          elsif final = @final_vtime
-            break if @time_next >= (final - virtual_time)
-          end
+          break if @time_next.infinite?
           yield(@time_next)
         end
         end_simulation

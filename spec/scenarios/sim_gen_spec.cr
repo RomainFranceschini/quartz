@@ -38,9 +38,9 @@ private module GeneratorScenario
           gen.elapsed_values[i].should eq(Duration.new(0))
         }
 
-        gen.output_calls.should eq(9)
-        gen.internal_calls.should eq(9)
-        gen.time.to_i.should eq(9)
+        gen.output_calls.should eq(10)
+        gen.internal_calls.should eq(10)
+        gen.time.to_i.should eq(10)
         gen.elapsed_values.last.should eq(Duration.new(0))
       end
     end
