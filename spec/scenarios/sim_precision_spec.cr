@@ -3,7 +3,7 @@ require "../spec_helper"
 private module PrecisionScenario
   class InvalidGenerator1 < Quartz::AtomicModel
     include PassiveBehavior
-    output :out
+    output :pout
 
     precision micro
 
@@ -14,7 +14,7 @@ private module PrecisionScenario
     end
 
     def output
-      post nil, on: :out
+      post nil, on: :pout
     end
 
     def time_advance
@@ -24,7 +24,7 @@ private module PrecisionScenario
 
   class InvalidGenerator2 < Quartz::AtomicModel
     include PassiveBehavior
-    output :out
+    output :pout
 
     precision micro
     @sigma = Quartz::Duration.new(0)
@@ -34,7 +34,7 @@ private module PrecisionScenario
     end
 
     def output
-      post nil, on: :out
+      post nil, on: :pout
     end
 
     def time_advance
@@ -44,13 +44,13 @@ private module PrecisionScenario
 
   class Generator < Quartz::AtomicModel
     include PassiveBehavior
-    output :out
+    output :pout
 
     precision micro
     @sigma = Quartz::Duration.new(100, Quartz::Scale::MILLI)
 
     def output
-      post nil, on: :out
+      post nil, on: :pout
     end
 
     def time_advance
@@ -73,7 +73,7 @@ private module PrecisionScenario
   describe "simulation" do
     it "raises when planned durations exceed maximum duration based on model precision" do
       m = InvalidGenerator1.new(:gen)
-      sim = Quartz::Simulation.new(m)
+      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false))
       sim.initialize_simulation
 
       expect_raises Quartz::InvalidDurationError do
@@ -83,7 +83,7 @@ private module PrecisionScenario
 
     it "raises when planned durations are below the model precision" do
       m = InvalidGenerator2.new(:gen)
-      sim = Quartz::Simulation.new(m)
+      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false))
       sim.initialize_simulation
 
       expect_raises Quartz::InvalidDurationError do
@@ -96,9 +96,9 @@ private module PrecisionScenario
       gen = Generator.new(:gen)
       col = FineCollector.new(:col)
       c << gen << col
-      c.attach :out, to: :in, between: gen, and: col
+      c.attach :pout, to: :in, between: gen, and: col
 
-      sim = Quartz::Simulation.new(c)
+      sim = Quartz::Simulation.new(c, loggers: Loggers.new(false))
       sim.initialize_simulation
 
       sim.step # generator sends value collector receives value
@@ -112,9 +112,9 @@ private module PrecisionScenario
       gen = Generator.new(:gen)
       col = RoughCollector.new(:col)
       c << gen << col
-      c.attach :out, to: :in, between: gen, and: col
+      c.attach :pout, to: :in, between: gen, and: col
 
-      sim = Quartz::Simulation.new(c)
+      sim = Quartz::Simulation.new(c, loggers: Loggers.new(false))
       sim.initialize_simulation
 
       sim.step # generator sends value collector receives value

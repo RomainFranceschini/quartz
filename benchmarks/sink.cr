@@ -80,13 +80,13 @@ class CoupledSink < Quartz::CoupledModel
 end
 
 RND = Random.new(65489)
-Quartz.logger = nil
 
 root = CoupledSink.new(ARGV[0].to_i, ARGV[1].to_i, ARGV[2].to_i)
 simulation = Quartz::Simulation.new(
   root,
   maintain_hierarchy: true,
-  scheduler: :binary_heap
+  scheduler: :binary_heap,
+  loggers: Quartz::Loggers.new(false)
 )
 
 simulation.simulate

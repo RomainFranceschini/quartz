@@ -16,11 +16,13 @@ module Quartz
       @ext_count : UInt32 = 0u32
       @con_count : UInt32 = 0u32
       @run_validations : Bool
+      @loggers : Loggers
 
       def initialize(model, simulation)
         super(model)
         sched_type = model.class.preferred_event_set? || simulation.default_scheduler
         @run_validations = simulation.run_validations?
+        @loggers = simulation.loggers
         @event_set = EventSet(Component).new(sched_type, simulation.virtual_time)
         @time_cache = TimeCache(Component).new(simulation.virtual_time)
         @state_bags = Hash(Quartz::MultiComponent::Component, Array(Tuple(Name, Any))).new { |h, k|
@@ -61,8 +63,8 @@ module Quartz
             raise InvalidDurationError.new("'#{component.name}': planned duration #{planned_duration} is rounded to #{fixed_planned_duration} due to the model precision level.")
           end
 
-          if (logger = Quartz.logger?) && logger.debug?
-            logger.debug(String.build { |str|
+          if @loggers.any_debug?
+            @loggers.debug(String.build { |str|
               str << '\'' << component.name << "' initialized ("
               str << "elapsed: " << elapsed << ", time_next: "
               str << planned_duration << ')'
@@ -148,8 +150,8 @@ module Quartz
                 @state_bags[@components[k]] << {component.name, v}
               end
             end
-            if (logger = Quartz.logger?) && logger.debug?
-              logger.debug(String.build { |str|
+            if @loggers.any_debug?
+              @loggers.debug(String.build { |str|
                 str << '\'' << component.name << "': internal transition"
               })
             end
@@ -209,8 +211,8 @@ module Quartz
                 @state_bags[@components[k]] << {component_name, v}
               end
 
-              if (logger = Quartz.logger?) && logger.debug?
-                logger.debug(String.build { |str|
+              if @loggers.any_debug?
+                @loggers.debug(String.build { |str|
                   str << '\'' << component.name << "': " << kind << " transition"
                 })
               end
@@ -254,8 +256,8 @@ module Quartz
           end
           @time_cache.retain_event(component, planned_duration.precision)
 
-          if (logger = Quartz.logger?) && logger.debug?
-            logger.debug(String.build { |str|
+          if @loggers.any_debug?
+            @loggers.debug(String.build { |str|
               str << '\'' << component.name << "': reaction transition ("
               str << "elapsed: " << elapsed_duration << ", time_next: " << planned_duration << ')'
             })

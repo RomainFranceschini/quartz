@@ -39,8 +39,8 @@ module Quartz
             elapsed_duration = @time_cache.elapsed_duration_of(old_processor)
             @time_cache.release_event(old_processor)
 
-            if (logger = Quartz.logger?) && logger.debug?
-              logger.debug(String.build { |str|
+            if @simulation.loggers.any_debug?
+              @simulation.loggers.debug(String.build { |str|
                 str << '\'' << old_model.name << "' terminated ("
                 str << "elapsed: " << elapsed_duration << ')'
               })

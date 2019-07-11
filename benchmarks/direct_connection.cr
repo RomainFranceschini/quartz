@@ -108,7 +108,6 @@ module DEVStone
 end
 
 RND = Random.new(684321)
-Quartz.logger = nil
 iterations = 10
 width = 100
 depths = {5}
@@ -128,7 +127,8 @@ result = CSV.build do |csv|
           root,
           duration: duration,
           maintain_hierarchy: maintain_hierarchy,
-          scheduler: :binary_heap
+          scheduler: :binary_heap,
+          loggers: Quartz::Loggers.new(false)
         )
 
         csv.row do |row|

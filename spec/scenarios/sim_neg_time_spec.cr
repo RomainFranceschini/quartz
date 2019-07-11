@@ -32,7 +32,7 @@ private module NegativeInitialTimeScenario
     describe "simulation" do
       it "time might be negative at initialization" do
         atom = TestInitialElapsed.new(:testneg)
-        sim = Quartz::Simulation.new(atom, duration: Quartz::Duration::INFINITY)
+        sim = Quartz::Simulation.new(atom, duration: Quartz::Duration::INFINITY, loggers: Loggers.new(false))
 
         sim.initialize_simulation
         atom.time_advance.should eq(Duration.new(2))

@@ -32,9 +32,7 @@ module Quartz
       when :binary_heap    then BinaryHeap(T).new(&comparator)
       when :fibonacci_heap then FibonacciHeap(T).new(&comparator)
       else
-        if (logger = Quartz.logger?) && logger.warn?
-          logger.warn("Unknown priority queue '#{priority_queue}', defaults to binary heap")
-        end
+        puts "Unknown priority queue '#{priority_queue}', defaults to binary heap"
         BinaryHeap(T).new(&comparator)
       end
     end

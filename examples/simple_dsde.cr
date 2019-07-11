@@ -76,11 +76,10 @@ class Grapher
   end
 end
 
-Quartz.logger.level = Logger::DEBUG
-
 model = Quartz::DSDE::CoupledModel.new(:dsde, BirthController.new(:executive))
 
 simulation = Quartz::Simulation.new(model, duration: Quartz.duration(25), maintain_hierarchy: true)
+simulation.loggers.level = Logger::DEBUG
 simulation.generate_graph("dsde_0")
 Grapher.new(model.executive, simulation)
 simulation.simulate

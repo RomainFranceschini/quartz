@@ -64,7 +64,7 @@ private module ObservedSimulationScenario
       it "is notified when a value is dropped on an output port" do
         model = Foo.new(:foo)
         po = PortObserver.new(model.output_port(:out))
-        sim = Quartz::Simulation.new(model)
+        sim = Quartz::Simulation.new(model, loggers: Loggers.new(false))
         sim.simulate
 
         po.calls.should eq(1)
@@ -76,7 +76,7 @@ private module ObservedSimulationScenario
       it "is notified for each transition" do
         model = Foo.new(:foo)
         to = TransitionObserver.new(model)
-        sim = Quartz::Simulation.new(model)
+        sim = Quartz::Simulation.new(model, loggers: Loggers.new(false))
         sim.simulate
 
         # init and internal

@@ -20,8 +20,6 @@ module Quartz
     # :nodoc:
     OBS_INFO_CON_TRANSITION = {:transition => Any.new(:confluent)}
 
-    include Logging
-
     getter model : Model
     property sync : Bool
     property parent : Coordinator?

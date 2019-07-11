@@ -120,7 +120,7 @@ private module MultiPDEVSSimulation
       model = Quartz::MultiComponent::Model.new(:multipdevs)
       ca = ComponentA.new(:CA)
       model << ca
-      sim = Quartz::Simulation.new(model)
+      sim = Quartz::Simulation.new(model, loggers: Loggers.new(false))
 
       sim.initialize_simulation
       sim.step
@@ -139,7 +139,7 @@ private module MultiPDEVSSimulation
       model = Quartz::MultiComponent::Model.new(:multipdevs)
       cb = ComponentB.new(:CB)
       model << cb
-      sim = Quartz::Simulation.new(model, duration: Duration.new(10))
+      sim = Quartz::Simulation.new(model, duration: Duration.new(10), loggers: Loggers.new(false))
 
       sim.each_with_index { |e, i|
         cb.output_calls.should eq(i + 1)
@@ -166,7 +166,7 @@ private module MultiPDEVSSimulation
       model << multipdevs
       model.attach :out, to: :in, between: gen, and: multipdevs
 
-      sim = Quartz::Simulation.new(model)
+      sim = Quartz::Simulation.new(model, loggers: Loggers.new(false))
       sim.initialize_simulation
 
       sim.step

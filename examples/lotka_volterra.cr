@@ -66,7 +66,6 @@ class Tracer
   end
 end
 
-# Quartz.logger.level = Logger::Severity::DEBUG
 model = LotkaVolterra.new(:LotkaVolterra)
 sim = Quartz::Simulation.new(model, scheduler: :binary_heap, duration: Quartz.duration(20))
 Tracer.new(model, sim.notifier)

@@ -101,7 +101,7 @@ private module MsgScenario
       describe "transition are properly called" do
         it "for full hierarchy" do
           m = TestPDEVSCoupledMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: true, loggers: Loggers.new(false))
           sim.simulate
 
           m.r.ext_calls.should eq(1)
@@ -121,7 +121,7 @@ private module MsgScenario
 
         it "with flattening" do
           m = TestPDEVSCoupledMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: false, loggers: Loggers.new(false))
           sim.simulate
 
           m.r.ext_calls.should eq(1)
@@ -145,7 +145,7 @@ private module MsgScenario
       describe "transition are properly called" do
         it "for full hierarchy" do
           m = TestPDEVSMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: true, loggers: Loggers.new(false))
           sim.simulate
 
           m.r.ext_calls.should eq(1)
@@ -165,7 +165,7 @@ private module MsgScenario
 
         it "with flattening" do
           m = TestPDEVSMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: false, loggers: Loggers.new(false))
           sim.simulate
 
           m.r.ext_calls.should eq(1)

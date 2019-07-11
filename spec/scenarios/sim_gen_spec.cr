@@ -29,7 +29,7 @@ private module GeneratorScenario
     describe "simulation" do
       it "calls ∂int and lambda" do
         gen = TestGen.new(:testgen)
-        sim = Quartz::Simulation.new(gen, duration: Duration.new(10))
+        sim = Quartz::Simulation.new(gen, duration: Duration.new(10), loggers: Loggers.new(false))
 
         sim.each_with_index { |e, i|
           gen.output_calls.should eq(i + 1)

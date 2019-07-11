@@ -136,7 +136,7 @@ private module DSDESimulation
     it "can create new models" do
       executive = CreateExecutive.new(:executive)
       dsde = Quartz::DSDE::CoupledModel.new(:dsde, executive)
-      sim = Quartz::Simulation.new(dsde)
+      sim = Quartz::Simulation.new(dsde, loggers: Loggers.new(false))
 
       dsde.children_size.should eq(1) # actually, it should be 0 (executive should not be a child)
 
@@ -159,7 +159,7 @@ private module DSDESimulation
       dsde = Quartz::DSDE::CoupledModel.new(:dsde, executive)
       m1 = OneTimeModel.new(:m1)
       dsde << m1
-      sim = Quartz::Simulation.new(dsde)
+      sim = Quartz::Simulation.new(dsde, loggers: Loggers.new(false))
 
       dsde.children_size.should eq(2)
 
@@ -183,7 +183,7 @@ private module DSDESimulation
       dsde << m1 << m2
       dsde.attach :out1, to: :in1, between: m1, and: m2
 
-      sim = Quartz::Simulation.new(dsde)
+      sim = Quartz::Simulation.new(dsde, loggers: Loggers.new(false))
       sim.initialize_simulation
       sim.step
 
@@ -212,7 +212,7 @@ private module DSDESimulation
       dsde = Quartz::DSDE::CoupledModel.new(:dsde, executive)
       m1 = AtomicWithPorts.new(:m1)
       dsde << m1
-      sim = Quartz::Simulation.new(dsde)
+      sim = Quartz::Simulation.new(dsde, loggers: Loggers.new(false))
       sim.initialize_simulation
 
       m1.input_port_names.should eq([:in1, :in2])

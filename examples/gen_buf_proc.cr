@@ -130,7 +130,7 @@ class Tracer
 
   property filename : String
 
-  def initialize(@filename = "trace.csv", notifier)
+  def initialize(@filename, notifier)
     notifier.subscribe(Quartz::Hooks::PRE_INIT, self)
     notifier.subscribe(Quartz::Hooks::POST_SIMULATION, self)
     notifier.subscribe(Quartz::Hooks::POST_ABORT, self)

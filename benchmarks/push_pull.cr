@@ -80,14 +80,14 @@ class PushPull < Quartz::CoupledModel
   end
 end
 
-Quartz.logger = nil
 RND = Random.new(87455)
 
 root = PushPull.new(ARGV[0].to_i, ARGV[1].to_i)
 simulation = Quartz::Simulation.new(
   root,
   maintain_hierarchy: true,
-  scheduler: :binary_heap
+  scheduler: :binary_heap,
+  loggers: Quartz::Loggers.new(false)
 )
 
 simulation.simulate
