@@ -92,7 +92,7 @@ module Quartz
           end
 
           # check internal coupling to get children who receive sub-bag of y
-          coupled.each_internal_coupling(port) do |_, dst|
+          coupled.each_internal_coupling(port) do |src, dst|
             receiver = dst.host.processor
 
             if !receiver.sync
@@ -100,20 +100,25 @@ module Quartz
               receiver.sync = true
             end
 
-            if child.is_a?(Coordinator)
-              receiver.bag[dst].concat(payload.as(Array(Any)))
-            else
-              receiver.bag[dst] << payload.as(Any)
-            end
+            ary_payload = child.is_a?(Coordinator) ? payload.as(Array(Any)) : StaticArray(Any, 1).new(payload.as(Any))
+            dst_payload = if coupled.has_transducer_for?(src, dst)
+                            coupled.transducer_for(src, dst).call(ary_payload.as(Enumerable(Any)))
+                          else
+                            ary_payload
+                          end
+            receiver.bag[dst].concat(dst_payload)
           end
 
           # check external coupling to form sub-bag of parent output
-          coupled.each_output_coupling(port) do |_, dst|
-            if child.is_a?(Coordinator)
-              @parent_bag[dst].concat(payload.as(Array(Any)))
-            else
-              @parent_bag[dst] << (payload.as(Any))
-            end
+          coupled.each_output_coupling(port) do |src, dst|
+            ary_payload = child.is_a?(Coordinator) ? payload.as(Array(Any)) : StaticArray(Any, 1).new(payload.as(Any))
+            dst_payload = if coupled.has_transducer_for?(src, dst)
+                            coupled.transducer_for(src, dst).call(ary_payload.as(Enumerable(Any)))
+                          else
+                            ary_payload
+                          end
+
+            @parent_bag[dst].concat(dst_payload)
           end
         end
 
@@ -156,10 +161,11 @@ module Quartz
 
     protected def handle_external_inputs(time : TimePoint)
       bag = @bag || EMPTY_BAG
+      coupled = @model.as(CoupledModel)
 
       bag.each do |port, sub_bag|
         # check external input couplings to get children who receive sub-bag of y
-        @model.as(CoupledModel).each_input_coupling(port) do |_, dst|
+        coupled.each_input_coupling(port) do |src, dst|
           receiver = dst.host.processor
 
           if !receiver.sync
@@ -167,7 +173,13 @@ module Quartz
             receiver.sync = true
           end
 
-          receiver.bag[dst].concat(sub_bag)
+          dst_sub_bag = if coupled.has_transducer_for?(src, dst)
+                          coupled.transducer_for(src, dst).call(sub_bag.as(Enumerable(Any)))
+                        else
+                          sub_bag
+                        end
+
+          receiver.bag[dst].concat(dst_sub_bag)
         end
       end
     end

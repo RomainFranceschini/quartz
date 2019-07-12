@@ -6,7 +6,7 @@ module Quartz
     @internal_couplings : Array(OutputPort)?
     @output_couplings : Array(OutputPort)?
     @input_couplings : Array(InputPort)?
-    @transducers : Hash({Port, Port}, Proc(Array(Any), Array(Any), Array(Any)))?
+    @transducers : Hash({Port, Port}, Proc(Enumerable(Any), Enumerable(Any)))?
 
     # :nodoc:
     protected def children : Hash(Name, Model)
@@ -29,8 +29,8 @@ module Quartz
     end
 
     # :nodoc:
-    protected def transducers : Hash({Port, Port}, Proc(Any, Any, Any))
-      @transducers ||= Hash({Port, Port}, Proc(Array(Any), Array(Any), Array(Any))).new
+    protected def transducers : Hash({Port, Port}, Proc(Enumerable(Any), Enumerable(Any)))
+      @transducers ||= Hash({Port, Port}, Proc(Enumerable(Any), Enumerable(Any))).new
     end
 
     # Returns all internal couplings attached to the given output *port*.
@@ -109,12 +109,12 @@ module Quartz
     end
 
     # Whether the given coupling has an associated transducer.
-    def coupling_has_transducer?(src : Port, dst : Port) : Bool
+    def has_transducer_for?(src : Port, dst : Port) : Bool
       @transducers.try &.has_key?({src, dst}) || false
     end
 
     # Returns the transducer associated with the given coupling.
-    def coupling_transducer(src : Port, dst : Port)
+    def transducer_for(src : Port, dst : Port)
       transducers[{src, dst}]
     end
 
@@ -245,7 +245,7 @@ module Quartz
     end
 
     # ditto
-    def attach(p1 : InputPort, to p2 : InputPort, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach(p1 : InputPort, to p2 : InputPort, &block : Enumerable(Any) -> Enumerable(Any))
       attach(p1, p2)
       transducers[{p1, p2}] = block
     end
@@ -272,7 +272,7 @@ module Quartz
     end
 
     # ditto
-    def attach(p1 : OutputPort, to p2 : InputPort, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach(p1 : OutputPort, to p2 : InputPort, &block : Enumerable(Any) -> Enumerable(Any))
       attach(p1, p2)
       transducers[{p1, p2}] = block
     end
@@ -295,7 +295,7 @@ module Quartz
     end
 
     # ditto
-    def attach(p1 : OutputPort, to p2 : OutputPort, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach(p1 : OutputPort, to p2 : OutputPort, &block : Enumerable(Any) -> Enumerable(Any))
       attach(p1, p2)
       transducers[{p1, p2}] = block
     end
@@ -313,7 +313,7 @@ module Quartz
     end
 
     # ditto
-    def attach(p1 : Name, *, to p2 : Name, between sender : Coupleable, and receiver : Coupleable, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach(p1 : Name, *, to p2 : Name, between sender : Coupleable, and receiver : Coupleable, &block : Enumerable(Any) -> Enumerable(Any))
       ap1 = sender.find_or_create_output_port_if_necessary(p1)
       ap2 = receiver.find_or_create_input_port_if_necessary(p2)
       attach(ap1, to: ap2, &block)
@@ -334,7 +334,7 @@ module Quartz
     end
 
     # ditto
-    def attach(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name, &block : Enumerable(Any) -> Enumerable(Any))
       a = (sender == @name) ? self : self[sender]
       b = (receiver == @name) ? self : self[receiver]
       ap1 = a.as(Coupleable).find_or_create_output_port_if_necessary(p1)
@@ -355,7 +355,7 @@ module Quartz
     end
 
     # ditto
-    def attach_input(myport : Name, *, to iport : Name, of child : Coupleable, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach_input(myport : Name, *, to iport : Name, of child : Coupleable, &block : Enumerable(Any) -> Enumerable(Any))
       p1 = self.find_or_create_input_port_if_necessary(myport)
       p2 = child.find_or_create_input_port_if_necessary(iport)
       attach(p1, to: p2, &block)
@@ -375,7 +375,7 @@ module Quartz
     end
 
     # ditto
-    def attach_input(myport : Name, *, to iport : Name, of child : Name, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach_input(myport : Name, *, to iport : Name, of child : Name, &block : Enumerable(Any) -> Enumerable(Any))
       receiver = self[child].as(Coupleable)
       p1 = self.find_or_create_input_port_if_necessary(myport)
       p2 = receiver.find_or_create_input_port_if_necessary(iport)
@@ -396,7 +396,7 @@ module Quartz
     end
 
     # ditto
-    def attach_output(oport : Name, *, of child : Coupleable, to myport : Name, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach_output(oport : Name, *, of child : Coupleable, to myport : Name, &block : Enumerable(Any) -> Enumerable(Any))
       p1 = child.find_or_create_output_port_if_necessary(oport)
       p2 = self.find_or_create_output_port_if_necessary(myport)
       attach(p1, to: p2, &block)
@@ -417,7 +417,7 @@ module Quartz
     end
 
     # ditto
-    def attach_output(oport : Name, *, of child : Name, to myport : Name, &block : Array(Any), Array(Any) -> Array(Any))
+    def attach_output(oport : Name, *, of child : Name, to myport : Name, &block : Enumerable(Any) -> Enumerable(Any))
       sender = self[child].as(Coupleable)
       p1 = sender.find_or_create_output_port_if_necessary(oport)
       p2 = self.find_or_create_output_port_if_necessary(myport)
