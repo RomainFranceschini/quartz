@@ -6,6 +6,7 @@ module Quartz
     @internal_couplings : Array(OutputPort)?
     @output_couplings : Array(OutputPort)?
     @input_couplings : Array(InputPort)?
+    @transducers : Hash({Port, Port}, Proc(Array(Any), Array(Any), Array(Any)))?
 
     # :nodoc:
     protected def children : Hash(Name, Model)
@@ -25,6 +26,11 @@ module Quartz
     # :nodoc:
     protected def input_couplings : Array(InputPort)
       @input_couplings ||= Array(InputPort).new
+    end
+
+    # :nodoc:
+    protected def transducers : Hash({Port, Port}, Proc(Any, Any, Any))
+      @transducers ||= Hash({Port, Port}, Proc(Array(Any), Array(Any), Array(Any))).new
     end
 
     # Returns all internal couplings attached to the given output *port*.
@@ -77,7 +83,7 @@ module Quartz
     end
 
     # Returns whether given *model* is a child of *self*
-    def has_child?(model : Model) : Bool
+    def has_child?(model : Coupleable) : Bool
       children.has_key?(model.name)
     end
 
@@ -100,6 +106,16 @@ module Quartz
     # Returns the number of children in `self`.
     def children_size
       children.size
+    end
+
+    # Whether the given coupling has an associated transducer.
+    def coupling_has_transducer?(src : Port, dst : Port) : Bool
+      @transducers.try &.has_key?({src, dst}) || false
+    end
+
+    # Returns the transducer associated with the given coupling.
+    def coupling_transducer(src : Port, dst : Port)
+      transducers[{src, dst}]
     end
 
     # Calls *block* once for each external input coupling (EIC) in
@@ -228,6 +244,12 @@ module Quartz
       end
     end
 
+    # ditto
+    def attach(p1 : InputPort, to p2 : InputPort, &block : Array(Any), Array(Any) -> Array(Any))
+      attach(p1, p2)
+      transducers[{p1, p2}] = block
+    end
+
     # Adds an internal coupling (IC) to self between the two given ports.
     #
     # Raises a `FeedbackLoopError` if *p1* and *p2* hosts are the same child
@@ -249,6 +271,12 @@ module Quartz
       end
     end
 
+    # ditto
+    def attach(p1 : OutputPort, to p2 : InputPort, &block : Array(Any), Array(Any) -> Array(Any))
+      attach(p1, p2)
+      transducers[{p1, p2}] = block
+    end
+
     # Adds an external output coupling (EOC) to self between the two given
     # output ports.
     #
@@ -266,6 +294,12 @@ module Quartz
       end
     end
 
+    # ditto
+    def attach(p1 : OutputPort, to p2 : OutputPort, &block : Array(Any), Array(Any) -> Array(Any))
+      attach(p1, p2)
+      transducers[{p1, p2}] = block
+    end
+
     # Adds a coupling to self. Establish a relation between the two given ports
     # that belongs respectively to *sender* and *receiver*.
     #
@@ -276,6 +310,13 @@ module Quartz
       ap1 = sender.find_or_create_output_port_if_necessary(p1)
       ap2 = receiver.find_or_create_input_port_if_necessary(p2)
       attach(ap1, to: ap2)
+    end
+
+    # ditto
+    def attach(p1 : Name, *, to p2 : Name, between sender : Coupleable, and receiver : Coupleable, &block : Array(Any), Array(Any) -> Array(Any))
+      ap1 = sender.find_or_create_output_port_if_necessary(p1)
+      ap2 = receiver.find_or_create_input_port_if_necessary(p2)
+      attach(ap1, to: ap2, &block)
     end
 
     # Adds a coupling to self. Establish a relation between the two given ports
@@ -292,6 +333,15 @@ module Quartz
       attach(ap1, to: ap2)
     end
 
+    # ditto
+    def attach(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name, &block : Array(Any), Array(Any) -> Array(Any))
+      a = (sender == @name) ? self : self[sender]
+      b = (receiver == @name) ? self : self[receiver]
+      ap1 = a.as(Coupleable).find_or_create_output_port_if_necessary(p1)
+      ap2 = b.as(Coupleable).find_or_create_input_port_if_necessary(p2)
+      attach(ap1, to: ap2, &block)
+    end
+
     # Adds an external input coupling (EIC) to self. Establish a relation
     # between a self input port and a child input port.
     #
@@ -302,6 +352,13 @@ module Quartz
       p1 = self.find_or_create_input_port_if_necessary(myport)
       p2 = child.find_or_create_input_port_if_necessary(iport)
       attach(p1, to: p2)
+    end
+
+    # ditto
+    def attach_input(myport : Name, *, to iport : Name, of child : Coupleable, &block : Array(Any), Array(Any) -> Array(Any))
+      p1 = self.find_or_create_input_port_if_necessary(myport)
+      p2 = child.find_or_create_input_port_if_necessary(iport)
+      attach(p1, to: p2, &block)
     end
 
     # Adds an external input coupling (EIC) to self. Establish a relation
@@ -317,6 +374,14 @@ module Quartz
       attach(p1, to: p2)
     end
 
+    # ditto
+    def attach_input(myport : Name, *, to iport : Name, of child : Name, &block : Array(Any), Array(Any) -> Array(Any))
+      receiver = self[child].as(Coupleable)
+      p1 = self.find_or_create_input_port_if_necessary(myport)
+      p2 = receiver.find_or_create_input_port_if_necessary(iport)
+      attach(p1, to: p2, &block)
+    end
+
     # Adds an external output coupling (EOC) to self. Establish a relation
     # between an output port of one of self's children and one of self's
     # output ports.
@@ -328,6 +393,13 @@ module Quartz
       p1 = child.find_or_create_output_port_if_necessary(oport)
       p2 = self.find_or_create_output_port_if_necessary(myport)
       attach(p1, to: p2)
+    end
+
+    # ditto
+    def attach_output(oport : Name, *, of child : Coupleable, to myport : Name, &block : Array(Any), Array(Any) -> Array(Any))
+      p1 = child.find_or_create_output_port_if_necessary(oport)
+      p2 = self.find_or_create_output_port_if_necessary(myport)
+      attach(p1, to: p2, &block)
     end
 
     # Adds an external output coupling (EOC) to self. Establish a relation
@@ -344,6 +416,14 @@ module Quartz
       attach(p1, to: p2)
     end
 
+    # ditto
+    def attach_output(oport : Name, *, of child : Name, to myport : Name, &block : Array(Any), Array(Any) -> Array(Any))
+      sender = self[child].as(Coupleable)
+      p1 = sender.find_or_create_output_port_if_necessary(oport)
+      p2 = self.find_or_create_output_port_if_necessary(myport)
+      attach(p1, to: p2, &block)
+    end
+
     # Deletes a external input coupling (EOC) from *self*.
     #
     # Returns `true` if successful.
@@ -352,11 +432,13 @@ module Quartz
       b = p2.host
 
       if a == self && has_child?(b) # EIC
-        detached = p1.downward_ports.delete(p2) != nil
-        if detached && p1.downward_ports.empty?
-          input_couplings.delete(p1)
+        if p1.downward_ports.delete(p2) != nil
+          if p1.downward_ports.empty?
+            input_couplings.delete(p1)
+          end
+          @transducers.try &.delete({p1, p2})
+          return true
         end
-        return detached
       end
 
       false
@@ -370,11 +452,13 @@ module Quartz
       b = p2.host
 
       if has_child?(a) && has_child?(b) # IC
-        detached = p1.siblings_ports.delete(p2) != nil
-        if detached && p1.siblings_ports.empty?
-          internal_couplings.delete(p1)
+        if p1.siblings_ports.delete(p2) != nil
+          if p1.siblings_ports.empty?
+            internal_couplings.delete(p1)
+          end
+          @transducers.try &.delete({p1, p2})
+          return true
         end
-        return detached
       end
 
       false
@@ -388,11 +472,13 @@ module Quartz
       b = p2.host
 
       if has_child?(a) && b == self # EOC
-        detached = p1.upward_ports.delete(p2) != nil
-        if detached && p1.upward_ports.empty?
-          output_couplings.delete(p1)
+        if p1.upward_ports.delete(p2) != nil
+          if p1.upward_ports.empty?
+            output_couplings.delete(p1)
+          end
+          @transducers.try &.delete({p1, p2})
+          return true
         end
-        return detached
       end
 
       false
