@@ -13,6 +13,7 @@ module Quartz
     alias Type = Nil |
                  Bool |
                  Float::Primitive | Int16 | Int32 | Int64 | Int8 | UInt16 | UInt32 | UInt64 | UInt8 |
+                 Char |
                  String |
                  Symbol |
                  Array(Any) |
@@ -386,6 +387,16 @@ module Quartz
     # Checks that the underlying value is `Float`, and returns its value as an `Float32`. Returns nil otherwise.
     def as_f32? : (Float32 | Nil)
       as_f32 if (@raw.is_a?(Float32) || @raw.is_a?(Float64))
+    end
+
+    # Checks that the underlying value is `Char`, and returns its value. Raises otherwise.
+    def as_c : Char
+      @raw.as(Char)
+    end
+
+    # Checks that the underlying value is `Char`, and returns its value. Returns nil otherwise.
+    def as_c? : (Char | Nil)
+      as_s if @raw.is_a?(Char)
     end
 
     # Checks that the underlying value is `String`, and returns its value. Raises otherwise.
