@@ -535,27 +535,40 @@ module Quartz
     end
 
     # Finds and yields direct connections in the coupling graph of *self*.
-    def find_direct_couplings(&block : OutputPort, InputPort ->)
+    def find_direct_couplings(&block : OutputPort, InputPort, Array(Proc(Enumerable(Any), Enumerable(Any))) ->)
       couplings = [] of {Port, Port}
-      each_coupling { |s, d| couplings << {s, d} }
-      coupling_set = Set({Port, Port}).new(couplings)
+      coupling_set = Hash({Port, Port}, Array(Proc(Enumerable(Any), Enumerable(Any)))).new { |h, k|
+        h[k] = Array(Proc(Enumerable(Any), Enumerable(Any))).new
+      }
 
+      self.each_internal_coupling do |s, d|
+        couplings << {s, d}
+        if self.has_transducer_for?(s, d)
+          coupling_set[{s, d}] << self.transducer_for(s, d)
+        end
+      end
+
+      mappers = Array(Proc(Enumerable(Any), Enumerable(Any))).new
       while !couplings.empty?
         osrc, odst = couplings.pop
 
         if !osrc.host.is_a?(Coupler) && !odst.host.is_a?(Coupler)
-          yield(osrc.as(OutputPort), odst.as(InputPort)) # found direct coupling
-        elsif osrc.host.is_a?(Coupler)                   # eic
+          yield(osrc.as(OutputPort), odst.as(InputPort), coupling_set[{osrc, odst}]) # found direct coupling
+        elsif osrc.host.is_a?(Coupler)                                               # eic
           route = [{osrc, odst}]
           while !route.empty?
             rsrc, _ = route.pop
-            rsrc.host.as(Coupler).each_output_coupling_reverse(rsrc.as(OutputPort)) do |src, dst|
+            coupler = rsrc.host.as(Coupler)
+            coupler.each_output_coupling_reverse(rsrc.as(OutputPort)) do |src, dst|
+              if coupler.has_transducer_for?(src, dst)
+                mappers << coupler.transducer_for(src, dst)
+              end
               if src.host.is_a?(Coupler)
                 route.push({src, dst})
               else
-                unless coupling_set.includes?({src, odst})
+                unless coupling_set.has_key?({src, odst})
                   couplings.push({src, odst})
-                  coupling_set.add({src, odst})
+                  coupling_set[{src, odst}] = mappers.reverse!.concat(coupling_set[{osrc, odst}])
                 end
               end
             end
@@ -564,18 +577,24 @@ module Quartz
           route = [{osrc, odst}]
           while !route.empty?
             _, rdst = route.pop
-            rdst.host.as(Coupler).each_input_coupling(rdst.as(InputPort)) do |src, dst|
+            coupler = rdst.host.as(Coupler)
+            coupler.each_input_coupling(rdst.as(InputPort)) do |src, dst|
+              if coupler.has_transducer_for?(src, dst)
+                mappers << coupler.transducer_for(src, dst)
+              end
               if dst.host.is_a?(Coupler)
                 route.push({src, dst})
               else
-                unless coupling_set.includes?({osrc, dst})
+                unless coupling_set.has_key?({osrc, dst})
                   couplings.push({osrc, dst})
-                  coupling_set.add({osrc, dst})
+                  coupling_set[{osrc, dst}] = coupling_set[{osrc, odst}].dup.concat(mappers)
                 end
               end
             end
           end
         end
+
+        mappers.clear
       end
     end
   end

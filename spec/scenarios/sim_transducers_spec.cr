@@ -73,5 +73,44 @@ private module TransducerScenario
       col_upcase_chars.chars.should eq("HELLO WORLD".chars)
       col_ints.ints.should eq("hello world".chars.map &.ord)
     end
+
+    it "are composed sequentially after flattening" do
+      model = Quartz::CoupledModel.new(:root)
+
+      gen = Gen.new(:gen)
+      model << gen
+
+      char_collectors = Quartz::CoupledModel.new(:char_collectors)
+      char_collectors.add_input_port(:chars)
+      col_chars = ColChars.new(:col_chars)
+      col_upcase_chars = ColChars.new(:col_upcase_chars)
+      char_collectors << col_chars << col_upcase_chars
+      char_collectors.attach(char_collectors.input_port(:chars), to: col_chars.input_port(:chars))
+      char_collectors.attach(char_collectors.input_port(:chars), to: col_upcase_chars.input_port(:chars)) { |bag|
+        bag.map { |any| Quartz::Any.new(any.as_c.upcase) }
+      }
+      model << char_collectors
+
+      int_collectors = Quartz::CoupledModel.new(:int_collectors)
+      int_collectors.add_input_port(:ints)
+      col_ints = ColInts.new(:col_ints)
+      col_upcase_ints = ColInts.new(:col_upcase_ints)
+      int_collectors << col_ints << col_upcase_ints
+      int_collectors.attach(int_collectors.input_port(:ints), to: col_ints.input_port(:ints))
+      int_collectors.attach(int_collectors.input_port(:ints), to: col_upcase_ints.input_port(:ints)) { |bag|
+        bag.map { |any| Quartz::Any.new(any.as_i.chr.upcase.ord) }
+      }
+      model << int_collectors
+
+      model.attach(gen.output_port(:chars), to: char_collectors.input_port(:chars))
+      model.attach(gen.output_port(:chars), to: int_collectors.input_port(:ints)) { |bag| bag.map { |any| Quartz::Any.new(any.as_c.ord) } }
+
+      sim = Quartz::Simulation.new(model, loggers: Loggers.new(false), maintain_hierarchy: false)
+      sim.simulate
+      col_chars.chars.should eq("hello world".chars)
+      col_upcase_chars.chars.should eq("HELLO WORLD".chars)
+      col_ints.ints.should eq("hello world".chars.map &.ord)
+      col_upcase_ints.ints.should eq("HELLO WORLD".chars.map &.ord)
+    end
   end
 end
