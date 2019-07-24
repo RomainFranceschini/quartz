@@ -1,5 +1,4 @@
 require "json"
-require "msgpack"
 
 require "./quartz/version"
 require "./quartz/types"

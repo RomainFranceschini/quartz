@@ -1,5 +1,7 @@
 require "./spec_helper"
 
+require "../src/quartz/msgpack"
+
 private class PassiveModel < AtomicModel
   include PassiveBehavior
 end

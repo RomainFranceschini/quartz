@@ -186,23 +186,6 @@ module Quartz
       end
     end
 
-    def initialize(pull : ::MessagePack::Unpacker)
-      @bag = SimpleHash(OutputPort, Any).new
-
-      pull.read_hash_size
-      pull.consume_hash do
-        case key = Bytes.new(pull)
-        when "name".to_slice
-          super(String.new(pull))
-        when "state".to_slice
-          self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
-          self.state = initial_state
-        else
-          raise MessagePack::UnpackError.new("unknown msgpack attribute: #{String.new(key)}")
-        end
-      end
-    end
-
     def inspect(io)
       io << "<" << self.class.name << ": name=" << @name
       io << ", elapsed=" << @elapsed.to_s(io)
@@ -257,29 +240,12 @@ module Quartz
       end
     end
 
-    def to_msgpack(packer : ::MessagePack::Packer)
-      packer.write_hash_start(2)
-
-      packer.write("name")
-      @name.to_msgpack(packer)
-      packer.write("state")
-      state.to_msgpack(packer)
-    end
-
     def self.from_json(io : IO)
       self.new(::JSON::PullParser.new(io))
     end
 
     def self.from_json(str : String)
       from_json(IO::Memory.new(str))
-    end
-
-    def self.from_msgpack(io : IO)
-      self.new(::MessagePack::IOUnpacker.new(io))
-    end
-
-    def self.from_msgpack(bytes : Bytes)
-      from_msgpack(IO::Memory.new(bytes))
     end
   end
 end
