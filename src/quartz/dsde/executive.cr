@@ -61,7 +61,7 @@ module Quartz
         @phase = :answer
       end
 
-      def time_advance
+      def time_advance : Duration
         case phase
         when :answer
           Duration.zero(model_precision)

@@ -96,7 +96,7 @@ module Quartz
         {max_elapsed.fixed, @event_set.imminent_duration.fixed}
       end
 
-      def collect_outputs(elapsed : Duration)
+      def collect_outputs(elapsed : Duration) : Hash(OutputPort, Array(Any))
         @parent_bag.clear unless @parent_bag.empty?
 
         @event_set.each_imminent_event do |component|

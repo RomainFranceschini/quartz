@@ -57,7 +57,7 @@ module Quartz
     end
 
     abstract def initialize_processor(time : TimePoint) : {Duration, Duration}
-    abstract def collect_outputs(elapsed : Duration) : Hash(OutputPort, Any)
+    abstract def collect_outputs(elapsed : Duration) : Hash(OutputPort, Array(Any))
     abstract def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
   end
 end

@@ -17,7 +17,7 @@ private module PrecisionScenario
       post nil, on: :pout
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
   end
@@ -37,7 +37,7 @@ private module PrecisionScenario
       post nil, on: :pout
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
   end
@@ -53,7 +53,7 @@ private module PrecisionScenario
       post nil, on: :pout
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
   end

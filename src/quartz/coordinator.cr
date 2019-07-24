@@ -75,7 +75,7 @@ module Quartz
       {max_elapsed.fixed, min_planned_duration.fixed}
     end
 
-    def collect_outputs(elapsed : Duration)
+    def collect_outputs(elapsed : Duration) : Hash(OutputPort, Array(Any))
       coupled = @model.as(CoupledModel)
       @parent_bag.clear unless @parent_bag.empty?
 
@@ -85,7 +85,7 @@ module Quartz
         output.each do |port, payload|
           if child.is_a?(Simulator) && port.count_observers > 0
             port.notify_observers({
-              :payload => payload.as(Any),
+              :payload => payload,
               :time    => @event_set.current_time,
               :elapsed => elapsed,
             })
@@ -100,7 +100,7 @@ module Quartz
               receiver.sync = true
             end
 
-            ary_payload = child.is_a?(Coordinator) ? payload.as(Array(Any)) : StaticArray(Any, 1).new(payload.as(Any))
+            ary_payload = payload.as(Array(Any))
             dst_payload = if coupled.has_transducer_for?(src, dst)
                             coupled.transducer_for(src, dst).call(ary_payload.as(Enumerable(Any)))
                           else
@@ -111,7 +111,7 @@ module Quartz
 
           # check external coupling to form sub-bag of parent output
           coupled.each_output_coupling(port) do |src, dst|
-            ary_payload = child.is_a?(Coordinator) ? payload.as(Array(Any)) : StaticArray(Any, 1).new(payload.as(Any))
+            ary_payload = payload.as(Array(Any))
             dst_payload = if coupled.has_transducer_for?(src, dst)
                             coupled.transducer_for(src, dst).call(ary_payload.as(Enumerable(Any)))
                           else

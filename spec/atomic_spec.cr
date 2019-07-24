@@ -26,7 +26,7 @@ class ModelSample < AtomicModel
   state_var x : Int32 = 0
   state_var y : Int32 = 0
 
-  def time_advance
+  def time_advance : Duration
     Duration.new(25)
   end
 
@@ -37,15 +37,15 @@ class ModelSample < AtomicModel
 end
 
 private class MockProcessor < Processor
-  def initialize_processor(time)
+  def initialize_processor(time) : {Duration, Duration}
     {Duration.new(0), Duration.new(0)}
   end
 
-  def collect_outputs(time)
-    Hash(OutputPort, Any).new
+  def collect_outputs(time) : Hash(OutputPort, Array(Any))
+    Hash(OutputPort, Array(Any)).new
   end
 
-  def perform_transitions(planned, elapsed)
+  def perform_transitions(planned, elapsed) : Duration
     Duration.new(0, Scale::BASE)
   end
 end
@@ -141,7 +141,7 @@ describe "AtomicModel" do
   describe "fetch_output!" do
     it "calls #output" do
       m = FetchOutputTest.new
-      m.fetch_output![m.output_port("out")].should eq("a value")
+      m.fetch_output![m.output_port("out")].should eq(["a value"])
       m.calls.should eq(1)
     end
   end

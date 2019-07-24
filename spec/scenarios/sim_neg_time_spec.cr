@@ -13,7 +13,7 @@ private module NegativeInitialTimeScenario
     def external_transition(bag)
     end
 
-    def time_advance
+    def time_advance : Duration
       @generated ? Duration::INFINITY : Duration.new(2)
     end
 

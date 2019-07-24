@@ -63,7 +63,7 @@ module Quartz
       raise err
     end
 
-    def collect_outputs(elapsed : Duration)
+    def collect_outputs(elapsed : Duration) : Hash(OutputPort, Array(Any))
       @model.as(AtomicModel).fetch_output!
     end
 

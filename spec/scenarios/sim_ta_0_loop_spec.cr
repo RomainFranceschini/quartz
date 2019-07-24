@@ -23,7 +23,7 @@ private module LoopScenario
       @int_calls += 1
     end
 
-    def time_advance
+    def time_advance : Duration
       case @int_calls
       when 0
         Duration.new(1)

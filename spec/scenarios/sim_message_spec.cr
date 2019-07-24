@@ -4,9 +4,10 @@ private module MsgScenario
   class MsgTestError < Exception; end
 
   class G < Quartz::AtomicModel
+    @sigma : Duration = Duration.new(1)
+
     def initialize(name)
       super(name)
-      @sigma = Duration.new(1)
       add_output_port :out
     end
 
@@ -25,7 +26,7 @@ private module MsgScenario
       @sigma = Duration::INFINITY
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
 

@@ -16,7 +16,7 @@ private module MultiPDEVSSimulation
       @sigma = Duration.new(1)
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
   end
@@ -28,18 +28,18 @@ private module MultiPDEVSSimulation
     getter elapsed_values : Array(Duration) = Array(Duration).new
     getter time : TimePoint = TimePoint.new
 
-    def internal_transition
+    def internal_transition : Hash(Quartz::Name, Quartz::Any)?
       @time = @time.advance(by: Duration.new(1))
       @elapsed_values << @elapsed
       @internal_calls += 1
-      Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
+      nil
     end
 
     def external_transition(bag)
-      Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
+      nil
     end
 
-    def time_advance
+    def time_advance : Duration
       Duration.new(1)
     end
 
@@ -64,15 +64,12 @@ private module MultiPDEVSSimulation
 
     state_var state_count : Int32 = 0
 
-    def internal_transition
+    def internal_transition : Hash(Quartz::Name, Quartz::Any)?
       @time = @time.advance(by: Duration.new(1))
       @elapsed_values << @elapsed
       @internal_calls += 1
-      Quartz::SimpleHash(Quartz::Name, Quartz::Any).new.tap do |states|
-        states.unsafe_assoc(
-          self.name,
-          Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
-        )
+      Hash(Quartz::Name, Quartz::Any).new.tap do |states|
+        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
       end
     end
 
@@ -80,11 +77,8 @@ private module MultiPDEVSSimulation
       @time = @time.advance(by: @elapsed)
       @elapsed_values << @elapsed
       @external_calls += 1
-      Quartz::SimpleHash(Quartz::Name, Quartz::Any).new.tap do |states|
-        states.unsafe_assoc(
-          self.name,
-          Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
-        )
+      Hash(Quartz::Name, Quartz::Any).new.tap do |states|
+        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
       end
     end
 
@@ -92,15 +86,12 @@ private module MultiPDEVSSimulation
       @time = @time.advance(by: Duration.new(1))
       @elapsed_values << @elapsed
       @confluent_calls += 1
-      Quartz::SimpleHash(Quartz::Name, Quartz::Any).new.tap do |states|
-        states.unsafe_assoc(
-          self.name,
-          Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
-        )
+      Hash(Quartz::Name, Quartz::Any).new.tap do |states|
+        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
       end
     end
 
-    def time_advance
+    def time_advance : Duration
       Duration.new(1)
     end
 

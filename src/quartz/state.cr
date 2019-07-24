@@ -2,6 +2,8 @@ module Quartz
   # A base struct that wraps the state of a model. Automatically extended by
   # models through use of the `state_var` macro.
   abstract struct State
+    include Transferable
+
     def initialize
     end
 

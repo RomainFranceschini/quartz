@@ -5,10 +5,8 @@ module Quartz
   # Implementation for the Simulation Event Set Problem.” Communications of the
   # ACM 31 (10): 1220–27. doi:10.1145/63039.63045.
   class CalendarQueue(T) < PriorityQueue(T)
-    include Comparable(CalendarQueue)
-
     # Returns the number of events.
-    getter size
+    getter size : Int32
 
     @buckets : Slice(Deque(Tuple(Duration, T)))
 
@@ -197,7 +195,7 @@ module Quartz
       end
     end
 
-    def next_priority
+    def next_priority : Duration
       if @size == 0
         raise "calendar queue is empty."
       else

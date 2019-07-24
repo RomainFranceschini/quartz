@@ -3,7 +3,10 @@ module Quartz
     class RootCoordinator < DynamicCoordinator
       include Simulable
 
-      delegate current_time, to: @event_set
+      def current_time : TimePoint
+        @event_set.current_time
+      end
+
       delegate advance, to: @event_set
 
       @[AlwaysInline]

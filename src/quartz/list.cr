@@ -23,8 +23,6 @@ module Quartz
     @tail : Node(T)?
 
     class Node(T)
-      include Comparable(Node)
-
       property data : T
       property next : Node(T)?
       property prev : Node(T)?
@@ -107,6 +105,24 @@ module Quartz
     # :nodoc:
     def ==(other)
       false
+    end
+
+    # Combined comparison operator. Returns *0* if `self` equals *other*, *1* if
+    # `self` is greater than *other* and *-1* if `self` is smaller than *other*.
+    #
+    # It compares the elements of both lists in the same position using the
+    # `<=>` operator.  As soon as one of such comparisons returns a non-zero
+    # value, that result is the return value of the comparison.
+    #
+    # If all elements are equal, the comparison is based on the size of the lists.
+    def <=>(other : List)
+      a, b = size < other.size ? {self, other} : {other, self}
+      iterator = b.each
+      each do |item|
+        n = item <=> iterator.next
+        return n if n != 0
+      end
+      size <=> other.size
     end
 
     # Concatenation. Returns a new List built by concatenating two lists

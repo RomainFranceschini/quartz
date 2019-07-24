@@ -120,7 +120,7 @@ module Quartz
       #
       # Override this method to implement the appropriate behavior of
       # your model.
-      abstract def internal_transition : SimpleHash(Name, Any)?
+      abstract def internal_transition : Hash(Name, Any)?
 
       # This is the default definition of the confluent transition. Here the
       # internal transition is allowed to occur and this is followed by the
@@ -130,12 +130,13 @@ module Quartz
       # opposite order of effects (external transition before internal
       # transition). Of course you can override without reference to the other
       # transitions.
-      def confluent_transition(messages : Hash(InputPort, Array(Any))) : SimpleHash(Name, Any)?
+      def confluent_transition(messages : Hash(InputPort, Array(Any))) : Hash(Name, Any)?
         states = internal_transition
         if self.responds_to?(:external_transition)
-          states2 = external_transition(messages)
-          states2.each do |key, val|
-            states[key] = val
+          if states2 = external_transition(messages)
+            states2.each do |key, val|
+              states[key] = val
+            end
           end
         end
         states

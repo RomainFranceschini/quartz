@@ -74,15 +74,17 @@ module Quartz
     # the elapsed time since the last transition.
     property elapsed : Duration = Duration.zero(@@precision_level)
 
+    @bag : Hash(OutputPort, Array(Any)) = Hash(OutputPort, Array(Any)).new { |h, k|
+      h[k] = Array(Any).new
+    }
+
     def initialize(name)
       super(name)
-      @bag = SimpleHash(OutputPort, Any).new
       @elapsed = @elapsed.rescale(@@precision_level)
     end
 
     def initialize(name, state)
       super(name)
-      @bag = SimpleHash(OutputPort, Any).new
       @elapsed = @elapsed.rescale(@@precision_level)
       self.initial_state = state
       self.state = state
@@ -169,7 +171,6 @@ module Quartz
     end
 
     def initialize(pull : ::JSON::PullParser)
-      @bag = SimpleHash(OutputPort, Any).new
       @elapsed = Duration.new(0, @@precision_level)
 
       pull.read_object do |key|
@@ -227,13 +228,13 @@ module Quartz
       post(Any.new(value), self.output_port(on))
     end
 
-    protected def post(value : Any, on : OutputPort)
-      raise InvalidPortHostError.new("Given port doesn't belong to this model") if on.host != self
-      @bag.unsafe_assoc(on, value)
+    protected def post(value : Any, on port : OutputPort)
+      raise InvalidPortHostError.new("Given port doesn't belong to this model") if port.host != self
+      @bag[port] << value
     end
 
-    protected def post(value : Any, on : Name)
-      post(value, self.output_port(on))
+    protected def post(value : Any, on port : Name)
+      post(value, self.output_port(port))
     end
 
     # :nodoc:
@@ -243,7 +244,7 @@ module Quartz
     #
     # This method calls the DEVS lambda (λ) function
     # Note: this method should be called only by the simulator.
-    def fetch_output! : SimpleHash(OutputPort, Any)
+    def fetch_output! : Hash(OutputPort, Array(Any))
       @bag.clear
       self.output
       @bag

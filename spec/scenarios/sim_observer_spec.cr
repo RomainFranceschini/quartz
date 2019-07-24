@@ -5,7 +5,7 @@ private module ObservedSimulationScenario
 
   class Foo < Quartz::AtomicModel
     include PassiveBehavior
-    @sigma = Duration.new(0)
+    @sigma : Duration = Duration.new(0)
 
     def initialize(name)
       super(name)
@@ -16,7 +16,7 @@ private module ObservedSimulationScenario
       @sigma = Duration::INFINITY
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
 
@@ -40,7 +40,7 @@ private module ObservedSimulationScenario
       @calls += 1
       if observable.is_a?(Port)
         @port = observable.as(Port)
-        @value = info[:payload].as(Any) if info
+        @value = info[:payload].as(Array(Any)).first if info
       end
     end
   end

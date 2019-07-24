@@ -14,7 +14,7 @@ private module GeneratorScenario
       @output_calls += 1
     end
 
-    def time_advance
+    def time_advance : Duration
       Duration.new(1)
     end
 

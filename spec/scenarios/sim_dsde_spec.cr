@@ -18,7 +18,7 @@ private module DSDESimulation
       @int_calls += 1
     end
 
-    def time_advance
+    def time_advance : Duration
       case @int_calls
       when 0
         Duration.new(20)
@@ -39,7 +39,7 @@ private module DSDESimulation
       super
     end
 
-    def time_advance
+    def time_advance : Duration
       if phase == :create
         Duration.new(1, self.class.precision_level)
       else
@@ -59,7 +59,7 @@ private module DSDESimulation
       super
     end
 
-    def time_advance
+    def time_advance : Duration
       if phase == :delete
         Duration.new(5)
       else
@@ -77,7 +77,7 @@ private module DSDESimulation
       super
     end
 
-    def time_advance
+    def time_advance : Duration
       if phase == :update
         Duration.new(2)
       else
@@ -96,7 +96,7 @@ private module DSDESimulation
       remove_output_port_from_network :m1, :out2
     end
 
-    def time_advance
+    def time_advance : Duration
       phase == :update ? Duration.new(1) : super
     end
   end
@@ -124,7 +124,7 @@ private module DSDESimulation
       each_output_port { |op| post(nil, op) }
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
 

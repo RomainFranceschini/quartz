@@ -95,7 +95,7 @@ module Quartz
     end
 
     # Whether this queue is empty
-    def empty?
+    def empty? : Bool
       @size == 0
     end
 
@@ -195,7 +195,7 @@ module Quartz
       end
     end
 
-    def next_priority
+    def next_priority : Duration
       if @size == 0
         raise "ladder queue is empty."
       else
@@ -242,7 +242,7 @@ module Quartz
       end
     end
 
-    def delete(priority : Duration, event : T)
+    def delete(priority : Duration, event : T) : T?
       item = nil
 
       prepare! if @bottom.empty?

@@ -27,7 +27,7 @@ private module CleanBagScenario
     def external_transition(bag)
     end
 
-    def time_advance
+    def time_advance : Duration
       Duration.new(@quantum)
     end
   end

@@ -5,10 +5,10 @@ private module ConflictScenario
 
   class G < Quartz::AtomicModel
     include PassiveBehavior
+    @sigma : Duration = Duration.new(1)
 
     def initialize(name)
       super(name)
-      @sigma = Duration.new(1)
       add_output_port :out
     end
 
@@ -29,15 +29,16 @@ private module ConflictScenario
       @sigma = Duration::INFINITY
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
   end
 
   class R < Quartz::AtomicModel
+    @sigma : Duration = Duration.new(1)
+
     def initialize(name)
       super(name)
-      @sigma = Duration.new(1)
       add_input_port :in
     end
 
@@ -67,7 +68,7 @@ private module ConflictScenario
       @output_calls += 1
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
   end
@@ -105,7 +106,7 @@ private module ConflictScenario
       @output_calls += 1
     end
 
-    def time_advance
+    def time_advance : Duration
       @sigma
     end
   end

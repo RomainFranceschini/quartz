@@ -21,7 +21,7 @@ private module TransducerScenario
       @cursor += 1
     end
 
-    def time_advance
+    def time_advance : Duration
       if @cursor < @full_msg.size
         Duration.new(1)
       else

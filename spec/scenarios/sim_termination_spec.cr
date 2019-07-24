@@ -19,7 +19,7 @@ private module TerminationScenario
       @time += time_advance.to_f
     end
 
-    def time_advance
+    def time_advance : Duration
       Duration.new(100, Scale::BASE)
     end
   end
