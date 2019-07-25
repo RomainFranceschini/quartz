@@ -63,7 +63,7 @@ class Policeman < Quartz::AtomicModel
     post mode, on: :traffic_light
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     @phase == :idle ? Quartz.duration(200) : Quartz.duration(100)
   end
 

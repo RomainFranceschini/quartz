@@ -37,7 +37,7 @@ class HeatCell < Quartz::MultiComponent::Component
     end
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case @phase
     when :inactive, :burned
       Quartz::Duration::INFINITY
@@ -46,8 +46,8 @@ class HeatCell < Quartz::MultiComponent::Component
     end
   end
 
-  def internal_transition
-    proposed_states = Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
+  def internal_transition : Hash(Quartz::Name, Quartz::Any)
+    proposed_states = Hash(Quartz::Name, Quartz::Any).new
 
     new_old_temp = @old_temp
     sum = influencers.map { |i| @surrounding_temps[i.name] }.reduce { |acc, i| acc + i }
@@ -55,7 +55,7 @@ class HeatCell < Quartz::MultiComponent::Component
     if (@temperature - @old_temp).abs > TMP_DIFF
       influencees.each do |j|
         next if j == self
-        proposed_states.unsafe_assoc(j.name, Quartz::Any.new(@temperature))
+        proposed_states[j.name] = Quartz::Any.new(@temperature)
       end
       new_old_temp = @temperature
     end
@@ -83,7 +83,7 @@ class HeatCell < Quartz::MultiComponent::Component
       time: time
     )
 
-    proposed_states.unsafe_assoc(self.name, Quartz::Any.new(nstate))
+    proposed_states[self.name] = Quartz::Any.new(nstate)
     proposed_states
   end
 

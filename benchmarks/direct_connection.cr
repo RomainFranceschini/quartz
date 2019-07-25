@@ -8,7 +8,7 @@ module DEVStone
 
     state_var phase : Symbol = :idle
 
-    def time_advance
+    def time_advance : Quartz::Duration
       if phase == :idle
         Quartz::Duration::INFINITY
       else
@@ -34,7 +34,7 @@ module DEVStone
 
     state_var phase : Symbol = :init
 
-    def time_advance
+    def time_advance : Quartz::Duration
       if phase == :init
         Quartz.duration(1)
       else

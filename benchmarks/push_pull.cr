@@ -6,7 +6,7 @@ class Worker < Quartz::AtomicModel
 
   state_var phase : Symbol = :idle
 
-  def time_advance
+  def time_advance : Quartz::Duration
     if phase == :idle
       Quartz::Duration::INFINITY
     else
@@ -32,7 +32,7 @@ class Generator < Quartz::AtomicModel
 
   state_var phase : Symbol = :generate
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case phase
     when :generate then Quartz.duration(1)
     else                Quartz::Duration::INFINITY

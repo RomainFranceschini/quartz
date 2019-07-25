@@ -23,7 +23,7 @@ class GOLCell < Quartz::MultiComponent::Component
     phase == :dead && nalive == 3
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     alives = @nalive
 
     if death?(alives) || birth?(alives)
@@ -33,8 +33,8 @@ class GOLCell < Quartz::MultiComponent::Component
     end
   end
 
-  def internal_transition
-    proposed_states = Quartz::SimpleHash(Quartz::Name, Quartz::Any).new
+  def internal_transition : Hash(Quartz::Name, Quartz::Any)
+    proposed_states = Hash(Quartz::Name, Quartz::Any).new
     alive = @nalive
 
     phase, n = if death?(alive)
@@ -48,14 +48,11 @@ class GOLCell < Quartz::MultiComponent::Component
     if n != 0
       influencees.each do |j|
         next if j == self
-        proposed_states.unsafe_assoc(j.name, Quartz::Any.new(n))
+        proposed_states[j.name] = Quartz::Any.new(n)
       end
     end
 
-    proposed_states.unsafe_assoc(
-      self.name,
-      Quartz::Any.new(GOLCell::State.new(phase: phase, nalive: alive))
-    )
+    proposed_states[self.name] = Quartz::Any.new(GOLCell::State.new(phase: phase, nalive: alive))
     proposed_states
   end
 

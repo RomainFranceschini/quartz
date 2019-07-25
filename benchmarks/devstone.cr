@@ -7,7 +7,7 @@ module DEVStone
 
     state_var phase : Symbol = :active
 
-    def time_advance
+    def time_advance : Quartz::Duration
       if phase == :active
         Quartz::Duration.new(RND.rand(5000))
       else
@@ -33,7 +33,7 @@ module DEVStone
 
     state_var phase : Symbol = :generate
 
-    def time_advance
+    def time_advance : Quartz::Duration
       if phase == :generate
         Quartz::Duration.new(1)
       else

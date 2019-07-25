@@ -16,7 +16,7 @@ class NavigationModel < Quartz::AtomicModel
   def output
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case phase
     when :change_course then Quartz.duration(1)
     else                     Quartz::Duration::INFINITY

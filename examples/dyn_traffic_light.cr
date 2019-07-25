@@ -40,7 +40,7 @@ class TrafficLight < Quartz::AtomicModel
     post observed, :observed
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case @phase
     when :red    then Quartz.duration(60)
     when :green  then Quartz.duration(50)
@@ -98,7 +98,7 @@ class Policeman < Quartz::AtomicModel
     end
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case @phase
     when :idle1, :idle2
       Quartz.duration(50)

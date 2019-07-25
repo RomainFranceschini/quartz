@@ -3,7 +3,7 @@ require "../src/quartz"
 class OneTimeModel < Quartz::AtomicModel
   state_var phase : Symbol = :active
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case phase
     when :active then Quartz.duration(20)
     else              Quartz::Duration::INFINITY
@@ -29,7 +29,7 @@ class BirthController < Quartz::DSDE::Executive
   state_var phase : Symbol = :init
   state_var counter : Int32 = 0
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case phase
     when :init          then Quartz.duration(1)
     when :death, :birth then Quartz.duration(5)

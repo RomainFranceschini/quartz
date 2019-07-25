@@ -15,7 +15,7 @@ class Generator < Quartz::AtomicModel
     @n = 0
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     self.sigma
   end
 
@@ -63,7 +63,7 @@ class Buffer < Quartz::AtomicModel
     post nil, on: :out
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     self.sigma
   end
 
@@ -99,7 +99,7 @@ class CPU < Quartz::AtomicModel
     @sigma = Duration.infinity(model_precision)
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     self.sigma
   end
 end

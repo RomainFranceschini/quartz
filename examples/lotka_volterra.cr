@@ -21,7 +21,7 @@ class LotkaVolterra < Quartz::AtomicModel
     @y += EPSILON * dydt
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     Quartz::Duration.new(10, Quartz::Scale::MICRO) # euler integration
   end
 

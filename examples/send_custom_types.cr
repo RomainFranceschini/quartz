@@ -14,7 +14,7 @@ class Foo < Quartz::AtomicModel
 
   state_var phase : Symbol = :generate
 
-  def time_advance
+  def time_advance : Quartz::Duration
     if phase == :generate
       Quartz.duration(0)
     else
