@@ -1,6 +1,6 @@
 # Quartz - A DEVS-based Modeling & Simulation Environment (WIP)
 
-[![Build Status](https://travis-ci.org/rumenzu/quartz.svg?branch=master)](https://travis-ci.org/rumenzu/quartz)
+[![Build Status](https://travis-ci.org/RomainFranceschini/quartz.svg?branch=master)](https://travis-ci.org/RomainFranceschini/quartz)
 
 Quartz is a Crystal library for defining models and constructing discrete
 event simulations based on the PDEVS (Parallel Discrete EVent System Specification) and
