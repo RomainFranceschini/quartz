@@ -1,4 +1,5 @@
 module Quartz
+  # :nodoc:
   module Comparison
     REL_TOLERANCE = 1e-8
     ABS_TOLERANCE = 1e-6
@@ -33,6 +34,7 @@ module Quartz
   end
 end
 
+# :nodoc:
 struct Float64
   include Quartz::Comparison
 end

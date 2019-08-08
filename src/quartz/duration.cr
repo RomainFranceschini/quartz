@@ -377,12 +377,14 @@ module Quartz
   end
 end
 
+# :nodoc:
 struct ::Number
   def *(other : Quartz::Duration)
     other * self
   end
 end
 
+# :nodoc:
 struct ::Int
   def duration_units
     Quartz::Duration.new(self, Quartz::Scale::BASE)

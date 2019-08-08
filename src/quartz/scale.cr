@@ -86,6 +86,7 @@ module Quartz
   end
 end
 
+# :nodoc:
 struct ::Number
   def +(other : Quartz::Scale)
     Quartz::Scale.new(self.to_i + other.level)
