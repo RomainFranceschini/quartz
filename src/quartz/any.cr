@@ -16,6 +16,8 @@ module Quartz
                  Char |
                  String |
                  Symbol |
+                 Duration |
+                 TimePoint |
                  Array(Any) |
                  Hash(Any, Any) |
                  Transferable
