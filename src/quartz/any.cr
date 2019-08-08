@@ -438,36 +438,42 @@ module Quartz
     end
   end
 
+  # :nodoc:
   class ::Object
     def ===(other : Quartz::Any)
       self === other.raw
     end
   end
 
+  # :nodoc:
   struct ::Value
     def ==(other : Quartz::Any)
       self == other.raw
     end
   end
 
+  # :nodoc:
   class ::Reference
     def ==(other : Quartz::Any)
       self == other.raw
     end
   end
 
+  # :nodoc:
   class ::Array
     def ==(other : Quartz::Any)
       self == other.raw
     end
   end
 
+  # :nodoc:
   class ::Hash
     def ==(other : Quartz::Any)
       self == other.raw
     end
   end
 
+  # :nodoc:
   class ::Regex
     def ===(other : Quartz::Any)
       value = self === other.raw
