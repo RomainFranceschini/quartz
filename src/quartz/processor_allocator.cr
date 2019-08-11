@@ -59,6 +59,10 @@ module Quartz
       @stack.last << MultiComponent::Simulator.new(model, @simulation)
     end
 
+    def visit(model : DTSS::AtomicModel)
+      @stack.last << DTSS::Simulator.new(model, @simulation)
+    end
+
     def visit(model)
       raise ProcessorAllocationError.new("No processor able to simulate \"#{model.name}\" model.")
     end

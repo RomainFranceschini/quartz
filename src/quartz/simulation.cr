@@ -56,10 +56,10 @@ module Quartz
                                end
 
       @model = case model
-               when AtomicModel, MultiComponent::Model
-                 CoupledModel.new(:root_coupled_model) << model
-               else
+               when CoupledModel
                  model
+               else
+                 CoupledModel.new(:root_coupled_model) << model
                end
 
       unless maintain_hierarchy
@@ -139,9 +139,8 @@ module Quartz
         if child.is_a?(Coordinator)
           coordinator = child.as(Coordinator)
           hierarchy.concat(coordinator.children)
-        else
-          simulator = child.as(Simulator)
-          stats[child.model.name] = simulator.transition_stats.to_h
+        elsif child.responds_to?(:transition_stats)
+          stats[child.model.name] = child.transition_stats.to_h
         end
       end
       total = Hash(Symbol, UInt32).new { 0_u32 }

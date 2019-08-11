@@ -1,7 +1,5 @@
 module Quartz
   abstract class Processor
-    include Schedulable
-
     # :nodoc:
     OBS_INFO_INIT_PHASE = {:phase => Any.new(:init)}
     # :nodoc:
@@ -48,12 +46,6 @@ module Quartz
     def inspect(io)
       io << "<" << self.class.name << ": model="
       @model.to_s(io)
-
-      io << " planned_phase="
-      self.planned_phase.to_s(io)
-      io << " imag_phase="
-      self.imaginary_phase.to_s(io)
-      io << ">"
     end
 
     abstract def initialize_processor(time : TimePoint) : {Duration, Duration}

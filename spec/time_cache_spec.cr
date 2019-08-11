@@ -4,7 +4,7 @@ require "./event_set_helper"
 describe "TimeCache" do
   describe "#retain_event" do
     it "tracks events relative to the current time" do
-      cache = TimeCache(MySchedulable).new
+      cache = TimeCache.new
       ev1 = MySchedulable.new(1)
       cache.retain_event(ev1, Scale::BASE)
       ev1.imaginary_phase.should eq(Duration.new(Duration::MULTIPLIER_MAX, Scale::BASE))
@@ -16,7 +16,7 @@ describe "TimeCache" do
       ev2.imaginary_phase.should eq(Duration.new(233, Scale::BASE))
       cache.elapsed_duration_of(ev2).should eq(Duration.new(0))
 
-      cache = TimeCache(MySchedulable).new(TimePoint.new(5000))
+      cache = TimeCache.new(TimePoint.new(5000))
       ev1 = MySchedulable.new(1)
       cache.retain_event(ev1, Scale::BASE)
       cache.advance by: Duration.new(4749)
@@ -24,7 +24,7 @@ describe "TimeCache" do
     end
 
     it "may be given an initial elapsed duration" do
-      cache = TimeCache(MySchedulable).new
+      cache = TimeCache.new
       ev1 = MySchedulable.new(1)
       cache.retain_event(ev1, Duration.new(50, Scale::BASE))
       ev1.imaginary_phase.should eq(Duration.new(Duration::MULTIPLIER_MAX - 50, Scale::BASE))
@@ -36,7 +36,7 @@ describe "TimeCache" do
   describe "#elapsed_duration_of" do
     context "from a new epoch" do
       it "returns elapsed duration of an event of same precision" do
-        cache = TimeCache(MySchedulable).new
+        cache = TimeCache.new
         ev1 = MySchedulable.new(1)
         cache.retain_event(ev1, Scale::BASE)
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0))
@@ -47,7 +47,7 @@ describe "TimeCache" do
       it "returns elapsed duration of an event of a smaller precision" do
         ev1 = MySchedulable.new(1)
         tp = TimePoint.new(0, Scale::NANO)
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
         cache.retain_event(ev1, Scale::PICO)
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0, Scale::PICO))
 
@@ -58,7 +58,7 @@ describe "TimeCache" do
       it "returns elapsed duration of an event of a coarser precision" do
         ev1 = MySchedulable.new(1)
         tp = TimePoint.new(0, Scale::NANO)
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
         cache.retain_event(ev1, Scale::MICRO)
 
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0, Scale::MICRO))
@@ -74,7 +74,7 @@ describe "TimeCache" do
     context "within an epoch" do
       it "returns elapsed duration of an event of same precision" do
         tp = TimePoint.new(50234, Scale::BASE)
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
         ev1 = MySchedulable.new(1)
         cache.retain_event(ev1, Scale::BASE)
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0))
@@ -86,7 +86,7 @@ describe "TimeCache" do
         ev1 = MySchedulable.new(1)
         tp = TimePoint.new(50234, Scale::NANO)
 
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
         cache.retain_event(ev1, Scale::PICO)
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0, Scale::PICO))
 
@@ -98,7 +98,7 @@ describe "TimeCache" do
         ev1 = MySchedulable.new(1)
         tp = TimePoint.new(5234, Scale::NANO)
 
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
         cache.retain_event(ev1, Scale::MICRO)
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0, Scale::MICRO))
 
@@ -113,7 +113,7 @@ describe "TimeCache" do
     context "with overlapping epochs" do
       it "returns elapsed duration of an event of same precision" do
         tp = TimePoint.new(Duration::MULTIPLIER_MAX, Scale::BASE)
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
         ev1 = MySchedulable.new(1)
 
         cache.retain_event(ev1, Scale::BASE)
@@ -126,7 +126,7 @@ describe "TimeCache" do
       it "returns elapsed duration of an event of a smaller precision" do
         ev1 = MySchedulable.new(1)
         tp = TimePoint.new(Duration::MULTIPLIER_MAX, Scale::NANO)
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
 
         cache.retain_event(ev1, Scale::FEMTO)
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0, Scale::FEMTO))
@@ -139,7 +139,7 @@ describe "TimeCache" do
         ev1 = MySchedulable.new(1)
         tp = TimePoint.new(Duration::MULTIPLIER_MAX, Scale::NANO)
 
-        cache = TimeCache(MySchedulable).new(tp)
+        cache = TimeCache.new(tp)
         cache.retain_event(ev1, Scale::MICRO)
         cache.elapsed_duration_of(ev1).should eq(Duration.new(0, Scale::MICRO))
 

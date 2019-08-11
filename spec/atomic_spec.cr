@@ -39,6 +39,8 @@ class ModelSample < AtomicModel
 end
 
 private class MockProcessor < Processor
+  include Schedulable
+
   def initialize_processor(time) : {Duration, Duration}
     {Duration.new(0), Duration.new(0)}
   end

@@ -12,8 +12,17 @@ module Quartz
     # The original precision level at which the imaginary event was originally
     # planned.
     property imaginary_precision : Scale = Scale::BASE
-  end
 
+    def inspect(io)
+      super(io)
+
+      io << " planned_phase="
+      self.planned_phase.to_s(io)
+      io << " imag_phase="
+      self.imaginary_phase.to_s(io)
+      io << ">"
+    end
+  end
 
   # A `PriorityQueue` is the base class to implement a planning strategy for all
   # future events to be evaluated. Events should be dequeued in a strict order
@@ -51,24 +60,18 @@ module Quartz
 
   # `EventSet` represents the pending event set and encompasses all future
   # events scheduled to occur.
-  class EventSet(T)
+  class EventSet
     # Returns the current time associated with the event set.
     property current_time : TimePoint
 
-    getter priority_queue : PriorityQueue(T)
+    getter priority_queue : PriorityQueue(Schedulable)
 
     def self.new(time : TimePoint = TimePoint.new(0)) : self
       new(:calendar_queue, time)
     end
 
     def initialize(priority_queue : Symbol, @current_time : TimePoint = TimePoint.new(0))
-      {% if T < Schedulable || (T.union? && T.union_types.all? { |t| t < Schedulable }) %}
-        # Only support Schedulable types
-      {% else %}
-        {{ raise "Can only create EventSet with types that implements Schedulable, not #{T}" }}
-      {% end %}
-
-      @priority_queue = PriorityQueue(T).new(priority_queue) { |a, b, b_in_current_epoch|
+      @priority_queue = PriorityQueue(Schedulable).new(priority_queue) { |a, b, b_in_current_epoch|
         cmp_planned_phases(a, b, b_in_current_epoch)
       }
     end
@@ -119,19 +122,19 @@ module Quartz
     end
 
     # Cancel the specified event.
-    def cancel_event(event : T) : T?
+    def cancel_event(event : Schedulable) : Schedulable?
       @priority_queue.delete(event.planned_phase, event)
     end
 
     # Returns the planned duration after which the specified event will occur.
-    def duration_of(event : T) : Duration
+    def duration_of(event : Schedulable) : Duration
       precision = event.planned_precision
       duration = @current_time.duration_from_phase(event.planned_phase)
       rescaled_duration(duration, precision)
     end
 
     # Schedules a future event at a given planned *duration*.
-    def plan_event(event : T, duration : Duration)
+    def plan_event(event : Schedulable, duration : Duration)
       planned_phase = @current_time.phase_from_duration(duration)
 
       event.planned_precision = duration.precision
@@ -153,14 +156,14 @@ module Quartz
     end
 
     # Deletes and returns the next imminent event to occur.
-    def pop_imminent_event : T
+    def pop_imminent_event : Schedulable
       @priority_queue.pop
     end
 
     # Deletes and returns all imminent simultaneous events.
-    def pop_imminent_events : Array(T)
+    def pop_imminent_events : Array(Schedulable)
       priority = @priority_queue.next_priority
-      ary = [] of T
+      ary = [] of Schedulable
       while !@priority_queue.empty? && @priority_queue.next_priority == priority
         ary << @priority_queue.pop
       end
@@ -175,7 +178,7 @@ module Quartz
       end
     end
 
-    def peek_imminent_events : Array(T)
+    def peek_imminent_events : Array(Schedulable)
       raise Exception.new("Not implemented.")
     end
 

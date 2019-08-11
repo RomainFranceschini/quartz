@@ -14,10 +14,10 @@ module Quartz
         executive = coupled.executive.processor
 
         @synchronize.each do |receiver|
-          if receiver.model == coupled.executive
+          if receiver.is_a?(Processor) && receiver.model == coupled.executive
             next
           end
-          perform_transition_for(receiver, time)
+          perform_transition_for(receiver.as(Processor | TimeBase), time)
         end
 
         if executive.sync
@@ -33,11 +33,24 @@ module Quartz
           to_remove.each do |old_model|
             old_processor = old_model.processor
 
-            if !@event_set.duration_of(old_processor).infinite?
-              @event_set.cancel_event(old_processor)
+            elapsed_duration = nil
+            if old_processor.is_a?(DTSS::Simulator)
+              delta_t = old_model.as(DTSS::AtomicModel).time_delta
+              time_base = @time_bases[delta_t]
+              time_base.processors.delete(old_processor) # TODO optimize 😱
+              if time_base.processors.empty?
+                @time_bases.delete(delta_t)
+                @event_set.cancel_event(time_base.as(Schedulable))
+                elapsed_duration = @time_cache.elapsed_duration_of(time_base.as(Schedulable))
+                @time_cache.release_event(time_base.as(Schedulable))
+              end
+            else
+              if !@event_set.duration_of(old_processor.as(Schedulable)).infinite?
+                @event_set.cancel_event(old_processor.as(Schedulable))
+              end
+              elapsed_duration = @time_cache.elapsed_duration_of(old_processor.as(Schedulable))
+              @time_cache.release_event(old_processor.as(Schedulable))
             end
-            elapsed_duration = @time_cache.elapsed_duration_of(old_processor)
-            @time_cache.release_event(old_processor)
 
             if @simulation.loggers.any_debug?
               @simulation.loggers.debug(String.build { |str|
@@ -55,12 +68,23 @@ module Quartz
             new_model.accept(visitor)
             processor = new_model.processor.not_nil!
 
-            elapsed, planned_duration = processor.initialize_processor(time)
-            @time_cache.retain_event(processor, elapsed)
-            if !planned_duration.infinite?
-              @event_set.plan_event(processor, planned_duration)
+            if processor.is_a?(DTSS::Simulator)
+              delta_t = processor.model.as(DTSS::AtomicModel).time_delta
+              time_base = @time_bases[delta_t] ||= TimeBase.new(delta_t)
+              time_base.processors << processor
+              processor.initialize_processor(time)
+              if time_base.processors.size == 1
+                @time_cache.retain_event(time_base, Duration.zero(time_base.time_next.precision))
+                @event_set.plan_event(time_base, time_base.time_next)
+              end
             else
-              processor.planned_phase = planned_duration
+              elapsed, planned_duration = processor.initialize_processor(time)
+              @time_cache.retain_event(processor.as(Schedulable), elapsed)
+              if !planned_duration.infinite?
+                @event_set.plan_event(processor.as(Schedulable), planned_duration)
+              else
+                processor.as(Schedulable).planned_phase = planned_duration
+              end
             end
           end
         end

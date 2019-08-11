@@ -2,12 +2,12 @@ require "./spec_helper"
 require "./event_set_helper"
 
 private struct EventSetTester
-  @cq : EventSet(MySchedulable) = EventSet(MySchedulable).new(:calendar_queue)
-  @lq : EventSet(MySchedulable) = EventSet(MySchedulable).new(:ladder_queue)
-  @bh : EventSet(MySchedulable) = EventSet(MySchedulable).new(:binary_heap)
-  @fh : EventSet(MySchedulable) = EventSet(MySchedulable).new(:fibonacci_heap)
+  @cq : EventSet = EventSet.new(:calendar_queue)
+  @lq : EventSet = EventSet.new(:ladder_queue)
+  @bh : EventSet = EventSet.new(:binary_heap)
+  @fh : EventSet = EventSet.new(:fibonacci_heap)
 
-  def test(&block : EventSet(MySchedulable) ->)
+  def test(&block : EventSet ->)
     it "(BinaryHeap)" { block.call(@bh) }
     pending "(CalendarQueue)" { block.call(@cq) }
     pending "(LadderQueue)" { block.call(@lq) }
@@ -50,14 +50,14 @@ describe "EventSet" do
   describe "#cmp_planned_phases" do
     context "at the start of new epoch" do
       it "compares two planned phases of same precision" do
-        pes = EventSet(MySchedulable).new
+        pes = EventSet.new
         pes.cmp_planned_phases(Duration.new(1), Duration.new(2)).should eq(-1)
         pes.cmp_planned_phases(Duration.new(2), Duration.new(1)).should eq(1)
         pes.cmp_planned_phases(Duration.new(2), Duration.new(2)).should eq(0)
       end
 
       it "compares two planned phases of different precisions" do
-        pes = EventSet(MySchedulable).new
+        pes = EventSet.new
 
         pes.cmp_planned_phases(Duration.new(15434, Scale::MILLI), Duration.new(17)).should eq(-1)
         pes.cmp_planned_phases(Duration.new(5), Duration.new(5000, Scale::MILLI)).should eq(0)
@@ -67,7 +67,7 @@ describe "EventSet" do
     context "within an epoch" do
       it "compares two planned phases of same precision" do
         ct = 87_234
-        pes = EventSet(MySchedulable).new(TimePoint.new(ct))
+        pes = EventSet.new(TimePoint.new(ct))
 
         pes.cmp_planned_phases(Duration.new(ct + 1), Duration.new(ct + 2)).should eq(-1)
         pes.cmp_planned_phases(Duration.new(ct + 2), Duration.new(ct + 1)).should eq(1)
@@ -76,14 +76,14 @@ describe "EventSet" do
 
       it "compares two planned phases of different precisions" do
         ct = 87_234
-        pes = EventSet(MySchedulable).new(TimePoint.new(ct))
+        pes = EventSet.new(TimePoint.new(ct))
 
         pes.cmp_planned_phases(Duration.new(ct*1000 + 15434, Scale::MILLI), Duration.new(ct + 17)).should eq(-1)
         pes.cmp_planned_phases(Duration.new(ct + 5), Duration.new(ct*1000 + 5000, Scale::MILLI)).should eq(0)
       end
 
       it "compares two planned phases from different epochs" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_MAX))
+        pes = EventSet.new(TimePoint.new(Duration::MULTIPLIER_MAX))
         pes.advance by: Duration.new(501)
 
         # 0 <=> MAX+499 (RHS in next epoch)
@@ -101,7 +101,7 @@ describe "EventSet" do
         # MAX+100 <==> MAX+100 (both in next epoch)
         pes.cmp_planned_phases(Duration.new(100), Duration.new(100)).should eq(0)
 
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+        pes = EventSet.new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
         next_epoch = pes.current_time.phase_from_duration(Duration.new(1000))
         pes.cmp_planned_phases(next_epoch, Duration.new(1)).should eq(-1)
         pes.cmp_planned_phases(next_epoch, Duration.new(0)).should eq(0)
@@ -110,7 +110,7 @@ describe "EventSet" do
       end
 
       it "compares two planned phases from different scales and epochs" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+        pes = EventSet.new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
 
         a = Duration.new(Duration::MULTIPLIER_MAX)
         b = Duration.new(Scale::FACTOR ** (Duration::EPOCH - 1), Scale::KILO)
@@ -127,7 +127,7 @@ describe "EventSet" do
       end
 
       it "with flag, considers overflowed RHS in previous epoch instead of next epoch" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_MAX))
+        pes = EventSet.new(TimePoint.new(Duration::MULTIPLIER_MAX))
         pes.advance by: Duration.new(501)
 
         # 0 <=> -1
@@ -140,7 +140,7 @@ describe "EventSet" do
       end
 
       it "with flag, overflowed LHS is always greater than RHS" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+        pes = EventSet.new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
         pes.cmp_planned_phases(Duration.new(1000), Duration.new(2000), true).should eq(1)
 
         planned_phase = pes.current_time.phase_from_duration(Duration.new(1000))
@@ -154,7 +154,7 @@ describe "EventSet" do
       end
 
       it "epoch and/or flag has no effect on infinite durations" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
+        pes = EventSet.new(TimePoint.new(Duration::MULTIPLIER_LIMIT - 1000))
 
         pes.cmp_planned_phases(Duration::INFINITY, Duration::INFINITY, false).should eq(0)
         pes.cmp_planned_phases(Duration::INFINITY, Duration::INFINITY, true).should eq(0)
@@ -269,7 +269,7 @@ describe "EventSet" do
       end
 
       it "applies multiscale advancement" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(500111, Scale::FEMTO))
+        pes = EventSet.new(TimePoint.new(500111, Scale::FEMTO))
         pes.advance by: Duration.new(300, Scale::PICO)
         pes.current_time.should eq(TimePoint.new(800, Scale::PICO))
       end
@@ -277,7 +277,7 @@ describe "EventSet" do
 
     describe "given a time point" do
       it "increase current time up to given time point" do
-        pes = EventSet(MySchedulable).new(TimePoint.new(5, Scale::PICO))
+        pes = EventSet.new(TimePoint.new(5, Scale::PICO))
         pes.advance until: TimePoint.new(982734, Scale::MILLI)
         pes.current_time.should eq(TimePoint.new(982734, Scale::MILLI))
       end
@@ -515,7 +515,7 @@ describe "EventSet" do
 
       pes.size.should eq(n)
 
-      imm = Set(MySchedulable).new
+      imm = Set(Schedulable).new
 
       steps.times do
         if is_ladder
@@ -534,6 +534,7 @@ describe "EventSet" do
         pes.imminent_duration.zero?.should be_false
 
         imm.each do |ev|
+          ev = ev.as(MySchedulable)
           pes.duration_of(ev).zero?.should be_true
           planned_duration = Duration.new(prng.rand(prio.multiplier..max_tn), Scale.new(prng.rand(-8..8)))
 

@@ -20,7 +20,7 @@ MAX_TIME_NEXT   = Quartz::Duration::MULTIPLIER_MAX.to_i64
 
 t0 = Time.monotonic
 priority_queue = :fibonacci_heap
-pes = Quartz::EventSet(Ev).new(priority_queue)
+pes = Quartz::EventSet.new(priority_queue)
 imm = Set(Ev).new
 is_ladder = priority_queue == :ladder_queue
 

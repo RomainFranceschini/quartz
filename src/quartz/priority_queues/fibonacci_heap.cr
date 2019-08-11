@@ -36,7 +36,7 @@ module Quartz
 
     # Insert the given *value* with the specified *priority* into `self`..
     def push(priority : Duration, value : T)
-      node = Node.new(priority, value)
+      node = Node(T).new(priority, value)
       raise "Element #{value} is already inserted." if @cache.has_key?(value)
       @cache[value] = node
       @min_node = merge(@min_node, node)

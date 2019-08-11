@@ -1,7 +1,7 @@
 module Quartz
   # The `TimeCache` data structure is used to store and retrieve elapsed
   # durations since a particular event.
-  class TimeCache(T)
+  class TimeCache
     # Returns the current time associated with the time cache.
     property current_time : TimePoint
 
@@ -10,7 +10,7 @@ module Quartz
 
     # Retain the given *event* in order to track the elapsed duration since the
     # `#current_time` as time advances.
-    def retain_event(event : T, precision : Scale)
+    def retain_event(event : Schedulable, precision : Scale)
       imaginary_duration = Duration.new(Duration::MULTIPLIER_MAX, precision)
       planned_phase = @current_time.phase_from_duration(imaginary_duration)
       event.imaginary_precision = precision
@@ -19,7 +19,7 @@ module Quartz
 
     # Retain the given *event* with a given *elapsed* duration since the
     # `#current_time`, in order to track it as time advances.
-    def retain_event(event : T, elapsed : Duration)
+    def retain_event(event : Schedulable, elapsed : Duration)
       imaginary_duration = Duration.new(Duration::MULTIPLIER_MAX - elapsed.multiplier, elapsed.precision)
       planned_phase = @current_time.phase_from_duration(imaginary_duration)
       event.imaginary_precision = elapsed.precision
@@ -28,7 +28,7 @@ module Quartz
 
     # Returns the elapsed `Duration` associated with the given *event* since the
     # previous event.
-    def elapsed_duration_of(event : T) : Duration
+    def elapsed_duration_of(event : Schedulable) : Duration
       id = @current_time.duration_from_phase(event.imaginary_phase)
       id = rescaled_duration(id, event.imaginary_precision)
       Duration.new(Duration::MULTIPLIER_MAX - id.multiplier, id.precision)
@@ -44,7 +44,7 @@ module Quartz
 
     # Cancel the tracking of the elapsed duration since the previous event of
     # the given *event*.
-    def release_event(event : T)
+    def release_event(event : Schedulable)
       event.imaginary_phase = Duration::INFINITY
     end
 
