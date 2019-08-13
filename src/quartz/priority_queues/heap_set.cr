@@ -106,6 +106,22 @@ module Quartz
       end
     end
 
+    def pop_imminents
+      if @size == 0
+        raise "heap is empty."
+      else
+        priority, set = @heap[1]
+        @size -= set.size
+
+        set.each { |value| yield(value) }
+
+        delete_at(1)
+        @cache.delete(priority)
+
+        self
+      end
+    end
+
     def to_slice : Slice(Tuple(Duration, Set(T)))
       (@heap + 1).to_slice(@entries)
     end
