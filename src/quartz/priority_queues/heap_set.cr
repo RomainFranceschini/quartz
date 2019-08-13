@@ -98,8 +98,8 @@ module Quartz
         value = set.shift
 
         if set.empty?
-          @cache[priority] = -1
           delete_at(1)
+          @cache.delete(priority)
         end
 
         value
@@ -140,8 +140,8 @@ module Quartz
       set.delete(event)
 
       if set.empty?
-        @cache[priority] = -1
         delete_at(index)
+        @cache.delete(priority)
       end
 
       event
