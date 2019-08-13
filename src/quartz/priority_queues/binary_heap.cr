@@ -75,7 +75,9 @@ module Quartz
       if @size == 0
         raise "heap is empty."
       else
-        delete_at(1)[1].tap { |value| @cache[value] = -1 }
+        _, value = delete_at(1)
+        @cache[value] = -1
+        value
       end
     end
 
