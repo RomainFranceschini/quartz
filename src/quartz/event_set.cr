@@ -124,7 +124,7 @@ module Quartz
 
     # Cancel the specified event.
     def cancel_event(event : Schedulable) : Schedulable?
-      @priority_queue.delete(event.planned_phase, event)
+      @priority_queue.delete(event.planned_phase, event).as(Schedulable)
     end
 
     # Returns the planned duration after which the specified event will occur.
