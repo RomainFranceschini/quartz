@@ -19,6 +19,7 @@ ladq = Quartz::LadderQueue(Ev).new { |a, b| a <=> b }
 calq = Quartz::CalendarQueue(Ev).new { |a, b| a <=> b }
 bheap = Quartz::BinaryHeap(Ev).new { |a, b| a <=> b }
 fheap = Quartz::FibonacciHeap(Ev).new { |a, b| a <=> b }
+heaps = Quartz::HeapSet(Ev).new { |a, b| a <=> b }
 
 events = (0...N).map { Ev.new(Quartz::Duration.new(random.rand(0i64..MAX_TIME_NEXT))) }
 
@@ -27,6 +28,7 @@ Benchmark.bm do |x|
   x.report("calq#push") { N.times { |i| calq.push(events[i].time_next, events[i]) } }
   x.report("bheap#push") { N.times { |i| bheap.push(events[i].time_next, events[i]) } }
   x.report("fheap#push") { N.times { |i| fheap.push(events[i].time_next, events[i]) } }
+  x.report("heapset#push") { N.times { |i| heaps.push(events[i].time_next, events[i]) } }
 end
 
 numbers = N.times.to_a.shuffle
@@ -36,6 +38,7 @@ Benchmark.bm do |x|
   x.report("calq#delete") { N2.times { |i| calq.delete(events[numbers[i]].time_next, events[numbers[i]]) } }
   x.report("bheap#delete") { N2.times { |i| bheap.delete(events[numbers[i]].time_next, events[numbers[i]]) } }
   x.report("fheap#delete") { N2.times { |i| fheap.delete(events[numbers[i]].time_next, events[numbers[i]]) } }
+  x.report("heapset#delete") { N2.times { |i| heaps.delete(events[numbers[i]].time_next, events[numbers[i]]) } }
 end
 
 Benchmark.bm do |x|
@@ -43,4 +46,5 @@ Benchmark.bm do |x|
   x.report("calq#pop") { N2.times { |i| calq.pop } }
   x.report("bheap#pop") { N2.times { |i| bheap.pop } }
   x.report("fheap#pop") { N2.times { |i| fheap.pop } }
+  x.report("heapset#pop") { N2.times { |i| heaps.pop } }
 end

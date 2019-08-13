@@ -31,6 +31,7 @@ module Quartz
       when :calendar_queue then CalendarQueue(T).new(&comparator)
       when :binary_heap    then BinaryHeap(T).new(&comparator)
       when :fibonacci_heap then FibonacciHeap(T).new(&comparator)
+      when :heap_set       then HeapSet(T).new(&comparator)
       else
         puts "Unknown priority queue '#{priority_queue}', defaults to binary heap"
         BinaryHeap(T).new(&comparator)
