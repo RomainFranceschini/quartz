@@ -35,6 +35,7 @@ private struct PriorityQueueTester
   @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new { |a, b| a <=> b }
   @lq : LadderQueue(Ev) = LadderQueue(Ev).new { |a, b| a <=> b }
   @bh : BinaryHeap(Ev) = BinaryHeap(Ev).new { |a, b| a <=> b }
+  @hs : HeapSet(Ev) = HeapSet(Ev).new { |a, b| a <=> b }
   @fh : FibonacciHeap(Ev) = FibonacciHeap(Ev).new do |a, b|
     # Special case to special decrease key.
     if b == Duration.new(Duration::MULTIPLIER_MAX, Scale.new(-128_i8))
@@ -49,6 +50,7 @@ private struct PriorityQueueTester
     pending "(CalendarQueue)" { block.call(@cq) }
     it "(LadderQueue)" { block.call(@lq) }
     it "(FibonacciHeap)" { block.call(@fh) }
+    it "(HeapSet)" { block.call(@hs) }
   end
 end
 

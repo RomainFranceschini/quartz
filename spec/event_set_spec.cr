@@ -6,12 +6,14 @@ private struct EventSetTester
   @lq : EventSet = EventSet.new(:ladder_queue)
   @bh : EventSet = EventSet.new(:binary_heap)
   @fh : EventSet = EventSet.new(:fibonacci_heap)
+  @hs : EventSet = EventSet.new(:heap_set)
 
   def test(&block : EventSet ->)
     it "(BinaryHeap)" { block.call(@bh) }
     pending "(CalendarQueue)" { block.call(@cq) }
     pending "(LadderQueue)" { block.call(@lq) }
     it "(FibonacciHeap)" { block.call(@fh) }
+    it "(HeapSet)" { block.call(@hs) }
   end
 end
 

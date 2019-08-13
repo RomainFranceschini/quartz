@@ -1,13 +1,28 @@
+# :nodoc:
+struct Set(T)
+  def first
+    @hash.first_key
+  end
+
+  def last
+    @hash.last_key
+  end
+
+  def shift
+    @hash.shift[0]
+  end
+end
+
 module Quartz
-  # Event set implemented as an array-based heap.
+  # Event set based on a array-based min-heap similar to `BinaryHeap`, but
+  # optimized for higher event collision rate.
   #
-  # Each inserted elements is given a certain priority, based on the result of
-  # the comparison. This is a min-heap, which means retrieving an element will
-  # always return the one with the highest priority.
+  # Instead of adding all events in the heap, simultaneous events are gathered
+  # and as a set in the heap.
   #
   # To avoid O(n) complexity when deleting an arbitrary element, a map is
-  # used to store indices for each element in the event set.
-  class BinaryHeap(T) < PriorityQueue(T)
+  # used to store indices for each event in the event set.
+  class HeapSet(T) < PriorityQueue(T)
     private DEFAULT_CAPACITY = 32
 
     # Returns the number of elements in the heap.
@@ -15,13 +30,14 @@ module Quartz
 
     @capacity : Int32
 
-    # Creates a new empty BinaryHeap.
     def initialize(&comparator : Duration, Duration, Bool -> Int32)
       @comparator = comparator
       @size = 0
+      @entries = 0
       @capacity = DEFAULT_CAPACITY
-      @heap = Pointer(Tuple(Duration, T)).malloc(@capacity)
-      @cache = Hash(T, Int32).new
+
+      @heap = Pointer(Tuple(Duration, Set(T))).malloc(@capacity)
+      @cache = Hash(Duration, Int32).new
     end
 
     def initialize(initial_capacity : Int, &comparator : Duration, Duration, Bool -> Int32)
@@ -31,13 +47,14 @@ module Quartz
 
       @comparator = comparator
       @size = 0
+      @entries = 0
       @capacity = initial_capacity.to_i
       if initial_capacity == 0
-        @heap = Pointer(Tuple(Duration, T)).null
+        @heap = Pointer(Tuple(Duration, Set(T))).null
       else
-        @heap = Pointer(Tuple(Duration, T)).malloc(initial_capacity)
+        @heap = Pointer(Tuple(Duration, Set(T))).malloc(initial_capacity)
       end
-      @cache = Hash(T, Int32).new
+      @cache = Hash(Duration, Int32).new
     end
 
     def empty? : Bool
@@ -45,9 +62,10 @@ module Quartz
     end
 
     def clear
-      @heap.clear(@size)
+      @heap.clear(@entries)
       @cache.clear
       @size = 0
+      @entries = 0
       self
     end
 
@@ -60,7 +78,7 @@ module Quartz
     end
 
     def peek
-      @size == 0 ? yield : @heap[1][1]
+      @size == 0 ? yield : @heap[1][1].first
     end
 
     def next_priority : Duration
@@ -75,22 +93,31 @@ module Quartz
       if @size == 0
         raise "heap is empty."
       else
-        delete_at(1)[1].tap { |value| @cache[value] = -1 }
+        priority, set = @heap[1]
+        @size -= 1
+        value = set.shift
+
+        if set.empty?
+          @cache[priority] = -1
+          delete_at(1)
+        end
+
+        value
       end
     end
 
-    def to_slice : Slice(Tuple(Duration, T))
-      (@heap + 1).to_slice(@size)
+    def to_slice : Slice(Tuple(Duration, Set(T)))
+      (@heap + 1).to_slice(@entries)
     end
 
-    def to_a : Array(Tuple(Duration, T))
-      Array(Tuple(Duration, T)).build(@size) do |pointer|
-        pointer.copy_from(@heap + 1, @size)
-        @size
+    def to_a : Array(Tuple(Duration, Set(T)))
+      Array(Tuple(Duration, Set(T))).build(@entries) do |pointer|
+        pointer.copy_from(@heap + 1, @entries)
+        @entries
       end
     end
 
-    def ==(other : BinaryHeap) : Bool
+    def ==(other : HeapSet) : Bool
       size == other.size && to_slice == other.to_slice
     end
 
@@ -106,18 +133,27 @@ module Quartz
 
     def delete(priority : Duration, event : T) : T?
       raise "heap is empty" if @size == 0
-      index = @cache[event]
-      @cache[event] = -1
-      delete_at(index)[1]
+      index = @cache[priority]
+      ev, set = @heap[index]
+
+      @size -= 1
+      set.delete(event)
+
+      if set.empty?
+        @cache[priority] = -1
+        delete_at(index)
+      end
+
+      event
     end
 
-    private def delete_at(index) : {Duration, T}
+    private def delete_at(index) : {Duration, Set(T)}
       value = @heap[index]
-      @size -= 1
+      @entries -= 1
 
-      if index <= @size
-        @heap[index] = @heap[@size + 1]
-        @cache[@heap[index][1]] = index
+      if index <= @entries
+        @heap[index] = @heap[@entries + 1]
+        @cache[@heap[index][0]] = index
 
         if index > 1 && @comparator.call(@heap[index][0], @heap[index >> 1][0], false) < 0
           sift_up!(index)
@@ -131,10 +167,18 @@ module Quartz
 
     def push(priority : Duration, value : T) : self
       @size += 1
-      check_needs_resize
-      @heap[@size] = {priority, value}
-      @cache[value] = @size
-      sift_up!(@size)
+
+      if index = @cache[priority]?
+        _, set = @heap[index]
+        set.add(value)
+      else
+        @entries += 1
+        check_needs_resize
+        @heap[@entries] = {priority, Set(T){value}}
+        @cache[priority] = @entries
+        sift_up!(@entries)
+      end
+
       self
     end
 
@@ -146,14 +190,14 @@ module Quartz
         right = left + 1
         min = left
 
-        if right <= @size && @comparator.call(@heap[right][0], @heap[left][0], false) < 0
+        if right <= @entries && @comparator.call(@heap[right][0], @heap[left][0], false) < 0
           min = right
         end
 
         if @comparator.call(@heap[min][0], @heap[index][0], false) < 0
           @heap[index], @heap[min] = @heap[min], @heap[index]
-          @cache[@heap[index][1]] = index
-          @cache[@heap[min][1]] = min
+          @cache[@heap[index][0]] = index
+          @cache[@heap[min][0]] = min
           index = min
         else
           break
@@ -165,15 +209,15 @@ module Quartz
       p = index >> 1
       while p > 0 && @comparator.call(@heap[index][0], @heap[p][0], false) < 0
         @heap[p], @heap[index] = @heap[index], @heap[p]
-        @cache[@heap[p][1]] = p
-        @cache[@heap[index][1]] = index
+        @cache[@heap[p][0]] = p
+        @cache[@heap[index][0]] = index
         index = p
         p = index >> 1
       end
     end
 
     def heapify!
-      index = @size >> 1
+      index = @entries >> 1
       while index >= 0
         sift_down!(index)
         index -= 1
@@ -181,7 +225,7 @@ module Quartz
     end
 
     private def check_needs_resize
-      double_capacity if @size == @capacity
+      double_capacity if @entries == @capacity
     end
 
     private def double_capacity
@@ -193,7 +237,7 @@ module Quartz
       if @heap
         @heap = @heap.realloc(@capacity)
       else
-        @heap = Pointer({Duration, T}).malloc(@capacity)
+        @heap = Pointer({Duration, Set(T)}).malloc(@capacity)
       end
     end
   end
