@@ -57,6 +57,13 @@ module Quartz
     abstract def pop : T
     abstract def delete(priority : Duration, value : T) : T?
     abstract def next_priority : Duration
+
+    def pop_imminents
+      priority = self.next_priority
+      while !empty? && self.next_priority == priority
+        yield pop
+      end
+    end
   end
 
   # `EventSet` represents the pending event set and encompasses all future
@@ -163,28 +170,14 @@ module Quartz
 
     # Deletes and returns all imminent simultaneous events.
     def pop_imminent_events : Array(Schedulable)
-      priority = @priority_queue.next_priority
       ary = [] of Schedulable
-      while !@priority_queue.empty? && @priority_queue.next_priority == priority
-        ary << @priority_queue.pop
-      end
+      @priority_queue.pop_imminents { |event| ary << event }
       ary
     end
 
     # Deletes and yields each imminent simultaneous event.
     def each_imminent_event
-      priority = @priority_queue.next_priority
-      while !@priority_queue.empty? && @priority_queue.next_priority == priority
-        yield @priority_queue.pop
-      end
-    end
-
-    def peek_imminent_events : Array(Schedulable)
-      raise Exception.new("Not implemented.")
-    end
-
-    def reschedule!
-      raise Exception.new("Not implemented.")
+      @priority_queue.pop_imminents { |event| yield(event) }
     end
 
     def inspect(io)
