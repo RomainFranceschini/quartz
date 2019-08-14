@@ -13,6 +13,7 @@ module Quartz
       @imm : Array(Quartz::MultiComponent::Component)
       @state_bags : Hash(Quartz::MultiComponent::Component, Array(Tuple(Name, Any)))
       @parent_bag : Hash(OutputPort, Array(Any))
+      @elapsed_updates : Set(Quartz::MultiComponent::Component)
       @reac_count : UInt32 = 0u32
       @int_count : UInt32 = 0u32
       @ext_count : UInt32 = 0u32
@@ -34,6 +35,7 @@ module Quartz
         @parent_bag = Hash(OutputPort, Array(Any)).new { |h, k|
           h[k] = Array(Any).new
         }
+        @elapsed_updates = Set(Quartz::MultiComponent::Component).new
         @components = model.components
         @components.each_value { |component| component.processor = self }
       end
@@ -124,28 +126,30 @@ module Quartz
         @parent_bag
       end
 
+      private def update_elapsed_duration_for(component : Component)
+        unless @elapsed_updates.includes?(component)
+          elapsed_duration = @time_cache.elapsed_duration_of(component)
+          remaining_duration = @event_set.duration_of(component)
+          component.elapsed = if remaining_duration.zero?
+                                Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
+                              else
+                                elapsed_duration
+                              end
+          @elapsed_updates << component
+        end
+      end
+
       def perform_transitions(time : TimePoint, elapsed : Duration) : Duration
         bag = @bag || EMPTY_BAG
 
         if elapsed.zero? && bag.empty?
           @int_count += @imm.size
           @imm.each do |component|
-            elapsed_duration = @time_cache.elapsed_duration_of(component)
-            remaining_duration = @event_set.duration_of(component)
-            component.elapsed = if remaining_duration.zero?
-                                  Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
-                                else
-                                  elapsed_duration
-                                end
+            update_elapsed_duration_for(component)
 
             # update elapsed values for each influencers
             component.influencers.each do |influencer|
-              elapsed_influencer = @time_cache.elapsed_duration_of(component)
-              influencer.elapsed = if elapsed_influencer == elapsed_duration
-                                     Duration.zero(elapsed_influencer.precision, elapsed_influencer.fixed?)
-                                   else
-                                     elapsed_influencer
-                                   end
+              update_elapsed_duration_for(influencer)
             end
 
             component.internal_transition.try do |ps|
@@ -170,22 +174,12 @@ module Quartz
             # TODO test if component defined delta_ext
             info = nil
             kind = nil
-            elapsed_duration = @time_cache.elapsed_duration_of(component)
             remaining_duration = @event_set.duration_of(component)
-            component.elapsed = if remaining_duration.zero?
-                                  Duration.zero(elapsed_duration.precision, elapsed_duration.fixed?)
-                                else
-                                  elapsed_duration
-                                end
+            update_elapsed_duration_for(component)
 
             # update elapsed values for each influencers
             component.influencers.each do |influencer|
-              elapsed_influencer = @time_cache.elapsed_duration_of(component)
-              influencer.elapsed = if elapsed_influencer == elapsed_duration
-                                     Duration.zero(elapsed_influencer.precision, elapsed_influencer.fixed?)
-                                   else
-                                     elapsed_influencer
-                                   end
+              update_elapsed_duration_for(influencer)
             end
 
             o = if elapsed.zero? && remaining_duration.zero?
@@ -232,6 +226,7 @@ module Quartz
 
         bag.clear
         @imm.clear
+        @elapsed_updates.clear
 
         @state_bags.each do |component, states|
           remaining_duration = @event_set.duration_of(component)
