@@ -179,7 +179,7 @@ describe "Priority queue" do
     steps = 5_000
     max_reschedules = 50
     max_tn = Duration::MULTIPLIER_MAX.to_i64 // steps
-    seed = rand(Int64::MIN..Int64::MAX)
+    seed = rand(UInt64::MIN..UInt64::MAX)
     sequence = Hash(String, Array(Duration)).new { |h, k| h[k] = Array(Duration).new }
 
     PriorityQueueTester.new.test do |pes|
@@ -259,11 +259,13 @@ describe "Priority queue" do
       end
     end
 
-    ref_key = sequence.keys.first
-    sequence.each_key do |key|
-      next if key == ref_key
-      it "event sequence of #{key} should be same as #{ref_key}" do
-        sequence[key].should eq(sequence[ref_key])
+    if sequence.size > 2
+      ref_key = sequence.keys.first
+      sequence.each_key do |key|
+        next if key == ref_key
+        it "event sequence of #{key} should be same as #{ref_key}" do
+          sequence[key].should eq(sequence[ref_key])
+        end
       end
     end
   end

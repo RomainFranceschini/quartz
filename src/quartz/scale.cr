@@ -56,7 +56,7 @@ module Quartz
 
     # Returns the result of dividing `self` and *other*.
     def /(other : Scale) : Float64
-      FACTOR.to_f ** (@level - other.level)
+      FACTOR.to_f ** (@level.to_i - other.level)
     end
 
     # Negates self.

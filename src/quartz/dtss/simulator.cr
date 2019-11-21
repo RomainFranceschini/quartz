@@ -60,7 +60,7 @@ module Quartz::DTSS
       raise err
     end
 
-    def collect_outputs(elapsed : Duration)
+    def collect_outputs(elapsed : Duration) : Hash(Quartz::OutputPort, Array(Quartz::Any))
       @model.as(DTSS::AtomicModel).fetch_output!
     end
 

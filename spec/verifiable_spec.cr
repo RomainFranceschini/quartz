@@ -99,9 +99,8 @@ describe "Verifiable" do
       end
 
       context "and a given context" do
-        MyModel.check(:number, numericality: {greater_than: 20, on: :some_context})
-
         it "verifiers with matching context adds error messages" do
+          MyModel.check(:number, numericality: {greater_than: 20, on: :some_context})
           model = MyModel.new
           model.number = 0.0f32
 
@@ -110,9 +109,11 @@ describe "Verifiable" do
           model.errors.messages.has_key?(:number).should be_true
           model.errors.messages[:number].size.should eq(1)
           model.errors.messages[:number].first.should eq("must be greater than 20")
+          MyModel.clear_verifiers
         end
 
         it "verifiers that doesn't match context don't add errors" do
+          MyModel.check(:number, numericality: {greater_than: 20, on: :some_context})
           model = MyModel.new
           model.number = 0f32
 
@@ -120,9 +121,8 @@ describe "Verifiable" do
 
           model.errors.empty?.should be_true
           model.errors.messages.has_key?(:number).should be_false
+          MyModel.clear_verifiers
         end
-
-        MyModel.clear_verifiers
       end
     end
   end

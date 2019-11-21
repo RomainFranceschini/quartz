@@ -498,7 +498,7 @@ describe "EventSet" do
     steps = 20_000
     max_reschedules = 50
     max_tn = Duration::MULTIPLIER_MAX.to_i64
-    seed = rand(Int64::MIN..Int64::MAX)
+    seed = rand(UInt64::MIN..UInt64::MAX)
     sequence = Hash(String, Array(Duration)).new { |h, k| h[k] = Array(Duration).new }
 
     EventSetTester.new.test do |pes|
