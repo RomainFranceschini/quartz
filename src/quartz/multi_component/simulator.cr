@@ -49,6 +49,17 @@ module Quartz
         }
       end
 
+      private def fixed_planned_duration(planned_duration : Duration, component) : Duration
+        level = component.class.precision_level
+        fixed_planned_duration = planned_duration.fixed_at(level)
+        if !planned_duration.infinite? && fixed_planned_duration.infinite?
+          raise InvalidDurationError.new("#{component.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, level)} given its precision level.")
+        elsif planned_duration.precision < level
+          raise InvalidDurationError.new("'#{component.name}': planned duration #{planned_duration} was coarsed to #{level} due to the model precision level.")
+        end
+        fixed_planned_duration
+      end
+
       def initialize_processor(time : TimePoint) : {Duration, Duration}
         @reac_count = @int_count = @ext_count = @con_count = 0u32
         @event_set.clear
@@ -59,13 +70,7 @@ module Quartz
         @components.each_value do |component|
           component.__initialize_state__(self)
           elapsed = component.elapsed
-          planned_duration = component.time_advance.as(Duration)
-          fixed_planned_duration = planned_duration.fixed_at(component.class.precision_level)
-          if !planned_duration.infinite? && fixed_planned_duration.infinite?
-            raise InvalidDurationError.new("#{model.name} planned duration cannot exceed #{Duration.new(Duration::MULTIPLIER_MAX, component.class.precision_level)} given its precision level.")
-          elsif planned_duration.precision < component.class.precision_level
-            raise InvalidDurationError.new("'#{component.name}': planned duration #{planned_duration} is rounded to #{fixed_planned_duration} due to the model precision level.")
-          end
+          planned_duration = fixed_planned_duration(component.time_advance.as(Duration), component)
 
           if @loggers.any_debug?
             @loggers.debug(String.build { |str|
@@ -244,7 +249,7 @@ module Quartz
           component.elapsed = elapsed_duration
           component.reaction_transition(states)
 
-          planned_duration = component.time_advance.as(Duration).fixed
+          planned_duration = fixed_planned_duration(component.time_advance.as(Duration), component)
           if planned_duration.infinite?
             component.planned_phase = Duration::INFINITY.fixed
           else
