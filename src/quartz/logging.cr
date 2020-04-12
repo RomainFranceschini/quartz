@@ -1,120 +1,81 @@
-require "logger"
+require "log"
 require "colorize"
 
+Log.setup_from_env(
+  level: ENV.fetch("CRYSTAL_LOG_LEVEL", "INFO"),
+  sources: ENV.fetch("CRYSTAL_LOG_SOURCES", "quartz.*"),
+  backend: Log::IOBackend.new.tap do |backend|
+    backend.formatter = Quartz::FORMATTER
+  end
+)
+
 module Quartz
-  class Loggers
-    private LOGGER_COLORS = {
-      Logger::Severity::ERROR   => :light_red,
-      Logger::Severity::FATAL   => :red,
-      Logger::Severity::WARN    => :light_yellow,
-      Logger::Severity::INFO    => :light_green,
-      Logger::Severity::DEBUG   => :light_blue,
-      Logger::Severity::UNKNOWN => :light_gray,
-    }
+  Log = ::Log.for(self)
 
-    COLOR_FORMATTER = Logger::Formatter.new do |severity, datetime, progname, message, io|
-      color = LOGGER_COLORS[severity]
-      io << datetime.to_s("(%T:%L)").colorize(color)
-      io << " ❯ ".colorize(:black)
-      io << message
+  @@colors = true
+
+  def self.colorize_logs=(value : Bool)
+    @@colors = value
+  end
+
+  private LOGGER_COLORS = {
+    ::Log::Severity::Fatal   => :red,
+    ::Log::Severity::Error   => :light_red,
+    ::Log::Severity::Warning => :light_yellow,
+    ::Log::Severity::Info    => :light_green,
+    ::Log::Severity::Verbose => :light_gray,
+    ::Log::Severity::Debug   => :light_blue,
+    ::Log::Severity::None    => :dark_gray,
+  }
+
+  FORMATTER = ::Log::Formatter.new do |entry, io|
+    message = entry.message
+    colorize = @@colors && io.tty? && Colorize.enabled?
+
+    if colorize
+      color = LOGGER_COLORS.fetch(entry.severity, :default)
+      io << entry.timestamp.to_s("(%T:%L)").colorize(color)
+      io << " ❯ ".colorize(:black) << message
+    else
+      io << entry.severity.label[0] << ": " << entry.timestamp.to_s("(%T:%L)")
+      io << " ❯ " << message
     end
+  end
 
-    SIMPLE_FORMATTER = Logger::Formatter.new do |severity, datetime, progname, message, io|
-      io << datetime.to_s("(%T:%L)")
-      io << " ❯ "
-      io << message
+  def self.set_no_log_backend
+    Log.backend = nil
+  end
+
+  def self.set_io_log_backend
+    Log.backend = Log::IOBackend.new.tap do |backend|
+      backend.formatter = Quartz::FORMATTER
     end
+  end
 
-    def initialize(create_default_logger : Bool)
-      if create_default_logger
-        add_logger(STDOUT)
-      end
-    end
+  def self.set_warning_log_level
+    Log.level = ::Log::Severity::Warning
+  end
 
-    private def loggers : Hash(IO, Logger)
-      @loggers ||= Hash(IO, Logger).new
-    end
+  def self.set_debug_log_level
+    Log.level = ::Log::Severity::Debug
+  end
 
-    def any_logger? : Bool
-      (@loggers.try &.size || 0) > 0
-    end
-
-    def any_debug? : Bool
-      any_logger? && loggers.each_value.any? &.debug?
-    end
-
-    # Add a new logger
-    def add_logger(io : IO, level = Logger::INFO, formatter = COLOR_FORMATTER)
-      loggers[io] = Logger.new(io).tap do |logger|
-        logger.progname = "quartz"
-        logger.level = level
-        logger.formatter = formatter
-      end
-    end
-
-    # Remove logger associated with given *io*.
-    def remove_logger(io : IO = STDOUT)
-      @loggers.try &.delete(io)
-    end
-
-    # Change logger severity level for all *loggers*.
-    def level=(level : Logger::Severity)
-      @loggers.try &.each_value { |logger| logger.level = level }
-    end
-
-    def clear
-      @loggers.try &.clear
-    end
-
-    # Send a debug *message* to loggers
-    def debug(message)
-      @loggers.try &.each_value { |logger| logger.debug(message) }
-    end
-
-    # Send a info *message* to loggers
-    def info(message)
-      @loggers.try &.each_value { |logger| logger.info(message) }
-    end
-
-    # Send a warning *message* to loggers
-    def warn(message)
-      @loggers.try &.each_value { |logger| logger.warn(message) }
-    end
-
-    # Send an error *message* to loggers
-    def error(message)
-      @loggers.try &.each_value { |logger| logger.error(message) }
-    end
-
-    # Send a fatal *message* to loggers
-    def fatal(message)
-      @loggers.try &.each_value { |logger| logger.fatal(message) }
-    end
-
-    def timing(label, delay = false, display_memory = true, padding_size = 34)
-      if any_logger?
-        io = IO::Memory.new
-
-        io.print "%-*s" % {padding_size, "#{label}:"} unless delay
-        start = Time.monotonic
-        value = yield
-        elapsed_time = Time.monotonic - start
-        io.print "%-*s" % {padding_size, "#{label}:"} if delay
-        if display_memory
-          heap_size = GC.stats.heap_size
-          mb = heap_size / 1024.0 / 1024.0
-          io.print " %s (%7.2fMB)" % {elapsed_time, mb}
-        else
-          io.print " %s" % elapsed_time
-        end
-        str = io.to_s
-
-        loggers.each_value { |logger| logger.info str }
-
-        value
+  def self.timing(label, display_memory = true, padding_size = 34)
+    start_time = Time.monotonic
+    retval = yield
+    Log.info {
+      elapsed_time = Time.monotonic - start_time
+      io = IO::Memory.new
+      io.print "%-*s" % {padding_size, "#{label}:"}
+      if display_memory
+        heap_size = GC.stats.heap_size
+        mb = heap_size / 1024.0 / 1024.0
+        io.print " %s (%7.2fMB)" % {elapsed_time, mb}
       else
-        yield
+        io.print " %s" % elapsed_time
       end
-    end
+      io.to_s
+    }
+    retval
   end
 end
