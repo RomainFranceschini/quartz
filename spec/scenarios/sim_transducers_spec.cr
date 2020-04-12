@@ -66,7 +66,7 @@ private module TransducerScenario
       model.attach(gen.output_port(:chars), to: col_upcase_chars.input_port(:chars)) { |bag| bag.map { |any| Quartz::Any.new(any.as_c.upcase) } }
       model.attach(gen.output_port(:chars), to: col_ints.input_port(:ints)) { |bag| bag.map { |any| Quartz::Any.new(any.as_c.ord) } }
 
-      sim = Quartz::Simulation.new(model, loggers: Loggers.new(false))
+      sim = Quartz::Simulation.new(model)
       sim.simulate
 
       col_chars.chars.should eq("hello world".chars)
@@ -105,7 +105,7 @@ private module TransducerScenario
       model.attach(gen.output_port(:chars), to: char_collectors.input_port(:chars))
       model.attach(gen.output_port(:chars), to: int_collectors.input_port(:ints)) { |bag| bag.map { |any| Quartz::Any.new(any.as_c.ord) } }
 
-      sim = Quartz::Simulation.new(model, loggers: Loggers.new(false), maintain_hierarchy: false)
+      sim = Quartz::Simulation.new(model, maintain_hierarchy: false)
       sim.simulate
       col_chars.chars.should eq("hello world".chars)
       col_upcase_chars.chars.should eq("HELLO WORLD".chars)

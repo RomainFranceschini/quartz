@@ -114,6 +114,8 @@ depths = {5}
 duration = Quartz::Duration.new(1000)
 depths = (5..30).step(5)
 
+Quartz.set_no_log_backend
+
 result = CSV.build do |csv|
   csv.row "width", "depth", "flattened", "trial", "elapsed time (s)"
 
@@ -128,7 +130,6 @@ result = CSV.build do |csv|
           duration: duration,
           maintain_hierarchy: maintain_hierarchy,
           scheduler: :binary_heap,
-          loggers: Quartz::Loggers.new(false)
         )
 
         csv.row do |row|

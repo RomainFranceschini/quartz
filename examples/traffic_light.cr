@@ -94,5 +94,5 @@ coupled.attach :traffic_light, to: :interrupt, between: :policeman, and: :traffi
 PortObserver.new(coupled[:traffic_light].output_port(:observed))
 
 simulation = Quartz::Simulation.new(coupled, duration: Quartz.duration(1000), scheduler: :binary_heap)
-simulation.loggers.level = Logger::DEBUG
+Quartz.set_debug_log_level
 simulation.simulate

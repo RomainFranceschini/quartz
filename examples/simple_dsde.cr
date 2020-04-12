@@ -79,7 +79,7 @@ end
 model = Quartz::DSDE::CoupledModel.new(:dsde, BirthController.new(:executive))
 
 simulation = Quartz::Simulation.new(model, duration: Quartz.duration(25), maintain_hierarchy: true)
-simulation.loggers.level = Logger::DEBUG
+Quartz.set_debug_log_level
 simulation.generate_graph("dsde_0")
 Grapher.new(model.executive, simulation)
 simulation.simulate

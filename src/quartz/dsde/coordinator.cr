@@ -52,12 +52,12 @@ module Quartz
               @time_cache.release_event(old_processor.as(Schedulable))
             end
 
-            if @simulation.loggers.any_debug?
-              @simulation.loggers.debug(String.build { |str|
+            Log.debug {
+              String.build { |str|
                 str << '\'' << old_model.name << "' terminated ("
                 str << "elapsed: " << elapsed_duration << ')'
-              })
-            end
+              }
+            }
           end
 
           # initialize new models and their processors

@@ -141,12 +141,13 @@ end
 
 RND = Random.new(1234)
 
+Quartz.set_no_log_backend
+
 root = DEVStone::DEVStone.new(2, ARGV[0].to_i, ARGV[1].to_i)
 simulation = Quartz::Simulation.new(
   root,
   maintain_hierarchy: false,
-  scheduler: :binary_heap,
-  loggers: Quartz::Loggers.new(false)
+  scheduler: :binary_heap
 )
 
 simulation.simulate
