@@ -1,34 +1,26 @@
 require "../src/quartz"
 
-class LotkaVolterra < Quartz::AtomicModel
-  EPSILON = Quartz::Duration.new(10, Quartz::Scale::MICRO).to_f # euler integration
+class LotkaVolterra < Quartz::DTSS::AtomicModel
+  delta 10, micro # euler integration step
 
   state_var x : Float64 = 1.0
   state_var y : Float64 = 1.0
-
-  precision nano
 
   state_var alpha : Float64 = 5.2 # prey reproduction rate
   state_var beta : Float64 = 3.4  # predator per prey mortality rate
   state_var gamma : Float64 = 2.1 # predator mortality rate
   state_var delta : Float64 = 1.4 # predator per prey reproduction rate
 
-  def internal_transition
+  def transition(_messages)
     dxdt = ((@x * @alpha) - (@beta * @x * @y))
     dydt = (-(@gamma * @y) + (@delta * @x * @y))
 
-    @x += EPSILON * dxdt
-    @y += EPSILON * dydt
-  end
-
-  def time_advance : Quartz::Duration
-    Quartz::Duration.new(10, Quartz::Scale::MICRO) # euler integration
+    @x += self.time_delta.to_f * dxdt
+    @y += self.time_delta.to_f * dydt
   end
 
   def output
-  end
-
-  def external_transition(bag)
+    # no-op
   end
 end
 
