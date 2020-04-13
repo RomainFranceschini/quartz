@@ -8,15 +8,12 @@ class TrafficLight < Quartz::AtomicModel
 
   def external_transition(messages)
     value = messages[input_ports[:interrupt]].first.as_sym
-    case value
-    when :to_manual
-      case @phase
-      when :red, :green, :orange
-        @phase = :manual
-      end
-    when :to_autonomous
-      @phase = :red if @phase == :manual
-    end
+    @phase = case value
+             when :to_manual
+               @phase = :manual
+             else # :to_autonomous
+               @phase = :red
+             end
   end
 
   def internal_transition
@@ -36,6 +33,8 @@ class TrafficLight < Quartz::AtomicModel
                  :grey
                when :green
                  :orange
+               else
+                 raise "BUG: unreachable"
                end
     post observed, :observed
   end

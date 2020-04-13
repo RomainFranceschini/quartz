@@ -11,7 +11,7 @@ class TrafficLight < Quartz::AtomicModel
     case value
     when :to_manual
       @phase = :manual if {:red, :green, :orange}.includes?(@phase)
-    when :to_autonomous
+    else # :to_autonomous
       @phase = :red if @phase == :manual
     end
   end
@@ -29,11 +29,12 @@ class TrafficLight < Quartz::AtomicModel
     observed = case @phase
                when :red, :orange then :grey
                when :green        then :orange
+               else                    raise "BUG: unreachable"
                end
     post observed, on: :observed
   end
 
-  def time_advance
+  def time_advance : Quartz::Duration
     case @phase
     when :red    then Quartz.duration(60)
     when :green  then Quartz.duration(50)
@@ -59,6 +60,7 @@ class Policeman < Quartz::AtomicModel
     mode = case @phase
            when :idle    then :to_manual
            when :working then :to_autonomous
+           else               raise "BUG: unreachable"
            end
     post mode, on: :traffic_light
   end

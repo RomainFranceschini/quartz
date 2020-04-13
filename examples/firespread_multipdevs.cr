@@ -193,7 +193,7 @@ class Consolify
             print "❀ "
           when :burning
             print "◼ "
-          when :burned
+          else # :burned
             print "  "
           end
           j += 1

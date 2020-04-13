@@ -161,7 +161,7 @@ class Consolify
           case model.cells[i][j].phase
           when :alive
             print "◼ "
-          when :dead
+          else # :dead
             print "  "
           end
           j += 1
@@ -187,4 +187,3 @@ else
   STDERR.puts "You should provide initial grid file"
   exit 1
 end
-

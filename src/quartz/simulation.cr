@@ -172,6 +172,8 @@ module Quartz
         @notifier.notify(Hooks::POST_RESTART)
       when Status::Running, Status::Initialized
         Log.info { "Cannot restart, the simulation is currently running." }
+      when Status::Ready
+        # no-op
       end
     end
 

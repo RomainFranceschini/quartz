@@ -54,6 +54,8 @@ class Tracer
     when Quartz::Hooks::POST_SIMULATION
       @file.not_nil!.close
       @file = nil
+    else
+      # no-op
     end
   end
 
