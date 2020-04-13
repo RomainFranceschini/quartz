@@ -212,13 +212,13 @@ end
 CLR = "\033c"
 CLI = true
 
-if ARGV.size == 1
-  filepath = ARGV.first
-  model = HeatMultiPDEVS.new(:heat, filepath)
-  simulation = Quartz::Simulation.new(model, duration: Quartz::Duration.new(600))
-  c = Consolify.new(model, simulation) if CLI
-  simulation.simulate
-else
-  STDERR.puts "You should provide initial grid file"
-  exit 1
-end
+filepath = if ARGV.size == 1
+             ARGV.first
+           else
+             "examples/init/fire25_25.txt"
+           end
+
+model = HeatMultiPDEVS.new(:heat, filepath)
+simulation = Quartz::Simulation.new(model, duration: Quartz::Duration.new(600))
+Consolify.new(model, simulation) if CLI
+simulation.simulate

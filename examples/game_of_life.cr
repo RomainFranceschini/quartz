@@ -177,13 +177,13 @@ class Consolify
   end
 end
 
-if ARGV.size == 1
-  filepath = ARGV.first
-  model = GOLMultiPDEVS.new(:life, filepath)
-  simulation = Quartz::Simulation.new(model)
-  c = Consolify.new(model, simulation)
-  simulation.simulate
-else
-  STDERR.puts "You should provide initial grid file"
-  exit 1
-end
+filepath = if ARGV.size == 1
+             ARGV.first
+           else
+             "examples/init/gosper_glider_gun.txt"
+           end
+
+model = GOLMultiPDEVS.new(:life, filepath)
+simulation = Quartz::Simulation.new(model)
+Consolify.new(model, simulation)
+simulation.simulate
