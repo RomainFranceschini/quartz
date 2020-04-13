@@ -38,7 +38,7 @@ doc: deps ## Generate mpi.cr library documentation
 examples: $(EXAMPLES_TARGETS)
 
 .PHONY: benchmarks
-examples: $(BENCHMARKS_TARGETS)
+benchmarks: $(BENCHMARKS_TARGETS)
 
 .PHONY: spec ## Run specs
 spec: examples
