@@ -38,7 +38,7 @@ steps.times do
   prio = pes.imminent_duration
   pes.advance by: prio
   imm.clear
-  imm.concat(pes.pop_imminent_events)
+  pes.each_imminent_event { |e| imm.add(e.as(Ev)) }
 
   file.print prio
   file.print ": "
