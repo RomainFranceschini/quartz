@@ -106,7 +106,7 @@ private module CleanBagScenario
       describe "transition are properly called" do
         it "for full hierarchy" do
           m = TestSimpleMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: true, loggers: Loggers.new(false))
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
 
           sim.initialize_simulation
           sim.step
@@ -164,7 +164,7 @@ private module CleanBagScenario
 
         it "with flattening" do
           m = TestSimpleMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: false, loggers: Loggers.new(false))
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
 
           sim.initialize_simulation
           sim.step
@@ -226,7 +226,7 @@ private module CleanBagScenario
       describe "transition are properly called" do
         it "for full hierarchy" do
           m = TestNestedMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: true, loggers: Loggers.new(false))
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
 
           sim.initialize_simulation
           sim.step
@@ -284,7 +284,7 @@ private module CleanBagScenario
 
         it "with flattening" do
           m = TestNestedMsg.new
-          sim = Quartz::Simulation.new(m, maintain_hierarchy: false, loggers: Loggers.new(false))
+          sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
 
           sim.initialize_simulation
           sim.step

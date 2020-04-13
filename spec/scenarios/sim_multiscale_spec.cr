@@ -79,7 +79,6 @@ private module MultiscaleScenario
         sim = Quartz::Simulation.new(
           m,
           maintain_hierarchy: true,
-          loggers: Loggers.new(false),
           duration: Quartz.duration(2)
         )
 

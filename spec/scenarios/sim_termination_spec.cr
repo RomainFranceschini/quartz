@@ -28,7 +28,7 @@ private module TerminationScenario
     it "simulate up to given duration" do
       m = M1.new :m
 
-      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false), duration: Duration.new(10, Scale::KILO))
+      sim = Quartz::Simulation.new(m, duration: Duration.new(10, Scale::KILO))
       sim.simulate
 
       m.time.should eq(Duration.new(10, Scale::KILO).to_f)
@@ -38,7 +38,7 @@ private module TerminationScenario
     it "simulate up to given time point" do
       m = M1.new :m
 
-      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false), duration: TimePoint.new(10_000, Scale::BASE))
+      sim = Quartz::Simulation.new(m, duration: TimePoint.new(10_000, Scale::BASE))
       sim.simulate
 
       m.int_calls.should eq(100)
@@ -47,7 +47,7 @@ private module TerminationScenario
 
     it "simulate up to a given termination condition" do
       m = M1.new :m
-      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false))
+      sim = Quartz::Simulation.new(m)
       sim.termination_condition do |vtime, root|
         m.int_calls == 100
       end

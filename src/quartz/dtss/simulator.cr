@@ -3,11 +3,9 @@ module Quartz::DTSS
   class Simulator < Quartz::Processor
     @transition_count : UInt32 = 0u32
     @run_validations : Bool
-    @loggers : Loggers
 
     def initialize(model : Model, simulation : Simulation)
       @run_validations = simulation.run_validations?
-      @loggers = simulation.loggers
       super(model)
     end
 
@@ -27,21 +25,21 @@ module Quartz::DTSS
       planned_duration = atomic.class.time_delta
 
       if @run_validations && atomic.invalid?(:initialization)
-        if @loggers.any_logger?
-          @loggers.error(String.build { |str|
+        Log.error {
+          String.build { |str|
             str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
             str << " (context: 'init', time: " << time << "). "
             str << "Errors: " << atomic.errors.full_messages
-          })
-        end
+          }
+        }
       end
 
-      if @loggers.any_debug?
-        @loggers.debug(String.build { |str|
+      Log.debug {
+        String.build { |str|
           str << '\'' << atomic.name << "' initialized ("
           str << "elapsed: " << elapsed << ", time_next: " << planned_duration << ')'
-        })
-      end
+        }
+      }
 
       if atomic.count_observers > 0
         atomic.notify_observers(OBS_INFO_INIT_TRANSITION.merge({:time => time}))
@@ -50,13 +48,15 @@ module Quartz::DTSS
       {elapsed.fixed, planned_duration.fixed}
     rescue err : StrictVerificationFailed
       atomic = @model.as(DTSS::AtomicModel)
-      if @loggers.any_logger?
-        @loggers.fatal(String.build { |str|
+
+      Log.fatal {
+        String.build { |str|
           str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
           str << " (context: 'init', time: " << time << "). "
           str << "Errors: " << atomic.errors.full_messages
-        })
-      end
+        }
+      }
+
       raise err
     end
 
@@ -68,7 +68,6 @@ module Quartz::DTSS
       atomic = @model.as(DTSS::AtomicModel)
       bag = @bag || EMPTY_BAG
 
-      info = nil
       kind = nil
       atomic.elapsed = elapsed
       planned_duration = atomic.class.time_delta
@@ -82,21 +81,21 @@ module Quartz::DTSS
 
       bag.clear
 
-      if @loggers.any_debug?
-        @loggers.debug(String.build { |str|
+      Log.debug {
+        String.build { |str|
           str << '\'' << atomic.name << "': " << kind << " transition "
           str << "(elapsed: " << elapsed << ", time_next: " << planned_duration << ')'
-        })
-      end
+        }
+      }
 
       if @run_validations && atomic.invalid?(kind)
-        if @loggers.any_logger?
-          @loggers.error(String.build { |str|
+        Log.error {
+          String.build { |str|
             str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
             str << " (context: '" << kind << "')."
             str << "Errors: " << atomic.errors.full_messages
-          })
-        end
+          }
+        }
       end
 
       if atomic.count_observers > 0
@@ -106,13 +105,15 @@ module Quartz::DTSS
       planned_duration.fixed
     rescue err : StrictVerificationFailed
       atomic = @model.as(DTSS::AtomicModel)
-      if @loggers.any_logger?
-        @loggers.fatal(String.build { |str|
+
+      Log.fatal {
+        String.build { |str|
           str << '\'' << atomic.name << "' is " << "invalid".colorize.underline
           str << " (context: '" << kind << "')."
           str << "Errors: " << atomic.errors.full_messages
-        })
-      end
+        }
+      }
+
       raise err
     end
   end

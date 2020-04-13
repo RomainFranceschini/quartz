@@ -16,7 +16,6 @@ module Quartz
     getter processor, model, start_time, final_time
     getter status : Status = Status::Ready
     getter virtual_time : TimePoint = TimePoint.new(0)
-    getter loggers : Loggers
     getter notifier : Hooks::Notifier
 
     @final_vtime : TimePoint?
@@ -40,8 +39,7 @@ module Quartz
                    maintain_hierarchy : Bool = true,
                    duration : (Duration | TimePoint) = Duration::INFINITY,
                    @run_validations : Bool = false,
-                   @notifier : Hooks::Notifier = Hooks::Notifier.new,
-                   @loggers : Loggers = Loggers.new(true))
+                   @notifier : Hooks::Notifier = Hooks::Notifier.new)
       @final_vtime = case duration
                      when Duration
                        duration.infinite? ? nil : TimePoint.new(duration.multiplier, duration.precision)
@@ -63,7 +61,7 @@ module Quartz
                end
 
       unless maintain_hierarchy
-        @loggers.timing("Modeling tree flattening") {
+        Quartz.timing("Modeling tree flattening") {
           @model.accept(DirectConnectionVisitor.new(@model))
         }
       end
@@ -77,7 +75,7 @@ module Quartz
     @[AlwaysInline]
     protected def processor
       @processor ||= begin
-        @loggers.timing("Processor allocation") do
+        Quartz.timing("Processor allocation") do
           visitor = ProcessorAllocator.new(self, @model)
           model.accept(visitor)
           visitor.simulable
@@ -154,7 +152,7 @@ module Quartz
     def abort
       if running? || initialized?
         @notifier.notify(Hooks::PRE_ABORT)
-        @loggers.info "Aborting simulation."
+        Log.info { "Aborting simulation." }
         @final_time = Time.monotonic
         @status = Status::Aborted
         @notifier.notify(Hooks::POST_ABORT)
@@ -173,14 +171,14 @@ module Quartz
         @status = Status::Ready
         @notifier.notify(Hooks::POST_RESTART)
       when Status::Running, Status::Initialized
-        @loggers.info "Cannot restart, the simulation is currently running."
+        Log.info { "Cannot restart, the simulation is currently running." }
       end
     end
 
     private def begin_simulation
       @start_time = Time.monotonic
       @status = Status::Running
-      @loggers.info "Beginning simulation"
+      Log.info { "Beginning simulation" }
       @notifier.notify(Hooks::PRE_SIMULATION)
     end
 
@@ -188,20 +186,18 @@ module Quartz
       @final_time = Time.monotonic
       @status = Status::Done
 
-      if @loggers.any_logger?
-        @loggers.info "Simulation ended after #{elapsed_secs} secs."
-        if @loggers.any_debug?
-          str = String.build(512) do |str|
-            str << "Transition stats : {\n"
-            transition_stats.each do |k, v|
-              str << "    #{k} => #{v}\n"
-            end
-            str << "}\n"
+      Log.info { "Simulation ended after #{elapsed_secs} secs." }
+      Log.debug {
+        String.build(512) do |str|
+          str << "Transition stats : {\n"
+          transition_stats.each do |k, v|
+            str << "    #{k} => #{v}\n"
           end
-          @loggers.debug str
-          @loggers.debug "Running post simulation hook"
+          str << "}\n"
+          str << "Running post simulation hook"
         end
-      end
+      }
+
       @notifier.notify(Hooks::POST_SIMULATION)
     end
 
@@ -209,13 +205,13 @@ module Quartz
       if ready?
         begin_simulation
         @notifier.notify(Hooks::PRE_INIT)
-        @loggers.timing("Simulation initialization") do
+        Quartz.timing("Simulation initialization") do
           @time_next = processor.initialize_state(@virtual_time)
         end
         @status = Status::Initialized
         @notifier.notify(Hooks::POST_INIT)
       else
-        @loggers.info "Cannot initialize simulation while it is running or terminated."
+        Log.info { "Cannot initialize simulation while it is running or terminated." }
       end
     end
 
@@ -231,9 +227,9 @@ module Quartz
           return nil
         end
 
-        if @loggers.any_debug?
-          @loggers.debug("Tick at #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
-        end
+        Log.debug {
+          "Tick at #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed."
+        }
 
         @time_next = processor.step(@time_next)
 
@@ -256,17 +252,18 @@ module Quartz
           processor.advance by: @time_next
           break if @termination_condition.call(@virtual_time, @model)
 
-          if @loggers.any_debug?
-            @loggers.debug("Tick at: #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
-          end
+          Log.debug {
+            "Tick at: #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed."
+          }
+
           @time_next = processor.step(@time_next)
           break if @time_next.infinite?
         end
         end_simulation
       when Status::Running
-        @loggers.error "Simulation already started at #{@start_time} and is currently running."
+        Log.error { "Simulation already started at #{@start_time} and is currently running." }
       when Status::Done, Status::Aborted
-        @loggers.error "Simulation is terminated."
+        Log.error { "Simulation is terminated." }
       end
       self
     end
@@ -285,18 +282,19 @@ module Quartz
           processor.advance by: @time_next
           break if @termination_condition.call(@virtual_time, @model)
 
-          if @loggers.any_debug?
-            @loggers.debug("Tick at: #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed.")
-          end
+          Log.debug {
+            "Tick at: #{virtual_time}, #{Time.monotonic - @start_time.not_nil!} secs elapsed."
+          }
+
           @time_next = processor.step(@time_next)
           break if @time_next.infinite?
           yield(@time_next)
         end
         end_simulation
       when Status::Running
-        @loggers.error "Simulation already started at #{@start_time} and is currently running."
+        Log.error { "Simulation already started at #{@start_time} and is currently running." }
       when Status::Done, Status::Aborted
-        @loggers.error "Simulation is terminated."
+        Log.error { "Simulation is terminated." }
       end
       self
     end

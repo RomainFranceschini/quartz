@@ -132,7 +132,7 @@ private module ConflictScenario
     describe "∂con is called when a conflict occur" do
       it "does for full hierarchy" do
         m = PDEVSDeltaCon.new
-        sim = Quartz::Simulation.new(m, maintain_hierarchy: true, loggers: Loggers.new(false))
+        sim = Quartz::Simulation.new(m, maintain_hierarchy: true)
         sim.simulate
 
         m.r.con_calls.should eq(1)
@@ -153,7 +153,7 @@ private module ConflictScenario
 
       it "does with flattening" do
         m = PDEVSDeltaCon.new
-        sim = Quartz::Simulation.new(m, maintain_hierarchy: false, loggers: Loggers.new(false))
+        sim = Quartz::Simulation.new(m, maintain_hierarchy: false)
         sim.simulate
 
         m.r.con_calls.should eq(1)

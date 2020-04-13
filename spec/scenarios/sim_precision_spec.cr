@@ -73,7 +73,7 @@ private module PrecisionScenario
   describe "simulation" do
     it "raises when planned durations exceed maximum duration based on model precision" do
       m = InvalidGenerator1.new(:gen)
-      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false))
+      sim = Quartz::Simulation.new(m)
       sim.initialize_simulation
 
       expect_raises Quartz::InvalidDurationError do
@@ -83,7 +83,7 @@ private module PrecisionScenario
 
     it "raises when planned durations are below the model precision" do
       m = InvalidGenerator2.new(:gen)
-      sim = Quartz::Simulation.new(m, loggers: Loggers.new(false))
+      sim = Quartz::Simulation.new(m)
       sim.initialize_simulation
 
       expect_raises Quartz::InvalidDurationError do
@@ -98,7 +98,7 @@ private module PrecisionScenario
       c << gen << col
       c.attach :pout, to: :in, between: gen, and: col
 
-      sim = Quartz::Simulation.new(c, loggers: Loggers.new(false))
+      sim = Quartz::Simulation.new(c)
       sim.initialize_simulation
 
       sim.step # generator sends value collector receives value
@@ -114,7 +114,7 @@ private module PrecisionScenario
       c << gen << col
       c.attach :pout, to: :in, between: gen, and: col
 
-      sim = Quartz::Simulation.new(c, loggers: Loggers.new(false))
+      sim = Quartz::Simulation.new(c)
       sim.initialize_simulation
 
       sim.step # generator sends value collector receives value
