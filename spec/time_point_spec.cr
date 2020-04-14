@@ -34,9 +34,28 @@ describe "TimePoint" do
   end
 
   describe "#to_i64" do
-    it "restores the time point as an integer" do
+    it "converts the corresponding value as an integer" do
       tp = TimePoint.new(5000388)
       tp.to_i64.should eq(5000388)
+    end
+
+    it "should express values relative to its precision" do
+      tp = TimePoint.new(5000388, Scale::KILO)
+      tp.to_i64.should eq(5000388) # kilo
+
+      tp = TimePoint.new(43, Scale::GIGA)
+      tp.to_i64.should eq(43) # giga
+
+      tp = TimePoint.new(1, Scale::MILLI)
+      tp.to_i64.should eq(1) # milli
+
+      tp = TimePoint.new(1000, Scale::MICRO)
+      tp.precision.should eq(Scale::MILLI)
+      tp.to_i64.should eq(1) # milli
+
+      tp = TimePoint.new(5_235_652, Scale::MILLI)
+      tp.precision.should eq(Scale::MILLI)
+      tp.to_i64.should eq(5_235_652)
     end
   end
 

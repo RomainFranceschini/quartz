@@ -354,14 +354,15 @@ module Quartz
       Duration.new(multiplier, result_precision)
     end
 
-    # Convert this `TimePoint` to an `Int64`.
+    # Convert this `TimePoint` to an `Int64`. Express values relative to
+    # its `#precision`.
     #
     # Note: this conversion can lose information about the overall magnitude of
     # `self` as well as return a result with the opposite sign.
     def to_i64
       n = 0_i64
       @magnitude.each_with_index(0) do |digit, i|
-        n += digit.to_i64 * BASE.to_i64 ** (@precision.level.abs + i)
+        n += digit.to_i64 * BASE.to_i64 ** i
       end
       n
     end
