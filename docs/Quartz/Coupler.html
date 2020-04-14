@@ -1,0 +1,2342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.33.0">
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+
+  <meta id="repository-name" content="github.com/RomainFranceschini/quartz">
+  <title>Quartz::Coupler - github.com/RomainFranceschini/quartz</title>
+  <script type="text/javascript">
+    CrystalDoc.base_path = "../";
+  </script>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="repository-links">
+      <a href="../index.html">README</a>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz" data-name="quartz">
+      <a href="../Quartz.html">Quartz</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Any" data-name="quartz::any">
+      <a href="../Quartz/Any.html">Any</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Any/Type" data-name="quartz::any::type">
+      <a href="../Quartz/Any/Type.html">Type</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+      <a href="../Quartz/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
+      <a href="../Quartz/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
+      <a href="../Quartz/AutoState.html">AutoState</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BadSynchronisationError" data-name="quartz::badsynchronisationerror">
+      <a href="../Quartz/BadSynchronisationError.html">BadSynchronisationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BinaryHeap" data-name="quartz::binaryheap(t)">
+      <a href="../Quartz/BinaryHeap.html">BinaryHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CalendarQueue" data-name="quartz::calendarqueue(t)">
+      <a href="../Quartz/CalendarQueue.html">CalendarQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coordinator" data-name="quartz::coordinator">
+      <a href="../Quartz/Coordinator.html">Coordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupleable" data-name="quartz::coupleable">
+      <a href="../Quartz/Coupleable.html">Coupleable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CoupledModel" data-name="quartz::coupledmodel">
+      <a href="../Quartz/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler" data-name="quartz::coupler">
+      <a href="../Quartz/Coupler.html">Coupler</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler/CouplingIterator" data-name="quartz::coupler::couplingiterator">
+      <a href="../Quartz/Coupler/CouplingIterator.html">CouplingIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DirectConnectionVisitor" data-name="quartz::directconnectionvisitor">
+      <a href="../Quartz/DirectConnectionVisitor.html">DirectConnectionVisitor</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DotVisitor" data-name="quartz::dotvisitor">
+      <a href="../Quartz/DotVisitor.html">DotVisitor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE" data-name="quartz::dsde">
+      <a href="../Quartz/DSDE.html">DSDE</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/CoupledModel" data-name="quartz::dsde::coupledmodel">
+      <a href="../Quartz/DSDE/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/DynamicCoordinator" data-name="quartz::dsde::dynamiccoordinator">
+      <a href="../Quartz/DSDE/DynamicCoordinator.html">DynamicCoordinator</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive" data-name="quartz::dsde::executive">
+      <a href="../Quartz/DSDE/Executive.html">Executive</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive/State" data-name="quartz::dsde::executive::state">
+      <a href="../Quartz/DSDE/Executive/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/RootCoordinator" data-name="quartz::dsde::rootcoordinator">
+      <a href="../Quartz/DSDE/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS" data-name="quartz::dtss">
+      <a href="../Quartz/DTSS.html">DTSS</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+      <a href="../Quartz/DTSS/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
+      <a href="../Quartz/DTSS/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/Simulator" data-name="quartz::dtss::simulator">
+      <a href="../Quartz/DTSS/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Duration" data-name="quartz::duration">
+      <a href="../Quartz/Duration.html">Duration</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/EventSet" data-name="quartz::eventset">
+      <a href="../Quartz/EventSet.html">EventSet</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FeedbackLoopError" data-name="quartz::feedbacklooperror">
+      <a href="../Quartz/FeedbackLoopError.html">FeedbackLoopError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FibonacciHeap" data-name="quartz::fibonacciheap(t)">
+      <a href="../Quartz/FibonacciHeap.html">FibonacciHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/HeapSet" data-name="quartz::heapset(t)">
+      <a href="../Quartz/HeapSet.html">HeapSet</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks" data-name="quartz::hooks">
+      <a href="../Quartz/Hooks.html">Hooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifiable" data-name="quartz::hooks::notifiable">
+      <a href="../Quartz/Hooks/Notifiable.html">Notifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifier" data-name="quartz::hooks::notifier">
+      <a href="../Quartz/Hooks/Notifier.html">Notifier</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InputPort" data-name="quartz::inputport">
+      <a href="../Quartz/InputPort.html">InputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidDurationError" data-name="quartz::invaliddurationerror">
+      <a href="../Quartz/InvalidDurationError.html">InvalidDurationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidPortHostError" data-name="quartz::invalidporthosterror">
+      <a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidProcessorError" data-name="quartz::invalidprocessorerror">
+      <a href="../Quartz/InvalidProcessorError.html">InvalidProcessorError</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
+      <a href="../Quartz/List.html">List</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/Node" data-name="quartz::list::node(t)">
+      <a href="../Quartz/List/Node.html">Node</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/NoSuchElementError" data-name="quartz::list::nosuchelementerror">
+      <a href="../Quartz/List/NoSuchElementError.html">NoSuchElementError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MessageAlreadySentError" data-name="quartz::messagealreadysenterror">
+      <a href="../Quartz/MessageAlreadySentError.html">MessageAlreadySentError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Model" data-name="quartz::model">
+      <a href="../Quartz/Model.html">Model</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent" data-name="quartz::multicomponent">
+      <a href="../Quartz/MultiComponent.html">MultiComponent</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+      <a href="../Quartz/MultiComponent/Component.html">Component</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
+      <a href="../Quartz/MultiComponent/Component/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Model" data-name="quartz::multicomponent::model">
+      <a href="../Quartz/MultiComponent/Model.html">Model</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Simulator" data-name="quartz::multicomponent::simulator">
+      <a href="../Quartz/MultiComponent/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Name" data-name="quartz::name">
+      <a href="../Quartz/Name.html">Name</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchChildError" data-name="quartz::nosuchchilderror">
+      <a href="../Quartz/NoSuchChildError.html">NoSuchChildError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchPortError" data-name="quartz::nosuchporterror">
+      <a href="../Quartz/NoSuchPortError.html">NoSuchPortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observable" data-name="quartz::observable">
+      <a href="../Quartz/Observable.html">Observable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observer" data-name="quartz::observer">
+      <a href="../Quartz/Observer.html">Observer</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/OutputPort" data-name="quartz::outputport">
+      <a href="../Quartz/OutputPort.html">OutputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PassiveBehavior" data-name="quartz::passivebehavior">
+      <a href="../Quartz/PassiveBehavior.html">PassiveBehavior</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Port" data-name="quartz::port">
+      <a href="../Quartz/Port.html">Port</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PriorityQueue" data-name="quartz::priorityqueue(t)">
+      <a href="../Quartz/PriorityQueue.html">PriorityQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Processor" data-name="quartz::processor">
+      <a href="../Quartz/Processor.html">Processor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator" data-name="quartz::processorallocator">
+      <a href="../Quartz/ProcessorAllocator.html">ProcessorAllocator</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator/ProcessorAllocationError" data-name="quartz::processorallocator::processorallocationerror">
+      <a href="../Quartz/ProcessorAllocator/ProcessorAllocationError.html">ProcessorAllocationError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/RootCoordinator" data-name="quartz::rootcoordinator">
+      <a href="../Quartz/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Scale" data-name="quartz::scale">
+      <a href="../Quartz/Scale.html">Scale</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Schedulable" data-name="quartz::schedulable">
+      <a href="../Quartz/Schedulable.html">Schedulable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulable" data-name="quartz::simulable">
+      <a href="../Quartz/Simulable.html">Simulable</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation" data-name="quartz::simulation">
+      <a href="../Quartz/Simulation.html">Simulation</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/Status" data-name="quartz::simulation::status">
+      <a href="../Quartz/Simulation/Status.html">Status</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/StepIterator" data-name="quartz::simulation::stepiterator">
+      <a href="../Quartz/Simulation/StepIterator.html">StepIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulator" data-name="quartz::simulator">
+      <a href="../Quartz/Simulator.html">Simulator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/State" data-name="quartz::state">
+      <a href="../Quartz/State.html">State</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
+      <a href="../Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeBase" data-name="quartz::timebase">
+      <a href="../Quartz/TimeBase.html">TimeBase</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeCache" data-name="quartz::timecache">
+      <a href="../Quartz/TimeCache.html">TimeCache</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimePoint" data-name="quartz::timepoint">
+      <a href="../Quartz/TimePoint.html">TimePoint</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transferable" data-name="quartz::transferable">
+      <a href="../Quartz/Transferable.html">Transferable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transitions" data-name="quartz::transitions">
+      <a href="../Quartz/Transitions.html">Transitions</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/UnobservablePortError" data-name="quartz::unobservableporterror">
+      <a href="../Quartz/UnobservablePortError.html">UnobservablePortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiable" data-name="quartz::verifiable">
+      <a href="../Quartz/Verifiable.html">Verifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/VerificationErrors" data-name="quartz::verificationerrors">
+      <a href="../Quartz/VerificationErrors.html">VerificationErrors</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers" data-name="quartz::verifiers">
+      <a href="../Quartz/Verifiers.html">Verifiers</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/EachChecker" data-name="quartz::verifiers::eachchecker">
+      <a href="../Quartz/Verifiers/EachChecker.html">EachChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/NumericalityChecker" data-name="quartz::verifiers::numericalitychecker">
+      <a href="../Quartz/Verifiers/NumericalityChecker.html">NumericalityChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/PresenceChecker" data-name="quartz::verifiers::presencechecker">
+      <a href="../Quartz/Verifiers/PresenceChecker.html">PresenceChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/RuntimeChecker" data-name="quartz::verifiers::runtimechecker">
+      <a href="../Quartz/Verifiers/RuntimeChecker.html">RuntimeChecker</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Visitor" data-name="quartz::visitor">
+      <a href="../Quartz/Visitor.html">Visitor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">module</span> Quartz::Coupler
+
+</h1>
+
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>This mixin provides coupled models with several components and
+coupling methods.</p>
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="direct-including-types" class="anchor" href="#direct-including-types">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Direct including types
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../Quartz/CoupledModel.html">Quartz::CoupledModel</a></li>
+    
+  </ul>
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L4" target="_blank">
+        quartz/coupler.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#%3C%3C(model:Model)-instance-method" class="signature"><strong>#<<</strong>(model : Model)</a>
+        
+          <div class="summary"><p>Append the given <em>model</em> to childrens</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#[](name:Name):Model-instance-method" class="signature"><strong>#[]</strong>(name : Name) : Model</a>
+        
+          <div class="summary"><p>Find the component identified by the given <em>name</em></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#[]?(name:Name):Model?-instance-method" class="signature"><strong>#[]?</strong>(name : Name) : Model?</a>
+        
+          <div class="summary"><p>Find the component identified by the given <em>name</em></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#add_child(child)-instance-method" class="signature"><strong>#add_child</strong>(child)</a>
+        
+          <div class="summary"><p>Alias for <code><a href="../Quartz/Coupler.html#%3C%3C(model:Model)-instance-method">#<<</a></code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:OutputPort,top2:InputPort)-instance-method" class="signature"><strong>#attach</strong>(p1 : OutputPort, to p2 : InputPort)</a>
+        
+          <div class="summary"><p>Adds an internal coupling (IC) to self between the two given ports.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:Name,*,top2:Name,betweensender:Name,andreceiver:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach</strong>(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds a coupling to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:Name,*,top2:Name,betweensender:Name,andreceiver:Name)-instance-method" class="signature"><strong>#attach</strong>(p1 : Name, *, to p2 : Name, between sender : Name, and receiver : Name)</a>
+        
+          <div class="summary"><p>Adds a coupling to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:Name,*,top2:Name,betweensender:Coupleable,andreceiver:Coupleable,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach</strong>(p1 : Name, *, to p2 : Name, between sender : Coupleable, and receiver : Coupleable, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds a coupling to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:Name,*,top2:Name,betweensender:Coupleable,andreceiver:Coupleable)-instance-method" class="signature"><strong>#attach</strong>(p1 : Name, *, to p2 : Name, between sender : Coupleable, and receiver : Coupleable)</a>
+        
+          <div class="summary"><p>Adds a coupling to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:OutputPort,top2:OutputPort,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach</strong>(p1 : OutputPort, to p2 : OutputPort, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds an external output coupling (EOC) to self between the two given output ports.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:OutputPort,top2:OutputPort)-instance-method" class="signature"><strong>#attach</strong>(p1 : OutputPort, to p2 : OutputPort)</a>
+        
+          <div class="summary"><p>Adds an external output coupling (EOC) to self between the two given output ports.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:OutputPort,top2:InputPort,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach</strong>(p1 : OutputPort, to p2 : InputPort, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds an internal coupling (IC) to self between the two given ports.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:InputPort,top2:InputPort)-instance-method" class="signature"><strong>#attach</strong>(p1 : InputPort, to p2 : InputPort)</a>
+        
+          <div class="summary"><p>Adds an external input coupling (EIC) to self between the two given input ports.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach(p1:InputPort,top2:InputPort,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach</strong>(p1 : InputPort, to p2 : InputPort, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds an external input coupling (EIC) to self between the two given input ports.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_input(myport:Name,*,toiport:Name,ofchild:Coupleable)-instance-method" class="signature"><strong>#attach_input</strong>(myport : Name, *, to iport : Name, of child : Coupleable)</a>
+        
+          <div class="summary"><p>Adds an external input coupling (EIC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_input(myport:Name,*,toiport:Name,ofchild:Coupleable,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach_input</strong>(myport : Name, *, to iport : Name, of child : Coupleable, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds an external input coupling (EIC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_input(myport:Name,*,toiport:Name,ofchild:Name)-instance-method" class="signature"><strong>#attach_input</strong>(myport : Name, *, to iport : Name, of child : Name)</a>
+        
+          <div class="summary"><p>Adds an external input coupling (EIC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_input(myport:Name,*,toiport:Name,ofchild:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach_input</strong>(myport : Name, *, to iport : Name, of child : Name, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds an external input coupling (EIC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_output(oport:Name,*,ofchild:Name,tomyport:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach_output</strong>(oport : Name, *, of child : Name, to myport : Name, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds an external output coupling (EOC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_output(oport:Name,*,ofchild:Coupleable,tomyport:Name)-instance-method" class="signature"><strong>#attach_output</strong>(oport : Name, *, of child : Coupleable, to myport : Name)</a>
+        
+          <div class="summary"><p>Adds an external output coupling (EOC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_output(oport:Name,*,ofchild:Name,tomyport:Name)-instance-method" class="signature"><strong>#attach_output</strong>(oport : Name, *, of child : Name, to myport : Name)</a>
+        
+          <div class="summary"><p>Adds an external output coupling (EOC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#attach_output(oport:Name,*,ofchild:Coupleable,tomyport:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method" class="signature"><strong>#attach_output</strong>(oport : Name, *, of child : Coupleable, to myport : Name, &block : Enumerable(Any) -> Enumerable(Any))</a>
+        
+          <div class="summary"><p>Adds an external output coupling (EOC) to self.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#children_names:Array(Name)-instance-method" class="signature"><strong>#children_names</strong> : Array(Name)</a>
+        
+          <div class="summary"><p>Returns the children names</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#children_size-instance-method" class="signature"><strong>#children_size</strong></a>
+        
+          <div class="summary"><p>Returns the number of children in <code>self</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#detach(p1:InputPort,fromp2:InputPort):Bool-instance-method" class="signature"><strong>#detach</strong>(p1 : InputPort, from p2 : InputPort) : Bool</a>
+        
+          <div class="summary"><p>Deletes a external input coupling (EOC) from <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#detach(p1:OutputPort,fromp2:InputPort):Bool-instance-method" class="signature"><strong>#detach</strong>(p1 : OutputPort, from p2 : InputPort) : Bool</a>
+        
+          <div class="summary"><p>Deletes an internal coupling (IC) from <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#detach(p1:OutputPort,fromp2:OutputPort):Bool-instance-method" class="signature"><strong>#detach</strong>(p1 : OutputPort, from p2 : OutputPort) : Bool</a>
+        
+          <div class="summary"><p>Deletes an external output coupling (EOC) from <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#detach(oport:Name,*,fromiport:Name,betweensender:Coupleable,andreceiver:Coupleable):Bool-instance-method" class="signature"><strong>#detach</strong>(oport : Name, *, from iport : Name, between sender : Coupleable, and receiver : Coupleable) : Bool</a>
+        
+          <div class="summary"><p>Deletes a coupling from <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#detach(oport:Name,*,fromiport:Name,betweensender:Name,andreceiver:Name)-instance-method" class="signature"><strong>#detach</strong>(oport : Name, *, from iport : Name, between sender : Name, and receiver : Name)</a>
+        
+          <div class="summary"><p>Deletes a coupling from <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#detach(oport:Name,*,ofchild:Coupleable,frommyport:Name):Bool-instance-method" class="signature"><strong>#detach</strong>(oport : Name, *, of child : Coupleable, from myport : Name) : Bool</a>
+        
+          <div class="summary"><p>Deletes an external output coupling (EOC) from <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#detach(oport:Name,*,ofchild:Name,frommyport:Name):Bool-instance-method" class="signature"><strong>#detach</strong>(oport : Name, *, of child : Name, from myport : Name) : Bool</a>
+        
+          <div class="summary"><p>Deletes an external output coupling (EOC) from <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_child-instance-method" class="signature"><strong>#each_child</strong></a>
+        
+          <div class="summary"><p>Returns an <code>Iterator</code> for the children of <code>self</code></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_child(&)-instance-method" class="signature"><strong>#each_child</strong>(&)</a>
+        
+          <div class="summary"><p>Calls given block once for each child, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_coupling(&)-instance-method" class="signature"><strong>#each_coupling</strong>(&)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each coupling (EIC, IC, EOC), passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_coupling(port:OutputPort,&)-instance-method" class="signature"><strong>#each_coupling</strong>(port : OutputPort, &)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each coupling, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_coupling(port:InputPort,&)-instance-method" class="signature"><strong>#each_coupling</strong>(port : InputPort, &)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each coupling, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_coupling_reverse(port:OutputPort,&)-instance-method" class="signature"><strong>#each_coupling_reverse</strong>(port : OutputPort, &)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_coupling_reverse(port:InputPort,&)-instance-method" class="signature"><strong>#each_coupling_reverse</strong>(port : InputPort, &)</a>
+        
+          <div class="summary"><p><span class="flag orange">TODO</span>  doc</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_input_coupling(&)-instance-method" class="signature"><strong>#each_input_coupling</strong>(&)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each external input coupling (EIC) in <code><a href="../Quartz/Coupler.html#input_couplings(port:InputPort):Array(InputPort)-instance-method">#input_couplings</a></code>, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_input_coupling(port:InputPort,&)-instance-method" class="signature"><strong>#each_input_coupling</strong>(port : InputPort, &)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each external input coupling (EIC) in <code><a href="../Quartz/Coupler.html#input_couplings(port:InputPort):Array(InputPort)-instance-method">#input_couplings</a></code>, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_input_coupling_reverse(port:InputPort,&)-instance-method" class="signature"><strong>#each_input_coupling_reverse</strong>(port : InputPort, &)</a>
+        
+          <div class="summary"><p><span class="flag orange">TODO</span>  doc</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_internal_coupling(&)-instance-method" class="signature"><strong>#each_internal_coupling</strong>(&)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each internal coupling (IC) in <code><a href="../Quartz/Coupler.html#internal_couplings(port:OutputPort):Array(InputPort)-instance-method">#internal_couplings</a></code>, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_internal_coupling(port:OutputPort,&)-instance-method" class="signature"><strong>#each_internal_coupling</strong>(port : OutputPort, &)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each internal coupling (IC) in <code><a href="../Quartz/Coupler.html#internal_couplings(port:OutputPort):Array(InputPort)-instance-method">#internal_couplings</a></code>, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_internal_coupling_reverse(port:InputPort,&)-instance-method" class="signature"><strong>#each_internal_coupling_reverse</strong>(port : InputPort, &)</a>
+        
+          <div class="summary"><p><span class="flag orange">TODO</span>  doc</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_output_coupling(&)-instance-method" class="signature"><strong>#each_output_coupling</strong>(&)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each external output coupling (EOC) in <code><a href="../Quartz/Coupler.html#output_couplings(port:OutputPort):Array(OutputPort)-instance-method">#output_couplings</a></code>, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_output_coupling(port:OutputPort,&)-instance-method" class="signature"><strong>#each_output_coupling</strong>(port : OutputPort, &)</a>
+        
+          <div class="summary"><p>Calls <em>block</em> once for each external output coupling (EOC) in <code><a href="../Quartz/Coupler.html#output_couplings(port:OutputPort):Array(OutputPort)-instance-method">#output_couplings</a></code>, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_output_coupling_reverse(port:OutputPort,&)-instance-method" class="signature"><strong>#each_output_coupling_reverse</strong>(port : OutputPort, &)</a>
+        
+          <div class="summary"><p><span class="flag orange">TODO</span>  doc</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#find_direct_couplings(&block:OutputPort,InputPort,Array(Proc(Enumerable(Any),Enumerable(Any)))-%3E)-instance-method" class="signature"><strong>#find_direct_couplings</strong>(&block : OutputPort, InputPort, Array(Proc(Enumerable(Any), Enumerable(Any))) -> )</a>
+        
+          <div class="summary"><p>Finds and yields direct connections in the coupling graph of <em>self</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#has_child?(name:Name):Bool-instance-method" class="signature"><strong>#has_child?</strong>(name : Name) : Bool</a>
+        
+          <div class="summary"><p>Returns whether <em>self</em> has a child named like <em>name</em></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#has_child?(model:Coupleable):Bool-instance-method" class="signature"><strong>#has_child?</strong>(model : Coupleable) : Bool</a>
+        
+          <div class="summary"><p>Returns whether given <em>model</em> is a child of <em>self</em></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#has_transducer_for?(src:Port,dst:Port):Bool-instance-method" class="signature"><strong>#has_transducer_for?</strong>(src : Port, dst : Port) : Bool</a>
+        
+          <div class="summary"><p>Whether the given coupling has an associated transducer.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#input_couplings(port:InputPort):Array(InputPort)-instance-method" class="signature"><strong>#input_couplings</strong>(port : InputPort) : Array(InputPort)</a>
+        
+          <div class="summary"><p>Returns all external input couplings attached to the given input <em>port</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#internal_couplings(port:OutputPort):Array(InputPort)-instance-method" class="signature"><strong>#internal_couplings</strong>(port : OutputPort) : Array(InputPort)</a>
+        
+          <div class="summary"><p>Returns all internal couplings attached to the given output <em>port</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#output_couplings(port:OutputPort):Array(OutputPort)-instance-method" class="signature"><strong>#output_couplings</strong>(port : OutputPort) : Array(OutputPort)</a>
+        
+          <div class="summary"><p>Returns all external output couplings attached to the given output <em>port</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#remove_child(model:Model)-instance-method" class="signature"><strong>#remove_child</strong>(model : Model)</a>
+        
+          <div class="summary"><p>Deletes the given <em>model</em> from childrens</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#transducer_for(src:Port,dst:Port)-instance-method" class="signature"><strong>#transducer_for</strong>(src : Port, dst : Port)</a>
+        
+          <div class="summary"><p>Returns the transducer associated with the given coupling.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+</div>
+
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="&lt;&lt;(model:Model)-instance-method">
+      <div class="signature">
+        
+        def <strong><<</strong>(model : <a href="../Quartz/Model.html">Model</a>)
+
+        <a class="method-permalink" href="#%3C%3C(model:Model)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Append the given <em>model</em> to childrens</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L52" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="[](name:Name):Model-instance-method">
+      <div class="signature">
+        
+        def <strong>[]</strong>(name : <a href="../Quartz/Name.html">Name</a>) : <a href="../Quartz/Model.html">Model</a>
+
+        <a class="method-permalink" href="#[](name:Name):Model-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Find the component identified by the given <em>name</em></p>
+
+<p>Raise <code><a href="../Quartz/NoSuchChildError.html">NoSuchChildError</a></code> error if <em>name</em> doesn't match any child</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L75" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="[]?(name:Name):Model?-instance-method">
+      <div class="signature">
+        
+        def <strong>[]?</strong>(name : <a href="../Quartz/Name.html">Name</a>) : <a href="../Quartz/Model.html">Model</a>?
+
+        <a class="method-permalink" href="#[]?(name:Name):Model?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Find the component identified by the given <em>name</em></p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L81" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="add_child(child)-instance-method">
+      <div class="signature">
+        
+        def <strong>add_child</strong>(child)
+
+        <a class="method-permalink" href="#add_child(child)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Alias for <code><a href="../Quartz/Coupler.html#%3C%3C(model:Model)-instance-method">#<<</a></code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L58" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:OutputPort,top2:InputPort)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/OutputPort.html">OutputPort</a>, to p2 : <a href="../Quartz/InputPort.html">InputPort</a>)
+
+        <a class="method-permalink" href="#attach(p1:OutputPort,top2:InputPort)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an internal coupling (IC) to self between the two given ports.</p>
+
+<p>Raises a <code><a href="../Quartz/FeedbackLoopError.html">FeedbackLoopError</a></code> if <em>p1</em> and <em>p2</em> hosts are the same child
+when constructing the internal coupling. Direct feedback loops are not
+allowed, i.e, no output port of a component may be connected to an input
+port of the same component.
+Raises an <code><a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a></code> if no coupling can be established from
+given ports hosts.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L261" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:Name,*,top2:Name,betweensender:Name,andreceiver:Name,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/Name.html">Name</a>, *, to p2 : <a href="../Quartz/Name.html">Name</a>, between sender : <a href="../Quartz/Name.html">Name</a>, and receiver : <a href="../Quartz/Name.html">Name</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach(p1:Name,*,top2:Name,betweensender:Name,andreceiver:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a coupling to self. Establish a relation between the two given ports
+that belongs respectively to <em>sender</em> and <em>receiver</em>.</p>
+
+<p>Note: If given port names <em>p1</em> and <em>p2</em> doesn't exist within their
+host (respectively <em>sender</em> and <em>receiver</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L337" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:Name,*,top2:Name,betweensender:Name,andreceiver:Name)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/Name.html">Name</a>, *, to p2 : <a href="../Quartz/Name.html">Name</a>, between sender : <a href="../Quartz/Name.html">Name</a>, and receiver : <a href="../Quartz/Name.html">Name</a>)
+
+        <a class="method-permalink" href="#attach(p1:Name,*,top2:Name,betweensender:Name,andreceiver:Name)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a coupling to self. Establish a relation between the two given ports
+that belongs respectively to <em>sender</em> and <em>receiver</em>.</p>
+
+<p>Note: If given port names <em>p1</em> and <em>p2</em> doesn't exist within their
+host (respectively <em>sender</em> and <em>receiver</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L328" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:Name,*,top2:Name,betweensender:Coupleable,andreceiver:Coupleable,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/Name.html">Name</a>, *, to p2 : <a href="../Quartz/Name.html">Name</a>, between sender : <a href="../Quartz/Coupleable.html">Coupleable</a>, and receiver : <a href="../Quartz/Coupleable.html">Coupleable</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach(p1:Name,*,top2:Name,betweensender:Coupleable,andreceiver:Coupleable,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a coupling to self. Establish a relation between the two given ports
+that belongs respectively to <em>sender</em> and <em>receiver</em>.</p>
+
+<p>Note: If given port names <em>p1</em> and <em>p2</em> doesn't exist within their
+host (respectively <em>sender</em> and <em>receiver</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L316" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:Name,*,top2:Name,betweensender:Coupleable,andreceiver:Coupleable)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/Name.html">Name</a>, *, to p2 : <a href="../Quartz/Name.html">Name</a>, between sender : <a href="../Quartz/Coupleable.html">Coupleable</a>, and receiver : <a href="../Quartz/Coupleable.html">Coupleable</a>)
+
+        <a class="method-permalink" href="#attach(p1:Name,*,top2:Name,betweensender:Coupleable,andreceiver:Coupleable)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds a coupling to self. Establish a relation between the two given ports
+that belongs respectively to <em>sender</em> and <em>receiver</em>.</p>
+
+<p>Note: If given port names <em>p1</em> and <em>p2</em> doesn't exist within their
+host (respectively <em>sender</em> and <em>receiver</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L309" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:OutputPort,top2:OutputPort,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/OutputPort.html">OutputPort</a>, to p2 : <a href="../Quartz/OutputPort.html">OutputPort</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach(p1:OutputPort,top2:OutputPort,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external output coupling (EOC) to self between the two given
+output ports.</p>
+
+<p>Raises an <code><a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a></code> if no coupling can be established from
+given ports hosts.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L298" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:OutputPort,top2:OutputPort)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/OutputPort.html">OutputPort</a>, to p2 : <a href="../Quartz/OutputPort.html">OutputPort</a>)
+
+        <a class="method-permalink" href="#attach(p1:OutputPort,top2:OutputPort)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external output coupling (EOC) to self between the two given
+output ports.</p>
+
+<p>Raises an <code><a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a></code> if no coupling can be established from
+given ports hosts.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L285" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:OutputPort,top2:InputPort,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/OutputPort.html">OutputPort</a>, to p2 : <a href="../Quartz/InputPort.html">InputPort</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach(p1:OutputPort,top2:InputPort,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an internal coupling (IC) to self between the two given ports.</p>
+
+<p>Raises a <code><a href="../Quartz/FeedbackLoopError.html">FeedbackLoopError</a></code> if <em>p1</em> and <em>p2</em> hosts are the same child
+when constructing the internal coupling. Direct feedback loops are not
+allowed, i.e, no output port of a component may be connected to an input
+port of the same component.
+Raises an <code><a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a></code> if no coupling can be established from
+given ports hosts.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L275" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:InputPort,top2:InputPort)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/InputPort.html">InputPort</a>, to p2 : <a href="../Quartz/InputPort.html">InputPort</a>)
+
+        <a class="method-permalink" href="#attach(p1:InputPort,top2:InputPort)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external input coupling (EIC) to self between the two given input
+ports.</p>
+
+<p>Raises an <code><a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a></code> if no coupling can be established from
+given ports hosts.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L235" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach(p1:InputPort,top2:InputPort,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach</strong>(p1 : <a href="../Quartz/InputPort.html">InputPort</a>, to p2 : <a href="../Quartz/InputPort.html">InputPort</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach(p1:InputPort,top2:InputPort,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external input coupling (EIC) to self between the two given input
+ports.</p>
+
+<p>Raises an <code><a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a></code> if no coupling can be established from
+given ports hosts.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L248" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_input(myport:Name,*,toiport:Name,ofchild:Coupleable)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_input</strong>(myport : <a href="../Quartz/Name.html">Name</a>, *, to iport : <a href="../Quartz/Name.html">Name</a>, of child : <a href="../Quartz/Coupleable.html">Coupleable</a>)
+
+        <a class="method-permalink" href="#attach_input(myport:Name,*,toiport:Name,ofchild:Coupleable)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external input coupling (EIC) to self. Establish a relation
+between a self input port and a child input port.</p>
+
+<p>Note: If given port names <em>myport</em> and <em>iport</em> doesn't exist within their
+host (respectively <em>self</em> and <em>child</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L351" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_input(myport:Name,*,toiport:Name,ofchild:Coupleable,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_input</strong>(myport : <a href="../Quartz/Name.html">Name</a>, *, to iport : <a href="../Quartz/Name.html">Name</a>, of child : <a href="../Quartz/Coupleable.html">Coupleable</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach_input(myport:Name,*,toiport:Name,ofchild:Coupleable,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external input coupling (EIC) to self. Establish a relation
+between a self input port and a child input port.</p>
+
+<p>Note: If given port names <em>myport</em> and <em>iport</em> doesn't exist within their
+host (respectively <em>self</em> and <em>child</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L358" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_input(myport:Name,*,toiport:Name,ofchild:Name)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_input</strong>(myport : <a href="../Quartz/Name.html">Name</a>, *, to iport : <a href="../Quartz/Name.html">Name</a>, of child : <a href="../Quartz/Name.html">Name</a>)
+
+        <a class="method-permalink" href="#attach_input(myport:Name,*,toiport:Name,ofchild:Name)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external input coupling (EIC) to self. Establish a relation
+between a self input port and a child input port.</p>
+
+<p>Note: If given port names <em>myport</em> and <em>iport</em> doesn't exist within their
+host (respectively <em>self</em> and <em>child</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L370" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_input(myport:Name,*,toiport:Name,ofchild:Name,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_input</strong>(myport : <a href="../Quartz/Name.html">Name</a>, *, to iport : <a href="../Quartz/Name.html">Name</a>, of child : <a href="../Quartz/Name.html">Name</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach_input(myport:Name,*,toiport:Name,ofchild:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external input coupling (EIC) to self. Establish a relation
+between a self input port and a child input port.</p>
+
+<p>Note: If given port names <em>myport</em> and <em>iport</em> doesn't exist within their
+host (respectively <em>self</em> and <em>child</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L378" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_output(oport:Name,*,ofchild:Name,tomyport:Name,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_output</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, of child : <a href="../Quartz/Name.html">Name</a>, to myport : <a href="../Quartz/Name.html">Name</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach_output(oport:Name,*,ofchild:Name,tomyport:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external output coupling (EOC) to self. Establish a relation
+between an output port of one of self's children and one of self's
+output ports.</p>
+
+<p>Note: If given port names <em>oport</em> and <em>myport</em> doesn't exist within their
+host (respectively <em>child</em> and <em>self</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L420" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_output(oport:Name,*,ofchild:Coupleable,tomyport:Name)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_output</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, of child : <a href="../Quartz/Coupleable.html">Coupleable</a>, to myport : <a href="../Quartz/Name.html">Name</a>)
+
+        <a class="method-permalink" href="#attach_output(oport:Name,*,ofchild:Coupleable,tomyport:Name)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external output coupling (EOC) to self. Establish a relation
+between an output port of one of self's children and one of self's
+output ports.</p>
+
+<p>Note: If given port names <em>oport</em> and <em>myport</em> doesn't exist within their
+host (respectively <em>child</em> and <em>self</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L392" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_output(oport:Name,*,ofchild:Name,tomyport:Name)-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_output</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, of child : <a href="../Quartz/Name.html">Name</a>, to myport : <a href="../Quartz/Name.html">Name</a>)
+
+        <a class="method-permalink" href="#attach_output(oport:Name,*,ofchild:Name,tomyport:Name)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external output coupling (EOC) to self. Establish a relation
+between an output port of one of self's children and one of self's
+output ports.</p>
+
+<p>Note: If given port names <em>oport</em> and <em>myport</em> doesn't exist within their
+host (respectively <em>child</em> and <em>self</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L412" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="attach_output(oport:Name,*,ofchild:Coupleable,tomyport:Name,&amp;block:Enumerable(Any)-&gt;Enumerable(Any))-instance-method">
+      <div class="signature">
+        
+        def <strong>attach_output</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, of child : <a href="../Quartz/Coupleable.html">Coupleable</a>, to myport : <a href="../Quartz/Name.html">Name</a>, &block : Enumerable(<a href="../Quartz/Any.html">Any</a>) -> Enumerable(<a href="../Quartz/Any.html">Any</a>))
+
+        <a class="method-permalink" href="#attach_output(oport:Name,*,ofchild:Coupleable,tomyport:Name,&block:Enumerable(Any)-%3EEnumerable(Any))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds an external output coupling (EOC) to self. Establish a relation
+between an output port of one of self's children and one of self's
+output ports.</p>
+
+<p>Note: If given port names <em>oport</em> and <em>myport</em> doesn't exist within their
+host (respectively <em>child</em> and <em>self</em>), they will be automatically
+generated.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L399" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="children_names:Array(Name)-instance-method">
+      <div class="signature">
+        
+        def <strong>children_names</strong> : Array(<a href="../Quartz/Name.html">Name</a>)
+
+        <a class="method-permalink" href="#children_names:Array(Name)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the children names</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L68" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="children_size-instance-method">
+      <div class="signature">
+        
+        def <strong>children_size</strong>
+
+        <a class="method-permalink" href="#children_size-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the number of children in <code>self</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L107" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="detach(p1:InputPort,fromp2:InputPort):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>detach</strong>(p1 : <a href="../Quartz/InputPort.html">InputPort</a>, from p2 : <a href="../Quartz/InputPort.html">InputPort</a>) : Bool
+
+        <a class="method-permalink" href="#detach(p1:InputPort,fromp2:InputPort):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes a external input coupling (EOC) from <em>self</em>.</p>
+
+<p>Returns <code>true</code> if successful.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L430" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="detach(p1:OutputPort,fromp2:InputPort):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>detach</strong>(p1 : <a href="../Quartz/OutputPort.html">OutputPort</a>, from p2 : <a href="../Quartz/InputPort.html">InputPort</a>) : Bool
+
+        <a class="method-permalink" href="#detach(p1:OutputPort,fromp2:InputPort):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes an internal coupling (IC) from <em>self</em>.</p>
+
+<p>Returns <code>true</code> if successful.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L450" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="detach(p1:OutputPort,fromp2:OutputPort):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>detach</strong>(p1 : <a href="../Quartz/OutputPort.html">OutputPort</a>, from p2 : <a href="../Quartz/OutputPort.html">OutputPort</a>) : Bool
+
+        <a class="method-permalink" href="#detach(p1:OutputPort,fromp2:OutputPort):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes an external output coupling (EOC) from <em>self</em>.</p>
+
+<p>Returns <code>true</code> if successful.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L470" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="detach(oport:Name,*,fromiport:Name,betweensender:Coupleable,andreceiver:Coupleable):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>detach</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, from iport : <a href="../Quartz/Name.html">Name</a>, between sender : <a href="../Quartz/Coupleable.html">Coupleable</a>, and receiver : <a href="../Quartz/Coupleable.html">Coupleable</a>) : Bool
+
+        <a class="method-permalink" href="#detach(oport:Name,*,fromiport:Name,betweensender:Coupleable,andreceiver:Coupleable):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes a coupling from <em>self</em>. Returns <code>true</code> if successful.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L488" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="detach(oport:Name,*,fromiport:Name,betweensender:Name,andreceiver:Name)-instance-method">
+      <div class="signature">
+        
+        def <strong>detach</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, from iport : <a href="../Quartz/Name.html">Name</a>, between sender : <a href="../Quartz/Name.html">Name</a>, and receiver : <a href="../Quartz/Name.html">Name</a>)
+
+        <a class="method-permalink" href="#detach(oport:Name,*,fromiport:Name,betweensender:Name,andreceiver:Name)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes a coupling from <em>self</em>. Returns <code>true</code> if successful.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L495" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="detach(oport:Name,*,ofchild:Coupleable,frommyport:Name):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>detach</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, of child : <a href="../Quartz/Coupleable.html">Coupleable</a>, from myport : <a href="../Quartz/Name.html">Name</a>) : Bool
+
+        <a class="method-permalink" href="#detach(oport:Name,*,ofchild:Coupleable,frommyport:Name):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes an external output coupling (EOC) from <em>self</em>. Returns <code>true</code> if
+successful.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L522" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="detach(oport:Name,*,ofchild:Name,frommyport:Name):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>detach</strong>(oport : <a href="../Quartz/Name.html">Name</a>, *, of child : <a href="../Quartz/Name.html">Name</a>, from myport : <a href="../Quartz/Name.html">Name</a>) : Bool
+
+        <a class="method-permalink" href="#detach(oport:Name,*,ofchild:Name,frommyport:Name):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes an external output coupling (EOC) from <em>self</em>. Returns <code>true</code> if
+successful.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L530" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_child-instance-method">
+      <div class="signature">
+        
+        def <strong>each_child</strong>
+
+        <a class="method-permalink" href="#each_child-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns an <code>Iterator</code> for the children of <code>self</code></p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L102" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_child(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_child</strong>(&)
+
+        <a class="method-permalink" href="#each_child(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls given block once for each child, passing that
+element as a parameter.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L97" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_coupling(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_coupling</strong>(&)
+
+        <a class="method-permalink" href="#each_coupling(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each coupling (EIC, IC, EOC), passing that element
+as a parameter.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L163" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_coupling(port:OutputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_coupling</strong>(port : <a href="../Quartz/OutputPort.html">OutputPort</a>, &)
+
+        <a class="method-permalink" href="#each_coupling(port:OutputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each coupling, passing that element as a parameter.
+Given output <em>port</em> is used to filter internal couplings and external
+output couplings (IC, EOC) having this port as a source.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L179" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_coupling(port:InputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_coupling</strong>(port : <a href="../Quartz/InputPort.html">InputPort</a>, &)
+
+        <a class="method-permalink" href="#each_coupling(port:InputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each coupling, passing that element as a parameter.
+Given input <em>port</em> is used to filter external input couplings (EIC) having
+this port as a source.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L172" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_coupling_reverse(port:OutputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_coupling_reverse</strong>(port : <a href="../Quartz/OutputPort.html">OutputPort</a>, &)
+
+        <a class="method-permalink" href="#each_coupling_reverse(port:OutputPort,&)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L226" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_coupling_reverse(port:InputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_coupling_reverse</strong>(port : <a href="../Quartz/InputPort.html">InputPort</a>, &)
+
+        <a class="method-permalink" href="#each_coupling_reverse(port:InputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p><span class="flag orange">TODO</span>  doc</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L221" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_input_coupling(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_input_coupling</strong>(&)
+
+        <a class="method-permalink" href="#each_input_coupling(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each external input coupling (EIC) in
+<code><a href="../Quartz/Coupler.html#input_couplings(port:InputPort):Array(InputPort)-instance-method">#input_couplings</a></code>, passing that element as a parameter.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L131" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_input_coupling(port:InputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_input_coupling</strong>(port : <a href="../Quartz/InputPort.html">InputPort</a>, &)
+
+        <a class="method-permalink" href="#each_input_coupling(port:InputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each external input coupling (EIC) in
+<code><a href="../Quartz/Coupler.html#input_couplings(port:InputPort):Array(InputPort)-instance-method">#input_couplings</a></code>, passing that element as a parameter. Given <em>port</em> is
+used to filter couplings having this port as a source.</p>
+
+<p><span class="flag orange">TODO</span>  check if port in input_couplings ?</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L125" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_input_coupling_reverse(port:InputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_input_coupling_reverse</strong>(port : <a href="../Quartz/InputPort.html">InputPort</a>, &)
+
+        <a class="method-permalink" href="#each_input_coupling_reverse(port:InputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p><span class="flag orange">TODO</span>  doc</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L200" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_internal_coupling(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_internal_coupling</strong>(&)
+
+        <a class="method-permalink" href="#each_internal_coupling(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each internal coupling (IC) in
+<code><a href="../Quartz/Coupler.html#internal_couplings(port:OutputPort):Array(InputPort)-instance-method">#internal_couplings</a></code>, passing that element as a parameter.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L144" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_internal_coupling(port:OutputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_internal_coupling</strong>(port : <a href="../Quartz/OutputPort.html">OutputPort</a>, &)
+
+        <a class="method-permalink" href="#each_internal_coupling(port:OutputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each internal coupling (IC) in
+<code><a href="../Quartz/Coupler.html#internal_couplings(port:OutputPort):Array(InputPort)-instance-method">#internal_couplings</a></code>, passing that element as a parameter. Given <em>port</em>
+is used to filter couplings having this port as a source.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L138" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_internal_coupling_reverse(port:InputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_internal_coupling_reverse</strong>(port : <a href="../Quartz/InputPort.html">InputPort</a>, &)
+
+        <a class="method-permalink" href="#each_internal_coupling_reverse(port:InputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p><span class="flag orange">TODO</span>  doc</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L207" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_output_coupling(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_output_coupling</strong>(&)
+
+        <a class="method-permalink" href="#each_output_coupling(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each external output coupling (EOC) in
+<code><a href="../Quartz/Coupler.html#output_couplings(port:OutputPort):Array(OutputPort)-instance-method">#output_couplings</a></code>, passing that element as a parameter.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L157" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_output_coupling(port:OutputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_output_coupling</strong>(port : <a href="../Quartz/OutputPort.html">OutputPort</a>, &)
+
+        <a class="method-permalink" href="#each_output_coupling(port:OutputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls <em>block</em> once for each external output coupling (EOC) in
+<code><a href="../Quartz/Coupler.html#output_couplings(port:OutputPort):Array(OutputPort)-instance-method">#output_couplings</a></code>, passing that element as a parameter. Given <em>port</em> is
+used to filter couplings having this port as a source.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L151" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_output_coupling_reverse(port:OutputPort,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_output_coupling_reverse</strong>(port : <a href="../Quartz/OutputPort.html">OutputPort</a>, &)
+
+        <a class="method-permalink" href="#each_output_coupling_reverse(port:OutputPort,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p><span class="flag orange">TODO</span>  doc</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L214" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="find_direct_couplings(&amp;block:OutputPort,InputPort,Array(Proc(Enumerable(Any),Enumerable(Any)))-&gt;)-instance-method">
+      <div class="signature">
+        
+        def <strong>find_direct_couplings</strong>(&block : <a href="../Quartz/OutputPort.html">OutputPort</a>, <a href="../Quartz/InputPort.html">InputPort</a>, Array(Proc(Enumerable(<a href="../Quartz/Any.html">Any</a>), Enumerable(<a href="../Quartz/Any.html">Any</a>))) -> )
+
+        <a class="method-permalink" href="#find_direct_couplings(&block:OutputPort,InputPort,Array(Proc(Enumerable(Any),Enumerable(Any)))-%3E)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Finds and yields direct connections in the coupling graph of <em>self</em>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L538" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="has_child?(name:Name):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>has_child?</strong>(name : <a href="../Quartz/Name.html">Name</a>) : Bool
+
+        <a class="method-permalink" href="#has_child?(name:Name):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns whether <em>self</em> has a child named like <em>name</em></p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L91" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="has_child?(model:Coupleable):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>has_child?</strong>(model : <a href="../Quartz/Coupleable.html">Coupleable</a>) : Bool
+
+        <a class="method-permalink" href="#has_child?(model:Coupleable):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns whether given <em>model</em> is a child of <em>self</em></p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L86" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="has_transducer_for?(src:Port,dst:Port):Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>has_transducer_for?</strong>(src : <a href="../Quartz/Port.html">Port</a>, dst : <a href="../Quartz/Port.html">Port</a>) : Bool
+
+        <a class="method-permalink" href="#has_transducer_for?(src:Port,dst:Port):Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Whether the given coupling has an associated transducer.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L112" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="input_couplings(port:InputPort):Array(InputPort)-instance-method">
+      <div class="signature">
+        
+        def <strong>input_couplings</strong>(port : <a href="../Quartz/InputPort.html">InputPort</a>) : Array(<a href="../Quartz/InputPort.html">InputPort</a>)
+
+        <a class="method-permalink" href="#input_couplings(port:InputPort):Array(InputPort)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns all external input couplings attached to the given input <em>port</em>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L47" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="internal_couplings(port:OutputPort):Array(InputPort)-instance-method">
+      <div class="signature">
+        
+        def <strong>internal_couplings</strong>(port : <a href="../Quartz/OutputPort.html">OutputPort</a>) : Array(<a href="../Quartz/InputPort.html">InputPort</a>)
+
+        <a class="method-permalink" href="#internal_couplings(port:OutputPort):Array(InputPort)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns all internal couplings attached to the given output <em>port</em>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L37" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="output_couplings(port:OutputPort):Array(OutputPort)-instance-method">
+      <div class="signature">
+        
+        def <strong>output_couplings</strong>(port : <a href="../Quartz/OutputPort.html">OutputPort</a>) : Array(<a href="../Quartz/OutputPort.html">OutputPort</a>)
+
+        <a class="method-permalink" href="#output_couplings(port:OutputPort):Array(OutputPort)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns all external output couplings attached to the given output <em>port</em>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L42" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="remove_child(model:Model)-instance-method">
+      <div class="signature">
+        
+        def <strong>remove_child</strong>(model : <a href="../Quartz/Model.html">Model</a>)
+
+        <a class="method-permalink" href="#remove_child(model:Model)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Deletes the given <em>model</em> from childrens</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L63" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="transducer_for(src:Port,dst:Port)-instance-method">
+      <div class="signature">
+        
+        def <strong>transducer_for</strong>(src : <a href="../Quartz/Port.html">Port</a>, dst : <a href="../Quartz/Port.html">Port</a>)
+
+        <a class="method-permalink" href="#transducer_for(src:Port,dst:Port)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the transducer associated with the given coupling.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/coupler.cr#L117" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>

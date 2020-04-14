@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.33.0">
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+
+  <meta id="repository-name" content="github.com/RomainFranceschini/quartz">
+  <title>Quartz::Duration - github.com/RomainFranceschini/quartz</title>
+  <script type="text/javascript">
+    CrystalDoc.base_path = "../";
+  </script>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="repository-links">
+      <a href="../index.html">README</a>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz" data-name="quartz">
+      <a href="../Quartz.html">Quartz</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Any" data-name="quartz::any">
+      <a href="../Quartz/Any.html">Any</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Any/Type" data-name="quartz::any::type">
+      <a href="../Quartz/Any/Type.html">Type</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+      <a href="../Quartz/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
+      <a href="../Quartz/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
+      <a href="../Quartz/AutoState.html">AutoState</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BadSynchronisationError" data-name="quartz::badsynchronisationerror">
+      <a href="../Quartz/BadSynchronisationError.html">BadSynchronisationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BinaryHeap" data-name="quartz::binaryheap(t)">
+      <a href="../Quartz/BinaryHeap.html">BinaryHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CalendarQueue" data-name="quartz::calendarqueue(t)">
+      <a href="../Quartz/CalendarQueue.html">CalendarQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coordinator" data-name="quartz::coordinator">
+      <a href="../Quartz/Coordinator.html">Coordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupleable" data-name="quartz::coupleable">
+      <a href="../Quartz/Coupleable.html">Coupleable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CoupledModel" data-name="quartz::coupledmodel">
+      <a href="../Quartz/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler" data-name="quartz::coupler">
+      <a href="../Quartz/Coupler.html">Coupler</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler/CouplingIterator" data-name="quartz::coupler::couplingiterator">
+      <a href="../Quartz/Coupler/CouplingIterator.html">CouplingIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DirectConnectionVisitor" data-name="quartz::directconnectionvisitor">
+      <a href="../Quartz/DirectConnectionVisitor.html">DirectConnectionVisitor</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DotVisitor" data-name="quartz::dotvisitor">
+      <a href="../Quartz/DotVisitor.html">DotVisitor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE" data-name="quartz::dsde">
+      <a href="../Quartz/DSDE.html">DSDE</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/CoupledModel" data-name="quartz::dsde::coupledmodel">
+      <a href="../Quartz/DSDE/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/DynamicCoordinator" data-name="quartz::dsde::dynamiccoordinator">
+      <a href="../Quartz/DSDE/DynamicCoordinator.html">DynamicCoordinator</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive" data-name="quartz::dsde::executive">
+      <a href="../Quartz/DSDE/Executive.html">Executive</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive/State" data-name="quartz::dsde::executive::state">
+      <a href="../Quartz/DSDE/Executive/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/RootCoordinator" data-name="quartz::dsde::rootcoordinator">
+      <a href="../Quartz/DSDE/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS" data-name="quartz::dtss">
+      <a href="../Quartz/DTSS.html">DTSS</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+      <a href="../Quartz/DTSS/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
+      <a href="../Quartz/DTSS/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/Simulator" data-name="quartz::dtss::simulator">
+      <a href="../Quartz/DTSS/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" current" data-id="github.com/RomainFranceschini/quartz/Quartz/Duration" data-name="quartz::duration">
+      <a href="../Quartz/Duration.html">Duration</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/EventSet" data-name="quartz::eventset">
+      <a href="../Quartz/EventSet.html">EventSet</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FeedbackLoopError" data-name="quartz::feedbacklooperror">
+      <a href="../Quartz/FeedbackLoopError.html">FeedbackLoopError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FibonacciHeap" data-name="quartz::fibonacciheap(t)">
+      <a href="../Quartz/FibonacciHeap.html">FibonacciHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/HeapSet" data-name="quartz::heapset(t)">
+      <a href="../Quartz/HeapSet.html">HeapSet</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks" data-name="quartz::hooks">
+      <a href="../Quartz/Hooks.html">Hooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifiable" data-name="quartz::hooks::notifiable">
+      <a href="../Quartz/Hooks/Notifiable.html">Notifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifier" data-name="quartz::hooks::notifier">
+      <a href="../Quartz/Hooks/Notifier.html">Notifier</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InputPort" data-name="quartz::inputport">
+      <a href="../Quartz/InputPort.html">InputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidDurationError" data-name="quartz::invaliddurationerror">
+      <a href="../Quartz/InvalidDurationError.html">InvalidDurationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidPortHostError" data-name="quartz::invalidporthosterror">
+      <a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidProcessorError" data-name="quartz::invalidprocessorerror">
+      <a href="../Quartz/InvalidProcessorError.html">InvalidProcessorError</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
+      <a href="../Quartz/List.html">List</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/Node" data-name="quartz::list::node(t)">
+      <a href="../Quartz/List/Node.html">Node</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/NoSuchElementError" data-name="quartz::list::nosuchelementerror">
+      <a href="../Quartz/List/NoSuchElementError.html">NoSuchElementError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MessageAlreadySentError" data-name="quartz::messagealreadysenterror">
+      <a href="../Quartz/MessageAlreadySentError.html">MessageAlreadySentError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Model" data-name="quartz::model">
+      <a href="../Quartz/Model.html">Model</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent" data-name="quartz::multicomponent">
+      <a href="../Quartz/MultiComponent.html">MultiComponent</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+      <a href="../Quartz/MultiComponent/Component.html">Component</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
+      <a href="../Quartz/MultiComponent/Component/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Model" data-name="quartz::multicomponent::model">
+      <a href="../Quartz/MultiComponent/Model.html">Model</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Simulator" data-name="quartz::multicomponent::simulator">
+      <a href="../Quartz/MultiComponent/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Name" data-name="quartz::name">
+      <a href="../Quartz/Name.html">Name</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchChildError" data-name="quartz::nosuchchilderror">
+      <a href="../Quartz/NoSuchChildError.html">NoSuchChildError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchPortError" data-name="quartz::nosuchporterror">
+      <a href="../Quartz/NoSuchPortError.html">NoSuchPortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observable" data-name="quartz::observable">
+      <a href="../Quartz/Observable.html">Observable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observer" data-name="quartz::observer">
+      <a href="../Quartz/Observer.html">Observer</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/OutputPort" data-name="quartz::outputport">
+      <a href="../Quartz/OutputPort.html">OutputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PassiveBehavior" data-name="quartz::passivebehavior">
+      <a href="../Quartz/PassiveBehavior.html">PassiveBehavior</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Port" data-name="quartz::port">
+      <a href="../Quartz/Port.html">Port</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PriorityQueue" data-name="quartz::priorityqueue(t)">
+      <a href="../Quartz/PriorityQueue.html">PriorityQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Processor" data-name="quartz::processor">
+      <a href="../Quartz/Processor.html">Processor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator" data-name="quartz::processorallocator">
+      <a href="../Quartz/ProcessorAllocator.html">ProcessorAllocator</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator/ProcessorAllocationError" data-name="quartz::processorallocator::processorallocationerror">
+      <a href="../Quartz/ProcessorAllocator/ProcessorAllocationError.html">ProcessorAllocationError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/RootCoordinator" data-name="quartz::rootcoordinator">
+      <a href="../Quartz/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Scale" data-name="quartz::scale">
+      <a href="../Quartz/Scale.html">Scale</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Schedulable" data-name="quartz::schedulable">
+      <a href="../Quartz/Schedulable.html">Schedulable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulable" data-name="quartz::simulable">
+      <a href="../Quartz/Simulable.html">Simulable</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation" data-name="quartz::simulation">
+      <a href="../Quartz/Simulation.html">Simulation</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/Status" data-name="quartz::simulation::status">
+      <a href="../Quartz/Simulation/Status.html">Status</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/StepIterator" data-name="quartz::simulation::stepiterator">
+      <a href="../Quartz/Simulation/StepIterator.html">StepIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulator" data-name="quartz::simulator">
+      <a href="../Quartz/Simulator.html">Simulator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/State" data-name="quartz::state">
+      <a href="../Quartz/State.html">State</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
+      <a href="../Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeBase" data-name="quartz::timebase">
+      <a href="../Quartz/TimeBase.html">TimeBase</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeCache" data-name="quartz::timecache">
+      <a href="../Quartz/TimeCache.html">TimeCache</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimePoint" data-name="quartz::timepoint">
+      <a href="../Quartz/TimePoint.html">TimePoint</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transferable" data-name="quartz::transferable">
+      <a href="../Quartz/Transferable.html">Transferable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transitions" data-name="quartz::transitions">
+      <a href="../Quartz/Transitions.html">Transitions</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/UnobservablePortError" data-name="quartz::unobservableporterror">
+      <a href="../Quartz/UnobservablePortError.html">UnobservablePortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiable" data-name="quartz::verifiable">
+      <a href="../Quartz/Verifiable.html">Verifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/VerificationErrors" data-name="quartz::verificationerrors">
+      <a href="../Quartz/VerificationErrors.html">VerificationErrors</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers" data-name="quartz::verifiers">
+      <a href="../Quartz/Verifiers.html">Verifiers</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/EachChecker" data-name="quartz::verifiers::eachchecker">
+      <a href="../Quartz/Verifiers/EachChecker.html">EachChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/NumericalityChecker" data-name="quartz::verifiers::numericalitychecker">
+      <a href="../Quartz/Verifiers/NumericalityChecker.html">NumericalityChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/PresenceChecker" data-name="quartz::verifiers::presencechecker">
+      <a href="../Quartz/Verifiers/PresenceChecker.html">PresenceChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/RuntimeChecker" data-name="quartz::verifiers::runtimechecker">
+      <a href="../Quartz/Verifiers/RuntimeChecker.html">RuntimeChecker</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Visitor" data-name="quartz::visitor">
+      <a href="../Quartz/Visitor.html">Visitor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">struct</span> Quartz::Duration
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Quartz/Duration.html">Quartz::Duration</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p><code><a href="../Quartz/Duration.html">Duration</a></code> is a fixed-point time data type which encapsulates a 64-bit
+binary floating-point number.</p>
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">Comparable(<a href="../Quartz/Duration.html">Quartz::Duration</a>)</li>
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L4" target="_blank">
+        quartz/duration.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="EPOCH">
+        <strong>EPOCH</strong> = <code><span class="n">5</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The <em>epoch constant</em> helps establishing the limiting multiplier of the
+<code><a href="../Quartz/Duration.html">Duration</a></code> datatype together with <code><a href="../Quartz/Scale.html#FACTOR">Scale::FACTOR</a></code>.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="INFINITY">
+        <strong>INFINITY</strong> = <code><span class="k">new</span>(<span class="t">MULTIPLIER_INFINITE</span>)</code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>An infinite duration with a base scale.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="MULTIPLIER_INFINITE">
+        <strong>MULTIPLIER_INFINITE</strong> = <code><span class="t">Float64</span><span class="t">::</span><span class="t">INFINITY</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The infinite multiplier</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="MULTIPLIER_LIMIT">
+        <strong>MULTIPLIER_LIMIT</strong> = <code><span class="t">Scale</span><span class="t">::</span><span class="t">FACTOR</span> <span class="o">**</span> <span class="t">EPOCH</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The limiting multiplier of the <code><a href="../Quartz/Duration.html">Duration</a></code> type.</p>
+
+<p>The 1000^5 limit is chosen as the largest power of 1000 less than 2^53,
+the point at which <code>Float64</code> ceases to exactly represent all integers.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="MULTIPLIER_MAX">
+        <strong>MULTIPLIER_MAX</strong> = <code><span class="t">MULTIPLIER_LIMIT</span> <span class="o">-</span> <span class="n">1</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The largest finite multiplier that can be represented by a <code><a href="../Quartz/Duration.html">Duration</a></code>.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="MULTIPLIER_MIN">
+        <strong>MULTIPLIER_MIN</strong> = <code><span class="n">0_i64</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The smallest finite multiplier that can be represented by a <code><a href="../Quartz/Duration.html">Duration</a></code>.</p>
+      </dd>
+      
+    
+  </dl>
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new(m:Number=0_i64,precision:Scale=Scale::BASE,fixed:Bool=false)-class-method" class="signature"><strong>.new</strong>(m : Number = <span class="n">0_i64</span>, precision : Scale = <span class="t">Scale</span><span class="t">::</span><span class="t">BASE</span>, fixed : Bool = <span class="n">false</span>)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new(pull:JSON::PullParser)-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new(pull:::MessagePack::Unpacker)-class-method" class="signature"><strong>.new</strong>(pull : ::MessagePack::Unpacker)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#from(n:Float)-class-method" class="signature"><strong>.from</strong>(n : Float)</a>
+        
+          <div class="summary"><p>Creates a <code><a href="../Quartz/Duration.html">Duration</a></code> from a given <code>Float</code> between 0 and 1 and tries to assign an appropriate precision.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#infinity(precision:Scale=Scale::BASE,fixed:Bool=false)-class-method" class="signature"><strong>.infinity</strong>(precision : Scale = <span class="t">Scale</span><span class="t">::</span><span class="t">BASE</span>, fixed : Bool = <span class="n">false</span>)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#zero(precision:Scale=Scale::BASE,fixed:Bool=false)-class-method" class="signature"><strong>.zero</strong>(precision : Scale = <span class="t">Scale</span><span class="t">::</span><span class="t">BASE</span>, fixed : Bool = <span class="n">false</span>)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#*(n:Number):Duration-instance-method" class="signature"><strong>#*</strong>(n : Number) : Duration</a>
+        
+          <div class="summary"><p>Multiply <code>self</code> by the given factor <em>n</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#+(other:Duration):Duration-instance-method" class="signature"><strong>#+</strong>(other : Duration) : Duration</a>
+        
+          <div class="summary"><p>Adds two <code><a href="../Quartz/Duration.html">Duration</a></code>s values.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#-:Duration-instance-method" class="signature"><strong>#-</strong> : Duration</a>
+        
+          <div class="summary"><p>Negates <code>self</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#-(other:Duration):Duration-instance-method" class="signature"><strong>#-</strong>(other : Duration) : Duration</a>
+        
+          <div class="summary"><p>Substracts two <code><a href="../Quartz/Duration.html">Duration</a></code>s values</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#/(other:Duration):Float64-instance-method" class="signature"><strong>#/</strong>(other : Duration) : Float64</a>
+        
+          <div class="summary"><p>The division of one duration by another is always considered a floating-point operation.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#/(n:Number):Duration-instance-method" class="signature"><strong>#/</strong>(n : Number) : Duration</a>
+        
+          <div class="summary"><p>Divide <code>self</code> by the given scalar operand <em>n</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#(other:self)-instance-method" class="signature"><strong>#<=></strong>(other : <span class="k">self</span>)</a>
+        
+          <div class="summary"><p>Implements the comparison operator.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#equals?(other:self)-instance-method" class="signature"><strong>#equals?</strong>(other : <span class="k">self</span>)</a>
+        
+          <div class="summary"><p>Equality — Returns <code>true</code> only if <code>self</code> and <em>other</em> are equivalent in both multiplier and time precision.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#finite?:Bool-instance-method" class="signature"><strong>#finite?</strong> : Bool</a>
+        
+          <div class="summary"><p>Whether <code>self</code> is a finite duration.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#fixed:Duration-instance-method" class="signature"><strong>#fixed</strong> : Duration</a>
+        
+          <div class="summary"><p>Produces a fixed but equivalent duration.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#fixed?:Bool-instance-method" class="signature"><strong>#fixed?</strong> : Bool</a>
+        
+          <div class="summary"><p>Whether <code>self</code> fixed or unfixed.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#fixed_at(precision:Scale):Duration-instance-method" class="signature"><strong>#fixed_at</strong>(precision : Scale) : Duration</a>
+        
+          <div class="summary"><p>Produces a fixed duration value with the specified <em>precision</em> level.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#infinite?:Bool-instance-method" class="signature"><strong>#infinite?</strong> : Bool</a>
+        
+          <div class="summary"><p>Whether <code>self</code> is an infinite duration.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#inspect(io)-instance-method" class="signature"><strong>#inspect</strong>(io)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#multiplier:Int64-instance-method" class="signature"><strong>#multiplier</strong> : Int64</a>
+        
+          <div class="summary"><p>Returns the multiplier of <code>self</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#precision:Scale-instance-method" class="signature"><strong>#precision</strong> : Scale</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#rescale(precision:Scale):Duration-instance-method" class="signature"><strong>#rescale</strong>(precision : Scale) : Duration</a>
+        
+          <div class="summary"><p>Produces a duration value with the specified <em>precision</em> level.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_f-instance-method" class="signature"><strong>#to_f</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_f32-instance-method" class="signature"><strong>#to_f32</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_f64-instance-method" class="signature"><strong>#to_f64</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_json(json:JSON::Builder)-instance-method" class="signature"><strong>#to_json</strong>(json : JSON::Builder)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_msgpack(packer:::MessagePack::Packer)-instance-method" class="signature"><strong>#to_msgpack</strong>(packer : ::MessagePack::Packer)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#unfixed:Duration-instance-method" class="signature"><strong>#unfixed</strong> : Duration</a>
+        
+          <div class="summary"><p>Produces an unfixed but equivalent duration.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#zero?:Bool-instance-method" class="signature"><strong>#zero?</strong> : Bool</a>
+        
+          <div class="summary"><p>Whether <code>self</code> is a zero duration.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from struct <code>Value</code></h3>
+  
+  
+    <a href="../Value.html#==(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>==(other : Quartz::Any)</span>
+    ==</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from class <code>Object</code></h3>
+  
+  
+    <a href="../Object.html#===(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>===(other : Quartz::Any)</span>
+    ===</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(m:Number=0_i64,precision:Scale=Scale::BASE,fixed:Bool=false)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(m : Number = <span class="n">0_i64</span>, precision : <a href="../Quartz/Scale.html">Scale</a> = <span class="t">Scale</span><span class="t">::</span><span class="t">BASE</span>, fixed : Bool = <span class="n">false</span>)
+
+        <a class="method-permalink" href="#new(m:Number=0_i64,precision:Scale=Scale::BASE,fixed:Bool=false)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L56" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(pull : JSON::PullParser)
+
+        <a class="method-permalink" href="#new(pull:JSON::PullParser)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L79" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(pull:::MessagePack::Unpacker)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(pull : ::MessagePack::Unpacker)
+
+        <a class="method-permalink" href="#new(pull:::MessagePack::Unpacker)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L98" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="from(n:Float)-class-method">
+      <div class="signature">
+        
+        def self.<strong>from</strong>(n : Float)
+
+        <a class="method-permalink" href="#from(n:Float)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a <code><a href="../Quartz/Duration.html">Duration</a></code> from a given <code>Float</code> between 0 and 1 and tries to
+assign an appropriate precision.</p>
+
+<pre><code><span class="t">Duration</span>.from(<span class="n">0.000034</span>) <span class="c"># =&gt; Duration.new(34, Scale::MICRO)</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L47" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="infinity(precision:Scale=Scale::BASE,fixed:Bool=false)-class-method">
+      <div class="signature">
+        
+        def self.<strong>infinity</strong>(precision : <a href="../Quartz/Scale.html">Scale</a> = <span class="t">Scale</span><span class="t">::</span><span class="t">BASE</span>, fixed : Bool = <span class="n">false</span>)
+
+        <a class="method-permalink" href="#infinity(precision:Scale=Scale::BASE,fixed:Bool=false)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L33" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="zero(precision:Scale=Scale::BASE,fixed:Bool=false)-class-method">
+      <div class="signature">
+        
+        def self.<strong>zero</strong>(precision : <a href="../Quartz/Scale.html">Scale</a> = <span class="t">Scale</span><span class="t">::</span><span class="t">BASE</span>, fixed : Bool = <span class="n">false</span>)
+
+        <a class="method-permalink" href="#zero(precision:Scale=Scale::BASE,fixed:Bool=false)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L37" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="*(n:Number):Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>*</strong>(n : Number) : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#*(n:Number):Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Multiply <code>self</code> by the given factor <em>n</em>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L236" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="+(other:Duration):Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>+</strong>(other : <a href="../Quartz/Duration.html">Duration</a>) : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#+(other:Duration):Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Adds two <code><a href="../Quartz/Duration.html">Duration</a></code>s values.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L168" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="-:Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>-</strong> : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#-:Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Negates <code>self</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L280" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="-(other:Duration):Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>-</strong>(other : <a href="../Quartz/Duration.html">Duration</a>) : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#-(other:Duration):Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Substracts two <code><a href="../Quartz/Duration.html">Duration</a></code>s values</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L202" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="/(other:Duration):Float64-instance-method">
+      <div class="signature">
+        
+        def <strong>/</strong>(other : <a href="../Quartz/Duration.html">Duration</a>) : Float64
+
+        <a class="method-permalink" href="#/(other:Duration):Float64-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>The division of one duration by another is always considered a
+floating-point operation.</p>
+
+<p>The numerator and denominator may have different precision levels and the
+result is a scalar with no prescribed precision.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L289" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="/(n:Number):Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>/</strong>(n : Number) : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#/(n:Number):Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Divide <code>self</code> by the given scalar operand <em>n</em>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L261" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="(other:self)-instance-method">
+      <div class="signature">
+        
+        def <strong><=></strong>(other : <span class="k">self</span>)
+
+        <a class="method-permalink" href="#(other:self)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Implements the comparison operator.</p>
+
+<p>Assumes that <code>self</code> and <em>other</em> could be replaced by their associated
+quantities. As a consequence, two <code><a href="../Quartz/Duration.html">Duration</a></code> values can be considered equal
+with different precision levels.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L298" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="equals?(other:self)-instance-method">
+      <div class="signature">
+        
+        def <strong>equals?</strong>(other : <span class="k">self</span>)
+
+        <a class="method-permalink" href="#equals?(other:self)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Equality — Returns <code>true</code> only if <code>self</code> and <em>other</em> are equivalent in both
+multiplier and time precision.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L310" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="finite?:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>finite?</strong> : Bool
+
+        <a class="method-permalink" href="#finite?:Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Whether <code>self</code> is a finite duration.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L124" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="fixed:Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>fixed</strong> : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#fixed:Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Produces a fixed but equivalent duration.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L163" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="fixed?:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>fixed?</strong> : Bool
+
+        <a class="method-permalink" href="#fixed?:Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Whether <code>self</code> fixed or unfixed. When fixed, the time precision is preserved
+through operations. Otherwise, the time precision may be altered to minimize
+rounding error.</p>
+
+<p>By default, <code><a href="../Quartz/Duration.html">Duration</a></code> values are unfixed, which makes it easy to express
+durations using combinations of multiples of base-1000 SI units.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L139" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="fixed_at(precision:Scale):Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>fixed_at</strong>(precision : <a href="../Quartz/Scale.html">Scale</a>) : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#fixed_at(precision:Scale):Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Produces a fixed duration value with the specified <em>precision</em> level.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L152" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="infinite?:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>infinite?</strong> : Bool
+
+        <a class="method-permalink" href="#infinite?:Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Whether <code>self</code> is an infinite duration.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L129" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="inspect(io)-instance-method">
+      <div class="signature">
+        
+        def <strong>inspect</strong>(io)
+
+        <a class="method-permalink" href="#inspect(io)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L314" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="multiplier:Int64-instance-method">
+      <div class="signature">
+        
+        def <strong>multiplier</strong> : Int64
+
+        <a class="method-permalink" href="#multiplier:Int64-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the multiplier of <code>self</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L107" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="precision:Scale-instance-method">
+      <div class="signature">
+        
+        def <strong>precision</strong> : <a href="../Quartz/Scale.html">Scale</a>
+
+        <a class="method-permalink" href="#precision:Scale-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L30" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="rescale(precision:Scale):Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>rescale</strong>(precision : <a href="../Quartz/Scale.html">Scale</a>) : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#rescale(precision:Scale):Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Produces a duration value with the specified <em>precision</em> level.</p>
+
+<p>Neither fixes or unfixes the time precision of the result.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L146" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_f-instance-method">
+      <div class="signature">
+        
+        def <strong>to_f</strong>
+
+        <a class="method-permalink" href="#to_f-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L337" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_f32-instance-method">
+      <div class="signature">
+        
+        def <strong>to_f32</strong>
+
+        <a class="method-permalink" href="#to_f32-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L333" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_f64-instance-method">
+      <div class="signature">
+        
+        def <strong>to_f64</strong>
+
+        <a class="method-permalink" href="#to_f64-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L329" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_json(json:JSON::Builder)-instance-method">
+      <div class="signature">
+        
+        def <strong>to_json</strong>(json : JSON::Builder)
+
+        <a class="method-permalink" href="#to_json(json:JSON::Builder)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L341" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_msgpack(packer:::MessagePack::Packer)-instance-method">
+      <div class="signature">
+        
+        def <strong>to_msgpack</strong>(packer : ::MessagePack::Packer)
+
+        <a class="method-permalink" href="#to_msgpack(packer:::MessagePack::Packer)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L348" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="unfixed:Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>unfixed</strong> : <a href="../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#unfixed:Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Produces an unfixed but equivalent duration.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L158" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="zero?:Bool-instance-method">
+      <div class="signature">
+        
+        def <strong>zero?</strong> : Bool
+
+        <a class="method-permalink" href="#zero?:Bool-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Whether <code>self</code> is a zero duration.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/duration.cr#L119" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>
