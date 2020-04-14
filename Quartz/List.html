@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.33.0">
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+
+  <meta id="repository-name" content="github.com/RomainFranceschini/quartz">
+  <title>Quartz::List(T) - github.com/RomainFranceschini/quartz</title>
+  <script type="text/javascript">
+    CrystalDoc.base_path = "../";
+  </script>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="repository-links">
+      <a href="../index.html">README</a>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz" data-name="quartz">
+      <a href="../Quartz.html">Quartz</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Any" data-name="quartz::any">
+      <a href="../Quartz/Any.html">Any</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Any/Type" data-name="quartz::any::type">
+      <a href="../Quartz/Any/Type.html">Type</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+      <a href="../Quartz/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
+      <a href="../Quartz/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
+      <a href="../Quartz/AutoState.html">AutoState</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BadSynchronisationError" data-name="quartz::badsynchronisationerror">
+      <a href="../Quartz/BadSynchronisationError.html">BadSynchronisationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BinaryHeap" data-name="quartz::binaryheap(t)">
+      <a href="../Quartz/BinaryHeap.html">BinaryHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CalendarQueue" data-name="quartz::calendarqueue(t)">
+      <a href="../Quartz/CalendarQueue.html">CalendarQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coordinator" data-name="quartz::coordinator">
+      <a href="../Quartz/Coordinator.html">Coordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupleable" data-name="quartz::coupleable">
+      <a href="../Quartz/Coupleable.html">Coupleable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CoupledModel" data-name="quartz::coupledmodel">
+      <a href="../Quartz/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler" data-name="quartz::coupler">
+      <a href="../Quartz/Coupler.html">Coupler</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler/CouplingIterator" data-name="quartz::coupler::couplingiterator">
+      <a href="../Quartz/Coupler/CouplingIterator.html">CouplingIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DirectConnectionVisitor" data-name="quartz::directconnectionvisitor">
+      <a href="../Quartz/DirectConnectionVisitor.html">DirectConnectionVisitor</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DotVisitor" data-name="quartz::dotvisitor">
+      <a href="../Quartz/DotVisitor.html">DotVisitor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE" data-name="quartz::dsde">
+      <a href="../Quartz/DSDE.html">DSDE</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/CoupledModel" data-name="quartz::dsde::coupledmodel">
+      <a href="../Quartz/DSDE/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/DynamicCoordinator" data-name="quartz::dsde::dynamiccoordinator">
+      <a href="../Quartz/DSDE/DynamicCoordinator.html">DynamicCoordinator</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive" data-name="quartz::dsde::executive">
+      <a href="../Quartz/DSDE/Executive.html">Executive</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive/State" data-name="quartz::dsde::executive::state">
+      <a href="../Quartz/DSDE/Executive/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/RootCoordinator" data-name="quartz::dsde::rootcoordinator">
+      <a href="../Quartz/DSDE/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS" data-name="quartz::dtss">
+      <a href="../Quartz/DTSS.html">DTSS</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+      <a href="../Quartz/DTSS/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
+      <a href="../Quartz/DTSS/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/Simulator" data-name="quartz::dtss::simulator">
+      <a href="../Quartz/DTSS/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Duration" data-name="quartz::duration">
+      <a href="../Quartz/Duration.html">Duration</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/EventSet" data-name="quartz::eventset">
+      <a href="../Quartz/EventSet.html">EventSet</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FeedbackLoopError" data-name="quartz::feedbacklooperror">
+      <a href="../Quartz/FeedbackLoopError.html">FeedbackLoopError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FibonacciHeap" data-name="quartz::fibonacciheap(t)">
+      <a href="../Quartz/FibonacciHeap.html">FibonacciHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/HeapSet" data-name="quartz::heapset(t)">
+      <a href="../Quartz/HeapSet.html">HeapSet</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks" data-name="quartz::hooks">
+      <a href="../Quartz/Hooks.html">Hooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifiable" data-name="quartz::hooks::notifiable">
+      <a href="../Quartz/Hooks/Notifiable.html">Notifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifier" data-name="quartz::hooks::notifier">
+      <a href="../Quartz/Hooks/Notifier.html">Notifier</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InputPort" data-name="quartz::inputport">
+      <a href="../Quartz/InputPort.html">InputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidDurationError" data-name="quartz::invaliddurationerror">
+      <a href="../Quartz/InvalidDurationError.html">InvalidDurationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidPortHostError" data-name="quartz::invalidporthosterror">
+      <a href="../Quartz/InvalidPortHostError.html">InvalidPortHostError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidProcessorError" data-name="quartz::invalidprocessorerror">
+      <a href="../Quartz/InvalidProcessorError.html">InvalidProcessorError</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
+      <a href="../Quartz/List.html">List</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/Node" data-name="quartz::list::node(t)">
+      <a href="../Quartz/List/Node.html">Node</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/NoSuchElementError" data-name="quartz::list::nosuchelementerror">
+      <a href="../Quartz/List/NoSuchElementError.html">NoSuchElementError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MessageAlreadySentError" data-name="quartz::messagealreadysenterror">
+      <a href="../Quartz/MessageAlreadySentError.html">MessageAlreadySentError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Model" data-name="quartz::model">
+      <a href="../Quartz/Model.html">Model</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent" data-name="quartz::multicomponent">
+      <a href="../Quartz/MultiComponent.html">MultiComponent</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+      <a href="../Quartz/MultiComponent/Component.html">Component</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
+      <a href="../Quartz/MultiComponent/Component/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Model" data-name="quartz::multicomponent::model">
+      <a href="../Quartz/MultiComponent/Model.html">Model</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Simulator" data-name="quartz::multicomponent::simulator">
+      <a href="../Quartz/MultiComponent/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Name" data-name="quartz::name">
+      <a href="../Quartz/Name.html">Name</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchChildError" data-name="quartz::nosuchchilderror">
+      <a href="../Quartz/NoSuchChildError.html">NoSuchChildError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchPortError" data-name="quartz::nosuchporterror">
+      <a href="../Quartz/NoSuchPortError.html">NoSuchPortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observable" data-name="quartz::observable">
+      <a href="../Quartz/Observable.html">Observable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observer" data-name="quartz::observer">
+      <a href="../Quartz/Observer.html">Observer</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/OutputPort" data-name="quartz::outputport">
+      <a href="../Quartz/OutputPort.html">OutputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PassiveBehavior" data-name="quartz::passivebehavior">
+      <a href="../Quartz/PassiveBehavior.html">PassiveBehavior</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Port" data-name="quartz::port">
+      <a href="../Quartz/Port.html">Port</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PriorityQueue" data-name="quartz::priorityqueue(t)">
+      <a href="../Quartz/PriorityQueue.html">PriorityQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Processor" data-name="quartz::processor">
+      <a href="../Quartz/Processor.html">Processor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator" data-name="quartz::processorallocator">
+      <a href="../Quartz/ProcessorAllocator.html">ProcessorAllocator</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator/ProcessorAllocationError" data-name="quartz::processorallocator::processorallocationerror">
+      <a href="../Quartz/ProcessorAllocator/ProcessorAllocationError.html">ProcessorAllocationError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/RootCoordinator" data-name="quartz::rootcoordinator">
+      <a href="../Quartz/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Scale" data-name="quartz::scale">
+      <a href="../Quartz/Scale.html">Scale</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Schedulable" data-name="quartz::schedulable">
+      <a href="../Quartz/Schedulable.html">Schedulable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulable" data-name="quartz::simulable">
+      <a href="../Quartz/Simulable.html">Simulable</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation" data-name="quartz::simulation">
+      <a href="../Quartz/Simulation.html">Simulation</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/Status" data-name="quartz::simulation::status">
+      <a href="../Quartz/Simulation/Status.html">Status</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/StepIterator" data-name="quartz::simulation::stepiterator">
+      <a href="../Quartz/Simulation/StepIterator.html">StepIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulator" data-name="quartz::simulator">
+      <a href="../Quartz/Simulator.html">Simulator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/State" data-name="quartz::state">
+      <a href="../Quartz/State.html">State</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
+      <a href="../Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeBase" data-name="quartz::timebase">
+      <a href="../Quartz/TimeBase.html">TimeBase</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeCache" data-name="quartz::timecache">
+      <a href="../Quartz/TimeCache.html">TimeCache</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimePoint" data-name="quartz::timepoint">
+      <a href="../Quartz/TimePoint.html">TimePoint</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transferable" data-name="quartz::transferable">
+      <a href="../Quartz/Transferable.html">Transferable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transitions" data-name="quartz::transitions">
+      <a href="../Quartz/Transitions.html">Transitions</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/UnobservablePortError" data-name="quartz::unobservableporterror">
+      <a href="../Quartz/UnobservablePortError.html">UnobservablePortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiable" data-name="quartz::verifiable">
+      <a href="../Quartz/Verifiable.html">Verifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/VerificationErrors" data-name="quartz::verificationerrors">
+      <a href="../Quartz/VerificationErrors.html">VerificationErrors</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers" data-name="quartz::verifiers">
+      <a href="../Quartz/Verifiers.html">Verifiers</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/EachChecker" data-name="quartz::verifiers::eachchecker">
+      <a href="../Quartz/Verifiers/EachChecker.html">EachChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/NumericalityChecker" data-name="quartz::verifiers::numericalitychecker">
+      <a href="../Quartz/Verifiers/NumericalityChecker.html">NumericalityChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/PresenceChecker" data-name="quartz::verifiers::presencechecker">
+      <a href="../Quartz/Verifiers/PresenceChecker.html">PresenceChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/RuntimeChecker" data-name="quartz::verifiers::runtimechecker">
+      <a href="../Quartz/Verifiers/RuntimeChecker.html">RuntimeChecker</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Visitor" data-name="quartz::visitor">
+      <a href="../Quartz/Visitor.html">Visitor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">class</span> Quartz::List(T)
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Quartz/List.html">Quartz::List(T)</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>A List (implementation of a doubly linked list) is a collection of objects
+of type T that behaves much like an Array.</p>
+
+<p>All of the operations perform as could be expected for a doubly-linked list.
+Operations that index into the list will traverse the list from the
+beginning or the end, whichever is closer to the specified index.</p>
+
+<p>This structure allows for efficient insertion or removal of elements from
+any position since it returns a <code><a href="../Quartz/List/Node.html">List::Node</a></code> from all insert operations
+(<code><a href="../Quartz/List.html#push(obj:T)-instance-method">#push</a></code>, <code><a href="../Quartz/List.html#insert(index:Int,value:T)-instance-method">#insert</a></code>, <code><a href="../Quartz/List.html#unshift(obj:T)-instance-method">#unshift</a></code>) in order to be reused in <code><a href="../Quartz/List.html#delete(node:Quartz::List::Node(T))-instance-method">#delete</a></code>.</p>
+
+<p><span class="flag orange">TODO</span>  : #insert_before(node)</p>
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type">Comparable(<a href="../Quartz/List.html">Quartz::List(T)</a>)</li>
+    
+      <li class="other-type">Enumerable(T)</li>
+    
+      <li class="other-type">Iterable(T)</li>
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L14" target="_blank">
+        quartz/list.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new(size:Int,value:T)-class-method" class="signature"><strong>.new</strong>(size : Int, value : T)</a>
+        
+          <div class="summary"><p>Creates a new List of the given size filled with the same value in each position.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new(array:Array(T))-class-method" class="signature"><strong>.new</strong>(array : Array(T))</a>
+        
+          <div class="summary"><p>Creates a new List that copies its items from an Array.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
+        
+          <div class="summary"><p>Creates a new empty List</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new(size:Int,&)-class-method" class="signature"><strong>.new</strong>(size : Int, &)</a>
+        
+          <div class="summary"><p>Creates a new List of the given size and invokes the block once for each index of the list, assigning the block's value in that index.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#+(other:Quartz::List(U))forallU-instance-method" class="signature"><strong>#+</strong>(other : Quartz::List(U)) forall U</a>
+        
+          <div class="summary"><p>Concatenation.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#%3C%3C(obj:T)-instance-method" class="signature"><strong>#<<</strong>(obj : T)</a>
+        
+          <div class="summary"><p>Pushes the given value on to the end of this list.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#(other:List)-instance-method" class="signature"><strong>#<=></strong>(other : List)</a>
+        
+          <div class="summary"><p>Combined comparison operator.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#==(other:List)-instance-method" class="signature"><strong>#==</strong>(other : List)</a>
+        
+          <div class="summary"><p>Equality.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#[](index:Int)-instance-method" class="signature"><strong>#[]</strong>(index : Int)</a>
+        
+          <div class="summary"><p>Returns the element at the given <code>index</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#[]=(index:Int,value:T)-instance-method" class="signature"><strong>#[]=</strong>(index : Int, value : T)</a>
+        
+          <div class="summary"><p>Sets the given value at the given index replacing the old value</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#[]?(index:Int)-instance-method" class="signature"><strong>#[]?</strong>(index : Int)</a>
+        
+          <div class="summary"><p>Returns the element at the given index.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#at(index:Int)-instance-method" class="signature"><strong>#at</strong>(index : Int)</a>
+        
+          <div class="summary"><p>Returns the element at the given index, if in bounds, otherwise raises <code>IndexError</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#at(index:Int,&)-instance-method" class="signature"><strong>#at</strong>(index : Int, &)</a>
+        
+          <div class="summary"><p>Returns the element at the given index, if in bounds, otherwise executes the given block and returns its value.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#clear-instance-method" class="signature"><strong>#clear</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
+        
+          <div class="summary"><p>Returns a new List that has this list's elements cloned.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#concat(other:Enumerable(T))-instance-method" class="signature"><strong>#concat</strong>(other : Enumerable(T))</a>
+        
+          <div class="summary"><p>Appends the elements of <em>other</em> to <code>self</code>, and returns <code>self</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#delete(node:Quartz::List::Node(T))-instance-method" class="signature"><strong>#delete</strong>(node : Quartz::List::Node(T))</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#delete(obj:T,all=true)-instance-method" class="signature"><strong>#delete</strong>(obj : T, all = <span class="n">true</span>)</a>
+        
+          <div class="summary"><p>Removes all items or the first occurence that are equal to <em>obj</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#delete_at(index:Int)-instance-method" class="signature"><strong>#delete_at</strong>(index : Int)</a>
+        
+          <div class="summary"><p>Delete the item that is present at the <code>index</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#dup-instance-method" class="signature"><strong>#dup</strong></a>
+        
+          <div class="summary"><p>Returns a new List that has exactly this list's elements.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each(&)-instance-method" class="signature"><strong>#each</strong>(&)</a>
+        
+          <div class="summary"><p>Yields each item in this list, from first to last.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each-instance-method" class="signature"><strong>#each</strong></a>
+        
+          <div class="summary"><p>Gives an iterator over each item in this list, from first to last.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#each_node(&)-instance-method" class="signature"><strong>#each_node</strong>(&)</a>
+        
+          <div class="summary"><p>Calls the given block once for each element in self, passing that element as a parameter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#empty?-instance-method" class="signature"><strong>#empty?</strong></a>
+        
+          <div class="summary"><p>Returns true if this deque has 0 items.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#equals?(other:List,&)-instance-method" class="signature"><strong>#equals?</strong>(other : List, &)</a>
+        
+          <div class="summary"><p>Determines if <code>self</code> equals <em>other</em> according to a comparison done by the given block.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#first:T-instance-method" class="signature"><strong>#first</strong> : T</a>
+        
+          <div class="summary"><p>Returns the first element of the list.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#first?:T?-instance-method" class="signature"><strong>#first?</strong> : T?</a>
+        
+          <div class="summary"><p>Returns the first element of the list, or nil if the list is empty</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#hash(hasher)-instance-method" class="signature"><strong>#hash</strong>(hasher)</a>
+        
+          <div class="summary"><p>See <code>Object#hash(hasher)</code></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#insert(index:Int,value:T)-instance-method" class="signature"><strong>#insert</strong>(index : Int, value : T)</a>
+        
+          <div class="summary"><p>Insert a new item before the item at <code>index</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#inspect(io:IO)-instance-method" class="signature"><strong>#inspect</strong>(io : IO)</a>
+        
+          <div class="summary"><p>Appends a String representation of this object which includes its class name, its object address and the values of all instance variables.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#last:T-instance-method" class="signature"><strong>#last</strong> : T</a>
+        
+          <div class="summary"><p>Returns the first element of the list.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#last?:T?-instance-method" class="signature"><strong>#last?</strong> : T?</a>
+        
+          <div class="summary"><p>Returns the first element of the list, or nil if the list is empty</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#pop(&)-instance-method" class="signature"><strong>#pop</strong>(&)</a>
+        
+          <div class="summary"><p>Removes and returns the last item, if not empty, otherwise executes the given block and returns its value.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#pop(n:Int)-instance-method" class="signature"><strong>#pop</strong>(n : Int)</a>
+        
+          <div class="summary"><p>Removes the last <code>n</code> (at most) items in the list.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#pop-instance-method" class="signature"><strong>#pop</strong></a>
+        
+          <div class="summary"><p>Removes and returns the last item.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#pop?-instance-method" class="signature"><strong>#pop?</strong></a>
+        
+          <div class="summary"><p>Removes and returns the last item, if not empty, otherwise <code>nil</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#push(obj:T)-instance-method" class="signature"><strong>#push</strong>(obj : T)</a>
+        
+          <div class="summary"><p>Pushes the given value on to the end of this list.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#reverse_each(&)-instance-method" class="signature"><strong>#reverse_each</strong>(&)</a>
+        
+          <div class="summary"><p>Yields each item in this list, from last to first.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#rotate!(n:Int=1)-instance-method" class="signature"><strong>#rotate!</strong>(n : Int = <span class="n">1</span>)</a>
+        
+          <div class="summary"><p>Rotates this list in place so that the element at <code>n</code> becomes first.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#shift(&)-instance-method" class="signature"><strong>#shift</strong>(&)</a>
+        
+          <div class="summary"><p>Removes the first element in the list, if not empty, otherwise executes the given block and returns its value.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#shift-instance-method" class="signature"><strong>#shift</strong></a>
+        
+          <div class="summary"><p>Removes and returns the first item.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#shift(n:Int)-instance-method" class="signature"><strong>#shift</strong>(n : Int)</a>
+        
+          <div class="summary"><p>Removes the first <code>n</code> (at most) items in the list.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#shift?-instance-method" class="signature"><strong>#shift?</strong></a>
+        
+          <div class="summary"><p>Removes and returns the first item, if not empty, otherwise <code>nil</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#size-instance-method" class="signature"><strong>#size</strong></a>
+        
+          <div class="summary"><p>Returns the number of elements in the collection.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#swap(i,j)-instance-method" class="signature"><strong>#swap</strong>(i, j)</a>
+        
+          <div class="summary"><p>Swaps the items at the indices <code>i</code> and <code>j</code>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_a-instance-method" class="signature"><strong>#to_a</strong></a>
+        
+          <div class="summary"><p>Returns an Array (shallow copy) that contains all the items of this list.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_s(io:IO)-instance-method" class="signature"><strong>#to_s</strong>(io : IO)</a>
+        
+          <div class="summary"><p>Appends a short String representation of this object which includes its class name and its object address.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#unshift(obj:T)-instance-method" class="signature"><strong>#unshift</strong>(obj : T)</a>
+        
+          <div class="summary"><p>Prepends objects to the front of the list.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from class <code>Reference</code></h3>
+  
+  
+    <a href="../Reference.html#==(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>==(other : Quartz::Any)</span>
+    ==</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from class <code>Object</code></h3>
+  
+  
+    <a href="../Object.html#===(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>===(other : Quartz::Any)</span>
+    ===</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(size:Int,value:T)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(size : Int, value : T)
+
+        <a class="method-permalink" href="#new(size:Int,value:T)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a new List of the given size filled with the same value in each
+position.</p>
+
+<pre><code><span class="t">List</span>.<span class="k">new</span>(<span class="n">3</span>, <span class="s">&#39;a&#39;</span>) <span class="c"># =&gt; List{&#39;a&#39;, &#39;a&#39;, &#39;a&#39;}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L62" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(array:Array(T))-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(array : Array(T))
+
+        <a class="method-permalink" href="#new(array:Array(T))-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a new List that copies its items from an Array.</p>
+
+<pre><code><span class="t">List</span>.<span class="k">new</span>([<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>]) <span class="c"># =&gt; List{1, 2, 3}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L89" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>
+
+        <a class="method-permalink" href="#new-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a new empty List</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L51" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(size:Int,&amp;)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(size : Int, &)
+
+        <a class="method-permalink" href="#new(size:Int,&)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Creates a new List of the given size and invokes the block once for each
+index of the list, assigning the block's value in that index.</p>
+
+<pre><code><span class="t">List</span>.<span class="k">new</span>(<span class="n">3</span>) { <span class="o">|</span>i<span class="o">|</span> (i <span class="o">+</span> <span class="n">1</span>) <span class="o">**</span> <span class="n">2</span> } <span class="c"># =&gt; List{1, 4, 9}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L76" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="+(other:Quartz::List(U))forallU-instance-method">
+      <div class="signature">
+        
+        def <strong>+</strong>(other : <a href="../Quartz/List.html">Quartz::List</a>(U)) forall U
+
+        <a class="method-permalink" href="#+(other:Quartz::List(U))forallU-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Concatenation. Returns a new List built by concatenating two lists
+together to create a third. The type of the new list is the union of the
+types of both the other lists.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L131" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="&lt;&lt;(obj:T)-instance-method">
+      <div class="signature">
+        
+        def <strong><<</strong>(obj : T)
+
+        <a class="method-permalink" href="#%3C%3C(obj:T)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Pushes the given value on to the end of this list. Returns <code>self</code> instead
+of the created node.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L458" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="(other:List)-instance-method">
+      <div class="signature">
+        
+        def <strong><=></strong>(other : <a href="../Quartz/List.html">List</a>)
+
+        <a class="method-permalink" href="#(other:List)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Combined comparison operator. Returns <em>0</em> if <code>self</code> equals <em>other</em>, <em>1</em> if
+<code>self</code> is greater than <em>other</em> and <em>-1</em> if <code>self</code> is smaller than <em>other</em>.</p>
+
+<p>It compares the elements of both lists in the same position using the
+<code><a href="../Quartz/List.html#(other:List)-instance-method">#<=></a></code> operator.  As soon as one of such comparisons returns a non-zero
+value, that result is the return value of the comparison.</p>
+
+<p>If all elements are equal, the comparison is based on the size of the lists.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L118" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="==(other:List)-instance-method">
+      <div class="signature">
+        
+        def <strong>==</strong>(other : <a href="../Quartz/List.html">List</a>)
+
+        <a class="method-permalink" href="#==(other:List)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Equality. Returns <em>true</em> if each element in <code>self</code> is equal to each
+corresponding element in <em>other</em>.</p>
+
+<pre><code>list <span class="o">=</span> <span class="t">List</span>{<span class="n">2</span>, <span class="n">3</span>}
+list.unshift
+list <span class="o">==</span> <span class="t">List</span>{<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>} <span class="c"># =&gt; true</span>
+list <span class="o">==</span> <span class="t">List</span>{<span class="n">2</span>, <span class="n">3</span>}    <span class="c"># =&gt; false</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L101" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="[](index:Int)-instance-method">
+      <div class="signature">
+        
+        def <strong>[]</strong>(index : Int)
+
+        <a class="method-permalink" href="#[](index:Int)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the element at the given <code>index</code>.</p>
+
+<p>Negative indices can be used to start counting from the end of the list.
+Raises <code>IndexError</code> if trying to access an element outside the list's range.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L192" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="[]=(index:Int,value:T)-instance-method">
+      <div class="signature">
+        
+        def <strong>[]=</strong>(index : Int, value : T)
+
+        <a class="method-permalink" href="#[]=(index:Int,value:T)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Sets the given value at the given index replacing the old value</p>
+
+<p>Negative indices can be used to start counting from the end of the list.
+Raises <code>IndexError</code> if trying to access an element outside the list's range.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L210" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="[]?(index:Int)-instance-method">
+      <div class="signature">
+        
+        def <strong>[]?</strong>(index : Int)
+
+        <a class="method-permalink" href="#[]?(index:Int)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the element at the given index.</p>
+
+<p>Negative indices can be used to start counting from the end of the list.
+Returns <code>nil</code> if trying to access an element outside the list's range.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L201" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="at(index:Int)-instance-method">
+      <div class="signature">
+        
+        def <strong>at</strong>(index : Int)
+
+        <a class="method-permalink" href="#at(index:Int)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the element at the given index, if in bounds, otherwise raises <code>IndexError</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L237" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="at(index:Int,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>at</strong>(index : Int, &)
+
+        <a class="method-permalink" href="#at(index:Int,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the element at the given index, if in bounds, otherwise executes the given block and returns its value.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L243" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="clear-instance-method">
+      <div class="signature">
+        
+        def <strong>clear</strong>
+
+        <a class="method-permalink" href="#clear-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L155" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="clone-instance-method">
+      <div class="signature">
+        
+        def <strong>clone</strong>
+
+        <a class="method-permalink" href="#clone-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns a new List that has this list's elements cloned.
+That is, it returns a deep copy of this list.</p>
+
+<p>Use <code><a href="../Quartz/List.html#dup-instance-method">#dup</a></code> if you want a shallow copy.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L269" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="concat(other:Enumerable(T))-instance-method">
+      <div class="signature">
+        
+        def <strong>concat</strong>(other : Enumerable(T))
+
+        <a class="method-permalink" href="#concat(other:Enumerable(T))-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Appends the elements of <em>other</em> to <code>self</code>, and returns <code>self</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L284" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="delete(node:Quartz::List::Node(T))-instance-method">
+      <div class="signature">
+        
+        def <strong>delete</strong>(node : <a href="../Quartz/List/Node.html">Quartz::List::Node</a>(T))
+
+        <a class="method-permalink" href="#delete(node:Quartz::List::Node(T))-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L516" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="delete(obj:T,all=true)-instance-method">
+      <div class="signature">
+        
+        def <strong>delete</strong>(obj : T, all = <span class="n">true</span>)
+
+        <a class="method-permalink" href="#delete(obj:T,all=true)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes all items or the first occurence that are equal to <em>obj</em>.</p>
+
+<pre><code>l <span class="o">=</span> <span class="t">List</span>{<span class="s">&quot;a&quot;</span>, <span class="s">&quot;b&quot;</span>, <span class="s">&quot;b&quot;</span>, <span class="s">&quot;b&quot;</span>, <span class="s">&quot;c&quot;</span>, <span class="s">&quot;c&quot;</span>}
+l.delete(<span class="s">&quot;b&quot;</span>)
+l <span class="c"># =&gt; List{&quot;a&quot;, &quot;c&quot;, &quot;c&quot;}</span>
+l.delete(<span class="s">&quot;c&quot;</span>, all: <span class="n">false</span>)
+l <span class="c"># =&gt; List{&quot;a&quot;, &quot;c&quot;}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L486" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="delete_at(index:Int)-instance-method">
+      <div class="signature">
+        
+        def <strong>delete_at</strong>(index : Int)
+
+        <a class="method-permalink" href="#delete_at(index:Int)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Delete the item that is present at the <code>index</code>.
+Raises <code>IndexError</code> if trying to delete an element outside the list's
+range.</p>
+
+<pre><code>a <span class="o">=</span> <span class="t">List</span>{<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>}
+a.delete_at(<span class="n">1</span>) <span class="c"># =&gt; List{1, 3}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L512" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="dup-instance-method">
+      <div class="signature">
+        
+        def <strong>dup</strong>
+
+        <a class="method-permalink" href="#dup-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns a new List that has exactly this list's elements.
+That is, it returns a shallow copy of this list.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L277" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each</strong>(&)
+
+        <a class="method-permalink" href="#each(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Yields each item in this list, from first to last.</p>
+
+<p>Do not modify the list while using this variant of <code><a href="../Quartz/List.html#each(&)-instance-method">#each</a></code>!</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L539" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each-instance-method">
+      <div class="signature">
+        
+        def <strong>each</strong>
+
+        <a class="method-permalink" href="#each-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Gives an iterator over each item in this list, from first to last.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L548" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="each_node(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>each_node</strong>(&)
+
+        <a class="method-permalink" href="#each_node(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Calls the given block once for each element in self, passing that
+element as a parameter.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L554" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="empty?-instance-method">
+      <div class="signature">
+        
+        def <strong>empty?</strong>
+
+        <a class="method-permalink" href="#empty?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns true if this deque has 0 items.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L161" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="equals?(other:List,&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>equals?</strong>(other : <a href="../Quartz/List.html">List</a>, &)
+
+        <a class="method-permalink" href="#equals?(other:List,&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Determines if <code>self</code> equals <em>other</em> according to a comparison
+done by the given block.</p>
+
+<p>If <code>self</code>'s size is the same as <em>other</em>'s size, this method yields
+elements from <code>self</code> and <em>other</em> in tandem: if the block returns true
+for all of them, this method returns <em>true</em>. Otherwise it returns <em>false</em>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L146" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="first:T-instance-method">
+      <div class="signature">
+        
+        def <strong>first</strong> : T
+
+        <a class="method-permalink" href="#first:T-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the first element of the list. Raises if empty.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L171" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="first?:T?-instance-method">
+      <div class="signature">
+        
+        def <strong>first?</strong> : T?
+
+        <a class="method-permalink" href="#first?:T?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the first element of the list, or nil if the list is empty</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L166" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="hash(hasher)-instance-method">
+      <div class="signature">
+        
+        def <strong>hash</strong>(hasher)
+
+        <a class="method-permalink" href="#hash(hasher)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from class Reference
+            </div>
+          
+          <p>See <code>Object#hash(hasher)</code></p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L289" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="insert(index:Int,value:T)-instance-method">
+      <div class="signature">
+        
+        def <strong>insert</strong>(index : Int, value : T)
+
+        <a class="method-permalink" href="#insert(index:Int,value:T)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Insert a new item before the item at <code>index</code>.</p>
+
+<pre><code>l <span class="o">=</span> <span class="t">List</span>{<span class="n">0</span>, <span class="n">1</span>, <span class="n">2</span>}
+l.insert_at(<span class="n">1</span>, <span class="n">7</span>) <span class="c"># =&gt; List{0, 7, 1, 2}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L221" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="inspect(io:IO)-instance-method">
+      <div class="signature">
+        
+        def <strong>inspect</strong>(io : IO)
+
+        <a class="method-permalink" href="#inspect(io:IO)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from class Reference
+            </div>
+          
+          <p>Appends a String representation of this object
+which includes its class name, its object address
+and the values of all instance variables.</p>
+
+<pre><code><span class="k">class</span> <span class="t">Person</span>
+  <span class="k">def</span> <span class="m">initialize</span>(@name : <span class="t">String</span>, @age : <span class="t">Int32</span>)
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="t">Person</span>.<span class="k">new</span>(<span class="s">&quot;John&quot;</span>, <span class="n">32</span>).inspect <span class="c"># =&gt; #&lt;Person:0x10fd31f20 @name=&quot;John&quot;, @age=32&gt;</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L424" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="last:T-instance-method">
+      <div class="signature">
+        
+        def <strong>last</strong> : T
+
+        <a class="method-permalink" href="#last:T-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the first element of the list. Raises if empty.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L182" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="last?:T?-instance-method">
+      <div class="signature">
+        
+        def <strong>last?</strong> : T?
+
+        <a class="method-permalink" href="#last?:T?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the first element of the list, or nil if the list is empty</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L177" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="pop(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>pop</strong>(&)
+
+        <a class="method-permalink" href="#pop(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes and returns the last item, if not empty, otherwise executes the
+given block and returns its value.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L311" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="pop(n:Int)-instance-method">
+      <div class="signature">
+        
+        def <strong>pop</strong>(n : Int)
+
+        <a class="method-permalink" href="#pop(n:Int)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes the last <code>n</code> (at most) items in the list.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L335" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="pop-instance-method">
+      <div class="signature">
+        
+        def <strong>pop</strong>
+
+        <a class="method-permalink" href="#pop-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes and returns the last item. Raises <code><a href="../Quartz/List/NoSuchElementError.html">NoSuchElementError</a></code> if empty.</p>
+
+<pre><code>l <span class="o">=</span> <span class="t">List</span>{<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>}
+l.pop <span class="c"># =&gt; 3</span>
+<span class="c"># l == List{1, 2}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L305" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="pop?-instance-method">
+      <div class="signature">
+        
+        def <strong>pop?</strong>
+
+        <a class="method-permalink" href="#pop?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes and returns the last item, if not empty, otherwise <code>nil</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L330" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="push(obj:T)-instance-method">
+      <div class="signature">
+        
+        def <strong>push</strong>(obj : T)
+
+        <a class="method-permalink" href="#push(obj:T)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Pushes the given value on to the end of this list.</p>
+
+<pre><code>l <span class="o">=</span> <span class="t">List</span>{<span class="n">1</span>, <span class="n">2</span>}
+l.push <span class="n">3</span> <span class="c"># =&gt; List{1, 2, 3}</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L443" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="reverse_each(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>reverse_each</strong>(&)
+
+        <a class="method-permalink" href="#reverse_each(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Yields each item in this list, from last to first.</p>
+
+<p>Do not modify the list while using <code><a href="../Quartz/List.html#reverse_each(&)-instance-method">#reverse_each</a></code>!</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L565" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="rotate!(n:Int=1)-instance-method">
+      <div class="signature">
+        
+        def <strong>rotate!</strong>(n : Int = <span class="n">1</span>)
+
+        <a class="method-permalink" href="#rotate!(n:Int=1)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Rotates this list in place so that the element at <code>n</code> becomes first.</p>
+
+<p>For positive <code>n</code>, equivalent to <code>n.times { push(shift) }</code>.
+For negative <code>n</code>, equivalent to <code>(-n).times { unshift(pop) }</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L401" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="shift(&amp;)-instance-method">
+      <div class="signature">
+        
+        def <strong>shift</strong>(&)
+
+        <a class="method-permalink" href="#shift(&)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes the first element in the list, if not empty, otherwise executes
+the given block and returns its value.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L358" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="shift-instance-method">
+      <div class="signature">
+        
+        def <strong>shift</strong>
+
+        <a class="method-permalink" href="#shift-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes and returns the first item. Raises <code><a href="../Quartz/List/NoSuchElementError.html">NoSuchElementError</a></code> if empty.</p>
+
+<pre><code>l <span class="o">=</span> <span class="t">List</span>{<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>}
+l.shift <span class="c"># =&gt; 1</span>
+<span class="c"># l == List{2, 3} -&gt; true</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L352" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="shift(n:Int)-instance-method">
+      <div class="signature">
+        
+        def <strong>shift</strong>(n : Int)
+
+        <a class="method-permalink" href="#shift(n:Int)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes the first <code>n</code> (at most) items in the list.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L382" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="shift?-instance-method">
+      <div class="signature">
+        
+        def <strong>shift?</strong>
+
+        <a class="method-permalink" href="#shift?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Removes and returns the first item, if not empty, otherwise <code>nil</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L377" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="size-instance-method">
+      <div class="signature">
+        
+        def <strong>size</strong>
+
+        <a class="method-permalink" href="#size-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from module Enumerable(T)
+            </div>
+          
+          <p>Returns the number of elements in the collection.</p>
+
+<pre><code>[<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>].size <span class="c"># =&gt; 4</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L21" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="swap(i,j)-instance-method">
+      <div class="signature">
+        
+        def <strong>swap</strong>(i, j)
+
+        <a class="method-permalink" href="#swap(i,j)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Swaps the items at the indices <code>i</code> and <code>j</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L392" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_a-instance-method">
+      <div class="signature">
+        
+        def <strong>to_a</strong>
+
+        <a class="method-permalink" href="#to_a-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns an Array (shallow copy) that contains all the items of this list.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L418" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_s(io:IO)-instance-method">
+      <div class="signature">
+        
+        def <strong>to_s</strong>(io : IO)
+
+        <a class="method-permalink" href="#to_s(io:IO)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from class Reference
+            </div>
+          
+          <p>Appends a short String representation of this object
+which includes its class name and its object address.</p>
+
+<pre><code><span class="k">class</span> <span class="t">Person</span>
+  <span class="k">def</span> <span class="m">initialize</span>(@name : <span class="t">String</span>, @age : <span class="t">Int32</span>)
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="t">Person</span>.<span class="k">new</span>(<span class="s">&quot;John&quot;</span>, <span class="n">32</span>).to_s <span class="c"># =&gt; #&lt;Person:0x10a199f20&gt;</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L428" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="unshift(obj:T)-instance-method">
+      <div class="signature">
+        
+        def <strong>unshift</strong>(obj : T)
+
+        <a class="method-permalink" href="#unshift(obj:T)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Prepends objects to the front of the list.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/list.cr#L464" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>

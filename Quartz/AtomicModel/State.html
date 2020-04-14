@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.33.0">
+
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/doc.js"></script>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+
+  <meta id="repository-name" content="github.com/RomainFranceschini/quartz">
+  <title>Quartz::AtomicModel::State - github.com/RomainFranceschini/quartz</title>
+  <script type="text/javascript">
+    CrystalDoc.base_path = "../../";
+  </script>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="repository-links">
+      <a href="../../index.html">README</a>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz" data-name="quartz">
+      <a href="../../Quartz.html">Quartz</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Any" data-name="quartz::any">
+      <a href="../../Quartz/Any.html">Any</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Any/Type" data-name="quartz::any::type">
+      <a href="../../Quartz/Any/Type.html">Type</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+      <a href="../../Quartz/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" current" data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
+      <a href="../../Quartz/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
+      <a href="../../Quartz/AutoState.html">AutoState</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BadSynchronisationError" data-name="quartz::badsynchronisationerror">
+      <a href="../../Quartz/BadSynchronisationError.html">BadSynchronisationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BinaryHeap" data-name="quartz::binaryheap(t)">
+      <a href="../../Quartz/BinaryHeap.html">BinaryHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CalendarQueue" data-name="quartz::calendarqueue(t)">
+      <a href="../../Quartz/CalendarQueue.html">CalendarQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coordinator" data-name="quartz::coordinator">
+      <a href="../../Quartz/Coordinator.html">Coordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupleable" data-name="quartz::coupleable">
+      <a href="../../Quartz/Coupleable.html">Coupleable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CoupledModel" data-name="quartz::coupledmodel">
+      <a href="../../Quartz/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler" data-name="quartz::coupler">
+      <a href="../../Quartz/Coupler.html">Coupler</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler/CouplingIterator" data-name="quartz::coupler::couplingiterator">
+      <a href="../../Quartz/Coupler/CouplingIterator.html">CouplingIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DirectConnectionVisitor" data-name="quartz::directconnectionvisitor">
+      <a href="../../Quartz/DirectConnectionVisitor.html">DirectConnectionVisitor</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DotVisitor" data-name="quartz::dotvisitor">
+      <a href="../../Quartz/DotVisitor.html">DotVisitor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE" data-name="quartz::dsde">
+      <a href="../../Quartz/DSDE.html">DSDE</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/CoupledModel" data-name="quartz::dsde::coupledmodel">
+      <a href="../../Quartz/DSDE/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/DynamicCoordinator" data-name="quartz::dsde::dynamiccoordinator">
+      <a href="../../Quartz/DSDE/DynamicCoordinator.html">DynamicCoordinator</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive" data-name="quartz::dsde::executive">
+      <a href="../../Quartz/DSDE/Executive.html">Executive</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive/State" data-name="quartz::dsde::executive::state">
+      <a href="../../Quartz/DSDE/Executive/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/RootCoordinator" data-name="quartz::dsde::rootcoordinator">
+      <a href="../../Quartz/DSDE/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS" data-name="quartz::dtss">
+      <a href="../../Quartz/DTSS.html">DTSS</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+      <a href="../../Quartz/DTSS/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
+      <a href="../../Quartz/DTSS/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/Simulator" data-name="quartz::dtss::simulator">
+      <a href="../../Quartz/DTSS/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Duration" data-name="quartz::duration">
+      <a href="../../Quartz/Duration.html">Duration</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/EventSet" data-name="quartz::eventset">
+      <a href="../../Quartz/EventSet.html">EventSet</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FeedbackLoopError" data-name="quartz::feedbacklooperror">
+      <a href="../../Quartz/FeedbackLoopError.html">FeedbackLoopError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FibonacciHeap" data-name="quartz::fibonacciheap(t)">
+      <a href="../../Quartz/FibonacciHeap.html">FibonacciHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/HeapSet" data-name="quartz::heapset(t)">
+      <a href="../../Quartz/HeapSet.html">HeapSet</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks" data-name="quartz::hooks">
+      <a href="../../Quartz/Hooks.html">Hooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifiable" data-name="quartz::hooks::notifiable">
+      <a href="../../Quartz/Hooks/Notifiable.html">Notifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifier" data-name="quartz::hooks::notifier">
+      <a href="../../Quartz/Hooks/Notifier.html">Notifier</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InputPort" data-name="quartz::inputport">
+      <a href="../../Quartz/InputPort.html">InputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidDurationError" data-name="quartz::invaliddurationerror">
+      <a href="../../Quartz/InvalidDurationError.html">InvalidDurationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidPortHostError" data-name="quartz::invalidporthosterror">
+      <a href="../../Quartz/InvalidPortHostError.html">InvalidPortHostError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidProcessorError" data-name="quartz::invalidprocessorerror">
+      <a href="../../Quartz/InvalidProcessorError.html">InvalidProcessorError</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
+      <a href="../../Quartz/List.html">List</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/Node" data-name="quartz::list::node(t)">
+      <a href="../../Quartz/List/Node.html">Node</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/NoSuchElementError" data-name="quartz::list::nosuchelementerror">
+      <a href="../../Quartz/List/NoSuchElementError.html">NoSuchElementError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MessageAlreadySentError" data-name="quartz::messagealreadysenterror">
+      <a href="../../Quartz/MessageAlreadySentError.html">MessageAlreadySentError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Model" data-name="quartz::model">
+      <a href="../../Quartz/Model.html">Model</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent" data-name="quartz::multicomponent">
+      <a href="../../Quartz/MultiComponent.html">MultiComponent</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+      <a href="../../Quartz/MultiComponent/Component.html">Component</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
+      <a href="../../Quartz/MultiComponent/Component/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Model" data-name="quartz::multicomponent::model">
+      <a href="../../Quartz/MultiComponent/Model.html">Model</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Simulator" data-name="quartz::multicomponent::simulator">
+      <a href="../../Quartz/MultiComponent/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Name" data-name="quartz::name">
+      <a href="../../Quartz/Name.html">Name</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchChildError" data-name="quartz::nosuchchilderror">
+      <a href="../../Quartz/NoSuchChildError.html">NoSuchChildError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchPortError" data-name="quartz::nosuchporterror">
+      <a href="../../Quartz/NoSuchPortError.html">NoSuchPortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observable" data-name="quartz::observable">
+      <a href="../../Quartz/Observable.html">Observable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observer" data-name="quartz::observer">
+      <a href="../../Quartz/Observer.html">Observer</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/OutputPort" data-name="quartz::outputport">
+      <a href="../../Quartz/OutputPort.html">OutputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PassiveBehavior" data-name="quartz::passivebehavior">
+      <a href="../../Quartz/PassiveBehavior.html">PassiveBehavior</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Port" data-name="quartz::port">
+      <a href="../../Quartz/Port.html">Port</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PriorityQueue" data-name="quartz::priorityqueue(t)">
+      <a href="../../Quartz/PriorityQueue.html">PriorityQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Processor" data-name="quartz::processor">
+      <a href="../../Quartz/Processor.html">Processor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator" data-name="quartz::processorallocator">
+      <a href="../../Quartz/ProcessorAllocator.html">ProcessorAllocator</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator/ProcessorAllocationError" data-name="quartz::processorallocator::processorallocationerror">
+      <a href="../../Quartz/ProcessorAllocator/ProcessorAllocationError.html">ProcessorAllocationError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/RootCoordinator" data-name="quartz::rootcoordinator">
+      <a href="../../Quartz/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Scale" data-name="quartz::scale">
+      <a href="../../Quartz/Scale.html">Scale</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Schedulable" data-name="quartz::schedulable">
+      <a href="../../Quartz/Schedulable.html">Schedulable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulable" data-name="quartz::simulable">
+      <a href="../../Quartz/Simulable.html">Simulable</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation" data-name="quartz::simulation">
+      <a href="../../Quartz/Simulation.html">Simulation</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/Status" data-name="quartz::simulation::status">
+      <a href="../../Quartz/Simulation/Status.html">Status</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/StepIterator" data-name="quartz::simulation::stepiterator">
+      <a href="../../Quartz/Simulation/StepIterator.html">StepIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulator" data-name="quartz::simulator">
+      <a href="../../Quartz/Simulator.html">Simulator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/State" data-name="quartz::state">
+      <a href="../../Quartz/State.html">State</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
+      <a href="../../Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeBase" data-name="quartz::timebase">
+      <a href="../../Quartz/TimeBase.html">TimeBase</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeCache" data-name="quartz::timecache">
+      <a href="../../Quartz/TimeCache.html">TimeCache</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimePoint" data-name="quartz::timepoint">
+      <a href="../../Quartz/TimePoint.html">TimePoint</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transferable" data-name="quartz::transferable">
+      <a href="../../Quartz/Transferable.html">Transferable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transitions" data-name="quartz::transitions">
+      <a href="../../Quartz/Transitions.html">Transitions</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/UnobservablePortError" data-name="quartz::unobservableporterror">
+      <a href="../../Quartz/UnobservablePortError.html">UnobservablePortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiable" data-name="quartz::verifiable">
+      <a href="../../Quartz/Verifiable.html">Verifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/VerificationErrors" data-name="quartz::verificationerrors">
+      <a href="../../Quartz/VerificationErrors.html">VerificationErrors</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers" data-name="quartz::verifiers">
+      <a href="../../Quartz/Verifiers.html">Verifiers</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/EachChecker" data-name="quartz::verifiers::eachchecker">
+      <a href="../../Quartz/Verifiers/EachChecker.html">EachChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/NumericalityChecker" data-name="quartz::verifiers::numericalitychecker">
+      <a href="../../Quartz/Verifiers/NumericalityChecker.html">NumericalityChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/PresenceChecker" data-name="quartz::verifiers::presencechecker">
+      <a href="../../Quartz/Verifiers/PresenceChecker.html">PresenceChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/RuntimeChecker" data-name="quartz::verifiers::runtimechecker">
+      <a href="../../Quartz/Verifiers/RuntimeChecker.html">RuntimeChecker</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Visitor" data-name="quartz::visitor">
+      <a href="../../Quartz/Visitor.html">Visitor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">struct</span> Quartz::AtomicModel::State
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Quartz/AtomicModel/State.html">Quartz::AtomicModel::State</a></li><li class="superclass"><a href="../../Quartz/State.html">Quartz::State</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+  <h3>Instance methods inherited from struct <code><a href="../../Quartz/State.html">Quartz::State</a></code></h3>
+  
+  
+    <a href="../../Quartz/State.html#to_json(json:JSON::Builder)-instance-method" class="tooltip">
+      <span>to_json(json : JSON::Builder)</span>
+    to_json</a>, 
+    
+  
+    <a href="../../Quartz/State.html#to_named_tuple-instance-method" class="tooltip">
+      <span>to_named_tuple</span>
+    to_named_tuple</a>, 
+    
+  
+    <a href="../../Quartz/State.html#to_tuple-instance-method" class="tooltip">
+      <span>to_tuple</span>
+    to_tuple</a>
+    
+  
+
+
+    
+
+  <h3>Constructor methods inherited from struct <code><a href="../../Quartz/State.html">Quartz::State</a></code></h3>
+  
+  
+    <a href="../../Quartz/State.html#new(pull:JSON::PullParser)-class-method" class="tooltip">
+      <span>new(pull : JSON::PullParser)<br/>new</span>
+    new</a>
+    
+  
+
+
+    
+
+  <h3>Class methods inherited from struct <code><a href="../../Quartz/State.html">Quartz::State</a></code></h3>
+  
+  
+    <a href="../../Quartz/State.html#from_json(io:IO)-class-method" class="tooltip">
+      <span>from_json(io : IO)<br/>from_json(str : String)</span>
+    from_json</a>
+    
+  
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from struct <code>Value</code></h3>
+  
+  
+    <a href="../../Value.html#==(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>==(other : Quartz::Any)</span>
+    ==</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from class <code>Object</code></h3>
+  
+  
+    <a href="../../Object.html#===(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>===(other : Quartz::Any)</span>
+    ===</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.33.0">
+
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/doc.js"></script>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+
+  <meta id="repository-name" content="github.com/RomainFranceschini/quartz">
+  <title>Quartz::MultiComponent::Component - github.com/RomainFranceschini/quartz</title>
+  <script type="text/javascript">
+    CrystalDoc.base_path = "../../";
+  </script>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="repository-links">
+      <a href="../../index.html">README</a>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz" data-name="quartz">
+      <a href="../../Quartz.html">Quartz</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Any" data-name="quartz::any">
+      <a href="../../Quartz/Any.html">Any</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Any/Type" data-name="quartz::any::type">
+      <a href="../../Quartz/Any/Type.html">Type</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+      <a href="../../Quartz/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
+      <a href="../../Quartz/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
+      <a href="../../Quartz/AutoState.html">AutoState</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BadSynchronisationError" data-name="quartz::badsynchronisationerror">
+      <a href="../../Quartz/BadSynchronisationError.html">BadSynchronisationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/BinaryHeap" data-name="quartz::binaryheap(t)">
+      <a href="../../Quartz/BinaryHeap.html">BinaryHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CalendarQueue" data-name="quartz::calendarqueue(t)">
+      <a href="../../Quartz/CalendarQueue.html">CalendarQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coordinator" data-name="quartz::coordinator">
+      <a href="../../Quartz/Coordinator.html">Coordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupleable" data-name="quartz::coupleable">
+      <a href="../../Quartz/Coupleable.html">Coupleable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CoupledModel" data-name="quartz::coupledmodel">
+      <a href="../../Quartz/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler" data-name="quartz::coupler">
+      <a href="../../Quartz/Coupler.html">Coupler</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coupler/CouplingIterator" data-name="quartz::coupler::couplingiterator">
+      <a href="../../Quartz/Coupler/CouplingIterator.html">CouplingIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DirectConnectionVisitor" data-name="quartz::directconnectionvisitor">
+      <a href="../../Quartz/DirectConnectionVisitor.html">DirectConnectionVisitor</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DotVisitor" data-name="quartz::dotvisitor">
+      <a href="../../Quartz/DotVisitor.html">DotVisitor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE" data-name="quartz::dsde">
+      <a href="../../Quartz/DSDE.html">DSDE</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/CoupledModel" data-name="quartz::dsde::coupledmodel">
+      <a href="../../Quartz/DSDE/CoupledModel.html">CoupledModel</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/DynamicCoordinator" data-name="quartz::dsde::dynamiccoordinator">
+      <a href="../../Quartz/DSDE/DynamicCoordinator.html">DynamicCoordinator</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive" data-name="quartz::dsde::executive">
+      <a href="../../Quartz/DSDE/Executive.html">Executive</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/Executive/State" data-name="quartz::dsde::executive::state">
+      <a href="../../Quartz/DSDE/Executive/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE/RootCoordinator" data-name="quartz::dsde::rootcoordinator">
+      <a href="../../Quartz/DSDE/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS" data-name="quartz::dtss">
+      <a href="../../Quartz/DTSS.html">DTSS</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+      <a href="../../Quartz/DTSS/AtomicModel.html">AtomicModel</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
+      <a href="../../Quartz/DTSS/AtomicModel/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/Simulator" data-name="quartz::dtss::simulator">
+      <a href="../../Quartz/DTSS/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Duration" data-name="quartz::duration">
+      <a href="../../Quartz/Duration.html">Duration</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/EventSet" data-name="quartz::eventset">
+      <a href="../../Quartz/EventSet.html">EventSet</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FeedbackLoopError" data-name="quartz::feedbacklooperror">
+      <a href="../../Quartz/FeedbackLoopError.html">FeedbackLoopError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/FibonacciHeap" data-name="quartz::fibonacciheap(t)">
+      <a href="../../Quartz/FibonacciHeap.html">FibonacciHeap</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/HeapSet" data-name="quartz::heapset(t)">
+      <a href="../../Quartz/HeapSet.html">HeapSet</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks" data-name="quartz::hooks">
+      <a href="../../Quartz/Hooks.html">Hooks</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifiable" data-name="quartz::hooks::notifiable">
+      <a href="../../Quartz/Hooks/Notifiable.html">Notifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Hooks/Notifier" data-name="quartz::hooks::notifier">
+      <a href="../../Quartz/Hooks/Notifier.html">Notifier</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InputPort" data-name="quartz::inputport">
+      <a href="../../Quartz/InputPort.html">InputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidDurationError" data-name="quartz::invaliddurationerror">
+      <a href="../../Quartz/InvalidDurationError.html">InvalidDurationError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidPortHostError" data-name="quartz::invalidporthosterror">
+      <a href="../../Quartz/InvalidPortHostError.html">InvalidPortHostError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidProcessorError" data-name="quartz::invalidprocessorerror">
+      <a href="../../Quartz/InvalidProcessorError.html">InvalidProcessorError</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
+      <a href="../../Quartz/List.html">List</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/Node" data-name="quartz::list::node(t)">
+      <a href="../../Quartz/List/Node.html">Node</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/List/NoSuchElementError" data-name="quartz::list::nosuchelementerror">
+      <a href="../../Quartz/List/NoSuchElementError.html">NoSuchElementError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MessageAlreadySentError" data-name="quartz::messagealreadysenterror">
+      <a href="../../Quartz/MessageAlreadySentError.html">MessageAlreadySentError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Model" data-name="quartz::model">
+      <a href="../../Quartz/Model.html">Model</a>
+      
+    </li>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent" data-name="quartz::multicomponent">
+      <a href="../../Quartz/MultiComponent.html">MultiComponent</a>
+      
+        <ul>
+  
+  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+      <a href="../../Quartz/MultiComponent/Component.html">Component</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
+      <a href="../../Quartz/MultiComponent/Component/State.html">State</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Model" data-name="quartz::multicomponent::model">
+      <a href="../../Quartz/MultiComponent/Model.html">Model</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Simulator" data-name="quartz::multicomponent::simulator">
+      <a href="../../Quartz/MultiComponent/Simulator.html">Simulator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Name" data-name="quartz::name">
+      <a href="../../Quartz/Name.html">Name</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchChildError" data-name="quartz::nosuchchilderror">
+      <a href="../../Quartz/NoSuchChildError.html">NoSuchChildError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/NoSuchPortError" data-name="quartz::nosuchporterror">
+      <a href="../../Quartz/NoSuchPortError.html">NoSuchPortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observable" data-name="quartz::observable">
+      <a href="../../Quartz/Observable.html">Observable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Observer" data-name="quartz::observer">
+      <a href="../../Quartz/Observer.html">Observer</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/OutputPort" data-name="quartz::outputport">
+      <a href="../../Quartz/OutputPort.html">OutputPort</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PassiveBehavior" data-name="quartz::passivebehavior">
+      <a href="../../Quartz/PassiveBehavior.html">PassiveBehavior</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Port" data-name="quartz::port">
+      <a href="../../Quartz/Port.html">Port</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/PriorityQueue" data-name="quartz::priorityqueue(t)">
+      <a href="../../Quartz/PriorityQueue.html">PriorityQueue</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Processor" data-name="quartz::processor">
+      <a href="../../Quartz/Processor.html">Processor</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator" data-name="quartz::processorallocator">
+      <a href="../../Quartz/ProcessorAllocator.html">ProcessorAllocator</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/ProcessorAllocator/ProcessorAllocationError" data-name="quartz::processorallocator::processorallocationerror">
+      <a href="../../Quartz/ProcessorAllocator/ProcessorAllocationError.html">ProcessorAllocationError</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/RootCoordinator" data-name="quartz::rootcoordinator">
+      <a href="../../Quartz/RootCoordinator.html">RootCoordinator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Scale" data-name="quartz::scale">
+      <a href="../../Quartz/Scale.html">Scale</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Schedulable" data-name="quartz::schedulable">
+      <a href="../../Quartz/Schedulable.html">Schedulable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulable" data-name="quartz::simulable">
+      <a href="../../Quartz/Simulable.html">Simulable</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation" data-name="quartz::simulation">
+      <a href="../../Quartz/Simulation.html">Simulation</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/Status" data-name="quartz::simulation::status">
+      <a href="../../Quartz/Simulation/Status.html">Status</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulation/StepIterator" data-name="quartz::simulation::stepiterator">
+      <a href="../../Quartz/Simulation/StepIterator.html">StepIterator</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Simulator" data-name="quartz::simulator">
+      <a href="../../Quartz/Simulator.html">Simulator</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/State" data-name="quartz::state">
+      <a href="../../Quartz/State.html">State</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
+      <a href="../../Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeBase" data-name="quartz::timebase">
+      <a href="../../Quartz/TimeBase.html">TimeBase</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimeCache" data-name="quartz::timecache">
+      <a href="../../Quartz/TimeCache.html">TimeCache</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/TimePoint" data-name="quartz::timepoint">
+      <a href="../../Quartz/TimePoint.html">TimePoint</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transferable" data-name="quartz::transferable">
+      <a href="../../Quartz/Transferable.html">Transferable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Transitions" data-name="quartz::transitions">
+      <a href="../../Quartz/Transitions.html">Transitions</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/UnobservablePortError" data-name="quartz::unobservableporterror">
+      <a href="../../Quartz/UnobservablePortError.html">UnobservablePortError</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiable" data-name="quartz::verifiable">
+      <a href="../../Quartz/Verifiable.html">Verifiable</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/VerificationErrors" data-name="quartz::verificationerrors">
+      <a href="../../Quartz/VerificationErrors.html">VerificationErrors</a>
+      
+    </li>
+  
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers" data-name="quartz::verifiers">
+      <a href="../../Quartz/Verifiers.html">Verifiers</a>
+      
+        <ul>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/EachChecker" data-name="quartz::verifiers::eachchecker">
+      <a href="../../Quartz/Verifiers/EachChecker.html">EachChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/NumericalityChecker" data-name="quartz::verifiers::numericalitychecker">
+      <a href="../../Quartz/Verifiers/NumericalityChecker.html">NumericalityChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/PresenceChecker" data-name="quartz::verifiers::presencechecker">
+      <a href="../../Quartz/Verifiers/PresenceChecker.html">PresenceChecker</a>
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Verifiers/RuntimeChecker" data-name="quartz::verifiers::runtimechecker">
+      <a href="../../Quartz/Verifiers/RuntimeChecker.html">RuntimeChecker</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Visitor" data-name="quartz::visitor">
+      <a href="../../Quartz/Visitor.html">Visitor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">abstract class</span> Quartz::MultiComponent::Component
+
+</h1>
+
+
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../../Quartz/MultiComponent/Component.html">Quartz::MultiComponent::Component</a></li><li class="superclass"><a href="../../Quartz/Model.html">Quartz::Model</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="included-modules" class="anchor" href="#included-modules">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Included Modules
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../../Quartz/AutoState.html">Quartz::AutoState</a></li>
+    
+      <li class="other-type"><a href="../../Quartz/Observable.html">Quartz::Observable</a></li>
+    
+      <li class="other-type"><a href="../../Quartz/Schedulable.html">Quartz::Schedulable</a></li>
+    
+      <li class="other-type"><a href="../../Quartz/Verifiable.html">Quartz::Verifiable</a></li>
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L3" target="_blank">
+        quartz/multi_component/component.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+  <h2>
+    <a id="constructors" class="anchor" href="#constructors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructors
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new(name,state)-class-method" class="signature"><strong>.new</strong>(name, state)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#new(name)-class-method" class="signature"><strong>.new</strong>(name)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#check(*attributes:Symbol,**kwargs)-class-method" class="signature"><strong>.check</strong>(*attributes : Symbol, **kwargs)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#check_with(klass:Verifiers::RuntimeValidator.class,**kwargs)-class-method" class="signature"><strong>.check_with</strong>(klass : <span class="t">Verifiers</span><span class="t">::</span><span class="t">RuntimeValidator</span>.<span class="k">class</span>, **kwargs)</a>
+        
+          <div class="summary"><p>Passes the model off to the class or classes specified and allows them to add errors based on more complex conditions.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#check_with(klass:Verifiers::EachChecker.class,*attributes:Symbol,**kwargs)-class-method" class="signature"><strong>.check_with</strong>(klass : <span class="t">Verifiers</span><span class="t">::</span><span class="t">EachChecker</span>.<span class="k">class</span>, *attributes : Symbol, **kwargs)</a>
+        
+          <div class="summary"><p>Passes the model off to the class or classes specified and allows them to add errors based on more complex conditions.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#clear_verifiers-class-method" class="signature"><strong>.clear_verifiers</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#precision_level:Scale-class-method" class="signature"><strong>.precision_level</strong> : Scale</a>
+        
+          <div class="summary"><p>The precision associated with the model.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#precision_level=(precision_level:Scale)-class-method" class="signature"><strong>.precision_level=</strong>(precision_level : Scale)</a>
+        
+          <div class="summary"><p>The precision associated with the model.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#verifiers-class-method" class="signature"><strong>.verifiers</strong></a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#__initialize_state__(processor)-instance-method" class="signature"><strong>#__initialize_state__</strong>(processor)</a>
+        
+          <div class="summary"><p>Used internally by the simulator :nodoc:</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#__parent__=(parent:MultiComponent::Model)-instance-method" class="signature"><strong>#__parent__=</strong>(parent : MultiComponent::Model)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#confluent_transition(messages:Hash(InputPort,Array(Any))):Hash(Name,Any)?-instance-method" class="signature"><strong>#confluent_transition</strong>(messages : Hash(InputPort, Array(Any))) : Hash(Name, Any)?</a>
+        
+          <div class="summary"><p>This is the default definition of the confluent transition.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#dup_state-instance-method" class="signature"><strong>#dup_state</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#elapsed:Duration-instance-method" class="signature"><strong>#elapsed</strong> : Duration</a>
+        
+          <div class="summary"><p>This attribute is updated automatically along simulation and represents the elapsed time since the last transition.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#elapsed=(elapsed:Duration)-instance-method" class="signature"><strong>#elapsed=</strong>(elapsed : Duration)</a>
+        
+          <div class="summary"><p>This attribute is updated automatically along simulation and represents the elapsed time since the last transition.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#influencees:Array(Quartz::MultiComponent::Component)-instance-method" class="signature"><strong>#influencees</strong> : Array(Quartz::MultiComponent::Component)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#influencers:Array(Quartz::MultiComponent::Component)-instance-method" class="signature"><strong>#influencers</strong> : Array(Quartz::MultiComponent::Component)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#input_port(port)-instance-method" class="signature"><strong>#input_port</strong>(port)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#internal_transition:Hash(Name,Any)?-instance-method" class="signature"><strong>#internal_transition</strong> : Hash(Name, Any)?</a>
+        
+          <div class="summary"><p>Internal transition function (δint), called when the model should be activated, e.g when <code><a href="../../Quartz/MultiComponent/Component.html#elapsed:Duration-instance-method">#elapsed</a></code> reaches <code><a href="../../Quartz/MultiComponent/Component.html#time_advance:Duration-instance-method">#time_advance</a></code></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#model_precision:Scale-instance-method" class="signature"><strong>#model_precision</strong> : Scale</a>
+        
+          <div class="summary"><p>Returns the precision associated with the class.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#output_port(port)-instance-method" class="signature"><strong>#output_port</strong>(port)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#reaction_transition(states)-instance-method" class="signature"><strong>#reaction_transition</strong>(states)</a>
+        
+          <div class="summary"><p><span class="flag orange">TODO</span>  doc</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#state-instance-method" class="signature"><strong>#state</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#time_advance:Duration-instance-method" class="signature"><strong>#time_advance</strong> : Duration</a>
+        
+          <div class="summary"><p>Time advance function (ta), called after each transition to give a chance to <em>self</em> to be active.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="macro-summary" class="anchor" href="#macro-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#precision(scale=&quot;base&quot;)-macro" class="signature"><strong>precision</strong>(scale = <span class="s">&quot;base&quot;</span>)</a>
+        
+          <div class="summary"><p>Defines the precision level associated to this class of models.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#state_initialize(&block)-macro" class="signature"><strong>state_initialize</strong>(&block)</a>
+        
+          <div class="summary"><p>The <code><a href="../../Quartz/MultiComponent/Component.html#state_initialize(&block)-macro">state_initialize</a></code> macro defines an initialization block that is automatically included in all constructor defined in the included type and its subclasses.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#state_var(prop,**nopts,&block)-macro" class="signature"><strong>state_var</strong>(prop, **nopts, &block)</a>
+        
+          <div class="summary"><p>The <code><a href="../../Quartz/MultiComponent/Component.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> macro defines a state variable of a model.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from module <code><a href="../../Quartz/Verifiable.html">Quartz::Verifiable</a></code></h3>
+  
+  
+    <a href="../../Quartz/Verifiable.html#clear_errors-instance-method" class="tooltip">
+      <span>clear_errors</span>
+    clear_errors</a>, 
+    
+  
+    <a href="../../Quartz/Verifiable.html#errors-instance-method" class="tooltip">
+      <span>errors</span>
+    errors</a>, 
+    
+  
+    <a href="../../Quartz/Verifiable.html#invalid?(context:Symbol?=nil):Bool-instance-method" class="tooltip">
+      <span>invalid?(context : Symbol? = <span class="n">nil</span>) : Bool</span>
+    invalid?</a>, 
+    
+  
+    <a href="../../Quartz/Verifiable.html#valid?(context:Symbol?=nil):Bool-instance-method" class="tooltip">
+      <span>valid?(context : Symbol? = <span class="n">nil</span>) : Bool</span>
+    valid?</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from module <code><a href="../../Quartz/Observable.html">Quartz::Observable</a></code></h3>
+  
+  
+    <a href="../../Quartz/Observable.html#add_observer(observer:Observer)-instance-method" class="tooltip">
+      <span>add_observer(observer : Observer)</span>
+    add_observer</a>, 
+    
+  
+    <a href="../../Quartz/Observable.html#count_observers-instance-method" class="tooltip">
+      <span>count_observers</span>
+    count_observers</a>, 
+    
+  
+    <a href="../../Quartz/Observable.html#delete_observer(observer:Observer):Bool-instance-method" class="tooltip">
+      <span>delete_observer(observer : Observer) : Bool</span>
+    delete_observer</a>, 
+    
+  
+    <a href="../../Quartz/Observable.html#notify_observers(info=nil)-instance-method" class="tooltip">
+      <span>notify_observers(info = <span class="n">nil</span>)</span>
+    notify_observers</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from module <code><a href="../../Quartz/Schedulable.html">Quartz::Schedulable</a></code></h3>
+  
+  
+    <a href="../../Quartz/Schedulable.html#imaginary_phase:Duration-instance-method" class="tooltip">
+      <span>imaginary_phase : Duration</span>
+    imaginary_phase</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#imaginary_phase=(imaginary_phase:Duration)-instance-method" class="tooltip">
+      <span>imaginary_phase=(imaginary_phase : Duration)</span>
+    imaginary_phase=</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#imaginary_precision:Scale-instance-method" class="tooltip">
+      <span>imaginary_precision : Scale</span>
+    imaginary_precision</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#imaginary_precision=(imaginary_precision:Scale)-instance-method" class="tooltip">
+      <span>imaginary_precision=(imaginary_precision : Scale)</span>
+    imaginary_precision=</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#inspect(io)-instance-method" class="tooltip">
+      <span>inspect(io)</span>
+    inspect</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#planned_phase:Duration-instance-method" class="tooltip">
+      <span>planned_phase : Duration</span>
+    planned_phase</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#planned_phase=(planned_phase:Duration)-instance-method" class="tooltip">
+      <span>planned_phase=(planned_phase : Duration)</span>
+    planned_phase=</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#planned_precision:Scale-instance-method" class="tooltip">
+      <span>planned_precision : Scale</span>
+    planned_precision</a>, 
+    
+  
+    <a href="../../Quartz/Schedulable.html#planned_precision=(planned_precision:Scale)-instance-method" class="tooltip">
+      <span>planned_precision=(planned_precision : Scale)</span>
+    planned_precision=</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from class <code><a href="../../Quartz/Model.html">Quartz::Model</a></code></h3>
+  
+  
+    <a href="../../Quartz/Model.html#accept(visitor:Visitor)-instance-method" class="tooltip">
+      <span>accept(visitor : Visitor)</span>
+    accept</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#accept_children(visitor)-instance-method" class="tooltip">
+      <span>accept_children(visitor)</span>
+    accept_children</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#inspect(io)-instance-method" class="tooltip">
+      <span>inspect(io)</span>
+    inspect</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#name:Name-instance-method" class="tooltip">
+      <span>name : Name</span>
+    name</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#name=(name:Name)-instance-method" class="tooltip">
+      <span>name=(name : Name)</span>
+    name=</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#processor:Processor?-instance-method" class="tooltip">
+      <span>processor : Processor?</span>
+    processor</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#processor=(processor:Processor?)-instance-method" class="tooltip">
+      <span>processor=(processor : Processor?)</span>
+    processor=</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#processor?:Processor%7CNil?-instance-method" class="tooltip">
+      <span>processor? : Processor | Nil?</span>
+    processor?</a>, 
+    
+  
+    <a href="../../Quartz/Model.html#to_s(io)-instance-method" class="tooltip">
+      <span>to_s(io)</span>
+    to_s</a>
+    
+  
+
+
+    
+
+  <h3>Constructor methods inherited from class <code><a href="../../Quartz/Model.html">Quartz::Model</a></code></h3>
+  
+  
+    <a href="../../Quartz/Model.html#new(name:Name)-class-method" class="tooltip">
+      <span>new(name : Name)</span>
+    new</a>
+    
+  
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from class <code>Reference</code></h3>
+  
+  
+    <a href="../../Reference.html#==(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>==(other : Quartz::Any)</span>
+    ==</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
+  <h3>Instance methods inherited from class <code>Object</code></h3>
+  
+  
+    <a href="../../Object.html#===(other:Quartz::Any)-instance-method" class="tooltip">
+      <span>===(other : Quartz::Any)</span>
+    ===</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+  <h2>
+    <a id="constructor-detail" class="anchor" href="#constructor-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Constructor Detail
+  </h2>
+  
+    <div class="entry-detail" id="new(name,state)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(name, state)
+
+        <a class="method-permalink" href="#new(name,state)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L99" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="new(name)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(name)
+
+        <a class="method-permalink" href="#new(name)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L94" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="check(*attributes:Symbol,**kwargs)-class-method">
+      <div class="signature">
+        
+        def self.<strong>check</strong>(*attributes : Symbol, **kwargs)
+
+        <a class="method-permalink" href="#check(*attributes:Symbol,**kwargs)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L6" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="check_with(klass:Verifiers::RuntimeValidator.class,**kwargs)-class-method">
+      <div class="signature">
+        
+        def self.<strong>check_with</strong>(klass : <span class="t">Verifiers</span><span class="t">::</span><span class="t">RuntimeValidator</span>.<span class="k">class</span>, **kwargs)
+
+        <a class="method-permalink" href="#check_with(klass:Verifiers::RuntimeValidator.class,**kwargs)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Passes the model off to the class or classes specified and allows them
+to add errors based on more complex conditions.</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span>
+  <span class="k">include</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">Verifiable</span>
+  check_with <span class="t">MyVerifier</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="t">MyVerifier</span> <span class="o">&lt;</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">Verifiers</span><span class="t">::</span><span class="t">RuntimeChecker</span>
+  <span class="k">def</span> <span class="m">validate</span>(model)
+    <span class="k">if</span> some_test
+      model.errors.add(<span class="n">:phase</span>, <span class="s">&quot;This model state is invalid&quot;</span>)
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c"># ...</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L6" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="check_with(klass:Verifiers::EachChecker.class,*attributes:Symbol,**kwargs)-class-method">
+      <div class="signature">
+        
+        def self.<strong>check_with</strong>(klass : <span class="t">Verifiers</span><span class="t">::</span><span class="t">EachChecker</span>.<span class="k">class</span>, *attributes : Symbol, **kwargs)
+
+        <a class="method-permalink" href="#check_with(klass:Verifiers::EachChecker.class,*attributes:Symbol,**kwargs)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Passes the model off to the class or classes specified and allows them
+to add errors based on more complex conditions.</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span>
+  <span class="k">include</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">Verifiable</span>
+  check_with <span class="t">MyVerifier</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="t">MyVerifier</span> <span class="o">&lt;</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">Verifiers</span><span class="t">::</span><span class="t">EachChecker</span>
+  <span class="k">def</span> <span class="m">check_each</span>(model, attribute, value)
+    <span class="k">if</span> some_test
+      model.errors.add(attribute, <span class="s">&quot;This model attribute is invalid&quot;</span>)
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="c"># ...</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L6" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="clear_verifiers-class-method">
+      <div class="signature">
+        
+        def self.<strong>clear_verifiers</strong>
+
+        <a class="method-permalink" href="#clear_verifiers-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L6" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="precision_level:Scale-class-method">
+      <div class="signature">
+        
+        def self.<strong>precision_level</strong> : <a href="../../Quartz/Scale.html">Scale</a>
+
+        <a class="method-permalink" href="#precision_level:Scale-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>The precision associated with the model.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L13" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="precision_level=(precision_level:Scale)-class-method">
+      <div class="signature">
+        
+        def self.<strong>precision_level=</strong>(precision_level : <a href="../../Quartz/Scale.html">Scale</a>)
+
+        <a class="method-permalink" href="#precision_level=(precision_level:Scale)-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>The precision associated with the model.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L13" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="verifiers-class-method">
+      <div class="signature">
+        
+        def self.<strong>verifiers</strong>
+
+        <a class="method-permalink" href="#verifiers-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L6" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="__initialize_state__(processor)-instance-method">
+      <div class="signature">
+        
+        def <strong>__initialize_state__</strong>(processor)
+
+        <a class="method-permalink" href="#__initialize_state__(processor)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Used internally by the simulator
+:nodoc:</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L108" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="__parent__=(parent:MultiComponent::Model)-instance-method">
+      <div class="signature">
+        
+        def <strong>__parent__=</strong>(parent : <a href="../../Quartz/MultiComponent/Model.html">MultiComponent::Model</a>)
+
+        <a class="method-permalink" href="#__parent__=(parent:MultiComponent::Model)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L82" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="confluent_transition(messages:Hash(InputPort,Array(Any))):Hash(Name,Any)?-instance-method">
+      <div class="signature">
+        
+        def <strong>confluent_transition</strong>(messages : Hash(<a href="../../Quartz/InputPort.html">InputPort</a>, Array(<a href="../../Quartz/Any.html">Any</a>))) : Hash(<a href="../../Quartz/Name.html">Name</a>, <a href="../../Quartz/Any.html">Any</a>)?
+
+        <a class="method-permalink" href="#confluent_transition(messages:Hash(InputPort,Array(Any))):Hash(Name,Any)?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>This is the default definition of the confluent transition. Here the
+internal transition is allowed to occur and this is followed by the
+effect of the external transition on the resulting state.</p>
+
+<p>Override this method to obtain a different behavior. For example, the
+opposite order of effects (external transition before internal
+transition). Of course you can override without reference to the other
+transitions.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L133" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="dup_state-instance-method">
+      <div class="signature">
+        
+        def <strong>dup_state</strong>
+
+        <a class="method-permalink" href="#dup_state-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="elapsed:Duration-instance-method">
+      <div class="signature">
+        
+        def <strong>elapsed</strong> : <a href="../../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#elapsed:Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>This attribute is updated automatically along simulation and represents
+the elapsed time since the last transition.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L78" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="elapsed=(elapsed:Duration)-instance-method">
+      <div class="signature">
+        
+        def <strong>elapsed=</strong>(elapsed : <a href="../../Quartz/Duration.html">Duration</a>)
+
+        <a class="method-permalink" href="#elapsed=(elapsed:Duration)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>This attribute is updated automatically along simulation and represents
+the elapsed time since the last transition.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L78" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="influencees:Array(Quartz::MultiComponent::Component)-instance-method">
+      <div class="signature">
+        
+        def <strong>influencees</strong> : Array(<a href="../../Quartz/MultiComponent/Component.html">Quartz::MultiComponent::Component</a>)
+
+        <a class="method-permalink" href="#influencees:Array(Quartz::MultiComponent::Component)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L10" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="influencers:Array(Quartz::MultiComponent::Component)-instance-method">
+      <div class="signature">
+        
+        def <strong>influencers</strong> : Array(<a href="../../Quartz/MultiComponent/Component.html">Quartz::MultiComponent::Component</a>)
+
+        <a class="method-permalink" href="#influencers:Array(Quartz::MultiComponent::Component)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L9" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="input_port(port)-instance-method">
+      <div class="signature">
+        
+        def <strong>input_port</strong>(port)
+
+        <a class="method-permalink" href="#input_port(port)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L86" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="internal_transition:Hash(Name,Any)?-instance-method">
+      <div class="signature">
+        abstract 
+        def <strong>internal_transition</strong> : Hash(<a href="../../Quartz/Name.html">Name</a>, <a href="../../Quartz/Any.html">Any</a>)?
+
+        <a class="method-permalink" href="#internal_transition:Hash(Name,Any)?-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Internal transition function (δint), called when the model should be
+activated, e.g when <code><a href="../../Quartz/MultiComponent/Component.html#elapsed:Duration-instance-method">#elapsed</a></code> reaches <code><a href="../../Quartz/MultiComponent/Component.html#time_advance:Duration-instance-method">#time_advance</a></code></p>
+
+<p>Override this method to implement the appropriate behavior of
+your model.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L123" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="model_precision:Scale-instance-method">
+      <div class="signature">
+        
+        def <strong>model_precision</strong> : <a href="../../Quartz/Scale.html">Scale</a>
+
+        <a class="method-permalink" href="#model_precision:Scale-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the precision associated with the class.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L72" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="output_port(port)-instance-method">
+      <div class="signature">
+        
+        def <strong>output_port</strong>(port)
+
+        <a class="method-permalink" href="#output_port(port)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L90" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="reaction_transition(states)-instance-method">
+      <div class="signature">
+        abstract 
+        def <strong>reaction_transition</strong>(states)
+
+        <a class="method-permalink" href="#reaction_transition(states)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p><span class="flag orange">TODO</span>  doc</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L160" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="state-instance-method">
+      <div class="signature">
+        
+        def <strong>state</strong>
+
+        <a class="method-permalink" href="#state-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="time_advance:Duration-instance-method">
+      <div class="signature">
+        abstract 
+        def <strong>time_advance</strong> : <a href="../../Quartz/Duration.html">Duration</a>
+
+        <a class="method-permalink" href="#time_advance:Duration-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Time advance function (ta), called after each transition to give a
+chance to <em>self</em> to be active.</p>
+
+<p>Override this method to implement the appropriate behavior of
+your model.</p>
+
+<p>Example:</p>
+
+<pre><code><span class="k">def</span> <span class="m">time_advance</span>
+  <span class="t">Quartz</span>.infinity
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L157" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="macro-detail" class="anchor" href="#macro-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Detail
+  </h2>
+  
+    <div class="entry-detail" id="precision(scale=&amp;quot;base&amp;quot;)-macro">
+      <div class="signature">
+        
+        macro <strong>precision</strong>(scale = <span class="s">&quot;base&quot;</span>)
+
+        <a class="method-permalink" href="#precision(scale=&quot;base&quot;)-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Defines the precision level associated to this class of models.</p>
+
+<h3><a id="usage" class="anchor" href="#usage">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Usage:</h3>
+
+<p><code><a href="../../Quartz/MultiComponent/Component.html#precision(scale=&quot;base&quot;)-macro">precision</a></code> must receive a scale unit. The scale unit can be specified
+with a constant expression (e.g. 'kilo'), with a <code><a href="../../Quartz/Scale.html">Scale</a></code> struct or with
+a number literal.</p>
+
+<pre><code>precision <span class="t">Scale</span>.<span class="t">::</span><span class="t">KILO</span>
+precision <span class="n">-8</span>
+precision femto</code></pre>
+
+<p>If specified with a constant expression, the unit argument can be a string
+literal, a symbol literal or a plain name.</p>
+
+<pre><code>precision kilo
+precision <span class="s">&quot;kilo&quot;</span>
+precision <span class="n">:kilo</span></code></pre>
+
+<h3><a id="example" class="anchor" href="#example">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Example</h3>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">AtomicModel</span>
+  precision femto
+<span class="k">end</span></code></pre>
+
+<p>Is the same as writing:</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">AtomicModel</span>
+  <span class="k">self</span>.precision <span class="o">=</span> <span class="t">Scale</span><span class="t">::</span><span class="t">FEMTO</span>
+<span class="k">end</span></code></pre>
+
+<p>Or the same as:</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">AtomicModel</span>; <span class="k">end</span>
+
+<span class="t">MyModel</span>.precision <span class="o">=</span> <span class="t">Scale</span><span class="t">::</span><span class="t">FEMTO</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L61" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="state_initialize(&amp;block)-macro">
+      <div class="signature">
+        
+        macro <strong>state_initialize</strong>(&block)
+
+        <a class="method-permalink" href="#state_initialize(&block)-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>The <code><a href="../../Quartz/MultiComponent/Component.html#state_initialize(&block)-macro">state_initialize</a></code> macro defines an initialization block
+that is automatically included in all constructor defined in the
+included type and its subclasses.</p>
+
+<p>It can be used to initialize state variables declared using the
+<code><a href="../../Quartz/MultiComponent/Component.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> macro.</p>
+
+<p>Example :</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state_var x : <span class="t">Int32</span>
+  state_var y : <span class="t">Int32</span>
+
+  state_initialize <span class="k">do</span>
+    @x <span class="o">=</span> <span class="n">0</span>
+    @y <span class="o">=</span> <span class="n">0</span>
+  <span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="state_var(prop,**nopts,&amp;block)-macro">
+      <div class="signature">
+        
+        macro <strong>state_var</strong>(prop, **nopts, &block)
+
+        <a class="method-permalink" href="#state_var(prop,**nopts,&block)-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>The <code><a href="../../Quartz/MultiComponent/Component.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> macro defines a state variable of a model. Its primary
+usage is to identify which instance variables are part of the state of
+the model.</p>
+
+<p>This allows to automatically define state retrieval methods,
+state serialization/deserialization methods and state initialization
+methods which will be used for simulation distribution purposes, for
+constructing model hierarchies from a file, or to allow changing initial
+state for model parameter exploration.</p>
+
+<h3><a id="usage" class="anchor" href="#usage">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Usage</h3>
+
+<p><code><a href="../../Quartz/MultiComponent/Component.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> must receive a type declaration which will be used to
+declare instance variables :</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state_var x : <span class="t">Int32</span>
+  state_var y : <span class="t">Int32</span>
+<span class="k">end</span></code></pre>
+
+<p>Default values can be passed using the type declaration notation or
+through a block :</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state_var x : <span class="t">Int32</span> <span class="o">=</span> <span class="n">0</span>
+  state_var y : <span class="t">Int32</span> <span class="o">=</span> <span class="n">0</span>
+  state_var z : <span class="t">Int32</span> { (rand <span class="o">*</span> <span class="n">100</span> <span class="o">+</span> <span class="n">1</span>).to_i32 }
+  state_var ß : <span class="t">Int32</span> { x <span class="o">*</span> <span class="n">42</span> }
+<span class="k">end</span></code></pre>
+
+<p>Note from previous example that the initialization block of ß is
+allowed to reference the value of another state variable.</p>
+
+<p>If default values are omitted, a chance is given to initialize those
+state variables through the <code><a href="../../Quartz/MultiComponent/Component.html#state_initialize(&block)-macro">state_initialize</a></code> macro :</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state_var x : <span class="t">Int32</span>
+  state_var y : <span class="t">Int32</span>
+
+  state_initialize <span class="k">do</span>
+    @x <span class="o">=</span> <span class="n">0</span>
+    @y <span class="o">=</span> <span class="n">0</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+
+<p>Multiple calls to <code><a href="../../Quartz/MultiComponent/Component.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> for the same variable is allowed. Previous
+properties are inherited and overlapping propertings are overwritten.
+The following example :</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state_var sigma : <span class="t">Duration</span> <span class="o">=</span> <span class="t">Duration</span><span class="t">::</span><span class="t">INFINITY</span>
+  state_var sigma { <span class="t">Duration</span>.infinity(<span class="k">self</span>.<span class="k">class</span>.precision) }
+<span class="k">end</span></code></pre>
+
+<p>Defines the <em>sigma</em> state variable as a <code><a href="../../Quartz/Duration.html">Duration</a></code> type with a default
+value determined by the initialization block.</p>
+
+<p>This is particularly useful in case a model inherits another model :</p>
+
+<pre><code><span class="k">class</span> <span class="t">BaseModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state_var sigma : <span class="t">Duration</span> <span class="o">=</span> <span class="t">Duration</span><span class="t">::</span><span class="t">INFINITY</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">BaseModel</span>
+  state_var sigma <span class="o">=</span> <span class="t">Quartz</span>.duration(<span class="n">85</span>, milli)
+<span class="k">end</span></code></pre>
+
+<p>All <code>initialize</code> methods defined in the included type and its subclasses
+will be redefined to include the body of the given block.
+Note that the block content is always included at the top of the method
+definition. Thus, if you define :</p>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state_var x : <span class="t">Int32</span>
+  state_var y : <span class="t">Int32</span>
+
+  state_initialize <span class="k">do</span>
+    @x <span class="o">=</span> <span class="n">0</span>
+    @y <span class="o">=</span> <span class="n">0</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="m">initialize</span>(name)
+    <span class="k">super</span>(name)
+    add_input_port(<span class="s">&quot;in&quot;</span>)
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+
+<p>The constructor will be automatically redefined to :</p>
+
+<pre><code>  <span class="k">def</span> <span class="m">initialize</span>(name)
+    @x <span class="o">=</span> <span class="n">0</span>
+    @y <span class="o">=</span> <span class="n">0</span>
+    <span class="k">super</span>(name)
+    add_input_port(<span class="s">&quot;in&quot;</span>)
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+
+<h4><a id="options" class="anchor" href="#options">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Options</h4>
+
+<p>Along with the type declaration, <code><a href="../../Quartz/MultiComponent/Component.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> also accept a hash or
+named tuple literal whose keys corresponds to the following options :</p>
+
+<ul><li><strong>visibility</strong>: used to restrict the visibility of the getter that
+is defined for this state variable (<code>:private</code> or <code>:protected</code>). No
+restriction is applied by default (public) :</li></ul>
+
+<pre><code>state_var hidden : <span class="t">Bool</span> <span class="o">=</span> <span class="n">true</span>, visibility: <span class="n">:private</span></code></pre>
+
+<ul><li><strong>converter</strong>: specify an alternate type for parsing and generation.
+Examples of converters are <code>Time::Format</code> and <code>Time::EpochConverter</code>
+for <code>Time</code>.</li></ul>
+
+<pre><code>state_var timestamp : <span class="t">Time</span>, converter: <span class="t">Time</span><span class="t">::</span><span class="t">EpochConverter</span></code></pre>
+
+<h4><a id="code-generation" class="anchor" href="#code-generation">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Code generation</h4>
+
+<p>A getter is generated for each declared state variable, whose visibility
+can be restricted through the <strong>visibility</strong> option.</p>
+
+<p>When the type definition is complete, a struct wrapping all state
+variables is defined for convenience.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/multi_component/component.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+</div>
+
+</body>
+</html>
