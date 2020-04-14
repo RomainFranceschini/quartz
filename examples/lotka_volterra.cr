@@ -1,7 +1,7 @@
 require "../src/quartz"
 
 class LotkaVolterra < Quartz::DTSS::AtomicModel
-  delta 10, micro # euler integration step
+  delta 10, milli # euler integration step
 
   state_var x : Float64 = 1.0
   state_var y : Float64 = 1.0
@@ -61,7 +61,7 @@ class Tracer
 end
 
 model = LotkaVolterra.new(:LotkaVolterra)
-sim = Quartz::Simulation.new(model, scheduler: :binary_heap, duration: Quartz.duration(20))
+sim = Quartz::Simulation.new(model, scheduler: :binary_heap, duration: Quartz.duration(10))
 Tracer.new(model, sim.notifier)
 
 sim.simulate
