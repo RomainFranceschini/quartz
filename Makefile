@@ -30,7 +30,7 @@ $(BENCHMARKS_TARGETS):
 	$(BUILD_PATH) crystal build $(FLAGS) $(addsuffix .cr, $(subst build, benchmarks, $@)) -o $@
 
 .PHONY: doc
-doc: deps ## Generate mpi.cr library documentation
+doc: ## Generate mpi.cr library documentation
 	@echo "Building documentation..."
 	$(BUILD_PATH) crystal doc src/quartz.cr
 
