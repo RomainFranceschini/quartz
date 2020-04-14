@@ -33,6 +33,21 @@ describe "TimePoint" do
     end
   end
 
+  describe "#to_f" do
+    it "converts the corresponding value to a float at the default precision level" do
+      TimePoint.new(1, Scale::BASE).to_f.should eq(1.0)
+      TimePoint.new(1233, Scale::MICRO).to_f.should eq(0.001_233)
+      TimePoint.new(5345, Scale::MILLI).to_f.should eq(5.345)
+      TimePoint.new(3, Scale::MILLI).to_f.should eq(0.003)
+
+      TimePoint.new(1, Scale::KILO).to_f.should eq(1000.0)
+      TimePoint.new(324543, Scale::KILO).to_f.should eq(324_543_000.0)
+      TimePoint.new(33, Scale::MEGA).to_f.should eq(33_000_000.0)
+
+      TimePoint.new(2_432_872, Scale::MILLI).to_f.should eq(2_432.872)
+    end
+  end
+
   describe "#to_i64" do
     it "converts the corresponding value as an integer" do
       tp = TimePoint.new(5000388)

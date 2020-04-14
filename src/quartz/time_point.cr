@@ -379,6 +379,21 @@ module Quartz
       to_i32
     end
 
+    # Convert `self` to a `Float64`. Express values in a base precision, e.g.
+    # `Scale::BASE`.
+    #
+    # Note: this conversion can lose information about the overall magnitude of
+    # `self`.
+    def to_f
+      if @precision < Scale::BASE
+        to_i64 / (BASE.to_i64 ** (Scale::BASE - @precision))
+      elsif @precision > Scale::BASE
+        (to_i64 * BASE.to_i64 ** (@precision - Scale::BASE)).to_f
+      else
+        to_i64.to_f
+      end
+    end
+
     # Convert this `TimePoint` to a `BigInt`.
     def to_big_i
       str = if zero?

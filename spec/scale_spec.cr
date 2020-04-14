@@ -30,6 +30,8 @@ describe "Scale" do
     (Scale.new(-1) - Scale.new(1)).should eq(2)
     (Scale.new(1) - Scale.new(-1)).should eq(2)
     (Scale.new(8) - Scale.new(-8)).should eq(16)
+    (Scale.new(-1) - Scale.new(0)).should eq(1)
+    (Scale.new(0) - Scale.new(1)).should eq(1)
   end
 
   it "can be added with a number" do
