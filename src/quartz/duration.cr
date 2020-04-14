@@ -38,6 +38,21 @@ module Quartz
       new(0, precision, fixed)
     end
 
+    # Creates a `Duration` from a given `Float` between 0 and 1 and tries to
+    # assign an appropriate precision.
+    #
+    # ```
+    # Duration.from(0.000034) # => Duration.new(34, Scale::MICRO)
+    # ```
+    def self.from(n : Float)
+      precision = 0
+      while n < 1
+        n *= Scale::FACTOR
+        precision -= 1
+      end
+      new(n.to_i64, Scale.new(precision))
+    end
+
     def initialize(m : Number = 0i64, @precision : Scale = Scale::BASE, @fixed : Bool = false)
       @multiplier = if m >= MULTIPLIER_LIMIT
                       Float64::INFINITY

@@ -10,6 +10,15 @@ describe "Duration" do
     duration(2, Scale.new(76)).should eq(Duration.new(2, Scale.new(76)))
   end
 
+  it "can be constructed from a float between 0 and 1" do
+    Duration.from(0.001).should eq(Duration.new(1, Scale::MILLI))
+    Duration.from(0.00001).should eq(Duration.new(10, Scale::MICRO))
+    Duration.from(0.000000752).should eq(Duration.new(752, Scale::NANO))
+    Duration.from(0.000_000_000_003).should eq(Duration.new(3, Scale::PICO))
+    Duration.from(0.000_000_000_000_000_000_001).should eq(Duration.new(1, Scale::ZEPTO))
+    Duration.from(0.000_000_000_000_000_000_000_001).should eq(Duration.new(1, Scale::YOCTO))
+  end
+
   it "rounds multipliers having a fractional part" do
     Duration.new(4.1).should eq(Duration.new(4))
     Duration.new(4.9).should eq(Duration.new(5))
