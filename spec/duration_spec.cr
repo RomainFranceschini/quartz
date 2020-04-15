@@ -34,8 +34,8 @@ describe "Duration" do
   end
 
   it "can be constructed from a integer" do
-    2.duration_units.should eq(Duration.new(2, Scale::BASE))
-    2.kilo_duration_units.should eq(Duration.new(2, Scale::KILO))
+    2.time_units.should eq(Duration.new(2, Scale::BASE))
+    2.kilo_time_units.should eq(Duration.new(2, Scale::KILO))
   end
 
   it "defines epoch and multiplier constants" do

@@ -401,71 +401,71 @@ end
 
 # :nodoc:
 struct ::Int
-  def duration_units
+  def time_units
     Quartz::Duration.new(self, Quartz::Scale::BASE)
   end
 
-  def yocto_duration_units
+  def yocto_time_units
     Quartz::Duration.new(self, Quartz::Scale::YOCTO)
   end
 
-  def zepto_duration_units
+  def zepto_time_units
     Quartz::Duration.new(self, Quartz::Scale::ZEPTO)
   end
 
-  def atto_duration_units
+  def atto_time_units
     Quartz::Duration.new(self, Quartz::Scale::ATTO)
   end
 
-  def femto_duration_units
+  def femto_time_units
     Quartz::Duration.new(self, Quartz::Scale::FEMTO)
   end
 
-  def pico_duration_units
+  def pico_time_units
     Quartz::Duration.new(self, Quartz::Scale::PICO)
   end
 
-  def nano_duration_units
+  def nano_time_units
     Quartz::Duration.new(self, Quartz::Scale::NANO)
   end
 
-  def micro_duration_units
+  def micro_time_units
     Quartz::Duration.new(self, Quartz::Scale::MICRO)
   end
 
-  def milli_duration_units
+  def milli_time_units
     Quartz::Duration.new(self, Quartz::Scale::MILLI)
   end
 
-  def kilo_duration_units
+  def kilo_time_units
     Quartz::Duration.new(self, Quartz::Scale::KILO)
   end
 
-  def mega_duration_units
+  def mega_time_units
     Quartz::Duration.new(self, Quartz::Scale::MEGA)
   end
 
-  def giga_duration_units
+  def giga_time_units
     Quartz::Duration.new(self, Quartz::Scale::GIGA)
   end
 
-  def tera_duration_units
+  def tera_time_units
     Quartz::Duration.new(self, Quartz::Scale::TERA)
   end
 
-  def peta_duration_units
+  def peta_time_units
     Quartz::Duration.new(self, Quartz::Scale::PETA)
   end
 
-  def exa_duration_units
+  def exa_time_units
     Quartz::Duration.new(self, Quartz::Scale::EXA)
   end
 
-  def zetta_duration_units
+  def zetta_time_units
     Quartz::Duration.new(self, Quartz::Scale::ZETTA)
   end
 
-  def yotta_duration_units
+  def yotta_time_units
     Quartz::Duration.new(self, Quartz::Scale::YOTTA)
   end
 end
