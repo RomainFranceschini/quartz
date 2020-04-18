@@ -1,7 +1,7 @@
 require "../src/quartz"
 
 class OneTimeModel < Quartz::AtomicModel
-  state_var phase : Symbol = :active
+  state phase : Symbol = :active
 
   def time_advance : Quartz::Duration
     case phase
@@ -16,7 +16,7 @@ class OneTimeModel < Quartz::AtomicModel
 
   def internal_transition
     puts "#{name} does something."
-    @phase = :idle
+    self.phase = :idle
   end
 
   def output
@@ -26,8 +26,8 @@ end
 class BirthController < Quartz::DSDE::Executive
   output :birth, :death, :add_coupling, :remove_coupling
 
-  state_var phase : Symbol = :init
-  state_var counter : Int32 = 0
+  state phase : Symbol = :init,
+    counter : Int32 = 0
 
   def time_advance : Quartz::Duration
     case phase
@@ -38,20 +38,20 @@ class BirthController < Quartz::DSDE::Executive
   end
 
   def internal_transition
-    if phase == :death
-      remove_coupling_from_network(:out, from: :in, between: "model_0", and: "model_#{@counter}")
-      remove_model_from_network("model_#{@counter}")
-      @counter -= 1
-      @phase = :idle
+    if self.phase == :death
+      remove_coupling_from_network(:out, from: :in, between: "model_0", and: "model_#{counter}")
+      remove_model_from_network("model_#{counter}")
+      self.counter -= 1
+      self.phase = :idle
     else
-      add_model_to_network(OneTimeModel.new("model_#{@counter}"))
-      add_coupling_to_network(:out, to: :in, between: "model_0", and: "model_#{@counter}") if @counter > 0
-      @phase = if @counter == 2
-                 :death
-               else
-                 @counter += 1
-                 :birth
-               end
+      add_model_to_network(OneTimeModel.new("model_#{counter}"))
+      add_coupling_to_network(:out, to: :in, between: "model_0", and: "model_#{counter}") if counter > 0
+      self.phase = if self.counter == 2
+                     :death
+                   else
+                     self.counter += 1
+                     :birth
+                   end
     end
   end
 

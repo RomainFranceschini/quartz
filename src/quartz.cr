@@ -1,5 +1,3 @@
-require "json"
-
 require "./quartz/version"
 require "./quartz/types"
 require "./quartz/scale"
@@ -23,6 +21,7 @@ require "./quartz/priority_queues"
 require "./quartz/state"
 require "./quartz/model"
 require "./quartz/atomic"
+# require "./quartz/json"
 require "./quartz/coupled"
 require "./quartz/behaviors/**"
 require "./quartz/simulable"

@@ -5,7 +5,7 @@ module DEVStone
     input :in1, :in2
     output :out1, :out2
 
-    state_var phase : Symbol = :active
+    state phase : Symbol = :active
 
     def time_advance : Quartz::Duration
       if phase == :active
@@ -16,11 +16,11 @@ module DEVStone
     end
 
     def external_transition(messages)
-      @phase = :active
+      state.phase = :active
     end
 
     def internal_transition
-      @phase = :idle
+      state.phase = :idle
     end
 
     def output
@@ -31,7 +31,7 @@ module DEVStone
   class Generator < Quartz::AtomicModel
     output :out
 
-    state_var phase : Symbol = :generate
+    state phase : Symbol = :generate
 
     def time_advance : Quartz::Duration
       if phase == :generate
@@ -46,7 +46,7 @@ module DEVStone
     end
 
     def internal_transition
-      @phase = :idle
+      state.phase = :idle
     end
 
     def external_transition(bag)
@@ -149,6 +149,7 @@ simulation = Quartz::Simulation.new(
   maintain_hierarchy: false,
   scheduler: :binary_heap
 )
+# simulation.loggers.level = Logger::DEBUG
 
 simulation.simulate
 

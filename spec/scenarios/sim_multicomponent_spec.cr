@@ -62,14 +62,14 @@ private module MultiPDEVSSimulation
     getter elapsed_values : Array(Duration) = Array(Duration).new
     getter time : TimePoint = TimePoint.new
 
-    state_var state_count : Int32 = 0
+    state state_count : Int32 = 0
 
     def internal_transition : Hash(Quartz::Name, Quartz::Any)?
       @time = @time.advance(by: Duration.new(1))
       @elapsed_values << @elapsed
       @internal_calls += 1
       Hash(Quartz::Name, Quartz::Any).new.tap do |states|
-        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
+        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: state_count + 1))
       end
     end
 
@@ -78,7 +78,7 @@ private module MultiPDEVSSimulation
       @elapsed_values << @elapsed
       @external_calls += 1
       Hash(Quartz::Name, Quartz::Any).new.tap do |states|
-        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
+        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: state_count + 1))
       end
     end
 
@@ -87,7 +87,7 @@ private module MultiPDEVSSimulation
       @elapsed_values << @elapsed
       @confluent_calls += 1
       Hash(Quartz::Name, Quartz::Any).new.tap do |states|
-        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: @state_count + 1))
+        states[self.name] = Quartz::Any.new(ComponentB::State.new(state_count: state_count + 1))
       end
     end
 

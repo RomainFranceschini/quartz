@@ -9,7 +9,7 @@ module Quartz
         :add_input_port, :add_output_port, :remove_input_port,
         :remove_output_port
 
-      state_var phase : Symbol = :idle
+      state phase : Symbol = :idle
 
       def initialize(name, @network : CoupledModel? = nil)
         super(name)
@@ -58,7 +58,7 @@ module Quartz
           remove_model_from_network(req[:model].raw.as(Name))
         end
 
-        @phase = :answer
+        self.phase = :answer
       end
 
       def time_advance : Duration
@@ -71,7 +71,7 @@ module Quartz
       end
 
       def internal_transition
-        @phase = :idle
+        self.phase = :idle
       end
 
       def output

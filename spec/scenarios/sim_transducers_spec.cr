@@ -4,8 +4,8 @@ private module TransducerScenario
   class Gen < Quartz::AtomicModel
     output chars
 
-    state_var cursor : Int32 = 0
-    state_var full_msg : String = "hello world"
+    state cursor : Int32 = 0,
+      full_msg : String = "hello world"
 
     def external_transition(bag)
     end
@@ -14,15 +14,15 @@ private module TransducerScenario
     end
 
     def output
-      post @full_msg[@cursor], on: :chars
+      post full_msg[cursor], on: :chars
     end
 
     def internal_transition
-      @cursor += 1
+      self.cursor += 1
     end
 
     def time_advance : Duration
-      if @cursor < @full_msg.size
+      if cursor < full_msg.size
         Duration.new(1)
       else
         Duration::INFINITY
@@ -35,7 +35,7 @@ private module TransducerScenario
 
     input chars
 
-    state_var chars : Array(Char) = Array(Char).new
+    state chars : Array(Char) = Array(Char).new
 
     def external_transition(bag)
       chars << bag[input_port(:chars)].first.as_c
@@ -47,7 +47,7 @@ private module TransducerScenario
 
     input ints
 
-    state_var ints : Array(Int32) = Array(Int32).new
+    state ints : Array(Int32) = Array(Int32).new
 
     def external_transition(bag)
       ints << bag[input_port(:ints)].first.as_i

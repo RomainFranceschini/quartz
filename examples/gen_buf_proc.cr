@@ -8,11 +8,8 @@ class Generator < Quartz::AtomicModel
 
   precision micro
 
-  state_var sigma : Duration { Duration.new(RND.rand(1i64..1000i64), Quartz::Scale::MICRO) }
-
-  def initialize(name, @max : Int32)
-    super(name)
-    @n = 0
+  state n = 0, max = 0, sigma : Duration do
+    @sigma = Duration.new(RND.rand(1i64..1000i64), Quartz::Scale::MICRO)
   end
 
   def time_advance : Quartz::Duration
@@ -20,11 +17,11 @@ class Generator < Quartz::AtomicModel
   end
 
   def internal_transition
-    @sigma = if @n < @max
-               Duration.new(RND.rand(1i64..1000i64), model_precision).tap { @n += 1 }
-             else
-               Duration.infinity(model_precision)
-             end
+    self.sigma = if n < max
+                   Duration.new(RND.rand(1i64..1000i64), model_precision).tap { self.n += 1 }
+                 else
+                   Duration.infinity(model_precision)
+                 end
   end
 
   def output
@@ -41,21 +38,21 @@ class Buffer < Quartz::AtomicModel
 
   precision micro
 
-  state_var nb_job : Int32 = 0
-  state_var waiting : Bool = false
-  state_var sigma : Duration = Duration::INFINITY
+  state nb_job : Int32 = 0,
+    waiting : Bool = false,
+    sigma : Duration = Duration::INFINITY
 
   def external_transition(bag)
     if bag.has_key?(input_port(:in))
-      @nb_job += 1
+      self.nb_job += 1
     end
 
     if bag.has_key?(input_port(:ready))
-      @waiting = false
+      self.waiting = false
     end
 
-    if !@waiting && @nb_job > 0
-      @sigma = Duration.new(5, model_precision)
+    if !waiting && nb_job > 0
+      self.sigma = Duration.new(5, model_precision)
     end
   end
 
@@ -68,9 +65,9 @@ class Buffer < Quartz::AtomicModel
   end
 
   def internal_transition
-    @sigma = Duration::INFINITY
-    @waiting = true
-    @nb_job -= 1
+    self.sigma = Duration::INFINITY
+    self.waiting = true
+    self.nb_job -= 1
   end
 
   def confluent_transition(bag)
@@ -85,10 +82,10 @@ class CPU < Quartz::AtomicModel
 
   precision nano
 
-  state_var sigma : Duration = Duration::INFINITY
+  state sigma : Duration = Duration::INFINITY
 
   def external_transition(bag)
-    @sigma = Duration.new(RND.rand(3i64..1000i64**4), model_precision)
+    self.sigma = Duration.new(RND.rand(3i64..1000i64**4), model_precision)
   end
 
   def output
@@ -96,7 +93,7 @@ class CPU < Quartz::AtomicModel
   end
 
   def internal_transition
-    @sigma = Duration.infinity(model_precision)
+    self.sigma = Duration.infinity(model_precision)
   end
 
   def time_advance : Quartz::Duration
@@ -108,7 +105,7 @@ class GenBufProc < Quartz::CoupledModel
   def initialize(name, max)
     super(name)
 
-    gen = Generator.new(:gen, max)
+    gen = Generator.new(:gen, Generator::State.new(max: max))
     buf = Buffer.new(:buf)
     proc = CPU.new(:proc)
 
@@ -161,7 +158,7 @@ class Tracer
       return if info.not_nil![:transition].as(Quartz::Any).as_sym == :init
     end
 
-    @file.try &.puts "#{info[:time].to_s},#{buf.nb_job}"
+    @file.try &.puts "#{info[:time]},#{buf.nb_job}"
   end
 end
 

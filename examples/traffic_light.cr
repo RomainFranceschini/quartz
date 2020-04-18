@@ -4,29 +4,29 @@ class TrafficLight < Quartz::AtomicModel
   input interrupt
   output observed
 
-  state_var phase : Symbol = :red
+  state phase : Symbol = :red
 
   def external_transition(bag)
     value = bag[input_port(:interrupt)].first.as_sym
     case value
     when :to_manual
-      @phase = :manual if {:red, :green, :orange}.includes?(@phase)
+      self.phase = :manual if {:red, :green, :orange}.includes?(phase)
     else # :to_autonomous
-      @phase = :red if @phase == :manual
+      self.phase = :red if phase == :manual
     end
   end
 
   def internal_transition
-    @phase = case @phase
-             when :red    then :green
-             when :green  then :orange
-             when :orange then :red
-             else              @phase
-             end
+    self.phase = case phase
+                 when :red    then :green
+                 when :green  then :orange
+                 when :orange then :red
+                 else              phase
+                 end
   end
 
   def output
-    observed = case @phase
+    observed = case phase
                when :red, :orange then :grey
                when :green        then :orange
                else                    raise "BUG: unreachable"
@@ -35,7 +35,7 @@ class TrafficLight < Quartz::AtomicModel
   end
 
   def time_advance : Quartz::Duration
-    case @phase
+    case phase
     when :red    then Quartz.duration(60)
     when :green  then Quartz.duration(50)
     when :orange then Quartz.duration(10)
@@ -47,17 +47,17 @@ end
 class Policeman < Quartz::AtomicModel
   output traffic_light
 
-  state_var phase : Symbol = :idle
+  state phase : Symbol = :idle
 
   def internal_transition
-    @phase = case @phase
-             when :idle then :working
-             else            :idle
-             end
+    self.phase = case phase
+                 when :idle then :working
+                 else            :idle
+                 end
   end
 
   def output
-    mode = case @phase
+    mode = case phase
            when :idle    then :to_manual
            when :working then :to_autonomous
            else               raise "BUG: unreachable"
@@ -66,7 +66,7 @@ class Policeman < Quartz::AtomicModel
   end
 
   def time_advance : Quartz::Duration
-    @phase == :idle ? Quartz.duration(200) : Quartz.duration(100)
+    phase == :idle ? Quartz.duration(200) : Quartz.duration(100)
   end
 
   def external_transition(bag)

@@ -4,8 +4,7 @@ class GOLCell < Quartz::MultiComponent::Component
   getter x : Int32 = 0
   getter y : Int32 = 0
 
-  state_var phase : Symbol = :dead
-  state_var nalive : Int32 = 0
+  state phase : Symbol = :dead, nalive : Int32 = 0
 
   def initialize(name, state, @x, @y)
     super(name, state)
@@ -24,7 +23,7 @@ class GOLCell < Quartz::MultiComponent::Component
   end
 
   def time_advance : Quartz::Duration
-    alives = @nalive
+    alives = self.state.nalive
 
     if death?(alives) || birth?(alives)
       Quartz::Duration.new(1)
@@ -35,7 +34,7 @@ class GOLCell < Quartz::MultiComponent::Component
 
   def internal_transition : Hash(Quartz::Name, Quartz::Any)
     proposed_states = Hash(Quartz::Name, Quartz::Any).new
-    alive = @nalive
+    alive = self.state.nalive
 
     phase, n = if death?(alive)
                  {:dead, -1}
@@ -69,7 +68,7 @@ class GOLCell < Quartz::MultiComponent::Component
       end
     end
 
-    @nalive += diff
+    self.nalive += diff
   end
 end
 

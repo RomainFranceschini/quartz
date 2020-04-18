@@ -12,7 +12,7 @@ end
 class Foo < Quartz::AtomicModel
   output foo1, foo2
 
-  state_var phase : Symbol = :generate
+  state phase : Symbol = :generate
 
   def time_advance : Quartz::Duration
     if phase == :generate
@@ -23,7 +23,7 @@ class Foo < Quartz::AtomicModel
   end
 
   def internal_transition
-    @phase = :idle
+    self.phase = :idle
   end
 
   def output
