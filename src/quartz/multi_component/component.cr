@@ -4,7 +4,7 @@ module Quartz
       include Schedulable
       include Observable
       include Verifiable
-      include AutoState
+      include Stateful
 
       getter influencers = Array(Component).new
       getter influencees = Array(Component).new

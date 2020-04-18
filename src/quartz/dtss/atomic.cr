@@ -1,10 +1,10 @@
 module Quartz::DTSS
   # This class represent a PDTSS atomic model.
   abstract class AtomicModel < Model
+    include Stateful
     include Coupleable
     include Observable
     include Verifiable
-    include AutoState
 
     class_property time_delta : Duration = Duration.new(1, Scale::BASE)
 
@@ -61,29 +61,13 @@ module Quartz::DTSS
 
     # :nodoc:
     # Used internally by the simulator
-    def __initialize_state__(processor)
+    protected def __initialize_state__(processor)
       if @processor != processor
         raise InvalidProcessorError.new("trying to initialize state of model \"#{name}\" from an invalid processor")
       end
 
       if s = initial_state
         self.state = s
-      end
-    end
-
-    def initialize(pull : ::JSON::PullParser)
-      @elapsed = Duration.new(0, model_precision)
-
-      pull.read_object do |key|
-        case key
-        when "name"
-          super(String.new(pull))
-        when "state"
-          self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
-          self.state = initial_state
-        else
-          raise ::JSON::ParseException.new("Unknown json attribute: #{key}", 0, 0)
-        end
       end
     end
 
@@ -132,21 +116,6 @@ module Quartz::DTSS
       @bag.clear
       self.output
       @bag
-    end
-
-    def to_json(json : ::JSON::Builder)
-      json.object do
-        json.field("name") { @name.to_json(json) }
-        json.field("state") { state.to_json(json) }
-      end
-    end
-
-    def self.from_json(io : IO)
-      self.new(::JSON::PullParser.new(io))
-    end
-
-    def self.from_json(str : String)
-      from_json(IO::Memory.new(str))
     end
   end
 end
