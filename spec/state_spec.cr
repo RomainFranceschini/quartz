@@ -50,13 +50,12 @@ private struct NoInitializeChild < AfterInitializeParent
 end
 
 private class Point2d
-  # include JSON::Serializable
   include Stateful
 
   state x : Int32 = 0, y : Int32 = 0
 end
 
-class Point3d < Point2d
+private class Point3d < Point2d
   state z : Int32 = 0
 
   def xyz
@@ -150,35 +149,6 @@ describe "Stateful" do
       s = SomeModel::State.new
       s.to_hash.should eq({:a => 42, :b => "foo", :c => false})
     end
-
-    # describe "serialization" do
-    #   it "can be converted to JSON" do
-    #     s = SomeModel::State.new(c: true)
-    #     s.to_json.should eq("{\"a\":42,\"b\":\"foo\",\"c\":true}")
-
-    #     s = Point3d::State.new(x: 42, y: 23, z: 76)
-    #     s.to_json.should eq("{\"x\":42,\"y\":23,\"z\":76}")
-    #   end
-    # end
-
-    # describe "deserialization" do
-    #   it "can be initialized from JSON" do
-    #     io = IO::Memory.new("{\"a\":13,\"b\":\"bar\",\"c\":true}")
-    #     state = SomeModel::State.new(JSON::PullParser.new(io))
-
-    #     state.a.should eq 13
-    #     state.b.should eq "bar"
-    #     state.c.should eq true
-
-    #     io = IO::Memory.new("{\"x\":42,\"y\":23,\"z\":76}")
-    #     state = Point3d::State.new(JSON::PullParser.new(io))
-    #     state.should eq(Point3d::State.new(x: 42, y: 23, z: 76))
-
-    #     io = IO::Memory.new("{\"state\":{\"x\":42,\"y\":23,\"z\":76}}")
-    #     model = Point3d.new(JSON::PullParser.new(io))
-    #     model.state.should eq(Point3d::State.new(x: 42, y: 23, z: 76))
-    #   end
-    # end
   end
 
   context "inheritance" do

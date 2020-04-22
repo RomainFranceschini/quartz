@@ -3,6 +3,32 @@ require "json"
 module Quartz
   struct Duration
     include JSON::Serializable
+
+    def initialize(pull : ::JSON::PullParser)
+      m = nil
+      p = nil
+
+      pull.read_object do |key|
+        case key
+        when "multiplier"
+          m = pull.read_float
+        when "precision"
+          p = Scale.new(pull.read_int)
+        else
+          raise ::JSON::ParseException.new("Unknown json attribute: #{key}", 0, 0)
+        end
+      end
+
+      @multiplier = m.as(Float64)
+      @precision = p.as(Scale)
+    end
+
+    def to_json(json : ::JSON::Builder)
+      json.object do
+        json.field("multiplier") { @multiplier.to_json(json) }
+        json.field("precision") { @precision.level.to_json(json) }
+      end
+    end
   end
 
   struct Scale
@@ -10,18 +36,18 @@ module Quartz
   end
 
   class State
-    macro inherited
-      {% puts "state inherited to #{@type}" %}
-      macro finished
-        \{% puts "carry on init for #{@type}" %}
-        def initialize(pull : ::JSON::PullParser)
-          \{% for block in STATE_INITIALIZE %}
-            \{{block}}
-          \{% end %}
-          super
-        end
-      end
-    end
+    # macro inherited
+    #   {% puts "state inherited to #{@type}" %}
+    #   macro finished
+    #     \{% puts "carry on init for #{@type}" %}
+    #     def initialize(pull : ::JSON::PullParser)
+    #       \{% for block in STATE_INITIALIZE %}
+    #         \{{block}}
+    #       \{% end %}
+    #       super
+    #     end
+    #   end
+    # end
 
     def initialize(pull : ::JSON::PullParser)
       {% begin %}
@@ -150,9 +176,7 @@ module Quartz
     end
   end
 
-  class DTSS
-    :AtomicModel
-
+  class DTSS::AtomicModel
     def initialize(pull : ::JSON::PullParser)
       @elapsed = Duration.new(0, model_precision)
 

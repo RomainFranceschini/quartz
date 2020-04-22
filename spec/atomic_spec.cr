@@ -146,23 +146,4 @@ describe "AtomicModel" do
       m.calls.should eq(1)
     end
   end
-
-  # describe "serialization" do
-  #   it "can be converted to JSON" do
-  #     m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-  #     m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},“elapsed\":{\"fixed\":false,\"precision\":{\"level\":0},\"multiplier\":0.0}}"
-  #   end
-  # end
-
-  # describe "deserialization" do
-  #   it "can be initialized from JSON" do
-  #     io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},“elapsed\":{\"fixed\":false,\"precision\":{\"level\":0},\"multiplier\":0.0}}")
-  #     m = ModelSample.new(JSON::PullParser.new(io))
-  #     m.name.should eq("foo")
-  #     m.time_advance.should eq Duration.new(25)
-  #     m.x.should eq 5
-  #     m.y.should eq 10
-  #     m.elapsed.should eq Duration.new(0)
-  #   end
-  # end
 end

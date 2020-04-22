@@ -21,7 +21,6 @@ require "./quartz/priority_queues"
 require "./quartz/state"
 require "./quartz/model"
 require "./quartz/atomic"
-# require "./quartz/json"
 require "./quartz/coupled"
 require "./quartz/behaviors/**"
 require "./quartz/simulable"
@@ -37,6 +36,7 @@ require "./quartz/processor_allocator"
 require "./quartz/dot_visitor"
 require "./quartz/direct_connection_visitor"
 require "./quartz/simulation"
+require "./quartz/json"
 
 module Quartz
   # Returns the current version
