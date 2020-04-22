@@ -337,22 +337,6 @@ module Quartz
     def to_f
       to_f64
     end
-
-    def to_json(json : ::JSON::Builder)
-      json.object do
-        json.field("multiplier") { @multiplier.to_json(json) }
-        json.field("precision") { @precision.level.to_json(json) }
-      end
-    end
-
-    def to_msgpack(packer : ::MessagePack::Packer)
-      packer.write_hash_start(2)
-
-      packer.write("multiplier")
-      packer.write(multiplier)
-      packer.write("precision")
-      packer.write(@precision.level)
-    end
   end
 
   ALLOWED_SCALE_UNITS = [

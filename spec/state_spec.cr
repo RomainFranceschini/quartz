@@ -159,11 +159,6 @@ describe "Stateful" do
     #     s = Point3d::State.new(x: 42, y: 23, z: 76)
     #     s.to_json.should eq("{\"x\":42,\"y\":23,\"z\":76}")
     #   end
-
-    #   it "can be converted to msgpack" do
-    #     s = SomeModel::State.new(c: true)
-    #     s.to_msgpack.should eq Bytes[131, 161, 97, 42, 161, 98, 163, 102, 111, 111, 161, 99, 195]
-    #   end
     # end
 
     # describe "deserialization" do
@@ -182,15 +177,6 @@ describe "Stateful" do
     #     io = IO::Memory.new("{\"state\":{\"x\":42,\"y\":23,\"z\":76}}")
     #     model = Point3d.new(JSON::PullParser.new(io))
     #     model.state.should eq(Point3d::State.new(x: 42, y: 23, z: 76))
-    #   end
-
-    #   it "can be initialized from msgpack" do
-    #     io = IO::Memory.new(Bytes[131, 161, 97, 42, 161, 98, 163, 102, 111, 111, 161, 99, 195])
-    #     state = SomeModel::State.new(MessagePack::IOUnpacker.new(io))
-
-    #     state.a.should eq 42
-    #     state.b.should eq "foo"
-    #     state.c.should eq true
     #   end
     # end
   end
