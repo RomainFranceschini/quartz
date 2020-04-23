@@ -10,48 +10,45 @@ module Quartz
   end
 
   class State
-    include JSON::Serializable
+    def to_json(json : ::JSON::Builder)
+      json.object do
+        {% for ivar in @type.instance_vars %}
+          json.field({{ivar.name.stringify}}) { self.{{ivar.name}}.to_json(json) }
+        {% end %}
+      end
+    end
 
-    # macro finished
-    # def initialize(pull : ::JSON::PullParser)
-    #   {% for ivar in @type.instance_vars %}
-    #     %found{ivar.name} = false
-    #     %json{ivar.name} = nil
-    #   {% end %}
+    def initialize(pull : ::JSON::PullParser)
+      {% begin %}
+        {% for ivar in @type.instance_vars %}
+          %found{ivar.name} = false
+          %json{ivar.name} = nil
+        {% end %}
 
-    #   pull.read_object do |key|
-    #     case key
-    #     {% for ivar in @type.instance_vars %}
-    #       when {{ ivar.name.stringify }}
-    #         %json{ivar.name} =
-    #           {% if ivar.type.is_a?(Path) || ivar.type.is_a?(Generic) %}
-    #             {{ivar.type}}.new(pull)
-    #           {% else %}
-    #             ::Union({{ivar.type}}).new(pull)
-    #           {% end %}
-    #         %found{ivar.name} = true
-    #     {% end %}
-    #     else
-    #       raise JSON::ParseException.new("unknown json attribute: #{key}", 0, 0)
-    #     end
-    #   end
+        pull.read_object do |key|
+          case key
+          {% for ivar in @type.instance_vars %}
+          when {{ ivar.name.stringify }}
+              %json{ivar.name} =
+                {% if ivar.type.is_a?(Path) || ivar.type.is_a?(Generic) %}
+                  {{ivar.type}}.new(pull)
+                {% else %}
+                  ::Union({{ivar.type}}).new(pull)
+                {% end %}
+              %found{ivar.name} = true
+          {% end %}
+          else
+            raise JSON::ParseException.new("unknown json attribute: #{key}", 0, 0)
+          end
+        end
 
-    #   {% for ivar in @type.instance_vars %}
-    #     if %found{ivar.name}
-    #       @{{ivar.name}} = (%var{ivar.name}).as({{ivar.type}})
-    #     end
-    #   {% end %}
-    # end
-
-    # def to_json(json : ::JSON::Builder)
-    #   {{puts @type.instance_vars}}
-    #   json.object do
-    #     {% for ivar in @type.instance_vars %}
-    #       json.field({{ivar.name.stringify}}) { self.{{ivar.name}}.to_json(json) }
-    #     {% end %}
-    #   end
-    # end
-    # end
+        {% for ivar in @type.instance_vars %}
+          if %found{ivar.name}
+            @{{ivar.name}} = (%json{ivar.name}).as({{ivar.type}})
+          end
+        {% end %}
+      {% end %}
+    end
   end
 
   class AtomicModel

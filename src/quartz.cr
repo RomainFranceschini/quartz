@@ -36,7 +36,6 @@ require "./quartz/processor_allocator"
 require "./quartz/dot_visitor"
 require "./quartz/direct_connection_visitor"
 require "./quartz/simulation"
-require "./quartz/json"
 
 module Quartz
   # Returns the current version

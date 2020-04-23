@@ -49,14 +49,14 @@ end
 
 describe "AtomicModel" do
   describe "serialization" do
-    pending "can be converted to JSON" do
+    it "can be converted to JSON" do
       m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
       m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"initial_state\":{\"x\":0,\"y\":0},\"elapsed\":{\"fixed\":false,\"precision\":{\"level\":0},\"multiplier\":0.0}}"
     end
   end
 
   describe "deserialization" do
-    pending "can be initialized from JSON" do
+    it "can be initialized from JSON" do
       io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"initial_state\":{\"x\":0,\"y\":0},\"elapsed\":{\"fixed\":false,\"precision\":{\"level\":0},\"multiplier\":0.0}}")
       m = ModelSample.new(JSON::PullParser.new(io))
       m.name.should eq("foo")
@@ -70,7 +70,7 @@ end
 
 describe "State" do
   describe "serialization" do
-    pending "can be converted to JSON" do
+    it "can be converted to JSON" do
       s = SomeModel::State.new(c: true)
       s.to_json.should eq("{\"a\":42,\"b\":\"foo\",\"c\":true}")
 
@@ -80,7 +80,7 @@ describe "State" do
   end
 
   describe "deserialization" do
-    pending "can be initialized from JSON" do
+    it "can be initialized from JSON" do
       io = IO::Memory.new("{\"a\":13,\"b\":\"bar\",\"c\":true}")
       state = SomeModel::State.new(JSON::PullParser.new(io))
 
@@ -91,10 +91,6 @@ describe "State" do
       io = IO::Memory.new("{\"x\":42,\"y\":23,\"z\":76}")
       state = Point3d::State.new(JSON::PullParser.new(io))
       state.should eq(Point3d::State.new(x: 42, y: 23, z: 76))
-
-      io = IO::Memory.new("{\"state\":{\"x\":42,\"y\":23,\"z\":76}}")
-      model = Point3d.new(JSON::PullParser.new(io))
-      model.state.should eq(Point3d::State.new(x: 42, y: 23, z: 76))
     end
   end
 end
