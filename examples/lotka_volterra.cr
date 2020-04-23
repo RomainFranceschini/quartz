@@ -3,12 +3,14 @@ require "../src/quartz"
 class LotkaVolterra < Quartz::DTSS::AtomicModel
   delta 10, milli # euler integration step
 
-  state x : Float64 = 1.0,
-    y : Float64 = 1.0,
-    alpha : Float64 = 5.2, # prey reproduction rate
-    beta : Float64 = 3.4,  # predator per prey mortality rate
-    gamma : Float64 = 2.1, # predator mortality rate
-    delta : Float64 = 1.4  # predator per prey reproduction rate
+  state do
+    var x : Float64 = 1.0
+    var y : Float64 = 1.0
+    var alpha : Float64 = 5.2 # prey reproduction rate
+    var beta : Float64 = 3.4  # predator per prey mortality rate
+    var gamma : Float64 = 2.1 # predator mortality rate
+    var delta : Float64 = 1.4 # predator per prey reproduction rate
+  end
 
   def transition(_messages)
     dxdt = ((x * alpha) - (beta * x * y))

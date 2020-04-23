@@ -6,15 +6,14 @@ class SinusGenerator < AtomicModel
   output :signal
   precision :micro
 
-  state(amplitude : Float64 = 1.0,
-    frequency : Float64 = 0.5,
-    phase : Float64 = 1,
-    step : Int32 = 80,
-    time : TimePoint = TimePoint.new,
-    sigma : Duration,
-    pulse : Float64) do
-    @sigma = Duration.from(1.0 / frequency / step)
-    @pulse = 2.0 * Math::PI * frequency
+  state do
+    var amplitude : Float64 = 1.0
+    var frequency : Float64 = 0.5
+    var phase : Float64 = 1
+    var step : Int32 = 80
+    var time : TimePoint = TimePoint.new
+    var sigma : Duration { Duration.from(1.0 / frequency / step) }
+    var pulse : Float64 { 2.0 * Math::PI * frequency }
   end
 
   def internal_transition

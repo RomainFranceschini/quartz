@@ -4,7 +4,10 @@ class GOLCell < Quartz::MultiComponent::Component
   getter x : Int32 = 0
   getter y : Int32 = 0
 
-  state phase : Symbol = :dead, nalive : Int32 = 0
+  state do
+    var phase : Symbol = :dead
+    var nalive : Int32 = 0
+  end
 
   def initialize(name, state, @x, @y)
     super(name, state)

@@ -5,7 +5,9 @@ module DEVStone
     input :in1, :in2
     output :out1, :out2
 
-    state phase : Symbol = :active
+    state do
+      var phase : Symbol = :active
+    end
 
     def time_advance : Quartz::Duration
       if phase == :active
@@ -31,7 +33,7 @@ module DEVStone
   class Generator < Quartz::AtomicModel
     output :out
 
-    state phase : Symbol = :generate
+    state { var phase : Symbol = :generate }
 
     def time_advance : Quartz::Duration
       if phase == :generate

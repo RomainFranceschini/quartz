@@ -9,12 +9,16 @@ class HeatCell < Quartz::MultiComponent::Component
   RADIUS     =        3
   TMP_DIFF   = T_AMBIENT
 
-  state temperature : Float32 = T_AMBIENT,
-    ignite_time : Float64 = Float64::INFINITY,
-    phase : Symbol = :inactive,
-    old_temp : Float32 = T_AMBIENT,
-    surrounding_temps : Hash(Quartz::Name, Float32) = Hash(Quartz::Name, Float32).new(default_value: T_AMBIENT.to_f32),
-    time : Float64 = 0.0
+  state do
+    var temperature : Float32 = T_AMBIENT
+    var ignite_time : Float64 = Float64::INFINITY
+    var phase : Symbol = :inactive
+    var old_temp : Float32 = T_AMBIENT
+    var surrounding_temps : Hash(Quartz::Name, Float32) = Hash(Quartz::Name, Float32).new(
+      default_value: T_AMBIENT.to_f32
+    )
+    var time : Float64 = 0.0
+  end
 
   getter x : Int32 = 0
   getter y : Int32 = 0

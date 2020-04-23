@@ -4,7 +4,9 @@ class TrafficLight < Quartz::AtomicModel
   input :interrupt
   output :observed
 
-  state phase : Symbol = :red
+  state do
+    var phase : Symbol = :red
+  end
 
   def external_transition(messages)
     value = messages[input_ports[:interrupt]].first.as_sym
@@ -51,7 +53,9 @@ class TrafficLight < Quartz::AtomicModel
 end
 
 class Policeman < Quartz::AtomicModel
-  state phase : Symbol = :idle1
+  state do
+    var phase : Symbol = :idle1
+  end
 
   output :alternate, :add_coupling, :remove_coupling
 

@@ -1,7 +1,9 @@
 require "../src/quartz"
 
 class OneTimeModel < Quartz::AtomicModel
-  state phase : Symbol = :active
+  state do
+    var phase : Symbol = :active
+  end
 
   def time_advance : Quartz::Duration
     case phase
@@ -26,8 +28,10 @@ end
 class BirthController < Quartz::DSDE::Executive
   output :birth, :death, :add_coupling, :remove_coupling
 
-  state phase : Symbol = :init,
-    counter : Int32 = 0
+  state do
+    var phase : Symbol = :init
+    var counter : Int32 = 0
+  end
 
   def time_advance : Quartz::Duration
     case phase

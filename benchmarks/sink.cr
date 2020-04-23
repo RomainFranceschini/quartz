@@ -1,7 +1,9 @@
 require "../src/quartz"
 
 class Sink < Quartz::AtomicModel
-  state phase : Symbol = :idle
+  state do
+    var phase : Symbol = :idle
+  end
 
   def time_advance : Quartz::Duration
     if phase == :idle
@@ -27,7 +29,7 @@ end
 class Generator < Quartz::AtomicModel
   output :out
 
-  state phase : Symbol = :generate
+  state { var phase : Symbol = :generate }
 
   def time_advance : Quartz::Duration
     case phase
