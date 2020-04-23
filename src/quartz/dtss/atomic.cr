@@ -33,10 +33,9 @@ module Quartz::DTSS
       super(name)
     end
 
-    def initialize(name, state)
+    def initialize(name, state, initial_state = nil)
       super(name)
-      @elapsed = @elapsed.rescale(model_precision)
-      self.initial_state = state
+      self.initial_state = initial_state if initial_state
       self.state = state
     end
 
