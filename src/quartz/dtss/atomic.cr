@@ -25,17 +25,12 @@ module Quartz::DTSS
       @@time_delta
     end
 
-    # This attribute is updated automatically along simulation and represents
-    # the elapsed time since the last transition.
-    property elapsed : Duration = Duration.zero(@@time_delta.precision)
-
     @bag : Hash(OutputPort, Array(Any)) = Hash(OutputPort, Array(Any)).new { |h, k|
       h[k] = Array(Any).new
     }
 
     def initialize(name)
       super(name)
-      @elapsed = @elapsed.rescale(model_precision)
     end
 
     def initialize(name, state)
@@ -73,7 +68,8 @@ module Quartz::DTSS
 
     def inspect(io)
       io << "<" << self.class.name << ": name=" << @name
-      io << ", elapsed=" << @elapsed.to_s(io)
+      io << ", time_delta="
+      time_delta.to_s(io)
       io << ">"
       nil
     end

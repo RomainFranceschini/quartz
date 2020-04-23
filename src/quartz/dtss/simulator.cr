@@ -20,7 +20,6 @@ module Quartz::DTSS
       @transition_count = 0u32
 
       atomic.__initialize_state__(self)
-      elapsed = atomic.elapsed
 
       planned_duration = atomic.class.time_delta
 
@@ -37,7 +36,7 @@ module Quartz::DTSS
       Log.debug {
         String.build { |str|
           str << '\'' << atomic.name << "' initialized ("
-          str << "elapsed: " << elapsed << ", time_next: " << planned_duration << ')'
+          str << "time_next: " << planned_duration << ')'
         }
       }
 
@@ -45,7 +44,8 @@ module Quartz::DTSS
         atomic.notify_observers(OBS_INFO_INIT_TRANSITION.merge({:time => time}))
       end
 
-      {elapsed.fixed, planned_duration.fixed}
+      elapsed = Duration.zero(atomic.model_precision, true)
+      {elapsed, planned_duration.fixed}
     rescue err : StrictVerificationFailed
       atomic = @model.as(DTSS::AtomicModel)
 
@@ -60,7 +60,7 @@ module Quartz::DTSS
       raise err
     end
 
-    def collect_outputs(elapsed : Duration) : Hash(Quartz::OutputPort, Array(Quartz::Any))
+    def collect_outputs(_elapsed : Duration) : Hash(Quartz::OutputPort, Array(Quartz::Any))
       @model.as(DTSS::AtomicModel).fetch_output!
     end
 
@@ -69,7 +69,6 @@ module Quartz::DTSS
       bag = @bag || EMPTY_BAG
 
       kind = nil
-      atomic.elapsed = elapsed
       planned_duration = atomic.class.time_delta
 
       if elapsed != planned_duration
@@ -84,7 +83,7 @@ module Quartz::DTSS
       Log.debug {
         String.build { |str|
           str << '\'' << atomic.name << "': " << kind << " transition "
-          str << "(elapsed: " << elapsed << ", time_next: " << planned_duration << ')'
+          str << "time_next: " << planned_duration << ')'
         }
       }
 
