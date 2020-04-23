@@ -9,7 +9,7 @@ module Quartz
         :add_input_port, :add_output_port, :remove_input_port,
         :remove_output_port
 
-      state phase : Symbol = :idle
+      state { var phase : Symbol = :idle }
 
       def initialize(name, @network : CoupledModel? = nil)
         super(name)

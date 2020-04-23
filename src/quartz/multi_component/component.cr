@@ -66,7 +66,7 @@ module Quartz
       {% else %}
         self.precision_level = {{scale}}
       {% end %}
-    end
+      end
 
       # Returns the precision associated with the class.
       def model_precision : Scale

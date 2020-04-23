@@ -62,7 +62,7 @@ private module MultiPDEVSSimulation
     getter elapsed_values : Array(Duration) = Array(Duration).new
     getter time : TimePoint = TimePoint.new
 
-    state state_count : Int32 = 0
+    state { var state_count : Int32 = 0 }
 
     def internal_transition : Hash(Quartz::Name, Quartz::Any)?
       @time = @time.advance(by: Duration.new(1))

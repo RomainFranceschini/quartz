@@ -3,9 +3,11 @@ require "./spec_helper"
 private struct SomeModel
   include Stateful
 
-  state a : Int32 = 42,
-    b : String = "foo",
-    c : Bool = false
+  state do
+    var a : Int32 = 42
+    var b : String = "foo"
+    var c : Bool = false
+  end
 end
 
 private struct Empty
@@ -15,19 +17,26 @@ end
 private struct Nilable
   include Stateful
 
-  state str : String? = nil
+  state do
+    var str : String? = nil
+  end
 end
 
 private struct UnionStateVar
   include Stateful
 
-  state str_or_int : String | Int32 = 0
+  state do
+    var str_or_int : String | Int32 = 0
+  end
 end
 
 private struct AfterInitialize
   include Stateful
 
-  state x : Int32 = 0, y : Int32 = 0
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
+  end
 end
 
 abstract struct AfterInitializeParent
@@ -40,23 +49,30 @@ abstract struct AfterInitializeParent
 end
 
 private struct InitializeChild < AfterInitializeParent
-  state test : Int32 do
-    @test = 42
+  state do
+    var test : Int32 { 40 + 2 }
   end
 end
 
 private struct NoInitializeChild < AfterInitializeParent
-  state test : Int32 = 42
+  state do
+    var test : Int32 = 42
+  end
 end
 
 private class Point2d
   include Stateful
 
-  state x : Int32 = 0, y : Int32 = 0
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
+  end
 end
 
 private class Point3d < Point2d
-  state z : Int32 = 0
+  state do
+    var z : Int32 = 0
+  end
 
   def xyz
     {x, y, z}
@@ -66,18 +82,26 @@ end
 private struct DependentStateVars
   include Stateful
 
-  state x : Int32 = 0, y : Int32 = 0, pos : Tuple(Int32, Int32) do
-    @pos = Tuple.new(x, y)
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
+    var pos : Tuple(Int32, Int32) do
+      Tuple.new(x, y)
+    end
   end
 end
 
 private abstract struct BaseSigmaModel
   include Stateful
-  state sigma : Duration = Duration::INFINITY
+  state do
+    var sigma : Duration = Duration::INFINITY
+  end
 end
 
 private struct MySigmaModel < BaseSigmaModel
-  state sigma = Duration.new(85, Scale::MILLI)
+  state do
+    var sigma = Duration.new(85, Scale::MILLI)
+  end
 end
 
 describe "Stateful" do

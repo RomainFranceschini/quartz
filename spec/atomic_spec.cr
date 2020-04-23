@@ -20,10 +20,13 @@ private class FetchOutputTest < AtomicModel
   end
 end
 
-class ModelSample < AtomicModel
+private class ModelSample < AtomicModel
   include PassiveBehavior
 
-  state x : Int32 = 0, y : Int32 = 0
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
+  end
 
   def time_advance : Duration
     Duration.new(25)

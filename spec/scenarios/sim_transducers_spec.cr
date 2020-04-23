@@ -4,8 +4,10 @@ private module TransducerScenario
   class Gen < Quartz::AtomicModel
     output chars
 
-    state cursor : Int32 = 0,
-      full_msg : String = "hello world"
+    state do
+      var cursor : Int32 = 0
+      var full_msg : String = "hello world"
+    end
 
     def external_transition(bag)
     end
@@ -35,7 +37,7 @@ private module TransducerScenario
 
     input chars
 
-    state chars : Array(Char) = Array(Char).new
+    state { var chars : Array(Char) = Array(Char).new }
 
     def external_transition(bag)
       chars << bag[input_port(:chars)].first.as_c
@@ -47,7 +49,7 @@ private module TransducerScenario
 
     input ints
 
-    state ints : Array(Int32) = Array(Int32).new
+    state { var ints : Array(Int32) = Array(Int32).new }
 
     def external_transition(bag)
       ints << bag[input_port(:ints)].first.as_i

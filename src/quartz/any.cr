@@ -1,3 +1,5 @@
+require "./state"
+
 module Quartz
   # `Any` is a convenient wrapper around all possible Quartz types (`Any::Type`).
   # It is used to denote all types that may be transmitted between two `Port`s
@@ -20,6 +22,7 @@ module Quartz
                  TimePoint |
                  Array(Any) |
                  Hash(Any, Any) |
+                 State |
                  Transferable
 
     # Returns the raw underlying value.

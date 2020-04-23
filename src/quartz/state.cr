@@ -1,13 +1,41 @@
 module Quartz
   # A base struct that wraps the state of a model. Automatically extended by
   # models through use of the `state` macro.
-  abstract class State
-    include Transferable
+  class State
+    macro var(name, &block)
+      {%
+        prop = if name.is_a?(TypeDeclaration)
+                 {name: name.var, type: name.type, value: name.value, block: block}
+               elsif name.is_a?(Assign)
+                 {name: name.target, value: name.value, block: block}
+               else
+                 name.raise "a type, a default value or a block should be given to declare a state variable"
+               end
+        STATE_VARS << prop
+      %}
 
-    private STATE_INITIALIZE = [] of _
+      property {{name}} {% if block %} {{block}} {% end %}
 
-    macro inherited
-      STATE_INITIALIZE = [] of _
+      # {% if block && name.is_a?(TypeDeclaration) %}
+      #   @{{name.var}} : {{name.type}}?
+      # {% else %}
+      #   @{{name}}
+      # {% end %}
+
+      # def {{prop[:name]}}
+      #   @{{prop[:name]}}
+      # end
+
+      # def {{prop[:name]}}=(@{{prop[:name]}})
+      # end
+    end
+
+    def initialize(**kwargs)
+      {% for ivar in @type.instance_vars %}
+        if val = kwargs[:{{ ivar.name }}]?
+          @{{ ivar.name }} = val
+        end
+      {% end %}
     end
 
     def to_named_tuple
@@ -64,139 +92,67 @@ module Quartz
   end
 
   module Stateful
+    def state
+      Quartz::State.new
+    end
+
+    def state=(state)
+    end
+
+    def initial_state
+      Quartz::State.new
+    end
+
+    def initial_state=(state)
+    end
+
+    STATE_CHECKS = {state_complete: false}
+
     macro included
+      reset_state_checks
       macro inherited
-        \{% if @type.superclass.has_constant?("State") %}
-          class State < \{{@type.superclass}}::State
-          end
-        \{% end %}
-
-        macro finished
-          \\{% if !@type.has_constant?("STATE_DEFINED") %}
-            state()
-          \\{% end %}
-        end
-      end
-
-      class State < Quartz::State
-      end
-
-      macro finished
-        \{% if !@type.has_constant?("STATE_DEFINED") %}
-          state()
-        \{% end %}
+        reset_state_checks
       end
     end
 
-    # The `state` macro defines a `State` subclass for the current `Model` with
-    # the given state variables.
-    #
-    # The state variables can be given as type declarations or assignments.
-    #
-    # A block can be passed to this macro, that will be inserted inside the
-    # definition of the initialize method.
-    #
-    # This allows to automatically define state retrieval methods,
-    # state serialization/deserialization methods and state initialization
-    # methods which will be used for simulation distribution purposes, for
-    # constructing model hierarchies from a file, or to allow changing initial
-    # state for model parameter exploration.
-    #
-    # ### Usage
-    #
-    # Default values can be passed using the type declaration notation:
-    #
-    # ```
-    # class MyModel < AtomicModel
-    #   state x : Int32 = 0, y : Int32 = 0
-    # end
-    # ```
-    #
-    # Through simple assignments:
-    #
-    # class MyModel < AtomicModel
-    #   state x = 0, y = 0
-    # end
-    #
-    # Or by providing an initialization block:
-    #
-    # ```
-    # class MyModel < AtomicModel
-    #   state x : Int32, y : Int32, z : Int32 do
-    #     @x = 0
-    #     @y = 0
-    #     @z = (rand * 100 + 1).to_i32
-    #   end
-    # end
-    # ```
-    macro state(*properties, &block)
-      private STATE_DEFINED = true
+    macro reset_state_checks
+      STATE_CHECKS = {state_complete: false}
+    end
 
-      {% prop_ids = properties.map do |prop|
-           if prop.is_a?(Assign)
-             prop.target.id
-           elsif prop.is_a?(TypeDeclaration)
-             prop.var.id
-           else
-             prop.id
-           end
-         end %}
-
-      class State
-        {% @type.constant("State").constant("STATE_INITIALIZE") << block.body if block.is_a? Block %}
-
-        def initialize(**kwargs)
-          {% if @type.constant("State").superclass < Quartz::State %}
-            super(**kwargs)
-          {% end %}
-
-          {% for block in @type.constant("State").constant("STATE_INITIALIZE") %}
-            {{block}}
-          {% end %}
-
-          {% for ivar in prop_ids %}
-            if val = kwargs[:{{ ivar }}]?
-              @{{ ivar }} = val
-            end
-          {% end %}
-        end
-
-        {% for property in properties %}
-          getter {{property.id}}
-
-          {% if property.is_a?(Assign) %}
-            def {{property.target.id}}=(@{{property.target.id}})
-            end
-          {% elsif property.is_a?(TypeDeclaration) %}
-            def {{property.var.id}}=(@{{property.var.id}} : {{property.type}})
-            end
-          {% else %}
-            def {{property.id}}=(@{{property.id}})
-            end
-          {% end %}
-        {% end %}
-      end
-
-      {% for property in prop_ids %}
-        def {{property.id}}
-          state.{{property.id}}
-        end
+    macro state(&block)
+      {% if STATE_CHECKS[:state_complete] %}
+        {% @type.raise("#{@type}::State have already been defined. Make sure to call the 'state' macro once for each model.") %}
       {% end %}
 
-      {% for property in properties %}
-        {% if property.is_a?(Assign) %}
-          def {{property.target.id}}=({{property.target.id}})
-            state.{{property.target.id}} = {{property.target.id}}
-          end
-        {% elsif property.is_a?(TypeDeclaration) %}
-          def {{property.var.id}}=({{property.var.id}} : {{property.type}})
-            state.{{property.var.id}} = {{property.var.id}}
-          end
-        {% else %}
-          def {{property.id}}=({{property.id}})
-            state.{{property.id}} = {{property.id}}
-          end
-        {% end %}
+      {% ancestor = if @type.superclass.has_constant?(:State)
+                      @type.superclass.name
+                    else
+                      "Quartz".id
+                    end %}
+
+      class State < {{ ancestor }}::State
+        STATE_VARS = [] of Nil
+        {{ yield }}
+      end
+
+      def_properties
+      def_serialization
+      {% STATE_CHECKS[:state_complete] = true %}
+    end
+
+    macro def_serialization
+      # redefine in subclasses
+    end
+
+    macro def_properties
+      {% for ivar in @type.constant(:State).constant(:STATE_VARS) %}
+        def {{ivar[:name]}}
+          state.{{ivar[:name]}}
+        end
+
+        def {{ivar[:name]}}=({{ivar[:name]}})
+          state.{{ivar[:name]}} = {{ivar[:name]}}
+        end
       {% end %}
 
       @state : Quartz::State = State.new
@@ -208,7 +164,7 @@ module Quartz
       @initial_state : Quartz::State?
 
       protected def initial_state
-       (@initial_state || State.new).as(State)
+        (@initial_state || State.new).as(State)
       end
 
       def initial_state=(state : State)
