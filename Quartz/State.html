@@ -60,23 +60,8 @@
       
     </li>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
       <a href="../Quartz/AtomicModel.html">AtomicModel</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
-      <a href="../Quartz/AtomicModel/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
-      
-    </li>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
-      <a href="../Quartz/AutoState.html">AutoState</a>
       
     </li>
   
@@ -180,18 +165,8 @@
       
         <ul>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
       <a href="../Quartz/DTSS/AtomicModel.html">AtomicModel</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
-      <a href="../Quartz/DTSS/AtomicModel/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
       
     </li>
   
@@ -270,6 +245,11 @@
       
     </li>
   
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidStateError" data-name="quartz::invalidstateerror">
+      <a href="../Quartz/InvalidStateError.html">InvalidStateError</a>
+      
+    </li>
+  
   <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
       <a href="../Quartz/List.html">List</a>
       
@@ -305,18 +285,8 @@
       
         <ul>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
       <a href="../Quartz/MultiComponent/Component.html">Component</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
-      <a href="../Quartz/MultiComponent/Component/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
       
     </li>
   
@@ -450,6 +420,11 @@
       
     </li>
   
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Stateful" data-name="quartz::stateful">
+      <a href="../Quartz/Stateful.html">Stateful</a>
+      
+    </li>
+  
   <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
       <a href="../Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
       
@@ -544,12 +519,12 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">abstract struct</span> Quartz::State
+  <span class="kind">class</span> Quartz::State
 
 </h1>
 
 
-  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Quartz/State.html">Quartz::State</a></li><li class="superclass">Struct</li><li class="superclass">Value</li><li class="superclass">Object</li></ul>
+  <ul class="superclass-hierarchy"><li class="superclass"><a href="../Quartz/State.html">Quartz::State</a></li><li class="superclass">Reference</li><li class="superclass">Object</li></ul>
 
 
 
@@ -563,26 +538,14 @@
     Overview
   </h2>
 
-  <p>A base struct that wraps the state of a model. Automatically extended by
-models through use of the <code>state_var</code> macro.</p>
+  <p>A base class that wraps the state of a model. Automatically extended by
+models through use of the <code>state</code> macro.</p>
+
+<p>See <code><a href="../Quartz/Stateful.html#state-instance-method">Stateful#state</a></code>.</p>
 
 
 
 
-
-  <h2>
-    <a id="included-modules" class="anchor" href="#included-modules">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Included Modules
-  </h2>
-  <ul class="other-types-list">
-    
-      <li class="other-type"><a href="../Quartz/Transferable.html">Quartz::Transferable</a></li>
-    
-  </ul>
 
 
 
@@ -598,13 +561,7 @@ models through use of the <code>state_var</code> macro.</p>
   </h2>
   <ul class="other-types-list">
     
-      <li class="other-type"><a href="../Quartz/AtomicModel/State.html">Quartz::AtomicModel::State</a></li>
-    
       <li class="other-type"><a href="../Quartz/DSDE/Executive/State.html">Quartz::DSDE::Executive::State</a></li>
-    
-      <li class="other-type"><a href="../Quartz/DTSS/AtomicModel/State.html">Quartz::DTSS::AtomicModel::State</a></li>
-    
-      <li class="other-type"><a href="../Quartz/MultiComponent/Component/State.html">Quartz::MultiComponent::Component::State</a></li>
     
   </ul>
 
@@ -623,7 +580,7 @@ models through use of the <code>state_var</code> macro.</p>
   </h2>
   
     
-      <a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L4" target="_blank">
+      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L6" target="_blank">
         quartz/state.cr
       </a>
     
@@ -645,40 +602,13 @@ models through use of the <code>state_var</code> macro.</p>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new(pull:JSON::PullParser)-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#new-class-method" class="signature"><strong>.new</strong></a>
+        <a href="#new(**kwargs)-class-method" class="signature"><strong>.new</strong>(**kwargs)</a>
         
       </li>
     
   </ul>
 
 
-
-  <h2>
-    <a id="class-method-summary" class="anchor" href="#class-method-summary">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Class Method Summary
-  </h2>
-  <ul class="list-summary">
-    
-      <li class="entry-summary">
-        <a href="#from_json(io:IO)-class-method" class="signature"><strong>.from_json</strong>(io : IO)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#from_json(str:String)-class-method" class="signature"><strong>.from_json</strong>(str : String)</a>
-        
-      </li>
-    
-  </ul>
 
 
 
@@ -693,7 +623,40 @@ models through use of the <code>state_var</code> macro.</p>
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#to_json(json:JSON::Builder)-instance-method" class="signature"><strong>#to_json</strong>(json : JSON::Builder)</a>
+        <a href="#==(other:self)-instance-method" class="signature"><strong>#==</strong>(other : <span class="k">self</span>)</a>
+        
+          <div class="summary"><p>Returns <code>true</code> if this reference is the same as <em>other</em>.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#==(other)-instance-method" class="signature"><strong>#==</strong>(other)</a>
+        
+          <div class="summary"><p>Returns <code>false</code> (other can only be a <code>Value</code> here).</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
+        
+          <div class="summary"><p>Returns a copy of <code>self</code> with all instance variables cloned.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#hash(hasher)-instance-method" class="signature"><strong>#hash</strong>(hasher)</a>
+        
+          <div class="summary"><p>See <code>Object#hash(hasher)</code></p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#inspect(io)-instance-method" class="signature"><strong>#inspect</strong>(io)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#to_hash-instance-method" class="signature"><strong>#to_hash</strong></a>
         
       </li>
     
@@ -702,8 +665,24 @@ models through use of the <code>state_var</code> macro.</p>
         
       </li>
     
+  </ul>
+
+
+
+  <h2>
+    <a id="macro-summary" class="anchor" href="#macro-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Summary
+  </h2>
+  <ul class="list-summary">
+    
       <li class="entry-summary">
-        <a href="#to_tuple-instance-method" class="signature"><strong>#to_tuple</strong></a>
+        <a href="#var(name,&block)-macro" class="signature"><strong>var</strong>(name, &block)</a>
+        
+          <div class="summary"><p>The <code><a href="../Quartz/State.html#var(name,&block)-macro">var</a></code> macro defines a state variable for the <code><a href="../Quartz/State.html">State</a></code> of a model.</p></div>
         
       </li>
     
@@ -711,36 +690,14 @@ models through use of the <code>state_var</code> macro.</p>
 
 
 
-
-
 <div class="methods-inherited">
   
     
 
-
-    
-
-
-    
-
-
-  
-    
-
-
-    
-
-
-    
-
-
-  
-    
-
-  <h3>Instance methods inherited from struct <code>Value</code></h3>
+  <h3>Instance methods inherited from class <code>Reference</code></h3>
   
   
-    <a href="../Value.html#==(other:Quartz::Any)-instance-method" class="tooltip">
+    <a href="../Reference.html#==(other:Quartz::Any)-instance-method" class="tooltip">
       <span>==(other : Quartz::Any)</span>
     ==</a>
     
@@ -785,82 +742,24 @@ models through use of the <code>state_var</code> macro.</p>
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
+    <div class="entry-detail" id="new(**kwargs)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(pull : JSON::PullParser)
+        def self.<strong>new</strong>(**kwargs)
 
-        <a class="method-permalink" href="#new(pull:JSON::PullParser)-class-method">#</a>
+        <a class="method-permalink" href="#new(**kwargs)-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L10" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="new-class-method">
-      <div class="signature">
-        
-        def self.<strong>new</strong>
-
-        <a class="method-permalink" href="#new-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L7" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L49" target="_blank">View source</a>]
         
       </div>
     </div>
   
 
 
-
-  <h2>
-    <a id="class-method-detail" class="anchor" href="#class-method-detail">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>
-    Class Method Detail
-  </h2>
-  
-    <div class="entry-detail" id="from_json(io:IO)-class-method">
-      <div class="signature">
-        
-        def self.<strong>from_json</strong>(io : IO)
-
-        <a class="method-permalink" href="#from_json(io:IO)-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L24" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="from_json(str:String)-class-method">
-      <div class="signature">
-        
-        def self.<strong>from_json</strong>(str : String)
-
-        <a class="method-permalink" href="#from_json(str:String)-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L28" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
 
 
 
@@ -873,18 +772,130 @@ models through use of the <code>state_var</code> macro.</p>
     Instance Method Detail
   </h2>
   
-    <div class="entry-detail" id="to_json(json:JSON::Builder)-instance-method">
+    <div class="entry-detail" id="==(other:self)-instance-method">
       <div class="signature">
         
-        def <strong>to_json</strong>(json : JSON::Builder)
+        def <strong>==</strong>(other : <span class="k">self</span>)
 
-        <a class="method-permalink" href="#to_json(json:JSON::Builder)-instance-method">#</a>
+        <a class="method-permalink" href="#==(other:self)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from class Reference
+            </div>
+          
+          <p>Returns <code>true</code> if this reference is the same as <em>other</em>. Invokes <code>same?</code>.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L79" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="==(other)-instance-method">
+      <div class="signature">
+        
+        def <strong>==</strong>(other)
+
+        <a class="method-permalink" href="#==(other)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from class Reference
+            </div>
+          
+          <p>Returns <code>false</code> (other can only be a <code>Value</code> here).</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L86" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="clone-instance-method">
+      <div class="signature">
+        
+        def <strong>clone</strong>
+
+        <a class="method-permalink" href="#clone-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns a copy of <code>self</code> with all instance variables cloned.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L77" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="hash(hasher)-instance-method">
+      <div class="signature">
+        
+        def <strong>hash</strong>(hasher)
+
+        <a class="method-permalink" href="#hash(hasher)-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+            <div class="doc-inherited">
+              Description copied from class Reference
+            </div>
+          
+          <p>See <code>Object#hash(hasher)</code></p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L90" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="inspect(io)-instance-method">
+      <div class="signature">
+        
+        def <strong>inspect</strong>(io)
+
+        <a class="method-permalink" href="#inspect(io)-instance-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L21" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L97" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="to_hash-instance-method">
+      <div class="signature">
+        
+        def <strong>to_hash</strong>
+
+        <a class="method-permalink" href="#to_hash-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L67" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -900,29 +911,72 @@ models through use of the <code>state_var</code> macro.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L17" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L57" target="_blank">View source</a>]
         
       </div>
     </div>
   
-    <div class="entry-detail" id="to_tuple-instance-method">
+
+
+
+  <h2>
+    <a id="macro-detail" class="anchor" href="#macro-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Detail
+  </h2>
+  
+    <div class="entry-detail" id="var(name,&amp;block)-macro">
       <div class="signature">
         
-        def <strong>to_tuple</strong>
+        macro <strong>var</strong>(name, &block)
 
-        <a class="method-permalink" href="#to_tuple-instance-method">#</a>
+        <a class="method-permalink" href="#var(name,&block)-macro">#</a>
       </div>
+      
+        <div class="doc">
+          
+          <p>The <code><a href="../Quartz/State.html#var(name,&block)-macro">var</a></code> macro defines a state variable for the <code><a href="../Quartz/State.html">State</a></code> of a model. Its
+primary goal is to generate convenient getters and setters for the model
+among other purposes.</p>
+
+<p>It is intended to be used within a block provided with the <code><a href="../Quartz/Stateful.html#state-instance-method">Stateful#state</a></code>
+macro.</p>
+
+<p>See also <code><a href="../Quartz/Stateful.html#state-instance-method">Stateful#state</a></code>.</p>
+
+<h3><a id="usage" class="anchor" href="#usage">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Usage</h3>
+
+<p><code><a href="../Quartz/State.html#var(name,&block)-macro">var</a></code> must receive a type declaration which will be used to declare an instance
+variable, a getter and a setter.</p>
+
+<p>Default values <em>must</em> be declared using the type declaration notation or through
+a block (lazy initialization) :</p>
+
+<pre><code>state <span class="k">do</span>
+  var foo : <span class="t">Int32</span> <span class="o">=</span> <span class="n">42</span>
+  var bar : <span class="t">Int32</span> { (rand <span class="o">*</span> <span class="n">100</span> <span class="o">+</span> <span class="n">1</span>).to_i32 }
+  var quz : <span class="t">Int32</span> { foo <span class="o">*</span> <span class="n">42</span> }
+<span class="k">end</span></code></pre>
+
+<p>Note from previous example that the initialization block of <code>quz</code> is
+allowed to reference the value of another state variable.</p>
+        </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/state.cr#L13" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L34" target="_blank">View source</a>]
         
       </div>
     </div>
   
-
-
 
 
 </div>

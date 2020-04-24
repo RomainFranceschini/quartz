@@ -60,23 +60,8 @@
       
     </li>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
       <a href="Quartz/AtomicModel.html">AtomicModel</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
-      <a href="Quartz/AtomicModel/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
-      
-    </li>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
-      <a href="Quartz/AutoState.html">AutoState</a>
       
     </li>
   
@@ -180,18 +165,8 @@
       
         <ul>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
       <a href="Quartz/DTSS/AtomicModel.html">AtomicModel</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
-      <a href="Quartz/DTSS/AtomicModel/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
       
     </li>
   
@@ -270,6 +245,11 @@
       
     </li>
   
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidStateError" data-name="quartz::invalidstateerror">
+      <a href="Quartz/InvalidStateError.html">InvalidStateError</a>
+      
+    </li>
+  
   <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
       <a href="Quartz/List.html">List</a>
       
@@ -305,18 +285,8 @@
       
         <ul>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
       <a href="Quartz/MultiComponent/Component.html">Component</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
-      <a href="Quartz/MultiComponent/Component/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
       
     </li>
   
@@ -450,6 +420,11 @@
       
     </li>
   
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Stateful" data-name="quartz::stateful">
+      <a href="Quartz/Stateful.html">Stateful</a>
+      
+    </li>
+  
   <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
       <a href="Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
       
@@ -542,29 +517,28 @@
 
 
 <div class="main-content">
-<h1><a id="quartz-a-devs-based-modeling-simulation-environment-wip" class="anchor" href="#quartz-a-devs-based-modeling-simulation-environment-wip">
+<h1><a id="quartz-a-crystal-modeling-simulation-framework" class="anchor" href="#quartz-a-crystal-modeling-simulation-framework">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Quartz - A DEVS-based Modeling & Simulation Environment (WIP)</h1>
+</a>Quartz - A Crystal Modeling & Simulation Framework</h1>
 
 <p><a href="https://travis-ci.org/RomainFranceschini/quartz" target="_blank"><img src="https://travis-ci.org/RomainFranceschini/quartz.svg?branch=master" alt="Build Status"/></a></p>
 
 <p>Quartz is a Crystal library for defining models and constructing discrete
-event simulations based on the PDEVS (Parallel Discrete EVent System Specification) and
-some of its extensions (DSDE, multiPDEVS).</p>
+event simulations.</p>
 
-<p>This project is developed by a research group at University of Corsica, which
-also maintains another M&S environment :
-<a href="https://github.com/capocchi/DEVSimPy" target="_blank">DEVSimPy</a>.</p>
+<p>The following features are supported:</p>
 
-<h2><a id="status" class="anchor" href="#status">
+<ul><li>Hierarchical models, through the coupling of sub-models via their input/output ports.</li><li>Discrete-event and discrete-time models.</li><li>Dynamic structure models.</li><li>A precise representation of the simulated time.</li><li>Heterogeneous models, <em>e.g.</em> coupling discrete-event and discrete-time models.</li><li>Model and / or ports observers.</li><li>Simulation hooks.</li></ul>
+
+<h2><a id="documentation" class="anchor" href="#documentation">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Status</h2>
+</a>Documentation</h2>
 
-<p>This project is a <strong>work in progress</strong> and is in alpha stage.</p>
+<ul><li><a href="https://github.com/RomainFranceschini/quartz/wiki" target="_blank">Docs</a></li><li><a href="https://romainfranceschini.github.io/quartz/" target="_blank">API</a></li></ul>
 
 <h2><a id="installation" class="anchor" href="#installation">
   <svg class="octicon-link" aria-hidden="true">
@@ -592,22 +566,11 @@ at their root. Create a <code>shard.yml</code> file in your project's folder (or
 
 <pre><code class="language-yaml">dependencies:
   quartz:
-    github: RomainFranceschini/quartz
-    version: 0.1.0</code></pre>
+    github: RomainFranceschini/quartz</code></pre>
 
-<p>Replace the version <em>0.1.0</em> with the actual version of Quartz you wish to use.</p>
-
-<p>Then, resolve dependencies with shards (Crystal dependency manager) to install Quartz and its requirements as a dependency of your project:</p>
+<p>Then, resolve dependencies with shards (Crystal dependency manager) to install Quartz as a dependency of your project:</p>
 
 <pre><code></code></pre>
-
-<h3><a id="documentation" class="anchor" href="#documentation">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Documentation</h3>
-
-<ul><li><a href="https://github.com/RomainFranceschini/quartz/wiki" target="_blank">Docs</a></li><li><a href="https://romainfranceschini.github.io/quartz/" target="_blank">API</a></li></ul>
 
 <h3><a id="usage" class="anchor" href="#usage">
   <svg class="octicon-link" aria-hidden="true">
@@ -615,66 +578,35 @@ at their root. Create a <code>shard.yml</code> file in your project's folder (or
   </svg>
 </a>Usage</h3>
 
-<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;quartz&quot;</span>
-
-<span class="k">class</span> <span class="t">LotkaVolterra</span> <span class="o">&lt;</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">AtomicModel</span>
-  state_var x : <span class="t">Float64</span> <span class="o">=</span> <span class="n">1.0</span>
-  state_var y : <span class="t">Float64</span> <span class="o">=</span> <span class="n">1.0</span>
-  state_var alpha : <span class="t">Float64</span> <span class="o">=</span> <span class="n">5.2</span>     <span class="c"># prey reproduction rate</span>
-  state_var beta : <span class="t">Float64</span> <span class="o">=</span> <span class="n">3.4</span>      <span class="c"># predator per prey mortality rate</span>
-  state_var gamma : <span class="t">Float64</span> <span class="o">=</span> <span class="n">2.1</span>     <span class="c"># predator mortality rate</span>
-  state_var delta : <span class="t">Float64</span> <span class="o">=</span> <span class="n">1.4</span>     <span class="c"># predator per prey reproduction rate</span>
-
-  @sigma <span class="o">=</span> <span class="t">Duration</span>.<span class="k">new</span>(<span class="n">10</span>, <span class="t">Scale</span><span class="t">::</span><span class="t">MICRO</span>) <span class="c"># euler integration</span>
-
-  <span class="k">def</span> <span class="m">internal_transition</span>
-    dxdt <span class="o">=</span> ((@x <span class="o">*</span> @alpha) <span class="o">-</span> (@beta <span class="o">*</span> @x <span class="o">*</span> @y))
-    dydt <span class="o">=</span> (<span class="o">-</span>(@gamma <span class="o">*</span> @y) <span class="o">+</span> (@delta <span class="o">*</span> @x <span class="o">*</span> @y))
-
-    @x += @sigma <span class="o">*</span> dxdt
-    @y += @sigma <span class="o">*</span> dydt
-  <span class="k">end</span>
-<span class="k">end</span>
-
-model <span class="o">=</span> <span class="t">LotkaVolterra</span>.<span class="k">new</span>(<span class="n">:lotka</span>)
-sim <span class="o">=</span> <span class="t">Quartz</span><span class="t">::</span><span class="t">Simulation</span>.<span class="k">new</span>(model, duration: <span class="t">Quartz</span>.duration(<span class="n">20</span>))
-sim.simulate</code></pre>
-
-<pre><code></code></pre>
-
-<h3><a id="more-examples" class="anchor" href="#more-examples">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>More examples</h3>
-
 <p>See the <a href="examples" target="_blank">examples</a> folder.</p>
 
-<h2><a id="getting-the-code" class="anchor" href="#getting-the-code">
+<h2><a id="underlying-theory" class="anchor" href="#underlying-theory">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Getting the code</h2>
+</a>Underlying theory</h2>
 
-<ul><li>Install Crystal compiler (&lt;http://crystal-lang.org/docs/installation>)</li><li>Clone the git repository (<code>git clone git://github.com/RomainFranceschini/quartz.git</code>).</li><li>Resolves dependencies (<code>cd quartz; crystal deps</code>).</li><li>Run specs (<code>crystal spec</code>).</li><li>Build examples (<code>crystal build examples/*.cr</code>)/</li></ul>
+<p>Quartz is based on the PDEVS (Parallel Discrete EVent System Specification) formalism and some of its extensions (DTSS, DSDE, multiPDEVS).</p>
 
-<h2><a id="alternatives" class="anchor" href="#alternatives">
+<p>This project is developed by a research group at University of Corsica.</p>
+
+<h3><a id="related-bookspapers" class="anchor" href="#related-bookspapers">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
-</a>Alternatives</h2>
+</a>Related books/papers</h3>
+
+<ul><li>Zeigler, Bernard P, Alexandre Muzy, and Ernesto Kofman. 2019. <em>Theory of Modeling and Simulation</em>. 3rd edition. Discrete Event & Iterative System Computational Foundations. Academic Press. <a href="https://doi.org/10.1016/C2016-0-03987-6" target="_blank">DOI: 10.1016/C2016-0-03987-6</a>.</li><li>Foures, Damien, Romain Franceschini, Paul-Antoine Bisgambiglia, et Bernard P. Zeigler. 2018. « <em>MultiPDEVS: A Parallel Multicomponent System Specification Formalism</em> ». Complexity 2018: 1‑19. <a href="https://doi.org/10.1155/2018/3751917" target="_blank">DOI: 10.1155/2018/3751917</a>.</li><li>Franceschini, Romain, Paul-Antoine Bisgambiglia, Paul Bisgambiglia, and David R. C. Hill. 2018. « <em>An Overview of the Quartz Modelling and Simulation Framework</em> ». In Proceedings of 8th International Conference on Simulation and Modeling Methodologies, Technologies and Applications, 120‑27. Porto, Portugal: SCITEPRESS - Science and Technology Publications. <a href="https://doi.org/10.5220/0006864201200127" target="_blank">DOI: 10.5220/0006864201200127</a></li><li>Goldstein, Rhys, Azam Khan, Olivier Dalle, et Gabriel Wainer. 2018. « <em>Multiscale Representation of Simulated Time</em> ». SIMULATION 94 (6): 519‑58. <a href="https://doi.org/10.1177/0037549717726868" target="_blank">DOI: 10.1177/0037549717726868</a>.</li></ul>
+
+<h3><a id="alternatives" class="anchor" href="#alternatives">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Alternatives</h3>
 
 <p>Many other tools allow modeling and simulation based on the DEVS theory. Here is a non-exhaustive list:</p>
 
 <ul><li><a href="http://www.vle-project.org" target="_blank">VLE</a> (Virtual Laboratory Environment)</li><li><a href="http://web.ornl.gov/~1qn/adevs/" target="_blank">ADEVS</a></li><li><a href="http://msdl.cs.mcgill.ca/projects/DEVS/PythonPDEVS" target="_blank">PythonPDEVS</a></li><li><a href="http://cell-devs.sce.carleton.ca/mediawiki/index.php/Main_Page" target="_blank">CD++</a></li><li><a href="https://sourceforge.net/projects/powerdevs/" target="_blank">PowerDEVS</a></li><li><a href="http://acims.asu.edu/software/devs-suite/" target="_blank">DEVS-Suite</a></li><li><a href="http://www.ms4systems.com" target="_blank">MS4Me</a></li><li><a href="http://jamesii.informatik.uni-rostock.de/jamesii.org/" target="_blank">James II</a></li></ul>
-
-<h2><a id="suggested-reading" class="anchor" href="#suggested-reading">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Suggested Reading</h2>
-
-<ul><li>Bernard P. Zeigler, Herbert Praehofer, Tag Gon Kim. <em>Theory of Modeling and Simulation</em>. Academic Press; 2 edition, 2000. ISBN-13: 978-0127784557</li></ul>
 
 <h2><a id="contributors" class="anchor" href="#contributors">
   <svg class="octicon-link" aria-hidden="true">
@@ -682,7 +614,7 @@ sim.simulate</code></pre>
   </svg>
 </a>Contributors</h2>
 
-<ul><li><a href="https://github.com/[RomainFranceschini]" target="_blank">[RomainFranceschini</a> Romain Franceschini - creator, maintainer (Université de Corse Pasquale Paoli)</li></ul>
+<ul><li><a href="https://github.com/RomainFranceschini" target="_blank">[RomainFranceschini</a> Romain Franceschini - creator, maintainer (University of Corsica Pasquale Paoli)</li></ul>
 
 <h2><a id="contributing" class="anchor" href="#contributing">
   <svg class="octicon-link" aria-hidden="true">
