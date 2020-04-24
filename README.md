@@ -1,18 +1,24 @@
-# Quartz - A DEVS-based Modeling & Simulation Environment (WIP)
+# Quartz - A Crystal Modeling & Simulation Framework
 
 [![Build Status](https://travis-ci.org/RomainFranceschini/quartz.svg?branch=master)](https://travis-ci.org/RomainFranceschini/quartz)
 
 Quartz is a Crystal library for defining models and constructing discrete
-event simulations based on the PDEVS (Parallel Discrete EVent System Specification) and
-some of its extensions (DSDE, multiPDEVS).
+event simulations.
 
-This project is developed by a research group at University of Corsica, which
-also maintains another M&S environment :
-[DEVSimPy](https://github.com/capocchi/DEVSimPy).
+The following features are supported:
 
-## Status
+- Hierarchical models, through the coupling of sub-models via their input/output ports.
+- Discrete-event and discrete-time models.
+- Dynamic structure models.
+- A precise representation of the simulated time.
+- Heterogeneous models, *e.g.* coupling discrete-event and discrete-time models.
+- Model and / or ports observers.
+- Simulation hooks.
 
-This project is a **work in progress** and is in alpha stage.
+## Documentation
+
+* [Docs](https://github.com/RomainFranceschini/quartz/wiki)
+* [API](https://romainfranceschini.github.io/quartz/)
 
 ## Installation
 
@@ -30,69 +36,32 @@ at their root. Create a `shard.yml` file in your project's folder (or add to it)
 dependencies:
   quartz:
     github: RomainFranceschini/quartz
-    version: 0.1.0
 ```
 
-Replace the version *0.1.0* with the actual version of Quartz you wish to use.
-
-Then, resolve dependencies with shards (Crystal dependency manager) to install Quartz and its requirements as a dependency of your project:
+Then, resolve dependencies with shards (Crystal dependency manager) to install Quartz as a dependency of your project:
 
 ```
 $ shards install
 ```
 
-### Documentation
-
-* [Docs](https://github.com/RomainFranceschini/quartz/wiki)
-* [API](https://romainfranceschini.github.io/quartz/)
-
 ### Usage
-
-```crystal
-require "quartz"
-
-class LotkaVolterra < Quartz::AtomicModel
-  state_var x : Float64 = 1.0
-  state_var y : Float64 = 1.0
-  state_var alpha : Float64 = 5.2     # prey reproduction rate
-  state_var beta : Float64 = 3.4      # predator per prey mortality rate
-  state_var gamma : Float64 = 2.1     # predator mortality rate
-  state_var delta : Float64 = 1.4     # predator per prey reproduction rate
-
-  @sigma = Duration.new(10, Scale::MICRO) # euler integration
-
-  def internal_transition
-    dxdt = ((@x * @alpha) - (@beta * @x * @y))
-    dydt = (-(@gamma * @y) + (@delta * @x * @y))
-
-    @x += @sigma * dxdt
-    @y += @sigma * dydt
-  end
-end
-
-model = LotkaVolterra.new(:lotka)
-sim = Quartz::Simulation.new(model, duration: Quartz.duration(20))
-sim.simulate
-```
-
-```
-$ crystal build lotka.cr
-$ ./lotka
-```
-
-### More examples
 
 See the [examples](examples) folder.
 
-## Getting the code
+## Underlying theory
 
-- Install Crystal compiler (<http://crystal-lang.org/docs/installation>)
-- Clone the git repository (`git clone git://github.com/RomainFranceschini/quartz.git`).
-- Resolves dependencies (`cd quartz; crystal deps`).
-- Run specs (`crystal spec`).
-- Build examples (`crystal build examples/*.cr`)/
+Quartz is based on the PDEVS (Parallel Discrete EVent System Specification) formalism and some of its extensions (DTSS, DSDE, multiPDEVS).
 
-## Alternatives
+This project is developed by a research group at University of Corsica.
+
+### Related books/papers
+
+- Zeigler, Bernard P, Alexandre Muzy, and Ernesto Kofman. 2019. *Theory of Modeling and Simulation*. 3rd edition. Discrete Event & Iterative System Computational Foundations. Academic Press. [DOI: 10.1016/C2016-0-03987-6](https://doi.org/10.1016/C2016-0-03987-6).
+- Foures, Damien, Romain Franceschini, Paul-Antoine Bisgambiglia, et Bernard P. Zeigler. 2018. « *MultiPDEVS: A Parallel Multicomponent System Specification Formalism* ». Complexity 2018: 1‑19. [DOI: 10.1155/2018/3751917](https://doi.org/10.1155/2018/3751917).
+- Franceschini, Romain, Paul-Antoine Bisgambiglia, Paul Bisgambiglia, and David R. C. Hill. 2018. « *An Overview of the Quartz Modelling and Simulation Framework* ». In Proceedings of 8th International Conference on Simulation and Modeling Methodologies, Technologies and Applications, 120‑27. Porto, Portugal: SCITEPRESS - Science and Technology Publications. [DOI: 10.5220/0006864201200127](https://doi.org/10.5220/0006864201200127)
+- Goldstein, Rhys, Azam Khan, Olivier Dalle, et Gabriel Wainer. 2018. « *Multiscale Representation of Simulated Time* ». SIMULATION 94 (6): 519‑58. [DOI: 10.1177/0037549717726868](https://doi.org/10.1177/0037549717726868).
+
+### Alternatives
 
 Many other tools allow modeling and simulation based on the DEVS theory. Here is a non-exhaustive list:
 - [VLE](http://www.vle-project.org) (Virtual Laboratory Environment)
@@ -104,13 +73,9 @@ Many other tools allow modeling and simulation based on the DEVS theory. Here is
 - [MS4Me](http://www.ms4systems.com)
 - [James II](http://jamesii.informatik.uni-rostock.de/jamesii.org/)
 
-## Suggested Reading
-
-* Bernard P. Zeigler, Herbert Praehofer, Tag Gon Kim. *Theory of Modeling and Simulation*. Academic Press; 2 edition, 2000. ISBN-13: 978-0127784557
-
 ## Contributors
 
-- [[RomainFranceschini]](https://github.com/[RomainFranceschini]) Romain Franceschini - creator, maintainer (Université de Corse Pasquale Paoli)
+- [[RomainFranceschini]](https://github.com/RomainFranceschini) Romain Franceschini - creator, maintainer (University of Corsica Pasquale Paoli)
 
 ## Contributing
 
