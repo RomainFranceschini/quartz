@@ -60,7 +60,7 @@ private struct NoInitializeChild < AfterInitializeParent
   end
 end
 
-private class Point2d
+private class Foo
   include Stateful
 
   state do
@@ -69,7 +69,7 @@ private class Point2d
   end
 end
 
-private class Point3d < Point2d
+private class Bar < Foo
   state do
     var z : Int32 = 0
   end
@@ -177,17 +177,17 @@ describe "Stateful" do
 
   context "inheritance" do
     it "" do
-      m = Point2d.new
+      m = Foo.new
       m.x.should eq 0
       m.y.should eq 0
 
-      s = Point2d::State.new(x: 1, y: 1)
+      s = Foo::State.new(x: 1, y: 1)
       s.x.should eq 1
       s.y.should eq 1
     end
 
     it "raises if child is given parent state" do
-      m = Point2d.new
+      m = Foo.new
       expect_raises(InvalidStateError) do
         m.state = Quartz::State.new
       end
@@ -195,23 +195,23 @@ describe "Stateful" do
         m.initial_state = Quartz::State.new
       end
 
-      m = Point3d.new
+      m = Bar.new
       expect_raises(InvalidStateError) do
-        m.state = Point2d::State.new
+        m.state = Foo::State.new
       end
       expect_raises(InvalidStateError) do
-        m.initial_state = Point2d::State.new
+        m.initial_state = Foo::State.new
       end
     end
 
     it "subclasses inherits state of parents" do
-      m = Point3d.new
+      m = Bar.new
       m.x.should eq 0
       m.y.should eq 0
       m.z.should eq 0
       m.xyz.should eq({0, 0, 0})
 
-      s = Point3d::State.new(x: 1, y: 1, z: 1)
+      s = Bar::State.new(x: 1, y: 1, z: 1)
       s.x.should eq 1
       s.y.should eq 1
       s.z.should eq 1
