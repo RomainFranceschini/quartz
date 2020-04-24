@@ -5,7 +5,7 @@ module Quartz
     class ProcessorAllocationError < Exception; end
 
     @simulation : Simulation
-    @stack : Array(Coordinator)
+    @stack : Deque(Coordinator)
     @root_model : CoupledModel?
 
     @root_coordinator : Coordinator?
@@ -15,11 +15,11 @@ module Quartz
     end
 
     def initialize(@simulation, @root_model)
-      @stack = Array(Coordinator).new
+      @stack = Deque(Coordinator).new
     end
 
     def initialize(@simulation, parent_processor : Coordinator)
-      @stack = Array(Coordinator).new
+      @stack = Deque(Coordinator).new
       @stack.push parent_processor
     end
 
