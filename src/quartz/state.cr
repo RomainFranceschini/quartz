@@ -1,7 +1,36 @@
 module Quartz
-  # A base struct that wraps the state of a model. Automatically extended by
+  # A base class that wraps the state of a model. Automatically extended by
   # models through use of the `state` macro.
+  #
+  # See `Stateful#state`.
   class State
+    # The `var` macro defines a state variable for the `State` of a model. Its
+    # primary goal is to generate convenient getters and setters for the model
+    # among other purposes.
+    #
+    # It is intended to be used within a block provided with the `Stateful#state`
+    # macro.
+    #
+    # See also `Stateful#state`.
+    #
+    # ### Usage
+    #
+    # `var` must receive a type declaration which will be used to declare an instance
+    # variable, a getter and a setter.
+    #
+    # Default values *must* be declared using the type declaration notation or through
+    # a block (lazy initialization) :
+    #
+    # ```
+    # state do
+    #   var foo : Int32 = 42
+    #   var bar : Int32 { (rand * 100 + 1).to_i32 }
+    #   var quz : Int32 { foo * 42 }
+    # end
+    # ```
+    #
+    # Note from previous example that the initialization block of `quz` is
+    # allowed to reference the value of another state variable.
     macro var(name, &block)
       {%
         prop = if name.is_a?(TypeDeclaration)
@@ -15,19 +44,6 @@ module Quartz
       %}
 
       property {{name}} {% if block %} {{block}} {% end %}
-
-      # {% if block && name.is_a?(TypeDeclaration) %}
-      #   @{{name.var}} : {{name.type}}?
-      # {% else %}
-      #   @{{name}}
-      # {% end %}
-
-      # def {{prop[:name]}}
-      #   @{{prop[:name]}}
-      # end
-
-      # def {{prop[:name]}}=(@{{prop[:name]}})
-      # end
     end
 
     def initialize(**kwargs)
@@ -105,6 +121,23 @@ module Quartz
       STATE_CHECKS = {state_complete: false}
     end
 
+    # The `state` macro defines a `State` subclass for the current `Model`
+    # and expects a block to be passed.
+    #
+    # The given block is inserted inside the definition of the `State` subclass.
+    #
+    # See also `State#var`.
+    #
+    # ### Example
+    #
+    # ```
+    # class MyModel < AtomicModel
+    #   state do
+    #     var x : Int32 = 0
+    #     var y : Int32 = 0
+    #   end
+    # end
+    # ```
     macro state(&block)
       {% if STATE_CHECKS[:state_complete] %}
         {% @type.raise("#{@type}::State have already been defined. Make sure to call the 'state' macro once for each model.") %}
