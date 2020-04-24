@@ -15,7 +15,7 @@
 </svg>
 
   <meta id="repository-name" content="github.com/RomainFranceschini/quartz">
-  <title>Quartz::DSDE - github.com/RomainFranceschini/quartz</title>
+  <title>Quartz::Stateful - github.com/RomainFranceschini/quartz</title>
   <script type="text/javascript">
     CrystalDoc.base_path = "../";
   </script>
@@ -120,7 +120,7 @@
       
     </li>
   
-  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE" data-name="quartz::dsde">
+  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DSDE" data-name="quartz::dsde">
       <a href="../Quartz/DSDE.html">DSDE</a>
       
         <ul>
@@ -420,7 +420,7 @@
       
     </li>
   
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Stateful" data-name="quartz::stateful">
+  <li class=" current" data-id="github.com/RomainFranceschini/quartz/Quartz/Stateful" data-name="quartz::stateful">
       <a href="../Quartz/Stateful.html">Stateful</a>
       
     </li>
@@ -519,7 +519,7 @@
 <div class="main-content">
 <h1 class="type-name">
 
-  <span class="kind">module</span> Quartz::DSDE
+  <span class="kind">module</span> Quartz::Stateful
 
 </h1>
 
@@ -537,6 +537,24 @@
 
 
 
+  <h2>
+    <a id="direct-including-types" class="anchor" href="#direct-including-types">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Direct including types
+  </h2>
+  <ul class="other-types-list">
+    
+      <li class="other-type"><a href="../Quartz/AtomicModel.html">Quartz::AtomicModel</a></li>
+    
+      <li class="other-type"><a href="../Quartz/DTSS/AtomicModel.html">Quartz::DTSS::AtomicModel</a></li>
+    
+      <li class="other-type"><a href="../Quartz/MultiComponent/Component.html">Quartz::MultiComponent::Component</a></li>
+    
+  </ul>
+
 
 
 
@@ -550,29 +568,8 @@
   </h2>
   
     
-      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/dsde/executive.cr#L2" target="_blank">
-        quartz/dsde/executive.cr
-      </a>
-    
-    <br/>
-  
-    
-      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/dsde/coupled.cr#L2" target="_blank">
-        quartz/dsde/coupled.cr
-      </a>
-    
-    <br/>
-  
-    
-      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/dsde/coordinator.cr#L2" target="_blank">
-        quartz/dsde/coordinator.cr
-      </a>
-    
-    <br/>
-  
-    
-      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/dsde/root.cr#L2" target="_blank">
-        quartz/dsde/root.cr
+      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L110" target="_blank">
+        quartz/state.cr
       </a>
     
     <br/>
@@ -580,6 +577,24 @@
 
 
 
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="STATE_CHECKS">
+        <strong>STATE_CHECKS</strong> = <code>{state_complete: <span class="n">false</span>}</code>
+      </dt>
+      
+    
+  </dl>
 
 
 
@@ -587,6 +602,73 @@
 
 
 
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#initial_state-instance-method" class="signature"><strong>#initial_state</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#initial_state=(state:Quartz::State)-instance-method" class="signature"><strong>#initial_state=</strong>(state : Quartz::State)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#state-instance-method" class="signature"><strong>#state</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#state=(state:Quartz::State)-instance-method" class="signature"><strong>#state=</strong>(state : Quartz::State)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="macro-summary" class="anchor" href="#macro-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#def_properties-macro" class="signature"><strong>def_properties</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#def_serialization-macro" class="signature"><strong>def_serialization</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#reset_state_checks-macro" class="signature"><strong>reset_state_checks</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#state(&block)-macro" class="signature"><strong>state</strong>(&block)</a>
+        
+          <div class="summary"><p>The <code><a href="../Quartz/Stateful.html#state-instance-method">#state</a></code> macro defines a <code><a href="../Quartz/State.html">State</a></code> subclass for the current <code><a href="../Quartz/Model.html">Model</a></code> and expects a block to be passed.</p></div>
+        
+      </li>
+    
+  </ul>
 
 
 
@@ -599,7 +681,178 @@
 
 
 
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="initial_state-instance-method">
+      <div class="signature">
+        
+        def <strong>initial_state</strong>
 
+        <a class="method-permalink" href="#initial_state-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L180" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="initial_state=(state:Quartz::State)-instance-method">
+      <div class="signature">
+        
+        def <strong>initial_state=</strong>(state : <a href="../Quartz/State.html">Quartz::State</a>)
+
+        <a class="method-permalink" href="#initial_state=(state:Quartz::State)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L176" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="state-instance-method">
+      <div class="signature">
+        
+        def <strong>state</strong>
+
+        <a class="method-permalink" href="#state-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L168" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="state=(state:Quartz::State)-instance-method">
+      <div class="signature">
+        
+        def <strong>state=</strong>(state : <a href="../Quartz/State.html">Quartz::State</a>)
+
+        <a class="method-permalink" href="#state=(state:Quartz::State)-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L172" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="macro-detail" class="anchor" href="#macro-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Macro Detail
+  </h2>
+  
+    <div class="entry-detail" id="def_properties-macro">
+      <div class="signature">
+        
+        macro <strong>def_properties</strong>
+
+        <a class="method-permalink" href="#def_properties-macro">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L184" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="def_serialization-macro">
+      <div class="signature">
+        
+        macro <strong>def_serialization</strong>
+
+        <a class="method-permalink" href="#def_serialization-macro">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L162" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="reset_state_checks-macro">
+      <div class="signature">
+        
+        macro <strong>reset_state_checks</strong>
+
+        <a class="method-permalink" href="#reset_state_checks-macro">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L120" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="state(&amp;block)-macro">
+      <div class="signature">
+        
+        macro <strong>state</strong>(&block)
+
+        <a class="method-permalink" href="#state(&block)-macro">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>The <code><a href="../Quartz/Stateful.html#state-instance-method">#state</a></code> macro defines a <code><a href="../Quartz/State.html">State</a></code> subclass for the current <code><a href="../Quartz/Model.html">Model</a></code>
+and expects a block to be passed.</p>
+
+<p>The given block is inserted inside the definition of the <code><a href="../Quartz/State.html">State</a></code> subclass.</p>
+
+<p>See also <code><a href="../Quartz/State.html#var(name,&block)-macro">State#var</a></code>.</p>
+
+<h3><a id="example" class="anchor" href="#example">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Example</h3>
+
+<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
+  state <span class="k">do</span>
+    var x : <span class="t">Int32</span> <span class="o">=</span> <span class="n">0</span>
+    var y : <span class="t">Int32</span> <span class="o">=</span> <span class="n">0</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/state.cr#L141" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
 
 
 </div>

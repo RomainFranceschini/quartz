@@ -60,23 +60,8 @@
       
     </li>
   
-  <li class="parent open current" data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
+  <li class=" current" data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel" data-name="quartz::atomicmodel">
       <a href="../Quartz/AtomicModel.html">AtomicModel</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AtomicModel/State" data-name="quartz::atomicmodel::state">
-      <a href="../Quartz/AtomicModel/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
-      
-    </li>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/AutoState" data-name="quartz::autostate">
-      <a href="../Quartz/AutoState.html">AutoState</a>
       
     </li>
   
@@ -180,18 +165,8 @@
       
         <ul>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel" data-name="quartz::dtss::atomicmodel">
       <a href="../Quartz/DTSS/AtomicModel.html">AtomicModel</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/DTSS/AtomicModel/State" data-name="quartz::dtss::atomicmodel::state">
-      <a href="../Quartz/DTSS/AtomicModel/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
       
     </li>
   
@@ -270,6 +245,11 @@
       
     </li>
   
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/InvalidStateError" data-name="quartz::invalidstateerror">
+      <a href="../Quartz/InvalidStateError.html">InvalidStateError</a>
+      
+    </li>
+  
   <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/List" data-name="quartz::list(t)">
       <a href="../Quartz/List.html">List</a>
       
@@ -305,18 +285,8 @@
       
         <ul>
   
-  <li class="parent " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component" data-name="quartz::multicomponent::component">
       <a href="../Quartz/MultiComponent/Component.html">Component</a>
-      
-        <ul>
-  
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/MultiComponent/Component/State" data-name="quartz::multicomponent::component::state">
-      <a href="../Quartz/MultiComponent/Component/State.html">State</a>
-      
-    </li>
-  
-</ul>
-
       
     </li>
   
@@ -450,6 +420,11 @@
       
     </li>
   
+  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Stateful" data-name="quartz::stateful">
+      <a href="../Quartz/Stateful.html">Stateful</a>
+      
+    </li>
+  
   <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/StrictVerificationFailed" data-name="quartz::strictverificationfailed">
       <a href="../Quartz/StrictVerificationFailed.html">StrictVerificationFailed</a>
       
@@ -579,11 +554,11 @@
   </h2>
   <ul class="other-types-list">
     
-      <li class="other-type"><a href="../Quartz/AutoState.html">Quartz::AutoState</a></li>
-    
       <li class="other-type"><a href="../Quartz/Coupleable.html">Quartz::Coupleable</a></li>
     
       <li class="other-type"><a href="../Quartz/Observable.html">Quartz::Observable</a></li>
+    
+      <li class="other-type"><a href="../Quartz/Stateful.html">Quartz::Stateful</a></li>
     
       <li class="other-type"><a href="../Quartz/Verifiable.html">Quartz::Verifiable</a></li>
     
@@ -622,7 +597,7 @@
   </h2>
   
     
-      <a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L3" target="_blank">
+      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L3" target="_blank">
         quartz/atomic.cr
       </a>
     
@@ -630,6 +605,25 @@
   
 
 
+
+  
+    <h2>
+      <a id="constant-summary" class="anchor" href="#constant-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Constant Summary
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="STATE_CHECKS">
+        <strong>STATE_CHECKS</strong> = <code>{state_complete: <span class="n">false</span>}</code>
+      </dt>
+      
+    
+  </dl>
 
 
 
@@ -644,12 +638,7 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#new(name,state)-class-method" class="signature"><strong>.new</strong>(name, state)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#new(pull:JSON::PullParser)-class-method" class="signature"><strong>.new</strong>(pull : JSON::PullParser)</a>
+        <a href="#new(name,state,initial_state=nil)-class-method" class="signature"><strong>.new</strong>(name, state, initial_state = <span class="n">nil</span>)</a>
         
       </li>
     
@@ -697,16 +686,6 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#from_json(io:IO)-class-method" class="signature"><strong>.from_json</strong>(io : IO)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#from_json(str:String)-class-method" class="signature"><strong>.from_json</strong>(str : String)</a>
-        
-      </li>
-    
-      <li class="entry-summary">
         <a href="#precision_level:Scale-class-method" class="signature"><strong>.precision_level</strong> : Scale</a>
         
           <div class="summary"><p>The precision associated with the model.</p></div>
@@ -743,11 +722,6 @@
         <a href="#confluent_transition(messages:Hash(InputPort,Array(Any)))-instance-method" class="signature"><strong>#confluent_transition</strong>(messages : Hash(InputPort, Array(Any)))</a>
         
           <div class="summary"><p>This is the default definition of the confluent transition.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#dup_state-instance-method" class="signature"><strong>#dup_state</strong></a>
         
       </li>
     
@@ -799,19 +773,9 @@
       </li>
     
       <li class="entry-summary">
-        <a href="#state-instance-method" class="signature"><strong>#state</strong></a>
-        
-      </li>
-    
-      <li class="entry-summary">
         <a href="#time_advance:Duration-instance-method" class="signature"><strong>#time_advance</strong> : Duration</a>
         
           <div class="summary"><p>Time advance function (ta), called after each transition to give a chance to <em>self</em> to be active.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#to_json(json:JSON::Builder)-instance-method" class="signature"><strong>#to_json</strong>(json : JSON::Builder)</a>
         
       </li>
     
@@ -843,35 +807,11 @@
         
       </li>
     
-      <li class="entry-summary">
-        <a href="#state_initialize(&block)-macro" class="signature"><strong>state_initialize</strong>(&block)</a>
-        
-          <div class="summary"><p>The <code><a href="../Quartz/AtomicModel.html#state_initialize(&block)-macro">state_initialize</a></code> macro defines an initialization block that is automatically included in all constructor defined in the included type and its subclasses.</p></div>
-        
-      </li>
-    
-      <li class="entry-summary">
-        <a href="#state_var(prop,**nopts,&block)-macro" class="signature"><strong>state_var</strong>(prop, **nopts, &block)</a>
-        
-          <div class="summary"><p>The <code><a href="../Quartz/AtomicModel.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> macro defines a state variable of a model.</p></div>
-        
-      </li>
-    
   </ul>
 
 
 
 <div class="methods-inherited">
-  
-    
-
-
-    
-
-
-    
-
-
   
     
 
@@ -1047,6 +987,40 @@
   
     
 
+  <h3>Instance methods inherited from module <code><a href="../Quartz/Stateful.html">Quartz::Stateful</a></code></h3>
+  
+  
+    <a href="../Quartz/Stateful.html#initial_state-instance-method" class="tooltip">
+      <span>initial_state</span>
+    initial_state</a>, 
+    
+  
+    <a href="../Quartz/Stateful.html#initial_state=(state:Quartz::State)-instance-method" class="tooltip">
+      <span>initial_state=(state : Quartz::State)</span>
+    initial_state=</a>, 
+    
+  
+    <a href="../Quartz/Stateful.html#state-instance-method" class="tooltip">
+      <span>state</span>
+    state</a>, 
+    
+  
+    <a href="../Quartz/Stateful.html#state=(state:Quartz::State)-instance-method" class="tooltip">
+      <span>state=(state : Quartz::State)</span>
+    state=</a>
+    
+  
+
+
+    
+
+
+    
+
+
+  
+    
+
   <h3>Instance methods inherited from class <code><a href="../Quartz/Model.html">Quartz::Model</a></code></h3>
   
   
@@ -1163,34 +1137,18 @@
     Constructor Detail
   </h2>
   
-    <div class="entry-detail" id="new(name,state)-class-method">
+    <div class="entry-detail" id="new(name,state,initial_state=nil)-class-method">
       <div class="signature">
         
-        def self.<strong>new</strong>(name, state)
+        def self.<strong>new</strong>(name, state, initial_state = <span class="n">nil</span>)
 
-        <a class="method-permalink" href="#new(name,state)-class-method">#</a>
+        <a class="method-permalink" href="#new(name,state,initial_state=nil)-class-method">#</a>
       </div>
       
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L86" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="new(pull:JSON::PullParser)-class-method">
-      <div class="signature">
-        
-        def self.<strong>new</strong>(pull : JSON::PullParser)
-
-        <a class="method-permalink" href="#new(pull:JSON::PullParser)-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L173" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L86" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1206,7 +1164,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L81" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L81" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1234,7 +1192,7 @@
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L6" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1271,7 +1229,7 @@ to add errors based on more complex conditions.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L6" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1308,7 +1266,7 @@ to add errors based on more complex conditions.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L6" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1324,39 +1282,7 @@ to add errors based on more complex conditions.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L6" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="from_json(io:IO)-class-method">
-      <div class="signature">
-        
-        def self.<strong>from_json</strong>(io : IO)
-
-        <a class="method-permalink" href="#from_json(io:IO)-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L243" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="from_json(str:String)-class-method">
-      <div class="signature">
-        
-        def self.<strong>from_json</strong>(str : String)
-
-        <a class="method-permalink" href="#from_json(str:String)-class-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L247" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1377,7 +1303,7 @@ to add errors based on more complex conditions.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L10" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1398,7 +1324,7 @@ to add errors based on more complex conditions.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L10" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L10" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1414,7 +1340,7 @@ to add errors based on more complex conditions.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L6" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L7" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1454,21 +1380,7 @@ transitions.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L130" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="dup_state-instance-method">
-      <div class="signature">
-        
-        def <strong>dup_state</strong>
-
-        <a class="method-permalink" href="#dup_state-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L130" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1490,7 +1402,7 @@ the elapsed time since the last transition.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L75" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L75" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1512,7 +1424,7 @@ the elapsed time since the last transition.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L75" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L75" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1544,7 +1456,7 @@ your model.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L106" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L106" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1560,7 +1472,7 @@ your model.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L189" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L173" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1591,7 +1503,7 @@ your model.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L120" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L120" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1612,7 +1524,7 @@ your model.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L69" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L69" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1642,21 +1554,7 @@ your model. See <code>#post</code> to send values to output ports.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L159" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="state-instance-method">
-      <div class="signature">
-        
-        def <strong>state</strong>
-
-        <a class="method-permalink" href="#state-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L159" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1687,23 +1585,7 @@ your model.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L147" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="to_json(json:JSON::Builder)-instance-method">
-      <div class="signature">
-        
-        def <strong>to_json</strong>(json : JSON::Builder)
-
-        <a class="method-permalink" href="#to_json(json:JSON::Builder)-instance-method">#</a>
-      </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L236" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L147" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1761,7 +1643,7 @@ model is instantiated.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L4" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L5" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1807,198 +1689,7 @@ model is instantiated.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L4" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="state_initialize(&amp;block)-macro">
-      <div class="signature">
-        
-        macro <strong>state_initialize</strong>(&block)
-
-        <a class="method-permalink" href="#state_initialize(&block)-macro">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>The <code><a href="../Quartz/AtomicModel.html#state_initialize(&block)-macro">state_initialize</a></code> macro defines an initialization block
-that is automatically included in all constructor defined in the
-included type and its subclasses.</p>
-
-<p>It can be used to initialize state variables declared using the
-<code><a href="../Quartz/AtomicModel.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> macro.</p>
-
-<p>Example :</p>
-
-<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
-  state_var x : <span class="t">Int32</span>
-  state_var y : <span class="t">Int32</span>
-
-  state_initialize <span class="k">do</span>
-    @x <span class="o">=</span> <span class="n">0</span>
-    @y <span class="o">=</span> <span class="n">0</span>
-  <span class="k">end</span></code></pre>
-        </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L7" target="_blank">View source</a>]
-        
-      </div>
-    </div>
-  
-    <div class="entry-detail" id="state_var(prop,**nopts,&amp;block)-macro">
-      <div class="signature">
-        
-        macro <strong>state_var</strong>(prop, **nopts, &block)
-
-        <a class="method-permalink" href="#state_var(prop,**nopts,&block)-macro">#</a>
-      </div>
-      
-        <div class="doc">
-          
-          <p>The <code><a href="../Quartz/AtomicModel.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> macro defines a state variable of a model. Its primary
-usage is to identify which instance variables are part of the state of
-the model.</p>
-
-<p>This allows to automatically define state retrieval methods,
-state serialization/deserialization methods and state initialization
-methods which will be used for simulation distribution purposes, for
-constructing model hierarchies from a file, or to allow changing initial
-state for model parameter exploration.</p>
-
-<h3><a id="usage" class="anchor" href="#usage">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Usage</h3>
-
-<p><code><a href="../Quartz/AtomicModel.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> must receive a type declaration which will be used to
-declare instance variables :</p>
-
-<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
-  state_var x : <span class="t">Int32</span>
-  state_var y : <span class="t">Int32</span>
-<span class="k">end</span></code></pre>
-
-<p>Default values can be passed using the type declaration notation or
-through a block :</p>
-
-<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
-  state_var x : <span class="t">Int32</span> <span class="o">=</span> <span class="n">0</span>
-  state_var y : <span class="t">Int32</span> <span class="o">=</span> <span class="n">0</span>
-  state_var z : <span class="t">Int32</span> { (rand <span class="o">*</span> <span class="n">100</span> <span class="o">+</span> <span class="n">1</span>).to_i32 }
-  state_var ß : <span class="t">Int32</span> { x <span class="o">*</span> <span class="n">42</span> }
-<span class="k">end</span></code></pre>
-
-<p>Note from previous example that the initialization block of ß is
-allowed to reference the value of another state variable.</p>
-
-<p>If default values are omitted, a chance is given to initialize those
-state variables through the <code><a href="../Quartz/AtomicModel.html#state_initialize(&block)-macro">state_initialize</a></code> macro :</p>
-
-<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
-  state_var x : <span class="t">Int32</span>
-  state_var y : <span class="t">Int32</span>
-
-  state_initialize <span class="k">do</span>
-    @x <span class="o">=</span> <span class="n">0</span>
-    @y <span class="o">=</span> <span class="n">0</span>
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-
-<p>Multiple calls to <code><a href="../Quartz/AtomicModel.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> for the same variable is allowed. Previous
-properties are inherited and overlapping propertings are overwritten.
-The following example :</p>
-
-<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
-  state_var sigma : <span class="t">Duration</span> <span class="o">=</span> <span class="t">Duration</span><span class="t">::</span><span class="t">INFINITY</span>
-  state_var sigma { <span class="t">Duration</span>.infinity(<span class="k">self</span>.<span class="k">class</span>.precision) }
-<span class="k">end</span></code></pre>
-
-<p>Defines the <em>sigma</em> state variable as a <code><a href="../Quartz/Duration.html">Duration</a></code> type with a default
-value determined by the initialization block.</p>
-
-<p>This is particularly useful in case a model inherits another model :</p>
-
-<pre><code><span class="k">class</span> <span class="t">BaseModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
-  state_var sigma : <span class="t">Duration</span> <span class="o">=</span> <span class="t">Duration</span><span class="t">::</span><span class="t">INFINITY</span>
-<span class="k">end</span>
-
-<span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">BaseModel</span>
-  state_var sigma <span class="o">=</span> <span class="t">Quartz</span>.duration(<span class="n">85</span>, milli)
-<span class="k">end</span></code></pre>
-
-<p>All <code>initialize</code> methods defined in the included type and its subclasses
-will be redefined to include the body of the given block.
-Note that the block content is always included at the top of the method
-definition. Thus, if you define :</p>
-
-<pre><code><span class="k">class</span> <span class="t">MyModel</span> <span class="o">&lt;</span> <span class="t">AtomicModel</span>
-  state_var x : <span class="t">Int32</span>
-  state_var y : <span class="t">Int32</span>
-
-  state_initialize <span class="k">do</span>
-    @x <span class="o">=</span> <span class="n">0</span>
-    @y <span class="o">=</span> <span class="n">0</span>
-  <span class="k">end</span>
-
-  <span class="k">def</span> <span class="m">initialize</span>(name)
-    <span class="k">super</span>(name)
-    add_input_port(<span class="s">&quot;in&quot;</span>)
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-
-<p>The constructor will be automatically redefined to :</p>
-
-<pre><code>  <span class="k">def</span> <span class="m">initialize</span>(name)
-    @x <span class="o">=</span> <span class="n">0</span>
-    @y <span class="o">=</span> <span class="n">0</span>
-    <span class="k">super</span>(name)
-    add_input_port(<span class="s">&quot;in&quot;</span>)
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-
-<h4><a id="options" class="anchor" href="#options">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Options</h4>
-
-<p>Along with the type declaration, <code><a href="../Quartz/AtomicModel.html#state_var(prop,**nopts,&block)-macro">state_var</a></code> also accept a hash or
-named tuple literal whose keys corresponds to the following options :</p>
-
-<ul><li><strong>visibility</strong>: used to restrict the visibility of the getter that
-is defined for this state variable (<code>:private</code> or <code>:protected</code>). No
-restriction is applied by default (public) :</li></ul>
-
-<pre><code>state_var hidden : <span class="t">Bool</span> <span class="o">=</span> <span class="n">true</span>, visibility: <span class="n">:private</span></code></pre>
-
-<ul><li><strong>converter</strong>: specify an alternate type for parsing and generation.
-Examples of converters are <code>Time::Format</code> and <code>Time::EpochConverter</code>
-for <code>Time</code>.</li></ul>
-
-<pre><code>state_var timestamp : <span class="t">Time</span>, converter: <span class="t">Time</span><span class="t">::</span><span class="t">EpochConverter</span></code></pre>
-
-<h4><a id="code-generation" class="anchor" href="#code-generation">
-  <svg class="octicon-link" aria-hidden="true">
-    <use href="#octicon-link"/>
-  </svg>
-</a>Code generation</h4>
-
-<p>A getter is generated for each declared state variable, whose visibility
-can be restricted through the <strong>visibility</strong> option.</p>
-
-<p>When the type definition is complete, a struct wrapping all state
-variables is defined for convenience.</p>
-        </div>
-      
-      <br/>
-      <div>
-        
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/2deab1cabe8f37cd12ff5b95d4d19b4a332bbf75/src/quartz/atomic.cr#L7" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/atomic.cr#L5" target="_blank">View source</a>]
         
       </div>
     </div>
