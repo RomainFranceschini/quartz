@@ -176,7 +176,7 @@ describe "Stateful" do
   end
 
   context "inheritance" do
-    it do
+    it "" do
       m = Point2d.new
       m.x.should eq 0
       m.y.should eq 0
@@ -184,6 +184,24 @@ describe "Stateful" do
       s = Point2d::State.new(x: 1, y: 1)
       s.x.should eq 1
       s.y.should eq 1
+    end
+
+    it "raises if child is given parent state" do
+      m = Point2d.new
+      expect_raises(InvalidStateError) do
+        m.state = Quartz::State.new
+      end
+      expect_raises(InvalidStateError) do
+        m.initial_state = Quartz::State.new
+      end
+
+      m = Point3d.new
+      expect_raises(InvalidStateError) do
+        m.state = Point2d::State.new
+      end
+      expect_raises(InvalidStateError) do
+        m.initial_state = Point2d::State.new
+      end
     end
 
     it "subclasses inherits state of parents" do
