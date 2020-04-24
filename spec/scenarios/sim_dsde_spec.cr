@@ -31,7 +31,7 @@ private module DSDESimulation
   class CreateExecutive < Quartz::DSDE::Executive
     getter counter : Int32 = 0
 
-    state_var phase = :create
+    state { var phase = :create }
 
     def internal_transition
       @counter += 1
@@ -51,7 +51,7 @@ private module DSDESimulation
   class DeleteExecutive < Quartz::DSDE::Executive
     getter counter : Int32 = 0
 
-    state_var phase = :delete
+    state { var phase = :delete }
 
     def internal_transition
       @counter += 1
@@ -69,7 +69,7 @@ private module DSDESimulation
   end
 
   class UpdateCouplingsExecutive < Quartz::DSDE::Executive
-    state_var phase = :update
+    state { var phase = :update }
 
     def internal_transition
       remove_coupling_from_network :out1, from: :in1, between: :m1, and: :m2
@@ -87,7 +87,7 @@ private module DSDESimulation
   end
 
   class UpdatePortsExecutive < Quartz::DSDE::Executive
-    state_var phase = :update
+    state { var phase = :update }
 
     def internal_transition
       add_input_port_to_network :m1, :in3

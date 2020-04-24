@@ -4,7 +4,7 @@ module Quartz
       include Schedulable
       include Observable
       include Verifiable
-      include AutoState
+      include Stateful
 
       getter influencers = Array(Component).new
       getter influencees = Array(Component).new
@@ -66,7 +66,7 @@ module Quartz
       {% else %}
         self.precision_level = {{scale}}
       {% end %}
-    end
+      end
 
       # Returns the precision associated with the class.
       def model_precision : Scale

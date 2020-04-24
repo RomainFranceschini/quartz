@@ -76,33 +76,6 @@ module Quartz
                     end
     end
 
-    def initialize(pull : ::JSON::PullParser)
-      m = nil
-      p = nil
-
-      pull.read_object do |key|
-        case key
-        when "multiplier"
-          m = pull.read_float
-        when "precision"
-          p = Scale.new(pull.read_int)
-        else
-          raise ::JSON::ParseException.new("Unknown json attribute: #{key}", 0, 0)
-        end
-      end
-
-      @multiplier = m.as(Float64)
-      @precision = p.as(Scale)
-    end
-
-    def initialize(pull : ::MessagePack::Unpacker)
-      pull.read_hash_size
-      Bytes.new(pull)
-      @multiplier = pull.read_uint.to_f64
-      Bytes.new(pull)
-      @precision = Scale.new(pull.read_uint)
-    end
-
     # Returns the multiplier of `self`.
     def multiplier : Int64
       case @multiplier
@@ -336,22 +309,6 @@ module Quartz
 
     def to_f
       to_f64
-    end
-
-    def to_json(json : ::JSON::Builder)
-      json.object do
-        json.field("multiplier") { @multiplier.to_json(json) }
-        json.field("precision") { @precision.level.to_json(json) }
-      end
-    end
-
-    def to_msgpack(packer : ::MessagePack::Packer)
-      packer.write_hash_start(2)
-
-      packer.write("multiplier")
-      packer.write(multiplier)
-      packer.write("precision")
-      packer.write(@precision.level)
     end
   end
 

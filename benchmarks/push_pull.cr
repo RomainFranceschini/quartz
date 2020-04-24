@@ -4,7 +4,9 @@ class Worker < Quartz::AtomicModel
   input :in
   output :out
 
-  state_var phase : Symbol = :idle
+  state do
+    var phase : Symbol = :idle
+  end
 
   def time_advance : Quartz::Duration
     if phase == :idle
@@ -15,11 +17,11 @@ class Worker < Quartz::AtomicModel
   end
 
   def external_transition(bag)
-    @phase = :active
+    state.phase = :active
   end
 
   def internal_transition
-    @phase = :idle
+    state.phase = :idle
   end
 
   def output
@@ -30,7 +32,7 @@ end
 class Generator < Quartz::AtomicModel
   output :out
 
-  state_var phase : Symbol = :generate
+  state { var phase : Symbol = :generate }
 
   def time_advance : Quartz::Duration
     case phase
@@ -49,7 +51,7 @@ class Generator < Quartz::AtomicModel
 
   def internal_transition
     @events -= 1
-    @phase = :idle if @events == 0
+    state.phase = :idle if @events == 0
   end
 
   def external_transition(bag)

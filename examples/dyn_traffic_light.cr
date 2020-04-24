@@ -4,31 +4,33 @@ class TrafficLight < Quartz::AtomicModel
   input :interrupt
   output :observed
 
-  state_var phase : Symbol = :red
+  state do
+    var phase : Symbol = :red
+  end
 
   def external_transition(messages)
     value = messages[input_ports[:interrupt]].first.as_sym
-    @phase = case value
-             when :to_manual
-               @phase = :manual
-             else # :to_autonomous
-               @phase = :red
-             end
+    self.phase = case value
+                 when :to_manual
+                   :manual
+                 else # :to_autonomous
+                   :red
+                 end
   end
 
   def internal_transition
-    @phase = case @phase
-             when :red
-               :green
-             when :green
-               :orange
-             else # orange
-               :red
-             end
+    self.phase = case phase
+                 when :red
+                   :green
+                 when :green
+                   :orange
+                 else # orange
+                   :red
+                 end
   end
 
   def output
-    observed = case @phase
+    observed = case phase
                when :red, :orange
                  :grey
                when :green
@@ -40,7 +42,7 @@ class TrafficLight < Quartz::AtomicModel
   end
 
   def time_advance : Quartz::Duration
-    case @phase
+    case phase
     when :red    then Quartz.duration(60)
     when :green  then Quartz.duration(50)
     when :orange then Quartz.duration(10)
@@ -51,7 +53,9 @@ class TrafficLight < Quartz::AtomicModel
 end
 
 class Policeman < Quartz::AtomicModel
-  state_var phase : Symbol = :idle1
+  state do
+    var phase : Symbol = :idle1
+  end
 
   output :alternate, :add_coupling, :remove_coupling
 
@@ -59,19 +63,19 @@ class Policeman < Quartz::AtomicModel
   end
 
   def internal_transition
-    @phase = case @phase
-             when :idle1    then :working1
-             when :working1 then :move1_2
-             when :move1_2  then :idle2
-             when :idle2    then :working2
-             when :working2 then :move2_1
-             else # move2_1
-               :idle1
-             end
+    self.phase = case phase
+                 when :idle1    then :working1
+                 when :working1 then :move1_2
+                 when :move1_2  then :idle2
+                 when :idle2    then :working2
+                 when :working2 then :move2_1
+                 else # move2_1
+                   :idle1
+                 end
   end
 
   def output
-    case @phase
+    case phase
     when :idle1, :idle2
       post :to_manual, :alternate
     when :working1, :working2
@@ -87,7 +91,7 @@ class Policeman < Quartz::AtomicModel
       tl2 = tl1.dup
       tl2[:dst] = :traffic_light2
 
-      if @phase == :move1_2
+      if phase == :move1_2
         post(tl1, :remove_coupling)
         post(tl2, :add_coupling)
       else # move2_1
@@ -98,7 +102,7 @@ class Policeman < Quartz::AtomicModel
   end
 
   def time_advance : Quartz::Duration
-    case @phase
+    case phase
     when :idle1, :idle2
       Quartz.duration(50)
     when :working1, :working2

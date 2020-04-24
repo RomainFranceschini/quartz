@@ -1,43 +1,46 @@
 require "./spec_helper"
 
 private struct SomeModel
-  include AutoState
+  include Stateful
 
-  state_var a : Int32 = 42
-  state_var b : String = "foo"
-  state_var c : Bool = false, visibility: :private
+  state do
+    var a : Int32 = 42
+    var b : String = "foo"
+    var c : Bool = false
+  end
 end
 
 private struct Empty
-  include AutoState
+  include Stateful
 end
 
 private struct Nilable
-  include AutoState
+  include Stateful
 
-  state_var str : String? = nil
+  state do
+    var str : String? = nil
+  end
 end
 
 private struct UnionStateVar
-  include AutoState
+  include Stateful
 
-  state_var str_or_int : String | Int32 = 0
+  state do
+    var str_or_int : String | Int32 = 0
+  end
 end
 
 private struct AfterInitialize
-  include AutoState
+  include Stateful
 
-  state_var x : Int32
-  state_var y : Int32
-
-  state_initialize do
-    @x = 0
-    @y = 0
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
   end
 end
 
 abstract struct AfterInitializeParent
-  include AutoState
+  include Stateful
 
   @name : String
 
@@ -45,87 +48,63 @@ abstract struct AfterInitializeParent
   end
 end
 
-private struct AfterInitializeChild < AfterInitializeParent
-  state_var test : Int32
-
-  state_initialize do
-    @test = 42
+private struct InitializeChild < AfterInitializeParent
+  state do
+    var test : Int32 { 40 + 2 }
   end
 end
 
-private struct NoAfterInitializeChild < AfterInitializeParent
-  state_var test : Int32 = 42
+private struct NoInitializeChild < AfterInitializeParent
+  state do
+    var test : Int32 = 42
+  end
 end
 
-private struct BlockStateVars
-  include AutoState
+private class Foo
+  include Stateful
 
-  state_var x : Int32 { 0 }
-  state_var y : Int32 { 0 }
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
+  end
 end
 
-private class Point2d
-  include AutoState
-
-  state_var x : Int32 = 0
-  state_var y : Int32 = 0
-end
-
-private class Point3d < Point2d
-  state_var z : Int32 = 0
+private class Bar < Foo
+  state do
+    var z : Int32 = 0
+  end
 
   def xyz
-    {@x, @y, @z}
+    {x, y, z}
   end
 end
 
 private struct DependentStateVars
-  include AutoState
+  include Stateful
 
-  state_var x : Int32 = 0
-  state_var y : Int32 = 0
-
-  state_var pos : Tuple(Int32, Int32) { Tuple.new(x, y) }
-end
-
-private struct OverwritePreviousStateVarDef
-  include AutoState
-
-  state_var x : Int16, visibility: :private
-  state_var x : Int32 = 42, visibility: :public
-
-  state_var y : Int16
-  state_var y = 32
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
+    var pos : Tuple(Int32, Int32) do
+      Tuple.new(x, y)
+    end
+  end
 end
 
 private abstract struct BaseSigmaModel
-  include AutoState
-  state_var sigma : Duration = Duration::INFINITY
+  include Stateful
+  state do
+    var sigma : Duration = Duration::INFINITY
+  end
 end
 
 private struct MySigmaModel < BaseSigmaModel
-  state_var sigma = Duration.new(85, Scale::MILLI)
-end
-
-private struct RedefineConstructor
-  include AutoState
-
-  @name : String
-
-  state_var x : Int32 = 0
-  state_var y : Int32 = 0
-
-  def initialize(@name)
-  end
-
-  def initialize(@name, *, hello = 42, &block)
-  end
-
-  def initialize(@name, *splat, **dsplat, &block)
+  state do
+    var sigma = Duration.new(85, Scale::MILLI)
   end
 end
 
-describe "AutoState" do
+describe "Stateful" do
   describe "getters" do
     it "are defined for each state variable" do
       s = SomeModel.new
@@ -140,37 +119,37 @@ describe "AutoState" do
   end
 
   describe "State type" do
-    it "defines dedicated state struct type" do
+    it "defines dedicated state type" do
       s = SomeModel.new
       s.state.should be_a(SomeModel::State)
-      s.state.is_a?(Value).should be_true
+      s.state.is_a?(Quartz::State).should be_true
     end
 
     describe "#initialize" do
       it "accepts values as named arguments" do
         s = SomeModel::State.new(c: true, a: 1000, b: "quz")
-        s.@a.should eq 1000
-        s.@b.should eq "quz"
-        s.@c.should be_true
+        s.a.should eq 1000
+        s.b.should eq "quz"
+        s.c.should be_true
       end
 
       it "uses default values for omitted values" do
         s = SomeModel::State.new(c: true)
-        s.@a.should eq 42
-        s.@b.should eq "foo"
-        s.@c.should eq true
+        s.a.should eq 42
+        s.b.should eq "foo"
+        s.c.should eq true
       end
 
-      it "uses `state_initialize` block to expand constructors" do
+      it "uses provided block to expand constructors" do
         s = AfterInitialize::State.new
-        s.@x.should eq 0
-        s.@y.should eq 0
+        s.x.should eq 0
+        s.y.should eq 0
       end
 
-      it "given values overrides `state_initialize` block" do
+      it "given values overrides provided block" do
         s = AfterInitialize::State.new(x: 1, y: 1)
-        s.@x.should eq 1
-        s.@y.should eq 1
+        s.x.should eq 1
+        s.y.should eq 1
       end
     end
 
@@ -185,11 +164,6 @@ describe "AutoState" do
       s.c.should eq false
     end
 
-    it "to_tuple" do
-      s = SomeModel::State.new
-      s.to_tuple.should eq({42, "foo", false})
-    end
-
     it "to_named_tuple" do
       s = SomeModel::State.new
       s.to_named_tuple.should eq({a: 42, b: "foo", c: false})
@@ -199,94 +173,64 @@ describe "AutoState" do
       s = SomeModel::State.new
       s.to_hash.should eq({:a => 42, :b => "foo", :c => false})
     end
-
-    describe "serialization" do
-      it "can be converted to JSON" do
-        s = SomeModel::State.new(c: true)
-        s.to_json.should eq("{\"a\":42,\"b\":\"foo\",\"c\":true}")
-      end
-
-      it "can be converted to msgpack" do
-        s = SomeModel::State.new(c: true)
-        s.to_msgpack.should eq Bytes[131, 161, 97, 42, 161, 98, 163, 102, 111, 111, 161, 99, 195]
-      end
-    end
-
-    describe "deserialization" do
-      it "can be initialized from JSON" do
-        io = IO::Memory.new("{\"a\":42,\"b\":\"foo\",\"c\":true}")
-        state = SomeModel::State.new(JSON::PullParser.new(io))
-
-        state.a.should eq 42
-        state.b.should eq "foo"
-        state.c.should eq true
-      end
-
-      it "can be initialized from msgpack" do
-        io = IO::Memory.new(Bytes[131, 161, 97, 42, 161, 98, 163, 102, 111, 111, 161, 99, 195])
-        state = SomeModel::State.new(MessagePack::IOUnpacker.new(io))
-
-        state.a.should eq 42
-        state.b.should eq "foo"
-        state.c.should eq true
-      end
-    end
-  end
-
-  context "with multiple state_var expressions" do
-    it "last call overwrites properties" do
-      s = OverwritePreviousStateVarDef.new
-      s.responds_to?(:x).should be_true
-      s.x.should eq 42
-      s.x.class.should eq(Int32)
-    end
-
-    it "inherits previous definitions" do
-      s = OverwritePreviousStateVarDef.new
-      s.responds_to?(:y).should be_true
-      s.y.class.should eq(Int16)
-      s.y.should eq(32)
-    end
   end
 
   context "inheritance" do
-    it do
-      m = Point2d.new
+    it "" do
+      m = Foo.new
       m.x.should eq 0
       m.y.should eq 0
 
-      s = Point2d::State.new(x: 1, y: 1)
+      s = Foo::State.new(x: 1, y: 1)
       s.x.should eq 1
       s.y.should eq 1
     end
 
+    it "raises if child is given parent state" do
+      m = Foo.new
+      expect_raises(InvalidStateError) do
+        m.state = Quartz::State.new
+      end
+      expect_raises(InvalidStateError) do
+        m.initial_state = Quartz::State.new
+      end
+
+      m = Bar.new
+      expect_raises(InvalidStateError) do
+        m.state = Foo::State.new
+      end
+      expect_raises(InvalidStateError) do
+        m.initial_state = Foo::State.new
+      end
+    end
+
     it "subclasses inherits state of parents" do
-      m = Point3d.new
+      m = Bar.new
       m.x.should eq 0
       m.y.should eq 0
       m.z.should eq 0
       m.xyz.should eq({0, 0, 0})
 
-      s = Point3d::State.new(x: 1, y: 1, z: 1)
+      s = Bar::State.new(x: 1, y: 1, z: 1)
       s.x.should eq 1
       s.y.should eq 1
       s.z.should eq 1
     end
 
-    it "parent constructors are still available when `state_initialize` is used in subclasses" do
-      m = AfterInitializeChild.new("bar")
+    it "parent constructors are still available when `state` is used in subclasses" do
+      m = InitializeChild.new("bar")
       m.@name.should eq "bar"
-      m.@test.should eq 42
+      m.test.should eq 42
     end
 
     it "it inherits constructors of parents" do
-      m = NoAfterInitializeChild.new("foo")
+      m = NoInitializeChild.new("foo")
       m.@name.should eq "foo"
-      m.@test.should eq 42
+      m.test.should eq 42
     end
 
-    context "with multiple state_var expressions" do
-      it "state_var overwrites existing variables" do
+    context "with multiple state expressions" do
+      it "existing variables can be overriden" do
         s = MySigmaModel.new
         s.responds_to?(:sigma).should be_true
         s.sigma.should eq(Duration.new(85, Scale::MILLI))
@@ -326,32 +270,15 @@ describe "AutoState" do
       m.x.should eq 0
       m.y.should eq 0
     end
-
-    it "redefines existing constructor in included class to include `state_initialize` block" do
-      m = RedefineConstructor.new("foo1")
-      m.@name.should eq "foo1"
-      m.@x.should eq 0
-      m.@y.should eq 0
-
-      m2 = RedefineConstructor.new("foo2", hello: 1000) { nil }
-      m2.@name.should eq "foo2"
-      m2.@x.should eq 0
-      m2.@y.should eq 0
-
-      m3 = RedefineConstructor.new("foo3", 1, 2, 3, bar: 0) { nil }
-      m3.@name.should eq "foo3"
-      m3.@x.should eq 0
-      m3.@y.should eq 0
-    end
   end
 
   context "with default values" do
     it "initialize state accordingly" do
       s = SomeModel.new
 
-      s.@a.should eq 42
-      s.@b.should eq "foo"
-      s.@c.should eq false
+      s.a.should eq 42
+      s.b.should eq "foo"
+      s.c.should eq false
 
       s.a.should eq 42
       s.b.should eq "foo"
@@ -364,36 +291,18 @@ describe "AutoState" do
     end
   end
 
-  context "with default values as blocks" do
-    it "initialize state accordingly" do
-      s = BlockStateVars.new
-
-      s.@x.should eq nil
-      s.@y.should eq nil
-
-      s.x.should eq 0
-      s.y.should eq 0
-
-      s.state.tap do |state|
-        state.x.should eq 0
-        state.y.should eq 0
-      end
-    end
-  end
-
   context "with dependent state variables" do
     it "allows initialization using a block" do
       s = DependentStateVars.new
-      s.@pos.should eq nil
       s.pos.should eq({0, 0})
     end
   end
 
   context "without default values" do
-    it "state vars can be initialized through `state_initialize`" do
+    it "state vars can be initialized through state" do
       s = AfterInitialize.new
-      s.@x.should eq 0
-      s.@y.should eq 0
+      s.x.should eq 0
+      s.y.should eq 0
     end
   end
 end

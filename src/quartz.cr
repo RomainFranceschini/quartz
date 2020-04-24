@@ -1,5 +1,3 @@
-require "json"
-
 require "./quartz/version"
 require "./quartz/types"
 require "./quartz/scale"

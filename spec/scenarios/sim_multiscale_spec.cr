@@ -8,8 +8,10 @@ private module MultiscaleScenario
 
     precision Quartz::Scale::MICRO
 
-    state_var delay_min : Int32 = 10
-    state_var delay_max : Int32 = 1000
+    state do
+      var delay_min : Int32 = 10
+      var delay_max : Int32 = 1000
+    end
 
     def external_transition(bag)
     end

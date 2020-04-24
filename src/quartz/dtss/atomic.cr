@@ -1,10 +1,10 @@
 module Quartz::DTSS
   # This class represent a PDTSS atomic model.
   abstract class AtomicModel < Model
+    include Stateful
     include Coupleable
     include Observable
     include Verifiable
-    include AutoState
 
     class_property time_delta : Duration = Duration.new(1, Scale::BASE)
 
@@ -25,23 +25,17 @@ module Quartz::DTSS
       @@time_delta
     end
 
-    # This attribute is updated automatically along simulation and represents
-    # the elapsed time since the last transition.
-    property elapsed : Duration = Duration.zero(@@time_delta.precision)
-
     @bag : Hash(OutputPort, Array(Any)) = Hash(OutputPort, Array(Any)).new { |h, k|
       h[k] = Array(Any).new
     }
 
     def initialize(name)
       super(name)
-      @elapsed = @elapsed.rescale(model_precision)
     end
 
-    def initialize(name, state)
+    def initialize(name, state, initial_state = nil)
       super(name)
-      @elapsed = @elapsed.rescale(model_precision)
-      self.initial_state = state
+      self.initial_state = initial_state if initial_state
       self.state = state
     end
 
@@ -61,7 +55,7 @@ module Quartz::DTSS
 
     # :nodoc:
     # Used internally by the simulator
-    def __initialize_state__(processor)
+    protected def __initialize_state__(processor)
       if @processor != processor
         raise InvalidProcessorError.new("trying to initialize state of model \"#{name}\" from an invalid processor")
       end
@@ -71,25 +65,10 @@ module Quartz::DTSS
       end
     end
 
-    def initialize(pull : ::JSON::PullParser)
-      @elapsed = Duration.new(0, model_precision)
-
-      pull.read_object do |key|
-        case key
-        when "name"
-          super(String.new(pull))
-        when "state"
-          self.initial_state = {{ (@type.name + "::State").id }}.new(pull)
-          self.state = initial_state
-        else
-          raise ::JSON::ParseException.new("Unknown json attribute: #{key}", 0, 0)
-        end
-      end
-    end
-
     def inspect(io)
       io << "<" << self.class.name << ": name=" << @name
-      io << ", elapsed=" << @elapsed.to_s(io)
+      io << ", time_delta="
+      time_delta.to_s(io)
       io << ">"
       nil
     end
@@ -132,21 +111,6 @@ module Quartz::DTSS
       @bag.clear
       self.output
       @bag
-    end
-
-    def to_json(json : ::JSON::Builder)
-      json.object do
-        json.field("name") { @name.to_json(json) }
-        json.field("state") { state.to_json(json) }
-      end
-    end
-
-    def self.from_json(io : IO)
-      self.new(::JSON::PullParser.new(io))
-    end
-
-    def self.from_json(str : String)
-      from_json(IO::Memory.new(str))
     end
   end
 end

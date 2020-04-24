@@ -1,7 +1,5 @@
 require "./spec_helper"
 
-require "../src/quartz/msgpack"
-
 private class PassiveModel < AtomicModel
   include PassiveBehavior
 end
@@ -22,19 +20,21 @@ private class FetchOutputTest < AtomicModel
   end
 end
 
-class ModelSample < AtomicModel
+private class ModelSample < AtomicModel
   include PassiveBehavior
 
-  state_var x : Int32 = 0
-  state_var y : Int32 = 0
+  state do
+    var x : Int32 = 0
+    var y : Int32 = 0
+  end
 
   def time_advance : Duration
     Duration.new(25)
   end
 
   def evolve
-    @x = 100
-    @y = 254
+    self.x = 100
+    self.y = 254
   end
 end
 
@@ -147,38 +147,6 @@ describe "AtomicModel" do
       m = FetchOutputTest.new
       m.fetch_output![m.output_port("out")].should eq(["a value"])
       m.calls.should eq(1)
-    end
-  end
-
-  describe "serialization" do
-    it "can be converted to JSON" do
-      m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10}}"
-    end
-
-    it "can be converted to msgpack" do
-      m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-      m.to_msgpack.should eq Bytes[130, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10]
-    end
-  end
-
-  describe "deserialization" do
-    it "can be initialized from JSON" do
-      io = IO::Memory.new("{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10}}")
-      m = ModelSample.new(JSON::PullParser.new(io))
-      m.name.should eq("foo")
-      m.time_advance.should eq Duration.new(25)
-      m.x.should eq 5
-      m.y.should eq 10
-    end
-
-    it "can be initialized from msgpack" do
-      io = IO::Memory.new(Bytes[130, 164, 110, 97, 109, 101, 163, 102, 111, 111, 165, 115, 116, 97, 116, 101, 130, 161, 120, 5, 161, 121, 10])
-      m = ModelSample.new(MessagePack::IOUnpacker.new(io))
-      m.name.should eq "foo"
-      m.time_advance.should eq Duration.new(25)
-      m.x.should eq 5
-      m.y.should eq 10
     end
   end
 end

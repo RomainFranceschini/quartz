@@ -1,13 +1,16 @@
 require "../src/quartz"
 
 class NavigationModel < Quartz::AtomicModel
-  state_var phase : Symbol = :change_course
-  state_var bearing : Int16 = 90i16
+  state do
+    var phase : Symbol = :change_course
+    var bearing : Int16 = 90i16
+  end
+
   check :bearing, numericality: {gte: 0, lt: 360}
 
   def internal_transition
-    @bearing = -123i16
-    @phase = :idle
+    self.bearing = -123i16
+    self.phase = :idle
   end
 
   def external_transition(bag)
