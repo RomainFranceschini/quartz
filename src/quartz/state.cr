@@ -92,20 +92,6 @@ module Quartz
   end
 
   module Stateful
-    def state
-      Quartz::State.new
-    end
-
-    def state=(state)
-    end
-
-    def initial_state
-      Quartz::State.new
-    end
-
-    def initial_state=(state)
-    end
-
     STATE_CHECKS = {state_complete: false}
 
     macro included
@@ -141,7 +127,25 @@ module Quartz
     end
 
     macro def_serialization
-      # redefine in subclasses
+    end
+
+    @state : Quartz::State = Quartz::State.new
+    @initial_state : Quartz::State?
+
+    def state
+      @state
+    end
+
+    def state=(state : Quartz::State)
+      @state = state
+    end
+
+    def initial_state=(state : Quartz::State)
+      @initial_state = state
+    end
+
+    def initial_state
+      (@initial_state || Quartz::State.new)
     end
 
     macro def_properties
@@ -155,13 +159,11 @@ module Quartz
         end
       {% end %}
 
-      @state : Quartz::State = State.new
+      @state = State.new
 
       def state
         @state.as(State)
       end
-
-      @initial_state : Quartz::State?
 
       protected def initial_state
         (@initial_state || State.new).as(State)
@@ -171,12 +173,18 @@ module Quartz
         @initial_state = state
       end
 
+      def initial_state=(state : Quartz::State)
+        raise InvalidStateError.new("#{self} expects an initial state of type " \
+                                    "#{self.class}::State, not #{state.class}")
+      end
+
+      def state=(state : State)
+        @state = state
+      end
+
       def state=(state : Quartz::State)
-        if state.is_a?(State)
-          @state = state
-        else
-          raise ArgumentError.new("")
-        end
+        raise InvalidStateError.new("#{self} expects a state of type " \
+                                    "#{self.class}::State, not #{state.class}")
       end
     end
   end
