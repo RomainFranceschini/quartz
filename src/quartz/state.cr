@@ -207,7 +207,7 @@ module Quartz
       end
 
       def initial_state=(state : Quartz::State)
-        raise InvalidStateError.new("#{self} expects an initial state of type " \
+        raise Quartz::InvalidStateError.new("#{self} expects an initial state of type " \
                                     "#{self.class}::State, not #{state.class}")
       end
 
@@ -216,7 +216,7 @@ module Quartz
       end
 
       def state=(state : Quartz::State)
-        raise InvalidStateError.new("#{self} expects a state of type " \
+        raise Quartz::InvalidStateError.new("#{self} expects a state of type " \
                                     "#{self.class}::State, not #{state.class}")
       end
     end
