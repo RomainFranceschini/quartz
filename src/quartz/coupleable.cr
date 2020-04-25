@@ -140,7 +140,7 @@ module Quartz
     # Add given input port to *self*.
     def add_input_port(name)
       if input_ports.has_key?(name)
-        puts "Warning in model '#{self}' (#{self.class.name}): input port '#{name}' already exists. Skipping..."
+        Log.info { "model '#{self}' (#{self.class.name}): input port '#{name}' already exists. Skipping..." }
         new_port = input_ports[name]
       else
         new_port = InputPort.new(self, name)
@@ -153,7 +153,7 @@ module Quartz
     # Add given output port to *self*.
     def add_output_port(name)
       if output_ports.has_key?(name)
-        puts "Warning in model '#{self}' (#{self.class.name}): output port '#{name}' already exists. Skipping..."
+        Log.info { "model '#{self}' (#{self.class.name}): output port '#{name}' already exists. Skipping..." }
         new_port = output_ports[name]
       else
         new_port = OutputPort.new(self, name)
@@ -255,7 +255,7 @@ module Quartz
       port = input_ports[port_name]?
       if port.nil?
         port = add_input_port(port_name)
-        puts "Warning in model '#{self}' (#{self.class.name}): input port '#{name}' does not exist. Creating it."
+        Log.info { "model '#{self}' (#{self.class.name}): input port '#{port_name}' does not exist. Creating it." }
       end
       port
     end
@@ -268,7 +268,7 @@ module Quartz
       port = output_ports[port_name]?
       if port.nil?
         port = add_output_port(port_name)
-        puts "Warning in model '#{self}' (#{self.class.name}): output port '#{name}' does not exist. Creating it."
+        Log.info { "model '#{self}' (#{self.class.name}): output port '#{port_name}' does not exist. Creating it." }
       end
       port
     end
