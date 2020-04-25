@@ -47,6 +47,9 @@ module Quartz
       # set up queue size change thresholds
       @shrink_threshold = (bucket_count / 2.0 - 2).to_i
       @expand_threshold = (2.0 * bucket_count).to_i
+
+      Log.warn { "The CalendarQueue has known issues with multiscale time that will break" \
+                 "causality and/or cause errors." }
     end
 
     def inspect(io)

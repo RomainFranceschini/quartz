@@ -77,6 +77,9 @@ module Quartz
       @top_min = Duration::INFINITY
       @top_start = Quartz.duration(0)
       @active_rungs = 0
+
+      Log.warn { "The LadderQueue has known issues with multiscale time that will break" \
+                 "causality and/or cause errors." }
     end
 
     # Returns the number of elements contained in the *top* tier of the queue

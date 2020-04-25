@@ -32,8 +32,10 @@ class Ev
 end
 
 private struct PriorityQueueTester
-  @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new { |a, b| a <=> b }
-  @lq : LadderQueue(Ev) = LadderQueue(Ev).new { |a, b| a <=> b }
+  {% if flag?(:experimental) %}
+    @cq : CalendarQueue(Ev) = CalendarQueue(Ev).new { |a, b| a <=> b }
+    @lq : LadderQueue(Ev) = LadderQueue(Ev).new { |a, b| a <=> b }
+  {% end %}
   @bh : BinaryHeap(Ev) = BinaryHeap(Ev).new { |a, b| a <=> b }
   @hs : HeapSet(Ev) = HeapSet(Ev).new { |a, b| a <=> b }
   @fh : FibonacciHeap(Ev) = FibonacciHeap(Ev).new do |a, b|
@@ -47,8 +49,10 @@ private struct PriorityQueueTester
 
   def test(&block : PriorityQueue(Ev) ->)
     it "(BinaryHeap)" { block.call(@bh) }
-    pending "(CalendarQueue)" { block.call(@cq) }
-    it "(LadderQueue)" { block.call(@lq) }
+    {% if flag?(:experimental) %}
+      pending "(CalendarQueue)" { block.call(@cq) }
+      it "(LadderQueue)" { block.call(@lq) }
+    {% end %}
     it "(FibonacciHeap)" { block.call(@fh) }
     it "(HeapSet)" { block.call(@hs) }
   end
@@ -109,8 +113,10 @@ describe "Priority queue" do
 
       ev = c.delete(events[1].planned_duration, events[1])
 
-      # ladder queue is allowed to return nil for performance reasons (invalidation strategy)
-      next if ev.nil? && c.is_a?(LadderQueue)
+      {% if flag?(:experimental) %}
+        # ladder queue is allowed to return nil for performance reasons (invalidation strategy)
+        next if ev.nil? && c.is_a?(LadderQueue)
+      {% end %}
 
       ev.should_not be_nil
       ev.not_nil!.num.should eq(2)
@@ -124,9 +130,11 @@ describe "Priority queue" do
 
       ev = c.delete(events[1].planned_duration, events[1])
 
-      if c.is_a?(LadderQueue) && ev.nil?
-        ev = events[1]
-      end
+      {% if flag?(:experimental) %}
+        if c.is_a?(LadderQueue) && ev.nil?
+          ev = events[1]
+        end
+      {% end %}
 
       ev.should_not be_nil
       ev.not_nil!.num.should eq(2)
@@ -192,7 +200,12 @@ describe "Priority queue" do
         events << ev
         pes.push(ev.planned_duration, ev)
       end
-      is_ladder = pes.is_a?(LadderQueue)
+
+      is_ladder = {% if flag?(:experimental) %}
+                    pes.is_a?(LadderQueue)
+                  {% else %}
+                    false
+                  {% end %}
 
       pes.size.should eq(n)
 

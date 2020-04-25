@@ -2,16 +2,20 @@ require "./spec_helper"
 require "./event_set_helper"
 
 private struct EventSetTester
-  @cq : EventSet = EventSet.new(:calendar_queue)
-  @lq : EventSet = EventSet.new(:ladder_queue)
+  {% if flag?(:experimental) %}
+    @cq : EventSet = EventSet.new(:calendar_queue)
+    @lq : EventSet = EventSet.new(:ladder_queue)
+  {% end %}
   @bh : EventSet = EventSet.new(:binary_heap)
   @fh : EventSet = EventSet.new(:fibonacci_heap)
   @hs : EventSet = EventSet.new(:heap_set)
 
   def test(&block : EventSet ->)
     it "(BinaryHeap)" { block.call(@bh) }
-    pending "(CalendarQueue)" { block.call(@cq) }
-    pending "(LadderQueue)" { block.call(@lq) }
+    {% if flag?(:experimental) %}
+      pending "(CalendarQueue)" { block.call(@cq) }
+      pending "(LadderQueue)" { block.call(@lq) }
+    {% end %}
     it "(FibonacciHeap)" { block.call(@fh) }
     it "(HeapSet)" { block.call(@hs) }
   end
@@ -365,23 +369,31 @@ describe "EventSet" do
 
         cev = pes.cancel_event(ev1)
 
-        if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
-          cev.should eq(ev1)
-          pes.size.should eq(1)
-        else
+        {% if flag?(:experimental) %}
+          if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
+            cev.should eq(ev1)
+            pes.size.should eq(1)
+          else
+            ev1.planned_phase = Duration::INFINITY
+          end
+        {% else %}
           ev1.planned_phase = Duration::INFINITY
-        end
+        {% end %}
 
         pes.imminent_duration.should eq(Duration.new(7))
         pes.size.should eq(1)
 
         cev = pes.cancel_event(ev2)
-        if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
-          cev.should eq(ev2)
-          pes.empty?.should be_true
-        else
+        {% if flag?(:experimental) %}
+          if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
+            cev.should eq(ev2)
+            pes.empty?.should be_true
+          else
+            ev2.planned_phase = Duration::INFINITY
+          end
+        {% else %}
           ev2.planned_phase = Duration::INFINITY
-        end
+        {% end %}
 
         pes.imminent_duration.should eq(Duration::INFINITY)
         pes.empty?.should be_true
@@ -396,12 +408,16 @@ describe "EventSet" do
 
         pes.size.should eq(1)
         cev = pes.cancel_event(ev)
-        if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
-          cev.should eq(ev)
-          pes.size.should eq(0)
-        else
+        {% if flag?(:experimental) %}
+          if !(pes.@priority_queue.is_a?(LadderQueue) && cev.nil?)
+            cev.should eq(ev)
+            pes.size.should eq(0)
+          else
+            ev.planned_phase = Duration::INFINITY
+          end
+        {% else %}
           ev.planned_phase = Duration::INFINITY
-        end
+        {% end %}
 
         pes.imminent_duration.should eq(Duration::INFINITY)
         pes.empty?.should be_true
@@ -513,7 +529,10 @@ describe "EventSet" do
         events << {duration, ev}
         pes.plan_event(ev, duration)
       end
-      is_ladder = pes.@priority_queue.is_a?(LadderQueue)
+      is_ladder = {% if flag?(:experimental) %}
+                    pes.@priority_queue.is_a?(LadderQueue)
+                  {% else %}
+                  {% end %}
 
       pes.size.should eq(n)
 
@@ -613,7 +632,11 @@ describe "EventSet" do
         events << {duration, ev}
         pes.plan_event(ev, duration)
       end
-      is_ladder = pes.@priority_queue.is_a?(LadderQueue)
+      is_ladder = {% if flag?(:experimental) %}
+                    pes.@priority_queue.is_a?(LadderQueue)
+                  {% else %}
+                    false
+                  {% end %}
 
       pes.size.should eq(n)
 

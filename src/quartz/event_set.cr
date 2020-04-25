@@ -34,10 +34,14 @@ module Quartz
   #
   # It is internally used by the pending event set `EventSet`.
   abstract class PriorityQueue(T)
+    {% begin %}
     def self.new(priority_queue : Symbol, &comparator : Duration, Duration, Bool -> Int32) : self
+
       case priority_queue
+      {% if flag?(:experimental) %}
       when :ladder_queue   then LadderQueue(T).new(&comparator)
       when :calendar_queue then CalendarQueue(T).new(&comparator)
+      {% end %}
       when :binary_heap    then BinaryHeap(T).new(&comparator)
       when :fibonacci_heap then FibonacciHeap(T).new(&comparator)
       when :heap_set       then HeapSet(T).new(&comparator)
@@ -46,6 +50,7 @@ module Quartz
         BinaryHeap(T).new(&comparator)
       end
     end
+    {% end %}
 
     abstract def initialize(&comparator : Duration, Duration, Bool -> Int32)
     abstract def size : Int
@@ -75,7 +80,7 @@ module Quartz
     getter priority_queue : PriorityQueue(Schedulable)
 
     def self.new(time : TimePoint = TimePoint.new(0)) : self
-      new(:calendar_queue, time)
+      new(:binary_heap, time)
     end
 
     def initialize(priority_queue : Symbol, @current_time : TimePoint = TimePoint.new(0))
