@@ -46,7 +46,7 @@ module Quartz
     # ```
     def self.from(n : Float)
       precision = 0
-      while n < 1
+      while n > 0 && n < 1
         n *= Scale::FACTOR
         precision -= 1
       end
