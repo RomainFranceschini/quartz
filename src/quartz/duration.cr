@@ -292,7 +292,7 @@ module Quartz
         if @precision.level != 0
           io << 'e'
           io << (@precision.level < 0 ? '-' : '+')
-          io << (@precision.level * 3).abs
+          io << (@precision.level.to_i * 3).abs
         end
       end
       io << (@fixed ? "_fd" : "_ud")
