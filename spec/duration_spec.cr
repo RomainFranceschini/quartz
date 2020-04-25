@@ -12,6 +12,7 @@ describe "Duration" do
 
   it "can be constructed from a float between 0 and 1" do
     Duration.from(0.00000).should eq(Duration.new(0, Scale::BASE))
+    Duration.from(1.0 / 3.0).should eq(Duration.new(333, Scale::MILLI))
     Duration.from(0.001).should eq(Duration.new(1, Scale::MILLI))
     Duration.from(0.00001).should eq(Duration.new(10, Scale::MICRO))
     Duration.from(0.000000752).should eq(Duration.new(752, Scale::NANO))
