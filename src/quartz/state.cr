@@ -4,13 +4,17 @@ module Quartz
   #
   # See `Stateful#state`.
   class State
-    # The `var` macro defines a state variable for the `State` of a model. Its
+    # The `var` macro defines a state *variable* for the `State` of a model. Its
     # primary goal is to generate convenient getters and setters for the model
     # among other purposes.
     #
     # It is intended to be used within a block provided with the `Stateful#state`
     # macro.
     #
+    # Unlike state parameters, state variables are updated during the simulation
+    # by its model behaviour.
+    #
+    # See also `#parameter`
     # See also `Stateful#state`.
     #
     # ### Usage
@@ -44,6 +48,46 @@ module Quartz
       %}
 
       property {{name}} {% if block %} {{block}} {% end %}
+    end
+
+    # The `parameter` macro defines a state *parameter* for the `State` of a model.
+    #
+    # It is intended to be used within a block provided with the `Stateful#state`
+    # macro.
+    #
+    # Unlike state variables, parameters are read-only variables that can be set
+    # with the initial state of a model. As an example, they can be used to
+    # define the constants of an equation.
+    #
+    # See also `#var` to declare state variables.
+    # See also `Stateful#state`.
+    #
+    # ### Usage
+    #
+    # `parameter` must receive a type declaration which will be used to declare an instance
+    # variable and a getter.
+    #
+    # Default values *must* be declared using the type declaration notation or through
+    # a block (lazy initialization) :
+    #
+    # ```
+    # state do
+    #   parameter c = 0.013
+    # end
+    # ```
+    macro parameter(name, &block)
+      {%
+        prop = if name.is_a?(TypeDeclaration)
+                 {name: name.var, type: name.type, value: name.value, block: block}
+               elsif name.is_a?(Assign)
+                 {name: name.target, value: name.value, block: block}
+               else
+                 name.raise "a type, a default value or a block should be given to declare a state parameter"
+               end
+        STATE_PARAMS << prop
+      %}
+
+      getter {{name}} {% if block %} {{block}} {% end %}
     end
 
     def initialize(**kwargs)
@@ -127,14 +171,17 @@ module Quartz
     # The given block is inserted inside the definition of the `State` subclass.
     #
     # See also `State#var`.
+    # See also `State#parameter`.
     #
     # ### Example
     #
     # ```
     # class MyModel < AtomicModel
     #   state do
-    #     var x : Int32 = 0
-    #     var y : Int32 = 0
+    #     parameter a = 0.234
+    #     parameter b = 3.2
+    #     var x = 0.0
+    #     var y : Float64 { b }
     #   end
     # end
     # ```
@@ -151,6 +198,7 @@ module Quartz
 
       class State < {{ ancestor }}::State
         STATE_VARS = [] of Nil
+        STATE_PARAMS = [] of Nil
         {{ yield }}
       end
 
@@ -189,6 +237,12 @@ module Quartz
 
         def {{ivar[:name]}}=({{ivar[:name]}})
           state.{{ivar[:name]}} = {{ivar[:name]}}
+        end
+      {% end %}
+
+      {% for ivar in @type.constant(:State).constant(:STATE_PARAMS) %}
+        def {{ivar[:name]}}
+          state.{{ivar[:name]}}
         end
       {% end %}
 
