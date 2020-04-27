@@ -118,8 +118,6 @@ module Quartz
       {% end %}
     end
 
-    def_clone
-
     def ==(other : self)
       {% for ivar in @type.instance_vars %}
         return false unless @{{ivar.id}} == other.{{ivar.id}}
@@ -200,6 +198,7 @@ module Quartz
         STATE_VARS = [] of Nil
         STATE_PARAMS = [] of Nil
         {{ yield }}
+        def_clone
       end
 
       def_properties

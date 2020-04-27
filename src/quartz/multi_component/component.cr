@@ -99,7 +99,7 @@ module Quartz
       def initialize(name, state)
         super(name)
         @elapsed = @elapsed.rescale(@@precision_level)
-        self.initial_state = state
+        self.initial_state = state.clone
         self.state = state
       end
 

@@ -76,9 +76,11 @@ module Quartz
 
         {{@type}}.new(
           name.as(String),
-          state.as({{ (@type.constant(:State)).id }}),
-          initial_state.as({{ (@type.constant(:State)).id }})
-        ).tap { |model| model.elapsed = elapsed.as(Duration) }
+          state.as({{ (@type.constant(:State)).id }})
+        ).tap { |model|
+          model.elapsed = elapsed.as(Duration)
+          model.initial_state = initial_state.as({{ (@type.constant(:State)).id }})
+        }
       end
 
       def to_json(json : ::JSON::Builder)
@@ -115,8 +117,9 @@ module Quartz
         {{@type}}.new(
           name.as(String),
           state.as({{ (@type.constant(:State)).id }}),
-          initial_state.as({{ (@type.constant(:State)).id }})
-        )
+        ).tap { |m|
+          m.initial_state = initial_state.as({{ (@type.constant(:State)).id }})
+        }
       end
 
       def to_json(json : ::JSON::Builder)
