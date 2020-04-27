@@ -39,6 +39,8 @@ module Quartz
       @level = scale.to_i8
     end
 
+    def_clone
+
     # Returns the result of adding `self` and *other*.
     def +(other : Int) : Scale
       Scale.new(@level + other)

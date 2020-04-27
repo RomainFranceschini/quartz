@@ -129,6 +129,16 @@ module Quartz
       false
     end
 
+    def clone
+      dup
+    end
+
+    protected def initialize_copy(other)
+      {% for ivar in @type.instance_vars %}
+        @{{ivar.id}} = other.@{{ivar.id}}.clone
+      {% end %}
+    end
+
     def hash(hasher)
       {% for ivar in @type.instance_vars %}
         hasher = @{{ivar.id}}.hash(hasher)
@@ -198,7 +208,14 @@ module Quartz
         STATE_VARS = [] of Nil
         STATE_PARAMS = [] of Nil
         {{ yield }}
-        def_clone
+
+        # Returns a copy of `self` with all instance variables cloned.
+        def clone
+          clone = {{"#{@type}::State".id}}.allocate
+          clone.initialize_copy(self)
+          GC.add_finalizer(clone) if clone.responds_to?(:finalize)
+          clone
+        end
       end
 
       def_properties

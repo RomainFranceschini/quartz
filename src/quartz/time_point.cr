@@ -61,6 +61,8 @@ module Quartz
     def initialize(@magnitude : Array(Int16), @precision : Scale)
     end
 
+    def_clone
+
     # Whether `self` is a zero time point value.
     def zero?
       @magnitude.all? &.zero?

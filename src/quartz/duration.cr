@@ -80,6 +80,8 @@ module Quartz
                     end
     end
 
+    def_clone
+
     # Returns the multiplier of `self`.
     def multiplier : Int64
       case @multiplier

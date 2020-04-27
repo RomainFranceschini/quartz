@@ -51,7 +51,7 @@ describe "AtomicModel" do
   describe "serialization" do
     it "can be converted to JSON" do
       m = ModelSample.new("foo", ModelSample::State.new(x: 5, y: 10))
-      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"initial_state\":{\"x\":0,\"y\":0},\"elapsed\":{\"fixed\":false,\"precision\":{\"level\":0},\"multiplier\":0.0}}"
+      m.to_json.should eq "{\"name\":\"foo\",\"state\":{\"x\":5,\"y\":10},\"initial_state\":{\"x\":5,\"y\":10},\"elapsed\":{\"fixed\":false,\"precision\":{\"level\":0},\"multiplier\":0.0}}"
     end
   end
 

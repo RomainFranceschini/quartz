@@ -166,7 +166,10 @@ module Quartz
       end
 
       if s = initial_state
-        self.state = s
+        equals = s == self.state
+        if !equals || (equals && s.same?(self.state))
+          self.state = s.clone
+        end
       end
     end
 
