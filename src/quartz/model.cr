@@ -6,6 +6,10 @@ module Quartz
 
     # Returns a new model.
     def initialize(@name : Name)
+      after_initialize
+    end
+
+    def after_initialize
     end
 
     def inspect(io)

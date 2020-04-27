@@ -79,15 +79,15 @@ module Quartz
     }
 
     def initialize(name)
-      super(name)
       @elapsed = @elapsed.rescale(@@precision_level)
+      super(name)
     end
 
     def initialize(name, state)
-      super(name)
       @elapsed = @elapsed.rescale(@@precision_level)
       self.initial_state = state.clone
       self.state = state
+      super(name)
     end
 
     # The external transition function (δext)

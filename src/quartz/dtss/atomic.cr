@@ -34,9 +34,9 @@ module Quartz::DTSS
     end
 
     def initialize(name, state)
-      super(name)
       self.initial_state = state.clone
       self.state = state
+      super(name)
     end
 
     abstract def transition(messages : Hash(InputPort, Array(Any)))
