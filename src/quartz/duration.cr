@@ -38,6 +38,10 @@ module Quartz
       new(0, precision, fixed)
     end
 
+    def self.new(m : Number = 0i64, precision : Int = 0i8, fixed : Bool = false)
+      new(m, Scale.new(precision), fixed)
+    end
+
     # Creates a `Duration` from a given `Float` between 0 and 1 and tries to
     # assign an appropriate precision.
     #
