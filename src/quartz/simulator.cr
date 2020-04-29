@@ -37,7 +37,10 @@ module Quartz
 
       atomic.__initialize_state__(self)
       elapsed = atomic.elapsed
-      planned_duration = fixed_planned_duration(atomic.time_advance.as(Duration), atomic.class.precision_level)
+      planned_duration = fixed_planned_duration(
+        atomic.time_advance.as(Duration) - elapsed,
+        atomic.class.precision_level
+      )
 
       if @run_validations && atomic.invalid?(:initialization)
         Log.error {

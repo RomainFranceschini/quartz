@@ -69,7 +69,10 @@ module Quartz
         @components.each_value do |component|
           component.__initialize_state__(self)
           elapsed = component.elapsed
-          planned_duration = fixed_planned_duration(component.time_advance.as(Duration), component)
+          planned_duration = fixed_planned_duration(
+            component.time_advance.as(Duration) - elapsed,
+            component
+          )
 
           Log.debug {
             String.build { |str|
