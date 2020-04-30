@@ -1,6 +1,8 @@
 name: Quartz CI
 
 on:
+  schedule:
+    - cron: '* */23 * * SUN'
   push:
     branches: [ master ]
   pull_request:
