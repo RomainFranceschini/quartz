@@ -75,11 +75,6 @@
       
     </li>
   
-  <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/CalendarQueue" data-name="quartz::calendarqueue(t)">
-      <a href="../Quartz/CalendarQueue.html">CalendarQueue</a>
-      
-    </li>
-  
   <li class=" " data-id="github.com/RomainFranceschini/quartz/Quartz/Coordinator" data-name="quartz::coordinator">
       <a href="../Quartz/Coordinator.html">Coordinator</a>
       
@@ -578,7 +573,7 @@ binary floating-point number.</p>
   </h2>
   
     
-      <a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L4" target="_blank">
+      <a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L4" target="_blank">
         quartz/duration.cr
       </a>
     
@@ -670,6 +665,11 @@ the point at which <code>Float64</code> ceases to exactly represent all integers
     Constructors
   </h2>
   <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#new(m:Number=0_i64,precision:Int=0_i8,fixed:Bool=false)-class-method" class="signature"><strong>.new</strong>(m : Number = <span class="n">0_i64</span>, precision : Int = <span class="n">0_i8</span>, fixed : Bool = <span class="n">false</span>)</a>
+        
+      </li>
     
       <li class="entry-summary">
         <a href="#new(m:Number=0_i64,precision:Scale=Scale::BASE,fixed:Bool=false)-class-method" class="signature"><strong>.new</strong>(m : Number = <span class="n">0_i64</span>, precision : Scale = <span class="t">Scale</span><span class="t">::</span><span class="t">BASE</span>, fixed : Bool = <span class="n">false</span>)</a>
@@ -767,6 +767,13 @@ the point at which <code>Float64</code> ceases to exactly represent all integers
         <a href="#(other:self)-instance-method" class="signature"><strong>#<=></strong>(other : <span class="k">self</span>)</a>
         
           <div class="summary"><p>Implements the comparison operator.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#clone-instance-method" class="signature"><strong>#clone</strong></a>
+        
+          <div class="summary"><p>Returns a copy of <code>self</code> with all instance variables cloned.</p></div>
         
       </li>
     
@@ -943,6 +950,22 @@ the point at which <code>Float64</code> ceases to exactly represent all integers
     Constructor Detail
   </h2>
   
+    <div class="entry-detail" id="new(m:Number=0_i64,precision:Int=0_i8,fixed:Bool=false)-class-method">
+      <div class="signature">
+        
+        def self.<strong>new</strong>(m : Number = <span class="n">0_i64</span>, precision : Int = <span class="n">0_i8</span>, fixed : Bool = <span class="n">false</span>)
+
+        <a class="method-permalink" href="#new(m:Number=0_i64,precision:Int=0_i8,fixed:Bool=false)-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L41" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
     <div class="entry-detail" id="new(m:Number=0_i64,precision:Scale=Scale::BASE,fixed:Bool=false)-class-method">
       <div class="signature">
         
@@ -954,7 +977,7 @@ the point at which <code>Float64</code> ceases to exactly represent all integers
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L56" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L60" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -990,7 +1013,7 @@ assign an appropriate precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L47" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L51" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1006,7 +1029,7 @@ assign an appropriate precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L33" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L33" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1022,7 +1045,7 @@ assign an appropriate precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L37" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L37" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1055,7 +1078,7 @@ assign an appropriate precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L209" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L215" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1076,7 +1099,7 @@ assign an appropriate precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L141" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L147" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1097,7 +1120,7 @@ assign an appropriate precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L175" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L181" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1118,7 +1141,7 @@ assign an appropriate precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L253" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L259" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1143,7 +1166,7 @@ result is a scalar with no prescribed precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L262" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L268" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1164,7 +1187,7 @@ result is a scalar with no prescribed precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L234" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L240" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1189,7 +1212,28 @@ with different precision levels.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L271" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L277" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="clone-instance-method">
+      <div class="signature">
+        
+        def <strong>clone</strong>
+
+        <a class="method-permalink" href="#clone-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns a copy of <code>self</code> with all instance variables cloned.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L83" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1211,7 +1255,7 @@ multiplier and time precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L283" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L289" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1232,7 +1276,7 @@ multiplier and time precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L97" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L103" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1253,7 +1297,7 @@ multiplier and time precision.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L136" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L142" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1279,7 +1323,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L112" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L118" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1300,7 +1344,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L125" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L131" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1321,7 +1365,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L102" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L108" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1337,7 +1381,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L287" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L293" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1358,7 +1402,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L80" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L86" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1374,7 +1418,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L30" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L30" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1397,7 +1441,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L119" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L125" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1413,7 +1457,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L310" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L316" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1429,7 +1473,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L306" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L312" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1445,7 +1489,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L302" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L308" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1466,7 +1510,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L131" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L137" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -1487,7 +1531,7 @@ durations using combinations of multiples of base-1000 SI units.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/RomainFranceschini/quartz/blob/18713e3309d3da4be7d955b750bee773581e7a1a/src/quartz/duration.cr#L92" target="_blank">View source</a>]
+          [<a href="https://github.com/RomainFranceschini/quartz/blob/0d4fcc11a1f0fbe7522d8aacc36f4fbf3db626ae/src/quartz/duration.cr#L98" target="_blank">View source</a>]
         
       </div>
     </div>
