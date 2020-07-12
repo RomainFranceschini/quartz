@@ -7,4 +7,6 @@ description: |
 authors:
   - Romain Franceschini <r.franceschini@univ-corse.fr>
 
+crystal: 0.35.0
+
 license: CeCILL-C

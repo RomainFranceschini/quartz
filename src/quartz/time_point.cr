@@ -455,7 +455,7 @@ module Quartz
         iterator = @magnitude.reverse_each
         io << iterator.next
         if @magnitude.size > 1
-          iterator.map { |d| "%03d" % d }.join("", io)
+          iterator.map { |d| "%03d" % d }.join(io)
         end
       end
       if @precision.level != 0

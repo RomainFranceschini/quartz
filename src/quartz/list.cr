@@ -428,7 +428,7 @@ module Quartz
     def to_s(io : IO)
       executed = exec_recursive(:inspect) do
         io << "List{"
-        join ", ", io, &.inspect(io)
+        join(io, ", ", &.inspect(io))
         io << "}"
       end
       io << "List{...}" unless executed

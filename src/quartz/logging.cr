@@ -2,8 +2,7 @@ require "log"
 require "colorize"
 
 Log.setup_from_env(
-  level: ENV.fetch("CRYSTAL_LOG_LEVEL", "INFO"),
-  sources: ENV.fetch("CRYSTAL_LOG_SOURCES", "quartz.*"),
+  default_sources: ENV.fetch("CRYSTAL_LOG_SOURCES", "quartz.*"),
   backend: Log::IOBackend.new.tap do |backend|
     backend.formatter = Quartz::FORMATTER
   end
@@ -19,13 +18,13 @@ module Quartz
   end
 
   private LOGGER_COLORS = {
-    ::Log::Severity::Fatal   => :red,
-    ::Log::Severity::Error   => :light_red,
-    ::Log::Severity::Warning => :light_yellow,
-    ::Log::Severity::Info    => :light_green,
-    ::Log::Severity::Verbose => :light_gray,
-    ::Log::Severity::Debug   => :light_blue,
-    ::Log::Severity::None    => :dark_gray,
+    ::Log::Severity::Fatal => :red,
+    ::Log::Severity::Error => :light_red,
+    ::Log::Severity::Warn  => :light_yellow,
+    ::Log::Severity::Info  => :light_green,
+    ::Log::Severity::Trace => :light_gray,
+    ::Log::Severity::Debug => :light_blue,
+    ::Log::Severity::None  => :dark_gray,
   }
 
   FORMATTER = ::Log::Formatter.new do |entry, io|
