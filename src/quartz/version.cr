@@ -4,7 +4,7 @@ module Quartz
   # The minor version number
   MINOR = 3u8
   # The patch version number
-  PATCH = 1u8
+  PATCH = 2u8
 
   VERSION = [MAJOR, MINOR, PATCH].compact.join('.')
 end
