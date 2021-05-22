@@ -1,7 +1,6 @@
 # Quartz - A Crystal Modeling & Simulation Framework
 
 [![CI Status](https://github.com/RomainFranceschini/quartz/workflows/Quartz%20CI/badge.svg?branch=master)](https://github.com/RomainFranceschini/quartz/actions)
-[![Build Status](https://travis-ci.org/RomainFranceschini/quartz.svg?branch=master)](https://travis-ci.org/RomainFranceschini/quartz)
 
 Quartz is a Crystal library for defining models and constructing discrete
 event simulations.
