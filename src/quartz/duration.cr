@@ -218,7 +218,7 @@ module Quartz
       raise "Not a duration" if m.nan?
       unless m.infinite?
         if @fixed
-          m = m.round
+          m = m.round(mode: :ties_away)
         elsif n.abs < 1
           # while multiplier has a fractional part and precision refining doesn't overflow
           while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
@@ -243,7 +243,7 @@ module Quartz
       raise "Not a duration" if m.nan?
       unless m.infinite?
         if @fixed
-          m = m.round
+          m = m.round(mode: :ties_away)
         elsif n.abs > 1
           # while multiplier has a fractional part and scale refining doesn't overflow
           while (m % 1 > 0) && (m < MULTIPLIER_LIMIT // Scale::FACTOR) && (m > -MULTIPLIER_LIMIT // Scale::FACTOR)
